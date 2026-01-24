@@ -17,8 +17,9 @@ layout: default
           <a
             id="cv-download"
             class="btn primary"
-            href="{{ '/assets/cv/otavio-cv-pt-br.pdf' | relative_url }}"
+            href="{{ '/assets/cv/cv-otavio-ptBR.pdf' | relative_url }}"
             data-i18n-key="hero.cta_cv"
+            download
           ></a>
           <a class="btn ghost" href="#contact" data-i18n-key="hero.cta_contact"></a>
         </div>
@@ -312,6 +313,10 @@ layout: default
             <h3 data-i18n-key="contact.github_label"></h3>
             <a href="https://github.com/donotavio" target="_blank" rel="noopener">github.com/donotavio</a>
           </div>
+          <div>
+            <h3 data-i18n-key="contact.whatsapp_label"></h3>
+            <a href="https://wa.me/5541984049323?text=Olá%20Otávio!%20Vim%20pelo%20seu%20site%20e%20gostaria%20de%20conversar." target="_blank" rel="noopener">+55 41 98404-9323</a>
+          </div>
         </div>
       </div>
       <div class="contact-panel">
@@ -321,6 +326,11 @@ layout: default
           <a href="mailto:ribeitemp@gmail.com?subject=Oportunidade%20de%20Contratação" class="btn btn-primary">
             <span data-i18n-key="contact.hire_cta"></span>
           </a>
+        </div>
+        <div class="whatsapp-qr">
+          <h4 data-i18n-key="contact.whatsapp_qr_title"></h4>
+          <img src="{{ '/assets/img/whatsapp-qr.png' | relative_url }}" alt="WhatsApp QR Code" loading="lazy">
+          <p data-i18n-key="contact.whatsapp_qr_subtitle"></p>
         </div>
       </div>
     </div>

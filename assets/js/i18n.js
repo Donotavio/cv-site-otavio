@@ -2,9 +2,9 @@ const supportedLanguages = ["pt-BR", "en-US", "es-ES"];
 const defaultLanguage = "pt-BR";
 const storageKey = "preferredLanguage";
 const cvFiles = {
-  "pt-BR": "/assets/cv/otavio-cv-pt-br.pdf",
-  "en-US": "/assets/cv/otavio-cv-en-us.pdf",
-  "es-ES": "/assets/cv/otavio-cv-es-es.pdf",
+  "pt-BR": "/assets/cv/cv-otavio-ptBR.pdf",
+  "en-US": "/assets/cv/cv-otavio-en.pdf",
+  "es-ES": "/assets/cv/cv-otavio-es.pdf",
 };
 
 const getBaseUrl = () => {

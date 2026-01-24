@@ -1,16 +1,35 @@
 :root {
-  --bg: #0b1220;
+  --bg: #070c16;
   --bg-soft: #111a2b;
-  --bg-card: #141f36;
-  --text: #f4f7ff;
-  --muted: #a4b1c7;
+  --bg-card: rgba(15, 23, 42, 0.6);
+  --text: #e2e8f0;
+  --muted: #94a3b8;
   --primary: #3b82f6;
   --accent: #22d3ee;
-  --line: rgba(255, 255, 255, 0.08);
-  --shadow: 0 20px 60px rgba(9, 12, 20, 0.4);
-  --radius: 18px;
-  --radius-lg: 28px;
-  --transition: 0.3s ease;
+  --line: rgba(148, 163, 184, 0.15);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  --radius: 12px;
+  --radius-lg: 20px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Barra de progresso de scroll vertical */
+#scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 0%;
+  background: linear-gradient(180deg, var(--primary), var(--accent));
+  z-index: 9999;
+  transition: height 0.1s ease-out;
+  box-shadow: 2px 0 12px rgba(34, 211, 238, 0.4);
+}
+
+@media (max-width: 768px) {
+  #scroll-progress-bar {
+    width: 3px;
+  }
 }
 
 * {
@@ -835,6 +854,34 @@ h1, h2, h3, h4, h5, h6 {
 .contact-highlight p {
   font-size: 1.1rem;
   line-height: 1.6;
+}
+
+.whatsapp-qr {
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  text-align: center;
+  margin-top: 24px;
+}
+
+.whatsapp-qr h4 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  color: var(--accent);
+}
+
+.whatsapp-qr img {
+  width: min(200px, 100%);
+  height: auto;
+  border-radius: var(--radius);
+  margin: 0 auto 12px;
+  border: 2px solid var(--line);
+}
+
+.whatsapp-qr p {
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 .site-footer {

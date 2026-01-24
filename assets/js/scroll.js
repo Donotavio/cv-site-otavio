@@ -8,6 +8,20 @@
 
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+  // Atualizar barra de progresso de scroll
+  const updateScrollProgress = () => {
+    const progressBar = document.getElementById('scroll-progress-bar');
+    if (!progressBar) return;
+
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const scrollTop = window.scrollY;
+    const maxScroll = documentHeight - windowHeight;
+    const scrollPercent = maxScroll > 0 ? (scrollTop / maxScroll) * 100 : 0;
+
+    progressBar.style.height = `${Math.min(100, Math.max(0, scrollPercent))}%`;
+  };
+
   const updateSection = (section, viewportHeight, strength, blurMax) => {
     const rect = section.getBoundingClientRect();
     const midPoint = rect.top + rect.height / 2;
@@ -29,20 +43,20 @@
   };
 
   const update = () => {
-    if (!sections.length) return;
-    const viewportHeight = window.innerHeight || 0;
-    const strength = window.innerWidth < 900 ? 24 : 60;
-    const blurMax = window.innerWidth < 900 ? 3 : 6;
-
-    sections.forEach((section) => {
-      updateSection(section, viewportHeight, strength, blurMax);
-    });
+    if (prefersReducedMotion) return;
+    const viewportHeight = window.innerHeight;
+    const strength = 18;
+    const blurMax = 4;
+    sections.forEach((section) =>
+      updateSection(section, viewportHeight, strength, blurMax)
+    );
+    updateScrollProgress();
   };
 
   const onScroll = () => {
     if (ticking) return;
     ticking = true;
-    window.requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
       update();
       ticking = false;
     });
@@ -61,6 +75,9 @@
         section.style.setProperty("--scroll-shift", "0px");
         section.dataset.scrollActive = "true";
       });
+      updateScrollProgress();
+      window.addEventListener("scroll", updateScrollProgress, { passive: true });
+      window.addEventListener("resize", updateScrollProgress);
       return;
     }
 
