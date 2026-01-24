@@ -19,8 +19,15 @@ def request_json(url, token):
 def main():
     username = os.getenv("GITHUB_USERNAME")
     token = os.getenv("GITHUB_TOKEN")
+    
     if not username:
-        raise SystemExit("GITHUB_USERNAME is required")
+        raise SystemExit("Error: GITHUB_USERNAME environment variable is required")
+    
+    if not username.strip():
+        raise SystemExit("Error: GITHUB_USERNAME cannot be empty")
+    
+    if not token:
+        print("Warning: GITHUB_TOKEN not set. API rate limits will be restrictive.")
 
     user = request_json(f"https://api.github.com/users/{username}", token)
     repos = request_json(
@@ -98,6 +105,9 @@ def main():
         print(f"Warning: Could not fetch curr-don commits: {e}")
         commits_this_month = 0
     
+    if commits_this_month < 0:
+        commits_this_month = 0
+    
     for event in events:
         event_type = event.get("type")
         event_date = datetime.strptime(event.get("created_at", ""), "%Y-%m-%dT%H:%M:%SZ") if event.get("created_at") else None
@@ -162,8 +172,14 @@ def main():
     }
 
     output_path = os.path.join("assets", "data", "github_activity.json")
-    with open(output_path, "w", encoding="utf-8") as handle:
-        json.dump(payload, handle, ensure_ascii=False, indent=2)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    try:
+        with open(output_path, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, ensure_ascii=False, indent=2)
+        print(f"Successfully wrote GitHub activity data to {output_path}")
+    except IOError as e:
+        raise SystemExit(f"Error: Failed to write output file: {e}")
 
 
 if __name__ == "__main__":

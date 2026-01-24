@@ -2,6 +2,12 @@
   let experiencesData = [];
   let currentIndex = 0;
 
+  const sanitizeHtml = (str) => {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  };
+
   const openModal = (experience) => {
     const modal = document.getElementById("experience-modal");
     if (!modal) return;
@@ -22,9 +28,14 @@
 
     if (modalCompanyLogo) {
       const logoSrc = experience.companyLogo || '';
-      modalCompanyLogo.innerHTML = logoSrc
-        ? `<img src="${logoSrc}" alt="${experience.company}" onerror="this.style.display='none'">`
-        : '';
+      modalCompanyLogo.innerHTML = '';
+      if (logoSrc) {
+        const img = document.createElement('img');
+        img.src = logoSrc;
+        img.alt = sanitizeHtml(experience.company);
+        img.onerror = () => img.style.display = 'none';
+        modalCompanyLogo.appendChild(img);
+      }
     }
 
     if (modalDescription) {
@@ -34,12 +45,19 @@
     if (modalSkills && experience.skills) {
       const skillsArray = experience.skills.split(' · ').filter(s => s.trim());
       const skillsTitle = window.i18n?.t('timeline.skills_title') || 'Competências';
-      modalSkills.innerHTML = `
-        <h3>${skillsTitle}</h3>
-        <div class="skills-tags">
-          ${skillsArray.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
-        </div>
-      `;
+      modalSkills.innerHTML = '';
+      const h3 = document.createElement('h3');
+      h3.textContent = skillsTitle;
+      const skillsDiv = document.createElement('div');
+      skillsDiv.className = 'skills-tags';
+      skillsArray.forEach(skill => {
+        const span = document.createElement('span');
+        span.className = 'skill-tag';
+        span.textContent = skill;
+        skillsDiv.appendChild(span);
+      });
+      modalSkills.appendChild(h3);
+      modalSkills.appendChild(skillsDiv);
     } else if (modalSkills) {
       modalSkills.innerHTML = '';
     }
@@ -137,22 +155,42 @@
       const p = document.createElement('p');
       p.addEventListener('click', () => openModal(exp));
       
-      let content = '';
+      p.innerHTML = '';
       
       if (exp.companyLogo) {
-        content += `<img src="${exp.companyLogo}" alt="${exp.company}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; float: left; margin-right: 12px; border: 1px solid var(--line);">`;
+        const img = document.createElement('img');
+        img.src = exp.companyLogo;
+        img.alt = sanitizeHtml(exp.company);
+        img.style.cssText = 'width: 40px; height: 40px; border-radius: 8px; object-fit: cover; float: left; margin-right: 12px; border: 1px solid var(--line);';
+        p.appendChild(img);
       }
       
-      content += `<strong>${exp.role}</strong><br>`;
-      content += `<span style="color: var(--accent)">${exp.company}</span><br>`;
-      content += `<small style="color: var(--muted)">${exp.period} • ${exp.location}</small>`;
+      const strong = document.createElement('strong');
+      strong.textContent = exp.role;
+      p.appendChild(strong);
+      p.appendChild(document.createElement('br'));
+      
+      const companySpan = document.createElement('span');
+      companySpan.style.color = 'var(--accent)';
+      companySpan.textContent = exp.company;
+      p.appendChild(companySpan);
+      p.appendChild(document.createElement('br'));
+      
+      const small = document.createElement('small');
+      small.style.color = 'var(--muted)';
+      small.textContent = `${exp.period} • ${exp.location}`;
+      p.appendChild(small);
       
       if (exp.highlights && exp.highlights.length > 0) {
         const topHighlights = exp.highlights.slice(0, 2);
-        content += '<br><br>' + topHighlights.map(h => `→ ${h}`).join('<br>');
+        p.appendChild(document.createElement('br'));
+        p.appendChild(document.createElement('br'));
+        topHighlights.forEach(h => {
+          const highlight = document.createTextNode(`→ ${h}`);
+          p.appendChild(highlight);
+          p.appendChild(document.createElement('br'));
+        });
       }
-      
-      p.innerHTML = content;
 
       li.appendChild(radio);
       li.appendChild(label);

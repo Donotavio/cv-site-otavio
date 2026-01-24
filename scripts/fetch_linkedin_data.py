@@ -48,7 +48,13 @@ def build_experience(person):
 def main():
     profile_url = os.getenv("LINKEDIN_PROFILE_URL")
     if not profile_url:
-        raise SystemExit("LINKEDIN_PROFILE_URL is required")
+        raise SystemExit("Error: LINKEDIN_PROFILE_URL environment variable is required")
+    
+    if not profile_url.strip():
+        raise SystemExit("Error: LINKEDIN_PROFILE_URL cannot be empty")
+    
+    if not profile_url.startswith("https://"):
+        raise SystemExit("Error: LINKEDIN_PROFILE_URL must be a valid HTTPS URL")
 
     session = requests.Session()
     session.headers.update(
@@ -62,9 +68,20 @@ def main():
     if linkedin_cookie:
         session.cookies.set("li_at", linkedin_cookie, domain=".linkedin.com")
 
-    response = session.get(profile_url, timeout=30)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, "html.parser")
+    try:
+        response = session.get(profile_url, timeout=30)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        raise SystemExit("Error: Request timed out after 30 seconds")
+    except requests.exceptions.HTTPError as e:
+        raise SystemExit(f"Error: HTTP error occurred: {e}")
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(f"Error: Failed to fetch LinkedIn profile: {e}")
+    
+    try:
+        soup = BeautifulSoup(response.text, "html.parser")
+    except Exception as e:
+        raise SystemExit(f"Error: Failed to parse HTML: {e}")
 
     person = parse_jsonld(soup)
     profile = {
@@ -87,13 +104,21 @@ def main():
 
     linkedin_recommendations = {"recommendations": []}
 
-    with open("assets/data/linkedin_profile.json", "w", encoding="utf-8") as handle:
-        json.dump(linkedin_profile, handle, ensure_ascii=False, indent=2)
+    os.makedirs("assets/data", exist_ok=True)
+    
+    try:
+        with open("assets/data/linkedin_profile.json", "w", encoding="utf-8") as handle:
+            json.dump(linkedin_profile, handle, ensure_ascii=False, indent=2)
+        print("Successfully wrote LinkedIn profile data")
+    except IOError as e:
+        raise SystemExit(f"Error: Failed to write linkedin_profile.json: {e}")
 
-    with open(
-        "assets/data/linkedin_recommendations.json", "w", encoding="utf-8"
-    ) as handle:
-        json.dump(linkedin_recommendations, handle, ensure_ascii=False, indent=2)
+    try:
+        with open("assets/data/linkedin_recommendations.json", "w", encoding="utf-8") as handle:
+            json.dump(linkedin_recommendations, handle, ensure_ascii=False, indent=2)
+        print("Successfully wrote LinkedIn recommendations data")
+    except IOError as e:
+        raise SystemExit(f"Error: Failed to write linkedin_recommendations.json: {e}")
 
 
 if __name__ == "__main__":
