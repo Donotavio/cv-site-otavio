@@ -51,20 +51,20 @@ def main():
                 exp["companyLogo"] = existing_exp["companyLogo"]
         enriched_linkedin.append(exp)
     
-    # Identificar experiências antigas que não estão no LinkedIn (antes de 2016)
+    # Preservar TODAS as experiências que não estão no LinkedIn
+    # Criar set de empresas do LinkedIn para comparação rápida
+    linkedin_companies = set(e.get("company", "") for e in linkedin_timeline)
+    
     preserved_experiences = []
     for exp in existing_timeline:
-        period = exp.get("period", "")
         company = exp.get("company", "")
-        # Extrair ano inicial do período
-        year_match = re.search(r'\b(20\d{2})\b', period)
-        if year_match:
-            year = int(year_match.group(1))
-            # Preservar experiências antes de 2016 que não estão no LinkedIn
-            if year < 2016 and company not in [e.get("company") for e in linkedin_timeline]:
-                preserved_experiences.append(exp)
+        # Preservar experiências que NÃO estão no LinkedIn
+        # Isso garante que NENHUMA experiência seja perdida
+        if company and company not in linkedin_companies:
+            preserved_experiences.append(exp)
     
-    # Combinar: dados enriquecidos do LinkedIn + experiências antigas preservadas
+    # Combinar: dados enriquecidos do LinkedIn + experiências preservadas
+    # Ordenar por data (mais recente primeiro)
     combined_timeline = enriched_linkedin + preserved_experiences
 
     profile = linkedin.get("profile", {})
