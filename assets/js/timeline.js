@@ -268,7 +268,8 @@
 
   const loadExperiences = async () => {
     try {
-      const response = await fetch("/assets/data/linkedin_profile.json");
+      const baseUrl = document.body?.dataset?.baseurl || "";
+      const response = await fetch(`${baseUrl}/assets/data/linkedin_profile.json`);
       const data = await response.json();
       experiencesData = data.experience || [];
       renderTimeline(experiencesData);
