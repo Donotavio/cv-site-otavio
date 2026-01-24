@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.request import Request, urlopen
 
 
@@ -80,8 +80,12 @@ def main():
             payload = event.get("payload", {})
             recent_commits += len(payload.get("commits", []))
 
+    now = datetime.utcnow()
     payload = {
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "generated_at": now.isoformat() + "Z",
+        "next_update": (now + timedelta(days=1)).isoformat() + "Z",
+        "update_frequency": "daily",
+        "data_version": "2.0",
         "summary": {
             "public_repos": user.get("public_repos", 0),
             "total_stars": total_stars,

@@ -665,6 +665,42 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 0.7;
 }
 
+/* Stats Freshness Indicator */
+.stats-freshness {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.stats-freshness svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.stats-freshness.stale {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.stats-freshness.stale svg {
+  color: #fbbf24;
+}
+
+.freshness-warning {
+  margin-left: auto;
+  color: #fbbf24;
+  font-weight: 500;
+  font-size: 0.813rem;
+}
+
 /* Activity Breakdown */
 .activity-breakdown {
   display: flex;

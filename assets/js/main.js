@@ -176,6 +176,28 @@ const renderRecommendations = (items = []) => {
   });
 };
 
+const calculateFreshness = (timestamp) => {
+  if (!timestamp) return { text: "Data unavailable", isStale: true };
+  
+  const now = new Date();
+  const updated = new Date(timestamp);
+  const hours = Math.floor((now - updated) / (1000 * 60 * 60));
+  
+  if (hours < 1) {
+    return { text: getTranslation("stats.freshness.just_now", "Atualizado agora"), isStale: false };
+  }
+  if (hours < 24) {
+    const msg = formatTemplate(getTranslation("stats.freshness.hours_ago", "Atualizado há {hours}h"), { hours });
+    return { text: msg, isStale: false };
+  }
+  const days = Math.floor(hours / 24);
+  const msg = formatTemplate(getTranslation("stats.freshness.days_ago", "Atualizado há {days} dia{plural}"), { 
+    days, 
+    plural: days > 1 ? "s" : "" 
+  });
+  return { text: msg, isStale: days > 2 };
+};
+
 const renderStats = (github = {}) => {
   const grid = document.getElementById("github-stats");
   if (!grid) return;
@@ -187,6 +209,8 @@ const renderStats = (github = {}) => {
     .slice(0, 3)
     .map((lang) => lang.name)
     .join(", ");
+  
+  const freshness = calculateFreshness(github.generated_at);
 
   // Cards principais
   const stats = [
@@ -234,6 +258,21 @@ const renderStats = (github = {}) => {
   ];
 
   grid.innerHTML = "";
+  
+  // Adicionar indicador de frescor
+  if (github.generated_at) {
+    const freshnessIndicator = document.createElement("div");
+    freshnessIndicator.className = `stats-freshness ${freshness.isStale ? 'stale' : ''}`;
+    freshnessIndicator.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span>${freshness.text}</span>
+      ${freshness.isStale ? '<span class="freshness-warning">⚠️ ' + getTranslation("stats.freshness.stale_warning", "Dados podem estar desatualizados") + '</span>' : ''}
+    `;
+    grid.appendChild(freshnessIndicator);
+  }
   
   // Renderizar cards principais
   stats.forEach((stat) => {
