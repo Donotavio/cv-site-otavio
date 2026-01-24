@@ -305,8 +305,8 @@ const renderStats = (github = {}) => {
     grid.appendChild(breakdownCard);
   }
 
-  // Atividade recente
-  if (recentActivity.commits_this_month) {
+  // Atividade recente - sempre mostrar se houver dados de recent_activity
+  if (Object.keys(recentActivity).length > 0) {
     const recentCard = document.createElement("div");
     recentCard.className = "stat-card stat-card-wide reveal";
     recentCard.innerHTML = `
