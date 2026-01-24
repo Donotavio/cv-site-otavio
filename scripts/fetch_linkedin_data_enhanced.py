@@ -264,14 +264,25 @@ def main():
         "education": education if 'education' in locals() else [],
     }
 
-    linkedin_recommendations = {"recommendations": []}
+    # Preserve existing recommendations instead of overwriting
+    recommendations_path = "assets/data/linkedin_recommendations.json"
+    if os.path.exists(recommendations_path):
+        try:
+            with open(recommendations_path, "r", encoding="utf-8") as handle:
+                linkedin_recommendations = json.load(handle)
+            print("✓ Preserved existing recommendations")
+        except Exception as e:
+            print(f"⚠️  Could not read existing recommendations: {e}")
+            linkedin_recommendations = {"recommendations": []}
+    else:
+        linkedin_recommendations = {"recommendations": []}
 
     os.makedirs("assets/data", exist_ok=True)
     
     with open("assets/data/linkedin_profile.json", "w", encoding="utf-8") as handle:
         json.dump(linkedin_profile, handle, ensure_ascii=False, indent=2)
 
-    with open("assets/data/linkedin_recommendations.json", "w", encoding="utf-8") as handle:
+    with open(recommendations_path, "w", encoding="utf-8") as handle:
         json.dump(linkedin_recommendations, handle, ensure_ascii=False, indent=2)
     
     print("✅ LinkedIn data saved successfully")
