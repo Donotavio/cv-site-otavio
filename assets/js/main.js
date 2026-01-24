@@ -44,6 +44,12 @@ const renderTimeline = (items = []) => {
   items.forEach((item) => {
     const node = template.content.cloneNode(true);
     
+    // Adicionar classe is-active ao timeline-item para torná-lo visível
+    const timelineItem = node.querySelector(".timeline-item");
+    if (timelineItem) {
+      timelineItem.classList.add("is-active");
+    }
+    
     // Logo da empresa
     const logoWrapper = node.querySelector(".company-logo-wrapper");
     if (item.companyLogo) {
