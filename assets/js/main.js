@@ -104,11 +104,103 @@ const renderTimeline = (items = []) => {
       highlightsEl.appendChild(li);
     });
 
+    // Adicionar evento de clique para abrir modal com detalhes
+    const card = node.querySelector(".timeline-card");
+    if (card && (item.description || item.skills)) {
+      card.style.cursor = "pointer";
+      card.addEventListener("click", () => openExperienceModal(item));
+      card.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openExperienceModal(item);
+        }
+      });
+    }
+
     container.appendChild(node);
   });
 
   // Criar botões de filtro por ano
   createYearButtons(Array.from(years).sort((a, b) => b - a));
+};
+
+// Função para abrir modal com detalhes da experiência
+const openExperienceModal = (experience) => {
+  const modal = document.getElementById("experience-modal");
+  if (!modal) return;
+
+  // Preencher dados do modal
+  const logoContainer = modal.querySelector(".modal-company-logo");
+  logoContainer.innerHTML = "";
+  if (experience.companyLogo) {
+    const img = document.createElement("img");
+    img.src = experience.companyLogo;
+    img.alt = experience.company;
+    logoContainer.appendChild(img);
+  }
+
+  modal.querySelector(".modal-role").textContent = experience.role || "";
+  modal.querySelector(".modal-company").textContent = experience.company || "";
+  modal.querySelector(".modal-period").textContent = experience.period || "";
+  modal.querySelector(".modal-location").textContent = experience.location || "";
+
+  // Descrição completa
+  const descriptionEl = modal.querySelector(".modal-description");
+  if (experience.description) {
+    descriptionEl.innerHTML = `<h3>Sobre a posição</h3><p>${experience.description.replace(/\n/g, '</p><p>')}</p>`;
+    descriptionEl.style.display = "block";
+  } else {
+    descriptionEl.style.display = "none";
+  }
+
+  // Competências
+  const skillsEl = modal.querySelector(".modal-skills");
+  if (experience.skills) {
+    const skillsList = experience.skills.split(" · ").map(skill => `<span class="skill-tag">${skill.trim()}</span>`).join("");
+    skillsEl.innerHTML = `<h3>Competências</h3><div class="skills-grid">${skillsList}</div>`;
+    skillsEl.style.display = "block";
+  } else {
+    skillsEl.style.display = "none";
+  }
+
+  // Highlights
+  const extraEl = modal.querySelector(".modal-extra");
+  if (experience.highlights && experience.highlights.length > 0) {
+    const highlightsList = experience.highlights.map(h => `<li>${h}</li>`).join("");
+    extraEl.innerHTML = `<h3>Destaques</h3><ul class="modal-highlights">${highlightsList}</ul>`;
+    extraEl.style.display = "block";
+  } else {
+    extraEl.style.display = "none";
+  }
+
+  // Abrir modal
+  modal.classList.add("active");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+
+  // Fechar modal
+  const closeButtons = modal.querySelectorAll("[data-modal-close]");
+  closeButtons.forEach(btn => {
+    btn.onclick = () => closeExperienceModal();
+  });
+
+  // Fechar com ESC
+  const handleEsc = (e) => {
+    if (e.key === "Escape") {
+      closeExperienceModal();
+      document.removeEventListener("keydown", handleEsc);
+    }
+  };
+  document.addEventListener("keydown", handleEsc);
+};
+
+const closeExperienceModal = () => {
+  const modal = document.getElementById("experience-modal");
+  if (!modal) return;
+  
+  modal.classList.remove("active");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
 };
 
 // Variável para rastrear o ano anterior selecionado
