@@ -111,6 +111,9 @@ const renderTimeline = (items = []) => {
   createYearButtons(Array.from(years).sort((a, b) => b - a));
 };
 
+// Variável para rastrear o ano anterior selecionado
+let currentSelectedYear = null;
+
 // Criar botões de navegação por ano
 const createYearButtons = (years) => {
   const yearsContainer = document.getElementById("timeline-years");
@@ -135,22 +138,79 @@ const createYearButtons = (years) => {
 
   // Ativar primeiro ano por padrão
   if (years.length > 0) {
+    currentSelectedYear = years[0];
     updateActiveYear(years[0], buttons);
-    filterByYear(years[0]);
+    filterByYear(years[0], true); // true = sem animação inicial
   }
 };
 
-// Filtrar timeline por ano
-const filterByYear = (year) => {
+// Filtrar timeline por ano com scroll suave
+const filterByYear = (year, skipAnimation = false) => {
   const items = document.querySelectorAll(".timeline-item");
-  items.forEach((item) => {
-    const itemYear = parseInt(item.dataset.year);
-    if (itemYear === year) {
-      item.style.display = "";
-    } else {
-      item.style.display = "none";
+  const container = document.querySelector(".timeline");
+  
+  if (!items.length || !container) return;
+
+  // Determinar direção baseada na ordem temporal
+  const isGoingBack = currentSelectedYear !== null && year < currentSelectedYear; // Ano menor = mais antigo = scroll down
+  const isGoingForward = currentSelectedYear !== null && year > currentSelectedYear; // Ano maior = mais recente = scroll up
+  
+  // Fade out items do ano anterior (se não for primeira vez)
+  if (!skipAnimation && currentSelectedYear !== null) {
+    items.forEach((item) => {
+      if (parseInt(item.dataset.year) === currentSelectedYear) {
+        item.style.opacity = "0";
+        item.style.transform = "translateY(20px)";
+      }
+    });
+  }
+
+  // Aguardar fade out e então trocar visibilidade
+  setTimeout(() => {
+    let firstVisibleItem = null;
+    
+    items.forEach((item) => {
+      const itemYear = parseInt(item.dataset.year);
+      if (itemYear === year) {
+        item.style.display = "";
+        if (!firstVisibleItem) {
+          firstVisibleItem = item;
+        }
+        // Reset transform para fade in
+        if (!skipAnimation) {
+          item.style.opacity = "0";
+          item.style.transform = isGoingBack ? "translateY(-20px)" : "translateY(20px)";
+        }
+      } else {
+        item.style.display = "none";
+      }
+    });
+
+    // Scroll suave até o primeiro item do ano selecionado
+    if (firstVisibleItem && !skipAnimation) {
+      const itemTop = firstVisibleItem.getBoundingClientRect().top + window.scrollY;
+      const offset = 150; // Offset para não ficar grudado no topo
+      
+      window.scrollTo({
+        top: itemTop - offset,
+        behavior: "smooth"
+      });
     }
-  });
+
+    // Fade in dos novos items
+    if (!skipAnimation) {
+      setTimeout(() => {
+        items.forEach((item) => {
+          if (parseInt(item.dataset.year) === year) {
+            item.style.opacity = "1";
+            item.style.transform = "translateY(0)";
+          }
+        });
+      }, 100);
+    }
+
+    currentSelectedYear = year;
+  }, skipAnimation ? 0 : 300);
 };
 
 // Atualizar botão de ano ativo
