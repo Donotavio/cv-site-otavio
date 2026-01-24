@@ -1,0 +1,326 @@
+---
+layout: default
+---
+
+<main class="page">
+  <canvas id="hero-background-canvas"></canvas>
+  <section id="hero" class="section scroll-section hero" data-scroll-section="home">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <p class="eyebrow" data-i18n-key="hero.eyebrow"></p>
+        <h1 class="hero-title">
+          <span class="hero-name">Otávio Henrique da Silva Ribeiro</span>
+          <span class="hero-role" data-i18n-key="hero.role"></span>
+        </h1>
+        <p class="hero-summary" data-i18n-key="hero.summary"></p>
+        <div class="hero-cta">
+          <a
+            id="cv-download"
+            class="btn primary"
+            href="{{ '/assets/cv/otavio-cv-pt-br.pdf' | relative_url }}"
+            data-i18n-key="hero.cta_cv"
+          ></a>
+          <a class="btn ghost" href="#contact" data-i18n-key="hero.cta_contact"></a>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-pill">
+            <span class="meta-label" data-i18n-key="hero.location_label"></span>
+            <span class="meta-value">Curitiba, Brasil</span>
+          </div>
+          <div class="meta-pill">
+            <span class="meta-label" data-i18n-key="hero.expertise_label"></span>
+            <span class="meta-value" data-i18n-key="hero.expertise_value"></span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="avatar-frame">
+          <img
+            src="{{ '/assets/img/avatar-placeholder.svg' | relative_url }}"
+            alt="Otávio Henrique da Silva Ribeiro"
+          >
+        </div>
+        <div class="hero-highlights">
+          <div class="highlight-card">
+            <span class="highlight-label" data-i18n-key="hero.highlight_1_label"></span>
+            <span class="highlight-value" data-i18n-key="hero.highlight_1_value"></span>
+          </div>
+          <div class="highlight-card">
+            <span class="highlight-label" data-i18n-key="hero.highlight_2_label"></span>
+            <span class="highlight-value" data-i18n-key="hero.highlight_2_value"></span>
+          </div>
+          <div class="highlight-card">
+            <span class="highlight-label" data-i18n-key="hero.highlight_3_label"></span>
+            <span class="highlight-value" data-i18n-key="hero.highlight_3_value"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="section scroll-section" data-scroll-section="carreira">
+    <div class="container split">
+      <div>
+        <div class="section-header">
+          <h2 data-i18n-key="about.title"></h2>
+          <p data-i18n-key="about.subtitle"></p>
+        </div>
+        <p data-i18n-key="about.body_1"></p>
+        <p data-i18n-key="about.body_2"></p>
+      </div>
+      <div class="about-panel">
+        <div class="about-card">
+          <h3 data-i18n-key="about.card_title"></h3>
+          <ul class="about-list">
+            <li data-i18n-key="about.bullet_1"></li>
+            <li data-i18n-key="about.bullet_2"></li>
+            <li data-i18n-key="about.bullet_3"></li>
+          </ul>
+        </div>
+        <div class="about-card subtle">
+          <span class="about-tag" data-i18n-key="about.tag"></span>
+          <p data-i18n-key="about.tagline"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="impact" class="section impact-section">
+    <div class="container">
+      <h2 class="impact-title" data-i18n-key="impact.title"></h2>
+      <div class="impact-grid">
+        <div class="impact-metric">
+          <div class="impact-value" data-i18n-key="impact.metric_1_value"></div>
+          <div class="impact-label" data-i18n-key="impact.metric_1_label"></div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value" data-i18n-key="impact.metric_2_value"></div>
+          <div class="impact-label" data-i18n-key="impact.metric_2_label"></div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value" data-i18n-key="impact.metric_3_value"></div>
+          <div class="impact-label" data-i18n-key="impact.metric_3_label"></div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value" data-i18n-key="impact.metric_4_value"></div>
+          <div class="impact-label" data-i18n-key="impact.metric_4_label"></div>
+        </div>
+      </div>
+      <div class="impact-highlight">
+        <h3 class="impact-highlight-title" data-i18n-key="impact.highlight_title"></h3>
+        <div class="tech-logos">
+          <div class="tech-logo-item" title="Databricks">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="color: #FF3621;"><path d="M.95 14.184L12 20.403l9.919-5.55v2.21L12 22.662l-10.484-5.96-.565.308v-2.826zm0-3.278L12 16.875l9.919-5.384v2.21L12 19.552 1.516 13.67l-.565.236v-2.8zm0-3.092L12 13.341l9.919-5.384v2.21L12 16.166 1.516 10.248l-.565.236V7.718zM11.984 1.33l8.406 4.672-8.406 4.594-8.371-4.604L11.984 1.33z"/></svg>
+            <span>Databricks</span>
+          </div>
+          <div class="tech-logo-item" title="Delta Lake">
+            <img src="https://delta.io/static/delta-lake-logo-d70f6f1f8cbe995831c248e13e018a43.png" alt="Delta Lake" />
+            <span>Delta Lake</span>
+          </div>
+          <div class="tech-logo-item" title="Unity Catalog">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="color: #00D4AA;"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 2.18l7.5 3.75v7.82c0 4.13-2.77 7.95-7.5 9.44-4.73-1.49-7.5-5.31-7.5-9.44V7.93L12 4.18z"/></svg>
+            <span>Unity Catalog</span>
+          </div>
+          <div class="tech-logo-item" title="Apache Spark">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apachespark/apachespark-original.svg" alt="Apache Spark" />
+            <span>Spark</span>
+          </div>
+          <div class="tech-logo-item" title="Python">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" />
+            <span>Python</span>
+          </div>
+          <div class="tech-logo-item" title="SQL">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <span>SQL</span>
+          </div>
+          <div class="tech-logo-item" title="dbt">
+            <img src="https://www.svgrepo.com/show/353831/dbt-icon.svg" alt="dbt" />
+            <span>dbt</span>
+          </div>
+          <div class="tech-logo-item" title="Apache Airflow">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apacheairflow/apacheairflow-original.svg" alt="Apache Airflow" />
+            <span>Airflow</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% include timeline.html %}
+
+  <section id="skills" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 data-i18n-key="skills.title"></h2>
+        <p data-i18n-key="skills.subtitle"></p>
+      </div>
+      <div class="skills-grid">
+        <div class="skills-group">
+          <h3 data-i18n-key="skills.technical"></h3>
+          <div class="skill-card" data-level="92">
+            <div class="skill-header">
+              <span data-i18n-key="skills.items.data_engineering"></span>
+              <span class="skill-level">92%</span>
+            </div>
+            <div class="skill-bar"><span></span></div>
+          </div>
+          <div class="skill-card" data-level="88">
+            <div class="skill-header">
+              <span data-i18n-key="skills.items.databricks"></span>
+              <span class="skill-level">88%</span>
+            </div>
+            <div class="skill-bar"><span></span></div>
+          </div>
+          <div class="skill-card" data-level="86">
+            <div class="skill-header">
+              <span data-i18n-key="skills.items.ml_platforms"></span>
+              <span class="skill-level">86%</span>
+            </div>
+            <div class="skill-bar"><span></span></div>
+          </div>
+          <div class="skill-card" data-level="84">
+            <div class="skill-header">
+              <span data-i18n-key="skills.items.cloud_architecture"></span>
+              <span class="skill-level">84%</span>
+            </div>
+            <div class="skill-bar"><span></span></div>
+          </div>
+        </div>
+        <div class="skills-group">
+          <h3 data-i18n-key="skills.leadership"></h3>
+          <div class="skill-card" data-level="90">
+            <div class="skill-header">
+              <span data-i18n-key="skills.items.team_leadership"></span>
+              <span class="skill-level">90%</span>
+            </div>
+            <div class="skill-bar"><span></span></div>
+          </div>
+          <div class="skill-card" data-level="87">
+            <div class="skill-header">
+              <span data-i18n-key="skills.items.strategy"></span>
+              <span class="skill-level">87%</span>
+            </div>
+            <div class="skill-bar"><span></span></div>
+          </div>
+          <div class="skill-card" data-level="85">
+            <div class="skill-header">
+              <span data-i18n-key="skills.items.product_partnership"></span>
+              <span class="skill-level">85%</span>
+            </div>
+            <div class="skill-bar"><span></span></div>
+          </div>
+          <div class="skill-card" data-level="83">
+            <div class="skill-header">
+              <span data-i18n-key="skills.items.culture"></span>
+              <span class="skill-level">83%</span>
+            </div>
+            <div class="skill-bar"><span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="featured-projects" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 data-i18n-key="featured_projects.title"></h2>
+        <p data-i18n-key="featured_projects.subtitle"></p>
+      </div>
+      <div id="featured-projects-grid" class="featured-projects-grid"></div>
+    </div>
+  </section>
+
+  <section id="tech-stack" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 data-i18n-key="tech_stack.title"></h2>
+        <p data-i18n-key="tech_stack.subtitle"></p>
+      </div>
+      <div id="tech-stack-grid" class="tech-stack-grid"></div>
+    </div>
+  </section>
+
+  <section id="blog" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 data-i18n-key="blog.title"></h2>
+        <p data-i18n-key="blog.subtitle"></p>
+      </div>
+      <div id="blog-grid" class="cards-grid"></div>
+      <p id="blog-empty" class="empty-state" data-i18n-key="blog.coming_soon"></p>
+    </div>
+  </section>
+
+  <section id="projects" class="section scroll-section" data-scroll-section="projetos">
+    <div class="container">
+      <div class="section-header">
+        <h2 data-i18n-key="projects.title"></h2>
+        <p data-i18n-key="projects.subtitle"></p>
+      </div>
+      <div id="projects-grid" class="cards-grid"></div>
+      <p id="projects-empty" class="empty-state" data-i18n-key="projects.empty"></p>
+    </div>
+  </section>
+
+  <section id="recommendations" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 data-i18n-key="recommendations.title"></h2>
+        <p data-i18n-key="recommendations.subtitle"></p>
+      </div>
+      <div class="recommendations-wrapper">
+        <button class="slider-btn" data-slider="prev" aria-label="Previous">
+          <span>&larr;</span>
+        </button>
+        <div class="recommendations-track" id="recommendations-track"></div>
+        <button class="slider-btn" data-slider="next" aria-label="Next">
+          <span>&rarr;</span>
+        </button>
+      </div>
+      <p id="recommendations-empty" class="empty-state" data-i18n-key="recommendations.empty"></p>
+    </div>
+  </section>
+
+  <section id="stats" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 data-i18n-key="stats.title"></h2>
+        <p data-i18n-key="stats.subtitle"></p>
+      </div>
+      <div id="github-stats" class="stats-grid"></div>
+    </div>
+  </section>
+
+  <section id="contact" class="section scroll-section" data-scroll-section="contato">
+    <div class="container split">
+      <div>
+        <div class="section-header">
+          <h2 data-i18n-key="contact.title"></h2>
+          <p data-i18n-key="contact.subtitle"></p>
+        </div>
+        <div class="contact-card">
+          <div>
+            <h3 data-i18n-key="contact.email_label"></h3>
+            <a href="mailto:ribeitemp@gmail.com">ribeitemp@gmail.com</a>
+          </div>
+          <div>
+            <h3 data-i18n-key="contact.linkedin_label"></h3>
+            <a href="https://linkedin.com/in/donotavio/" target="_blank" rel="noopener">linkedin.com/in/donotavio</a>
+          </div>
+          <div>
+            <h3 data-i18n-key="contact.github_label"></h3>
+            <a href="https://github.com/donotavio" target="_blank" rel="noopener">github.com/donotavio</a>
+          </div>
+        </div>
+      </div>
+      <div class="contact-panel">
+        <div class="contact-highlight">
+          <span data-i18n-key="contact.cta_label"></span>
+          <p data-i18n-key="contact.cta_body"></p>
+          <a class="btn primary" href="mailto:ribeitemp@gmail.com" data-i18n-key="contact.cta_button"></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

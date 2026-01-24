@@ -1,0 +1,57 @@
+.scroll-section {
+  --scroll-progress: 1;
+  --scroll-opacity: 1;
+  --scroll-scale: 1;
+  --scroll-blur: 0px;
+  --scroll-shift: 0px;
+  position: relative;
+  min-height: 100vh;
+  opacity: var(--scroll-opacity);
+  transform: translate3d(0, var(--scroll-shift), 0) scale(var(--scroll-scale));
+  filter: blur(var(--scroll-blur));
+  transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+  will-change: transform, opacity, filter;
+}
+
+.scroll-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 18, 32, 0.45) 0%,
+    rgba(11, 18, 32, 0.08) 45%,
+    rgba(11, 18, 32, 0) 100%
+  );
+  opacity: calc(1 - var(--scroll-progress));
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  z-index: 0;
+}
+
+.scroll-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+.scroll-section[data-scroll-active="true"] {
+  filter: blur(0);
+}
+
+@media (max-width: 900px) {
+  .scroll-section {
+    min-height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-section {
+    transition: none;
+    transform: none;
+    filter: none;
+  }
+
+  .scroll-section::after {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,118 @@
+:root {
+  --canvas-bg: rgba(11, 18, 32, 0.25);
+  --canvas-particle: rgba(164, 177, 199, 0.3);
+  --canvas-connection: rgba(59, 130, 246, 0.15);
+  --canvas-node-blue: rgba(59, 130, 246, 0.5);
+  --canvas-node-cyan: rgba(34, 211, 238, 0.5);
+  --canvas-node-purple: rgba(168, 85, 247, 0.5);
+  --canvas-node-glow-blue: rgba(59, 130, 246, 0.08);
+  --canvas-node-glow-cyan: rgba(34, 211, 238, 0.08);
+  --canvas-node-glow-purple: rgba(168, 85, 247, 0.08);
+  --canvas-binary: rgba(34, 211, 238, 0.4);
+  --canvas-gradient-1: rgba(59, 130, 246, 0.03);
+  --canvas-gradient-2: rgba(34, 211, 238, 0.03);
+  --canvas-grid: rgba(59, 130, 246, 0.015);
+}
+
+body.light-theme {
+  --canvas-bg: rgba(255, 255, 255, 0.5);
+  --canvas-particle: rgba(71, 85, 105, 0.4);
+  --canvas-connection: rgba(59, 130, 246, 0.25);
+  --canvas-node-blue: rgba(59, 130, 246, 0.8);
+  --canvas-node-cyan: rgba(6, 182, 212, 0.8);
+  --canvas-node-purple: rgba(168, 85, 247, 0.8);
+  --canvas-node-glow-blue: rgba(59, 130, 246, 0.2);
+  --canvas-node-glow-cyan: rgba(6, 182, 212, 0.2);
+  --canvas-node-glow-purple: rgba(168, 85, 247, 0.2);
+  --canvas-binary: rgba(6, 182, 212, 0.5);
+  --canvas-gradient-1: rgba(59, 130, 246, 0.08);
+  --canvas-gradient-2: rgba(6, 182, 212, 0.08);
+  --canvas-grid: rgba(59, 130, 246, 0.05);
+}
+
+.page {
+  position: relative;
+}
+
+#hero-background-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.section {
+  position: relative;
+  z-index: 1;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+}
+
+.page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at 30% 20%, 
+    var(--canvas-gradient-1) 0%, 
+    transparent 50%
+  ),
+  radial-gradient(
+    circle at 70% 80%, 
+    var(--canvas-gradient-2) 0%, 
+    transparent 50%
+  );
+  z-index: -3;
+  pointer-events: none;
+}
+
+.page::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(90deg, transparent 0%, var(--canvas-grid) 50%, transparent 100%),
+    linear-gradient(0deg, transparent 0%, var(--canvas-grid) 50%, transparent 100%);
+  background-size: 120px 120px, 120px 120px;
+  animation: grid-flow 25s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+@keyframes grid-flow {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 100px 100px, -100px -100px;
+  }
+}
+
+@media (max-width: 768px) {
+  #hero-background-canvas {
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page::after {
+    animation: none;
+  }
+  
+  #hero-background-canvas {
+    opacity: 0.5;
+  }
+}
