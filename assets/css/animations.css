@@ -38,6 +38,11 @@
   filter: blur(0);
 }
 
+/* Desabilitar scroll blur na timeline para evitar conflito com interações */
+.timeline-section {
+  filter: blur(0) !important;
+}
+
 @media (max-width: 900px) {
   .scroll-section {
     min-height: auto;
