@@ -88,6 +88,16 @@ def main():
     now_date = datetime.utcnow()
     month_start = now_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     
+    # Buscar commits do mês atual do repositório curr-don diretamente
+    try:
+        since_date = month_start.strftime("%Y-%m-%dT%H:%M:%SZ")
+        commits_url = f"https://api.github.com/repos/{username}/curr-don/commits?since={since_date}&author={username}"
+        curr_don_commits = request_json(commits_url, token)
+        commits_this_month = len(curr_don_commits) if isinstance(curr_don_commits, list) else 0
+    except Exception as e:
+        print(f"Warning: Could not fetch curr-don commits: {e}")
+        commits_this_month = 0
+    
     for event in events:
         event_type = event.get("type")
         event_date = datetime.strptime(event.get("created_at", ""), "%Y-%m-%dT%H:%M:%SZ") if event.get("created_at") else None
@@ -95,10 +105,7 @@ def main():
         
         if event_type == "PushEvent":
             push_events += 1
-            commits = event.get("payload", {}).get("commits", [])
-            recent_commits += len(commits)
-            if event_date and event_date >= month_start:
-                commits_this_month += len(commits)
+            # Nota: commits não vêm no payload de /events, buscar diretamente do repo
             if repo_name:
                 repos_contributed.add(repo_name)
         elif event_type == "PullRequestEvent":
@@ -128,6 +135,9 @@ def main():
         "pull_requests_opened": prs_opened,
         "pull_requests_reviewed": prs_reviewed,
     }
+    
+    # Usar commits_this_month como base para recent_commits
+    recent_commits = commits_this_month if commits_this_month > 0 else recent_commits
     
     contributions_last_year = user.get("contributions", 0)
     if not contributions_last_year:
