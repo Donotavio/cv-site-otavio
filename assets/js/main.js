@@ -21,6 +21,13 @@ const formatTemplate = (template, values) => {
   return template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
 };
 
+// Extrair ano do período (ex: "Jan 2025 - Presente" -> 2025)
+const extractYear = (period) => {
+  if (!period) return new Date().getFullYear();
+  const match = period.match(/\d{4}/);
+  return match ? parseInt(match[0]) : new Date().getFullYear();
+};
+
 const renderTimeline = (items = []) => {
   const container = document.getElementById("timeline-container");
   const emptyState = document.getElementById("timeline-empty");
@@ -41,13 +48,19 @@ const renderTimeline = (items = []) => {
     emptyState.classList.remove("visible");
   }
 
+  const years = new Set();
+
   items.forEach((item) => {
     const node = template.content.cloneNode(true);
     
-    // Adicionar classe is-active ao timeline-item para torná-lo visível
+    // Extrair ano e adicionar ao timeline-item
+    const year = extractYear(item.period);
+    years.add(year);
+    
     const timelineItem = node.querySelector(".timeline-item");
     if (timelineItem) {
       timelineItem.classList.add("is-active");
+      timelineItem.dataset.year = year;
     }
     
     // Logo da empresa
@@ -92,6 +105,62 @@ const renderTimeline = (items = []) => {
     });
 
     container.appendChild(node);
+  });
+
+  // Criar botões de filtro por ano
+  createYearButtons(Array.from(years).sort((a, b) => b - a));
+};
+
+// Criar botões de navegação por ano
+const createYearButtons = (years) => {
+  const yearsContainer = document.getElementById("timeline-years");
+  if (!yearsContainer || !years.length) return;
+
+  yearsContainer.innerHTML = years
+    .map(year => `
+      <button class="year-button" data-year="${year}">
+        <span>${year}</span>
+      </button>
+    `)
+    .join("");
+
+  const buttons = yearsContainer.querySelectorAll(".year-button");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const year = parseInt(btn.dataset.year);
+      filterByYear(year);
+      updateActiveYear(year, buttons);
+    });
+  });
+
+  // Ativar primeiro ano por padrão
+  if (years.length > 0) {
+    updateActiveYear(years[0], buttons);
+    filterByYear(years[0]);
+  }
+};
+
+// Filtrar timeline por ano
+const filterByYear = (year) => {
+  const items = document.querySelectorAll(".timeline-item");
+  items.forEach((item) => {
+    const itemYear = parseInt(item.dataset.year);
+    if (itemYear === year) {
+      item.style.display = "";
+    } else {
+      item.style.display = "none";
+    }
+  });
+};
+
+// Atualizar botão de ano ativo
+const updateActiveYear = (year, buttons) => {
+  buttons.forEach((btn) => {
+    if (parseInt(btn.dataset.year) === year) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
   });
 };
 
