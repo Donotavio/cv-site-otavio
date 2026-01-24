@@ -4,35 +4,19 @@
       <h2 data-i18n-key="timeline.title"></h2>
       <p data-i18n-key="timeline.subtitle"></p>
     </div>
-    <div class="timeline-wrapper">
-      <nav class="timeline-years" aria-label="Navegação por anos">
-        <div class="timeline-years-inner" id="timeline-years"></div>
-      </nav>
-      <div class="timeline" data-timeline>
-        <div class="timeline-line" aria-hidden="true"></div>
-        <div id="timeline-container" class="timeline-list"></div>
-      </div>
+    <div class="cards-container">
+      <ul class="cards" id="timeline-wheel"></ul>
     </div>
     <p id="timeline-empty" class="empty-state" data-i18n-key="timeline.empty"></p>
   </div>
 
   <template id="timeline-item-template">
-    <article class="timeline-item" data-year="">
-      <div class="timeline-marker">
-        <span class="timeline-dot" aria-hidden="true"></span>
-      </div>
-      <div class="timeline-card" role="button" tabindex="0" data-i18n-aria="timeline.click_aria">
-        <div class="company-logo-wrapper"></div>
-        <h3 class="timeline-role"></h3>
-        <span class="timeline-company"></span>
-        <div class="timeline-meta">
-          <span class="timeline-period"></span>
-          <span class="timeline-location"></span>
-        </div>
-        <ul class="timeline-highlights"></ul>
-        <span class="timeline-expand-hint" data-i18n-key="timeline.click_to_expand">Clique para ver detalhes completos</span>
-      </div>
-    </article>
+    <li>
+      <input type="radio" name="timeline-item">
+      <label></label>
+      <h2></h2>
+      <p></p>
+    </li>
   </template>
 </section>
 

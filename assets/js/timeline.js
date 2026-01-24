@@ -1,62 +1,6 @@
 (() => {
-  const prefersReducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches;
-
-  let observer;
-  let items = [];
-  let timeline;
-  let ticking = false;
   let experiencesData = [];
-  let currentYear = null;
-
-  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-
-  const updateProgressLine = () => {
-    if (!timeline) return;
-    const rect = timeline.getBoundingClientRect();
-    const viewportHeight = window.innerHeight || 0;
-    const start = rect.top + window.scrollY;
-    const end = start + rect.height;
-    const current = window.scrollY + viewportHeight * 0.6;
-    const progress = clamp((current - start) / (end - start), 0, 1);
-
-    timeline.style.setProperty(
-      "--timeline-progress",
-      `${(progress * 100).toFixed(2)}%`
-    );
-  };
-
-  const onScroll = () => {
-    if (ticking) return;
-    ticking = true;
-    window.requestAnimationFrame(() => {
-      updateProgressLine();
-      ticking = false;
-    });
-  };
-
-  const observeItems = () => {
-    if (!items.length) return;
-
-    if (prefersReducedMotion) {
-      items.forEach((item) => item.classList.add("is-active"));
-      return;
-    }
-
-    observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-active");
-          }
-        });
-      },
-      { threshold: 0.25 }
-    );
-
-    items.forEach((item) => observer.observe(item));
-  };
+  let currentIndex = 0;
 
   const openModal = (experience) => {
     const modal = document.getElementById("experience-modal");
@@ -77,8 +21,7 @@
     if (modalLocation) modalLocation.textContent = experience.location;
 
     if (modalCompanyLogo) {
-      const baseUrl = document.body?.dataset?.baseurl || "";
-      const logoSrc = experience.companyLogo ? `${baseUrl}${experience.companyLogo}` : '';
+      const logoSrc = experience.companyLogo || '';
       modalCompanyLogo.innerHTML = logoSrc
         ? `<img src="${logoSrc}" alt="${experience.company}" onerror="this.style.display='none'">`
         : '';
@@ -142,140 +85,102 @@
     });
   };
 
-  const createYearButtons = (years) => {
-    const yearsContainer = document.getElementById("timeline-years");
-    if (!yearsContainer) return;
-
-    yearsContainer.innerHTML = years
-      .map(
-        (year) => `
-        <button class="year-button" data-year="${year}">
-          <span>${year}</span>
-        </button>
-      `
-      )
-      .join("");
-
-    const buttons = yearsContainer.querySelectorAll(".year-button");
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const year = parseInt(btn.dataset.year);
-        filterByYear(year);
-        updateActiveYear(year);
-      });
-    });
-
-    if (years.length > 0) {
-      updateActiveYear(years[0]);
-    }
-  };
-
-  const updateActiveYear = (year) => {
-    currentYear = year;
-    const buttons = document.querySelectorAll(".year-button");
-    buttons.forEach((btn) => {
-      if (parseInt(btn.dataset.year) === year) {
-        btn.classList.add("active");
-      } else {
-        btn.classList.remove("active");
-      }
-    });
-  };
-
-  const filterByYear = (year) => {
-    items.forEach((item) => {
-      const itemYear = parseInt(item.dataset.year);
-      if (itemYear === year) {
-        item.style.display = "";
-      } else {
-        item.style.display = "none";
-      }
-    });
-
-    setTimeout(() => {
-      updateProgressLine();
-    }, 100);
-  };
-
   const renderTimeline = (experiences) => {
-    const container = document.getElementById("timeline-container");
-    const template = document.getElementById("timeline-item-template");
+    const wheel = document.getElementById("timeline-wheel");
     const emptyState = document.getElementById("timeline-empty");
 
-    if (!container || !template) return;
+    console.log('renderTimeline called', { 
+      wheel: !!wheel, 
+      experiencesCount: experiences?.length 
+    });
 
-    container.innerHTML = "";
+    if (!wheel) {
+      console.error('Timeline wheel element not found!');
+      return;
+    }
+
+    wheel.innerHTML = "";
 
     if (!experiences || experiences.length === 0) {
+      console.warn('No experiences to render');
       if (emptyState) emptyState.classList.add("visible");
       return;
     }
 
     if (emptyState) emptyState.classList.remove("visible");
 
-    experiences.forEach((exp) => {
-      const clone = template.content.cloneNode(true);
-      const item = clone.querySelector(".timeline-item");
-      const card = clone.querySelector(".timeline-card");
+    const itemCount = experiences.length;
+    wheel.style.setProperty('--items', itemCount);
+    console.log('Rendering', itemCount, 'timeline items');
 
-      if (item) item.dataset.year = exp.year;
+    experiences.forEach((exp, index) => {
+      const yearMatch = exp.period ? exp.period.match(/\b(20\d{2})\b/) : null;
+      const year = yearMatch ? yearMatch[1] : new Date().getFullYear();
+      console.log('Creating item', index, exp.role, 'year:', year, 'from period:', exp.period);
+      
+      const li = document.createElement('li');
+      li.style.setProperty('--i', index);
 
-      const logoWrapper = clone.querySelector(".company-logo-wrapper");
-      if (logoWrapper && exp.companyLogo) {
-        const baseUrl = document.body?.dataset?.baseurl || "";
-        const logoSrc = `${baseUrl}${exp.companyLogo}`;
-        logoWrapper.innerHTML = `<img class="company-logo" src="${logoSrc}" alt="${exp.company}" onerror="this.style.display='none'">`;
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.id = `timeline-item-${index}`;
+      radio.name = 'timeline-item';
+      if (index === 0) radio.checked = true;
+
+      const label = document.createElement('label');
+      label.setAttribute('for', `timeline-item-${index}`);
+      label.textContent = year;
+
+      const h2 = document.createElement('h2');
+      h2.textContent = exp.role;
+
+      const p = document.createElement('p');
+      p.addEventListener('click', () => openModal(exp));
+      
+      let content = '';
+      
+      if (exp.companyLogo) {
+        content += `<img src="${exp.companyLogo}" alt="${exp.company}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; float: left; margin-right: 12px; border: 1px solid var(--line);">`;
       }
-
-      const role = clone.querySelector(".timeline-role");
-      if (role) role.textContent = exp.role;
-
-      const company = clone.querySelector(".timeline-company");
-      if (company) company.textContent = exp.company;
-
-      const period = clone.querySelector(".timeline-period");
-      if (period) period.textContent = exp.period;
-
-      const location = clone.querySelector(".timeline-location");
-      if (location) location.textContent = exp.location;
-
-      const highlights = clone.querySelector(".timeline-highlights");
-      if (highlights && exp.highlights) {
-        highlights.innerHTML = exp.highlights
-          .map((h) => `<li>${h}</li>`)
-          .join("");
+      
+      content += `<strong>${exp.role}</strong><br>`;
+      content += `<span style="color: var(--accent)">${exp.company}</span><br>`;
+      content += `<small style="color: var(--muted)">${exp.period} • ${exp.location}</small>`;
+      
+      if (exp.highlights && exp.highlights.length > 0) {
+        const topHighlights = exp.highlights.slice(0, 2);
+        content += '<br><br>' + topHighlights.map(h => `→ ${h}`).join('<br>');
       }
+      
+      p.innerHTML = content;
 
-      if (card) {
-        card.addEventListener("click", () => openModal(exp));
-        card.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            openModal(exp);
-          }
-        });
-      }
+      li.appendChild(radio);
+      li.appendChild(label);
+      li.appendChild(h2);
+      li.appendChild(p);
 
-      container.appendChild(clone);
+      wheel.appendChild(li);
+      console.log('Item added to wheel', index);
     });
-
-    items = Array.from(container.querySelectorAll(".timeline-item"));
-    observeItems();
-
-    const years = [...new Set(experiences.map((e) => e.year))].sort((a, b) => b - a);
-    createYearButtons(years);
-
-    if (years.length > 0) {
-      filterByYear(years[0]);
-    }
+    
+    console.log('Timeline rendering complete. Total items in wheel:', wheel.children.length);
   };
 
   const loadExperiences = async () => {
     try {
       const baseUrl = document.body?.dataset?.baseurl || "";
-      const response = await fetch(`${baseUrl}/assets/data/linkedin_profile.json`);
+      const url = `${baseUrl}/assets/data/profile.json`;
+      console.log('Loading experiences from:', url);
+      
+      const response = await fetch(url);
+      console.log('Response status:', response.status);
+      
       const data = await response.json();
-      experiencesData = data.experience || [];
+      console.log('Data loaded:', data);
+      
+      experiencesData = data.timeline || [];
+      console.log('Experiences extracted:', experiencesData.length, 'items');
+      
       renderTimeline(experiencesData);
     } catch (error) {
       console.error("Failed to load timeline data:", error);
@@ -284,27 +189,20 @@
   };
 
   const init = () => {
-    timeline = document.querySelector("[data-timeline]");
-    if (!timeline) return;
-
+    console.log('Timeline init called');
+    const wheel = document.getElementById("timeline-wheel");
+    
+    if (!wheel) {
+      console.error('Timeline wheel not found on init');
+      return;
+    }
+    
+    console.log('Timeline wheel found, initializing...');
     initModal();
     loadExperiences();
-    updateProgressLine();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", updateProgressLine);
-  };
-
-  const destroy = () => {
-    if (observer) {
-      observer.disconnect();
-      observer = null;
-    }
-    window.removeEventListener("scroll", onScroll);
-    window.removeEventListener("resize", updateProgressLine);
   };
 
   const refresh = () => {
-    destroy();
     init();
   };
 
@@ -313,6 +211,15 @@
   } else {
     init();
   }
+
+  // Force init after a delay if DOM is ready
+  setTimeout(() => {
+    const wheel = document.getElementById("timeline-wheel");
+    if (wheel && wheel.children.length === 0) {
+      console.warn('Timeline empty after delay, forcing init...');
+      init();
+    }
+  }, 1000);
 
   window.addEventListener("contentUpdated", refresh);
 })();
