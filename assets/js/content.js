@@ -3,7 +3,8 @@ const renderFeaturedProjects = async () => {
   if (!grid) return;
 
   try {
-    const response = await fetch(`${window.baseUrl || ''}/assets/data/projects_extended.json`);
+    const baseUrl = document.body?.dataset?.baseurl || "";
+    const response = await fetch(`${baseUrl}/assets/data/projects_extended.json`);
     const data = await response.json();
     const projects = data.featured_projects || [];
 
@@ -70,7 +71,8 @@ const renderTechStack = async () => {
   if (!grid) return;
 
   try {
-    const response = await fetch(`${window.baseUrl || ''}/assets/data/tech_stack.json`);
+    const baseUrl = document.body?.dataset?.baseurl || "";
+    const response = await fetch(`${baseUrl}/assets/data/tech_stack.json`);
     const data = await response.json();
     const categories = data.categories || [];
 
@@ -107,7 +109,8 @@ const renderBlogArticles = async () => {
   if (!grid) return;
 
   try {
-    const response = await fetch(`${window.baseUrl || ''}/assets/data/blog_articles.json`);
+    const baseUrl = document.body?.dataset?.baseurl || "";
+    const response = await fetch(`${baseUrl}/assets/data/blog_articles.json`);
     const data = await response.json();
     const articles = data.articles || [];
 

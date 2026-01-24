@@ -77,8 +77,10 @@
     if (modalLocation) modalLocation.textContent = experience.location;
 
     if (modalCompanyLogo) {
-      modalCompanyLogo.innerHTML = experience.companyLogo
-        ? `<img src="${experience.companyLogo}" alt="${experience.company}" onerror="this.style.display='none'">`
+      const baseUrl = document.body?.dataset?.baseurl || "";
+      const logoSrc = experience.companyLogo ? `${baseUrl}${experience.companyLogo}` : '';
+      modalCompanyLogo.innerHTML = logoSrc
+        ? `<img src="${logoSrc}" alt="${experience.company}" onerror="this.style.display='none'">`
         : '';
     }
 
@@ -220,7 +222,9 @@
 
       const logoWrapper = clone.querySelector(".company-logo-wrapper");
       if (logoWrapper && exp.companyLogo) {
-        logoWrapper.innerHTML = `<img class="company-logo" src="${exp.companyLogo}" alt="${exp.company}" onerror="this.style.display='none'">`;
+        const baseUrl = document.body?.dataset?.baseurl || "";
+        const logoSrc = `${baseUrl}${exp.companyLogo}`;
+        logoWrapper.innerHTML = `<img class="company-logo" src="${logoSrc}" alt="${exp.company}" onerror="this.style.display='none'">`;
       }
 
       const role = clone.querySelector(".timeline-role");
