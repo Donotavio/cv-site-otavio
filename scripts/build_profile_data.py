@@ -28,20 +28,44 @@ def main():
     # Baseado no período: experiências antes de 2016
     linkedin_timeline = linkedin.get("experience", [])
     
+    # Criar dicionário de experiências existentes por empresa para preservar campos extras
+    existing_by_company = {}
+    for exp in existing_timeline:
+        company = exp.get("company", "")
+        if company:
+            existing_by_company[company] = exp
+    
+    # Enriquecer experiências do LinkedIn com campos do profile existente
+    enriched_linkedin = []
+    for exp in linkedin_timeline:
+        company = exp.get("company", "")
+        # Se já temos essa experiência, mesclar campos extras
+        if company in existing_by_company:
+            existing_exp = existing_by_company[company]
+            # Preservar description, skills e companyLogo do profile existente
+            if "description" in existing_exp:
+                exp["description"] = existing_exp["description"]
+            if "skills" in existing_exp:
+                exp["skills"] = existing_exp["skills"]
+            if "companyLogo" in existing_exp:
+                exp["companyLogo"] = existing_exp["companyLogo"]
+        enriched_linkedin.append(exp)
+    
     # Identificar experiências antigas que não estão no LinkedIn (antes de 2016)
     preserved_experiences = []
     for exp in existing_timeline:
         period = exp.get("period", "")
+        company = exp.get("company", "")
         # Extrair ano inicial do período
         year_match = re.search(r'\b(20\d{2})\b', period)
         if year_match:
             year = int(year_match.group(1))
-            # Preservar experiências antes de 2016
-            if year < 2016:
+            # Preservar experiências antes de 2016 que não estão no LinkedIn
+            if year < 2016 and company not in [e.get("company") for e in linkedin_timeline]:
                 preserved_experiences.append(exp)
     
-    # Combinar: dados do LinkedIn + experiências antigas preservadas
-    combined_timeline = linkedin_timeline + preserved_experiences
+    # Combinar: dados enriquecidos do LinkedIn + experiências antigas preservadas
+    combined_timeline = enriched_linkedin + preserved_experiences
 
     profile = linkedin.get("profile", {})
     merged = {
