@@ -564,16 +564,7 @@ const renderStats = (github = {}) => {
 };
 
 const setupSlider = () => {
-  const track = document.getElementById("recommendations-track");
-  if (!track) return;
-  const buttons = document.querySelectorAll("[data-slider]");
-
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const direction = btn.dataset.slider === "next" ? 1 : -1;
-      track.scrollBy({ left: track.clientWidth * direction, behavior: "smooth" });
-    });
-  });
+  // Slider removido - agora usando grid layout
 };
 
 const setupNavToggle = () => {

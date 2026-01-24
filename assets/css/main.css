@@ -540,33 +540,23 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--muted);
 }
 
-.recommendations-wrapper {
+.recommendations-grid {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 16px;
-  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
 }
 
-.recommendations-track {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(260px, 1fr);
-  gap: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.recommendations-track::-webkit-scrollbar {
-  display: none;
+@media (max-width: 768px) {
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .recommendation-card {
-  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  height: 100%;
 }
 
 .recommendation-quote {
@@ -1358,10 +1348,6 @@ body.light-theme .site-header {
 @media (max-width: 720px) {
   .hero {
     padding-top: 110px;
-  }
-
-  .recommendations-wrapper {
-    grid-template-columns: 1fr;
   }
 
   .slider-btn {
