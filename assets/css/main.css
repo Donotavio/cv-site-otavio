@@ -57,8 +57,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .section {
-  padding: 96px 0;
+  padding: 80px 0;
   position: relative;
+}
+
+.section + .section {
+  margin-top: 0;
+}
+
+.impact-section {
+  margin-top: 60px;
+  padding-top: 80px;
+  border-top: 1px solid var(--line);
 }
 
 .section-header {
@@ -111,15 +121,18 @@ h1, h2, h3, h4, h5, h6 {
 
 .site-nav {
   display: flex;
-  gap: 20px;
-  font-size: 14px;
-  color: var(--muted);
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .site-nav a {
-  position: relative;
-  padding-bottom: 4px;
+  color: var(--muted);
+  text-decoration: none;
   transition: color var(--transition);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .site-nav a::after {
@@ -806,11 +819,22 @@ h1, h2, h3, h4, h5, h6 {
 
 .contact-highlight {
   background: linear-gradient(150deg, rgba(34, 211, 238, 0.18), rgba(59, 130, 246, 0.1));
-  padding: 28px;
+  padding: 32px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--line);
+  border: 2px solid var(--accent);
   display: grid;
-  gap: 16px;
+  gap: 20px;
+  text-align: center;
+}
+
+.contact-highlight h3 {
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+
+.contact-highlight p {
+  font-size: 1.1rem;
+  line-height: 1.6;
 }
 
 .site-footer {

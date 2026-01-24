@@ -156,8 +156,9 @@ const openExperienceModal = (experience) => {
   // Competências
   const skillsEl = modal.querySelector(".modal-skills");
   if (experience.skills) {
+    const skillsTitle = window.i18n?.t('timeline.skills_title') || 'Skills';
     const skillsList = experience.skills.split(" · ").map(skill => `<span class="skill-tag">${skill.trim()}</span>`).join("");
-    skillsEl.innerHTML = `<h3>Competências</h3><div class="skills-grid">${skillsList}</div>`;
+    skillsEl.innerHTML = `<h3>${skillsTitle}</h3><div class="skills-grid">${skillsList}</div>`;
     skillsEl.style.display = "block";
   } else {
     skillsEl.style.display = "none";
