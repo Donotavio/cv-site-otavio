@@ -684,7 +684,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stat-card-wide {
-  grid-column: span 2;
+  grid-column: 1 / -1;
 }
 
 .stat-value {
@@ -821,10 +821,6 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .stat-card-wide {
-    grid-column: span 1;
-  }
-  
   .recent-activity {
     grid-template-columns: repeat(2, 1fr);
   }
