@@ -173,6 +173,11 @@ const filterByYear = (year, skipAnimation = false) => {
     const itemTop = firstVisibleItem.getBoundingClientRect().top + window.scrollY;
     const offset = 120; // Offset do topo
     
+    // Desabilitar reveal observer durante scroll para evitar conflito de animações
+    if (window.revealObserver) {
+      window.revealObserver.disconnect();
+    }
+    
     // Scroll com duração maior e mais visível
     const startPosition = window.scrollY;
     const targetPosition = itemTop - offset;
@@ -194,6 +199,12 @@ const filterByYear = (year, skipAnimation = false) => {
       
       if (timeElapsed < duration) {
         requestAnimationFrame(animation);
+      } else {
+        // Reconectar reveal observer após scroll completar
+        if (window.revealObserver) {
+          const reveals = document.querySelectorAll('.reveal');
+          reveals.forEach((el) => window.revealObserver.observe(el));
+        }
       }
     };
 

@@ -1,8 +1,16 @@
+// Expor reveal observer globalmente para controle durante scroll da timeline
+let revealObserver = null;
+
 const setupRevealAnimations = () => {
   const reveals = document.querySelectorAll('.reveal');
   if (!reveals.length) return;
 
-  const observer = new IntersectionObserver(
+  // Desconectar observer anterior se existir
+  if (revealObserver) {
+    revealObserver.disconnect();
+  }
+
+  revealObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -16,7 +24,10 @@ const setupRevealAnimations = () => {
     }
   );
 
-  reveals.forEach((el) => observer.observe(el));
+  reveals.forEach((el) => revealObserver.observe(el));
+  
+  // Expor globalmente para controle durante scroll da timeline
+  window.revealObserver = revealObserver;
 };
 
 const animateCounters = () => {
