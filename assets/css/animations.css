@@ -43,6 +43,14 @@
   filter: blur(0) !important;
 }
 
+/* Desabilitar blur em seções com interação ou conteúdo importante */
+#featured-projects,
+#projects,
+#tech-stack,
+#recommendations {
+  filter: blur(0) !important;
+}
+
 @media (max-width: 900px) {
   .scroll-section {
     min-height: auto;
