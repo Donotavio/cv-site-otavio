@@ -144,73 +144,63 @@ const createYearButtons = (years) => {
   }
 };
 
-// Filtrar timeline por ano com scroll suave
+// Filtrar timeline por ano com scroll agressivo
 const filterByYear = (year, skipAnimation = false) => {
   const items = document.querySelectorAll(".timeline-item");
   const container = document.querySelector(".timeline");
   
   if (!items.length || !container) return;
 
-  // Determinar direção baseada na ordem temporal
-  const isGoingBack = currentSelectedYear !== null && year < currentSelectedYear; // Ano menor = mais antigo = scroll down
-  const isGoingForward = currentSelectedYear !== null && year > currentSelectedYear; // Ano maior = mais recente = scroll up
+  // Trocar visibilidade imediatamente
+  let firstVisibleItem = null;
   
-  // Fade out items do ano anterior (se não for primeira vez)
-  if (!skipAnimation && currentSelectedYear !== null) {
-    items.forEach((item) => {
-      if (parseInt(item.dataset.year) === currentSelectedYear) {
-        item.style.opacity = "0";
-        item.style.transform = "translateY(20px)";
+  items.forEach((item) => {
+    const itemYear = parseInt(item.dataset.year);
+    if (itemYear === year) {
+      item.style.display = "";
+      item.style.opacity = "1";
+      item.style.transform = "translateY(0)";
+      if (!firstVisibleItem) {
+        firstVisibleItem = item;
       }
-    });
+    } else {
+      item.style.display = "none";
+    }
+  });
+
+  // Scroll MUITO visível até o primeiro item do ano selecionado
+  if (firstVisibleItem && !skipAnimation) {
+    const itemTop = firstVisibleItem.getBoundingClientRect().top + window.scrollY;
+    const offset = 120; // Offset do topo
+    
+    // Scroll com duração maior e mais visível
+    const startPosition = window.scrollY;
+    const targetPosition = itemTop - offset;
+    const distance = targetPosition - startPosition;
+    const duration = 800; // 800ms para scroll bem visível
+    let start = null;
+
+    const animation = (currentTime) => {
+      if (start === null) start = currentTime;
+      const timeElapsed = currentTime - start;
+      const progress = Math.min(timeElapsed / duration, 1);
+      
+      // Easing function para movimento suave mas visível
+      const ease = progress < 0.5 
+        ? 4 * progress * progress * progress 
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      
+      window.scrollTo(0, startPosition + (distance * ease));
+      
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animation);
+      }
+    };
+
+    requestAnimationFrame(animation);
   }
 
-  // Aguardar fade out e então trocar visibilidade
-  setTimeout(() => {
-    let firstVisibleItem = null;
-    
-    items.forEach((item) => {
-      const itemYear = parseInt(item.dataset.year);
-      if (itemYear === year) {
-        item.style.display = "";
-        if (!firstVisibleItem) {
-          firstVisibleItem = item;
-        }
-        // Reset transform para fade in
-        if (!skipAnimation) {
-          item.style.opacity = "0";
-          item.style.transform = isGoingBack ? "translateY(-20px)" : "translateY(20px)";
-        }
-      } else {
-        item.style.display = "none";
-      }
-    });
-
-    // Scroll suave até o primeiro item do ano selecionado
-    if (firstVisibleItem && !skipAnimation) {
-      const itemTop = firstVisibleItem.getBoundingClientRect().top + window.scrollY;
-      const offset = 150; // Offset para não ficar grudado no topo
-      
-      window.scrollTo({
-        top: itemTop - offset,
-        behavior: "smooth"
-      });
-    }
-
-    // Fade in dos novos items
-    if (!skipAnimation) {
-      setTimeout(() => {
-        items.forEach((item) => {
-          if (parseInt(item.dataset.year) === year) {
-            item.style.opacity = "1";
-            item.style.transform = "translateY(0)";
-          }
-        });
-      }, 100);
-    }
-
-    currentSelectedYear = year;
-  }, skipAnimation ? 0 : 300);
+  currentSelectedYear = year;
 };
 
 // Atualizar botão de ano ativo
