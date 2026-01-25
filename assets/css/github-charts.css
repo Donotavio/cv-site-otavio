@@ -42,6 +42,8 @@
 
 .heatmap-section {
   min-width: 0;
+  overflow: hidden;
+  max-width: 100%;
 }
 
 .radar-section {
@@ -102,6 +104,7 @@
   min-height: 180px;
   overflow-x: auto;
   overflow-y: hidden;
+  max-width: 100%;
 }
 
 .heatmap-loading {
@@ -115,6 +118,7 @@
   flex-direction: column;
   gap: 0.5rem;
   min-width: 800px;
+  width: fit-content;
 }
 
 .heatmap-months {
@@ -262,9 +266,24 @@
     align-items: flex-start;
   }
 
+  .contributions-chart-wrapper {
+    padding: 1rem;
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .heatmap-section {
+    overflow: hidden;
+    max-width: 100%;
+  }
+
   .contributions-heatmap {
     overflow-x: scroll;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+    max-width: calc(100% + 2rem);
   }
 
   .heatmap-grid {

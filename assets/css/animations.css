@@ -54,6 +54,12 @@
 @media (max-width: 900px) {
   .scroll-section {
     min-height: auto;
+    filter: blur(0) !important;
+    transform: none !important;
+  }
+
+  .scroll-section::after {
+    display: none;
   }
 }
 
@@ -65,6 +71,6 @@
   }
 
   .scroll-section::after {
-    opacity: 0;
+    display: none;
   }
 }

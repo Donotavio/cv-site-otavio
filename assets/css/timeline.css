@@ -2,6 +2,8 @@
   position: relative;
   overflow: visible;
   padding: 80px 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 input[type="radio"] {
@@ -41,6 +43,7 @@ input[type="radio"] {
   position: relative;
   margin: 5rem auto;
   width: var(--cards-container-size);
+  max-width: 100%;
   height: var(--cards-container-size);
   padding: var(--cards-container-padding);
 }
@@ -429,13 +432,15 @@ li:has(input:checked) {
 
 @media (max-width: 768px) {
   .cards-container {
-    --radius: min(45vw, 300px);
-    --label-size: 28px;
+    --radius: min(35vw, 200px);
+    --cards-container-padding: 1rem;
+    --label-size: 24px;
     --label-dot-size: 8px;
     --label-line-h-current: 1.5rem;
     --info-width: 85%;
     --title-top: 1rem;
     --info-top: 4rem;
+    margin: 3rem auto;
   }
 
   .cards > li > p {
