@@ -16,6 +16,155 @@ def request_json(url, token):
         return json.loads(response.read().decode("utf-8"))
 
 
+def request_graphql(query, variables, token):
+    """Faz requisição GraphQL para a API do GitHub"""
+    url = "https://api.github.com/graphql"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "User-Agent": "profile-updater",
+    }
+    payload = {"query": query}
+    if variables:
+        payload["variables"] = variables
+    
+    data = json.dumps(payload).encode("utf-8")
+    request = Request(url, headers=headers, data=data, method="POST")
+    with urlopen(request) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def fetch_activity_breakdown_by_year(username, token, year):
+    """Busca breakdown de atividades por ano usando GraphQL"""
+    if not token:
+        return None
+    
+    from_date = f"{year}-01-01T00:00:00Z"
+    to_date = f"{year}-12-31T23:59:59Z"
+    
+    query = """
+    query($username: String!, $from: DateTime!, $to: DateTime!) {
+      user(login: $username) {
+        contributionsCollection(from: $from, to: $to) {
+          totalCommitContributions
+          totalPullRequestContributions
+          totalPullRequestReviewContributions
+          totalIssueContributions
+        }
+      }
+    }
+    """
+    
+    variables = {
+        "username": username,
+        "from": from_date,
+        "to": to_date
+    }
+    
+    try:
+        result = request_graphql(query, variables, token)
+        
+        if "errors" in result or not result.get("data", {}).get("user"):
+            print(f"Error fetching breakdown for {year}: {result.get('errors', 'No user data')}")
+            return None
+            
+        collection = result["data"]["user"]["contributionsCollection"]
+        
+        commits = collection.get("totalCommitContributions", 0)
+        prs = collection.get("totalPullRequestContributions", 0)
+        reviews = collection.get("totalPullRequestReviewContributions", 0)
+        issues = collection.get("totalIssueContributions", 0)
+        
+        print(f"Year {year} - Commits: {commits}, PRs: {prs}, Reviews: {reviews}, Issues: {issues}")
+        
+        total = commits + prs + reviews + issues or 1
+        
+        breakdown = {
+            "commits": round((commits / total) * 100),
+            "pull_requests": round((prs / total) * 100),
+            "code_review": round((reviews / total) * 100),
+            "issues": round((issues / total) * 100)
+        }
+        
+        print(f"Year {year} - Breakdown: {breakdown}")
+        
+        return breakdown
+    except Exception as e:
+        print(f"Warning: Could not fetch activity breakdown for {year}: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+
+def fetch_contributions_calendar(username, token, year=None):
+    """Busca calendário de contribuições usando GraphQL"""
+    if not token:
+        print("Warning: GITHUB_TOKEN required for contributions calendar")
+        return {}
+    
+    current_year = datetime.utcnow().year
+    target_year = year or current_year
+    
+    # Calcular datas de início e fim do ano
+    from_date = f"{target_year}-01-01T00:00:00Z"
+    to_date = f"{target_year}-12-31T23:59:59Z"
+    
+    query = """
+    query($username: String!, $from: DateTime!, $to: DateTime!) {
+      user(login: $username) {
+        contributionsCollection(from: $from, to: $to) {
+          contributionCalendar {
+            totalContributions
+            weeks {
+              contributionDays {
+                date
+                contributionCount
+                weekday
+              }
+            }
+          }
+        }
+      }
+    }
+    """
+    
+    variables = {
+        "username": username,
+        "from": from_date,
+        "to": to_date
+    }
+    
+    try:
+        result = request_graphql(query, variables, token)
+        
+        if "errors" in result:
+            print(f"GraphQL errors: {result['errors']}")
+            return {}
+            
+        if "data" in result and result["data"] and result["data"]["user"]:
+            calendar = result["data"]["user"]["contributionsCollection"]["contributionCalendar"]
+            
+            # Processar dados do calendário
+            days = []
+            for week in calendar["weeks"]:
+                for day in week["contributionDays"]:
+                    days.append({
+                        "date": day["date"],
+                        "count": day["contributionCount"],
+                        "weekday": day["weekday"]
+                    })
+            
+            return {
+                "year": target_year,
+                "total": calendar["totalContributions"],
+                "days": days
+            }
+    except Exception as e:
+        print(f"Warning: Could not fetch contributions calendar for {target_year}: {e}")
+    
+    return {}
+
+
 def main():
     username = os.getenv("GITHUB_USERNAME")
     token = os.getenv("GITHUB_TOKEN")
@@ -153,6 +302,21 @@ def main():
     if not contributions_last_year:
         contributions_last_year = recent_commits * 12
 
+    # Buscar contribuições e breakdown dos últimos 5 anos
+    current_year = now_date.year
+    contributions_by_year = {}
+    breakdown_by_year = {}
+    
+    for year in range(current_year - 4, current_year + 1):
+        calendar_data = fetch_contributions_calendar(username, token, year)
+        if calendar_data:
+            contributions_by_year[str(year)] = calendar_data
+        
+        # Buscar breakdown para cada ano
+        year_breakdown = fetch_activity_breakdown_by_year(username, token, year)
+        if year_breakdown:
+            breakdown_by_year[str(year)] = year_breakdown
+
     now = datetime.utcnow()
     payload = {
         "generated_at": now.isoformat() + "Z",
@@ -166,9 +330,11 @@ def main():
             "contributions_last_year": contributions_last_year,
         },
         "activity_breakdown": activity_breakdown,
+        "activity_breakdown_by_year": breakdown_by_year,
         "recent_activity": recent_activity,
         "top_languages": top_languages,
         "projects": projects,
+        "contributions_calendar": contributions_by_year,
     }
 
     output_path = os.path.join("assets", "data", "github_activity.json")

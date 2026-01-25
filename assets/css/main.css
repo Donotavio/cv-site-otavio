@@ -43,6 +43,7 @@ body {
   background: radial-gradient(circle at top, #101c30 0%, var(--bg) 55%);
   color: var(--text);
   line-height: 1.6;
+  transition: background 0.4s ease, color 0.3s ease;
 }
 
 html {
@@ -109,6 +110,7 @@ h1, h2, h3, h4, h5, h6 {
   backdrop-filter: blur(16px);
   background: rgba(11, 18, 32, 0.85);
   border-bottom: 1px solid var(--line);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .header-inner {
@@ -415,6 +417,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 24px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .about-card.subtle {
@@ -455,6 +458,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 16px 18px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .skill-header {
@@ -497,7 +501,7 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--line);
   display: grid;
   gap: 12px;
-  transition: transform var(--transition), border-color var(--transition);
+  transition: transform var(--transition), border-color var(--transition), background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {

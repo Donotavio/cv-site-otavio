@@ -1,0 +1,295 @@
+#stats::after {
+  display: none !important;
+}
+
+.github-charts {
+  margin-top: 3rem;
+  display: grid;
+  gap: 2rem;
+  position: relative;
+  z-index: 100;
+  isolation: isolate;
+}
+
+.contributions-chart-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 100;
+}
+
+.charts-grid {
+  display: grid;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 1200px) {
+  .charts-grid {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: start;
+  }
+  
+  /* Quando radar está oculto, heatmap ocupa largura total */
+  .charts-grid:has(.radar-section[style*="display: none"]) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.heatmap-section {
+  min-width: 0;
+}
+
+.radar-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 300px;
+  transition: opacity 0.3s ease;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.chart-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.year-filter {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.year-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.year-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.year-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.contributions-heatmap {
+  min-height: 180px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.heatmap-loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted);
+}
+
+.heatmap-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 800px;
+}
+
+.heatmap-months {
+  display: grid;
+  grid-template-columns: repeat(53, 12px);
+  gap: 3px;
+  padding-left: 32px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.heatmap-days {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.weekday-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.625rem;
+  color: var(--muted);
+  padding-top: 2px;
+}
+
+.weekday-labels span {
+  height: 12px;
+  line-height: 12px;
+}
+
+.heatmap-weeks {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+}
+
+.heatmap-week {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.heatmap-day {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.heatmap-day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.heatmap-day.level-0 {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.heatmap-day.level-1 {
+  background: rgba(34, 197, 94, 0.3);
+}
+
+.heatmap-day.level-2 {
+  background: rgba(34, 197, 94, 0.5);
+}
+
+.heatmap-day.level-3 {
+  background: rgba(34, 197, 94, 0.7);
+}
+
+.heatmap-day.level-4 {
+  background: rgba(34, 197, 94, 1);
+}
+
+.heatmap-day:not(.empty):hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+  z-index: 10;
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.legend-colors {
+  display: flex;
+  gap: 3px;
+}
+
+.legend-box {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legend-box.level-0 {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.legend-box.level-1 {
+  background: rgba(34, 197, 94, 0.3);
+}
+
+.legend-box.level-2 {
+  background: rgba(34, 197, 94, 0.5);
+}
+
+.legend-box.level-3 {
+  background: rgba(34, 197, 94, 0.7);
+}
+
+.legend-box.level-4 {
+  background: rgba(34, 197, 94, 1);
+}
+
+.activity-radar-chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+  min-height: 350px;
+}
+
+.activity-radar-chart svg {
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.2));
+}
+
+@media (max-width: 768px) {
+  .github-charts {
+    gap: 1.5rem;
+  }
+
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .contributions-heatmap {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .heatmap-grid {
+    min-width: 650px;
+  }
+
+  .heatmap-months,
+  .heatmap-weeks {
+    grid-template-columns: repeat(53, 10px);
+  }
+
+  .heatmap-day,
+  .legend-box {
+    width: 10px;
+    height: 10px;
+  }
+
+  .weekday-labels span {
+    height: 10px;
+    line-height: 10px;
+  }
+
+  .activity-radar-chart {
+    padding: 1rem;
+    min-height: 300px;
+  }
+}
+

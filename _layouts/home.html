@@ -282,6 +282,40 @@ layout: default
         <p data-i18n-key="stats.subtitle"></p>
       </div>
       <div id="github-stats" class="stats-grid"></div>
+      
+      <div class="github-charts">
+        <div class="contributions-chart-wrapper">
+          <div class="chart-header">
+            <h3 data-i18n-key="stats.contributions_title">Contribuições & Distribuição de Atividades</h3>
+            <div class="year-filter" id="contributions-year-filter"></div>
+          </div>
+          
+          <div class="charts-grid">
+            <div class="heatmap-section">
+              <div id="contributions-heatmap" class="contributions-heatmap">
+                <div class="heatmap-loading" data-i18n-key="stats.loading">Carregando...</div>
+              </div>
+              <div class="heatmap-legend">
+                <span data-i18n-key="stats.less">Menos</span>
+                <div class="legend-colors">
+                  <span class="legend-box level-0"></span>
+                  <span class="legend-box level-1"></span>
+                  <span class="legend-box level-2"></span>
+                  <span class="legend-box level-3"></span>
+                  <span class="legend-box level-4"></span>
+                </div>
+                <span data-i18n-key="stats.more">Mais</span>
+              </div>
+            </div>
+            
+            <div class="radar-section">
+              <div id="activity-radar-chart" class="activity-radar-chart">
+                <svg id="activity-radar-svg" viewBox="0 0 300 300"></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

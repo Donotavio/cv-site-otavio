@@ -61,9 +61,20 @@ window.i18n = {
 };
 
 const applyTranslations = (translations, lang) => {
-  document.documentElement.lang = lang;
+  const htmlRoot = document.getElementById('html-root') || document.documentElement;
+  htmlRoot.lang = lang;
   currentTranslations = translations;
   currentLanguage = lang;
+  
+  const pageTitle = document.getElementById('page-title');
+  if (pageTitle && translations.hero?.role) {
+    pageTitle.textContent = `${translations.hero.role} | Otávio Ribeiro`;
+  }
+  
+  const pageDescription = document.getElementById('page-description');
+  if (pageDescription && translations.hero?.summary) {
+    pageDescription.setAttribute('content', translations.hero.summary);
+  }
   
   document.querySelectorAll("[data-i18n-key]").forEach((el) => {
     const key = el.dataset.i18nKey;

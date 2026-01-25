@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" id="html-root">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ page.title | default: site.title }} | {{ site.title }}</title>
-    <meta name="description" content="{{ site.description }}">
+    <title id="page-title">{{ page.title | default: site.title }} | {{ site.title }}</title>
+    <meta name="description" id="page-description" content="{{ site.description }}">
     <meta name="theme-color" content="#0b1220">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="{{ '/assets/css/timeline.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/css/hero-background.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/css/impact-section.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/github-charts.css' | relative_url }}">
   </head>
   <body data-baseurl="{{ site.baseurl }}">
     <div id="scroll-progress-bar"></div>

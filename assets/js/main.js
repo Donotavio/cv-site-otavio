@@ -212,29 +212,36 @@ const createYearButtons = (years) => {
   const yearsContainer = document.getElementById("timeline-years");
   if (!yearsContainer || !years.length) return;
 
-  yearsContainer.innerHTML = years
-    .map(year => `
+  // Adicionar botão "Todos" + botões de anos
+  const allButtonLabel = window.i18n?.t('timeline.all_years') || 'Todos';
+  yearsContainer.innerHTML = `
+    <button class="year-button active" data-year="all">
+      <span>${allButtonLabel}</span>
+    </button>
+    ${years.map(year => `
       <button class="year-button" data-year="${year}">
         <span>${year}</span>
       </button>
-    `)
-    .join("");
+    `).join("")}
+  `;
 
   const buttons = yearsContainer.querySelectorAll(".year-button");
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const year = parseInt(btn.dataset.year);
+      const yearValue = btn.dataset.year;
+      const year = yearValue === "all" ? null : parseInt(yearValue);
       filterByYear(year);
-      updateActiveYear(year, buttons);
+      
+      // Atualizar botões ativos
+      buttons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentSelectedYear = year;
     });
   });
 
-  // Ativar primeiro ano por padrão
-  if (years.length > 0) {
-    currentSelectedYear = years[0];
-    updateActiveYear(years[0], buttons);
-    filterByYear(years[0], true); // true = sem animação inicial
-  }
+  // Mostrar todos os anos por padrão
+  currentSelectedYear = null;
+  filterByYear(null, true);
 };
 
 // Filtrar timeline por ano com scroll agressivo
@@ -249,7 +256,8 @@ const filterByYear = (year, skipAnimation = false) => {
   
   items.forEach((item) => {
     const itemYear = parseInt(item.dataset.year);
-    if (itemYear === year) {
+    // Se year é null, mostrar todos os itens
+    if (year === null || itemYear === year) {
       item.style.display = "";
       item.style.opacity = "1";
       item.style.transform = "translateY(0)";
@@ -561,6 +569,226 @@ const renderStats = (github = {}) => {
     `;
     grid.appendChild(recentCard);
   }
+  
+  // renderContributionsHeatmap já chama renderActivityRadar internamente
+  renderContributionsHeatmap(cachedGithub);
+};
+
+const renderContributionsHeatmap = (github = {}) => {
+  const container = document.getElementById("contributions-heatmap");
+  const filterContainer = document.getElementById("contributions-year-filter");
+  
+  if (!container || !filterContainer) return;
+  
+  const calendar = github.contributions_calendar || {};
+  const years = Object.keys(calendar).sort((a, b) => b - a);
+  
+  if (years.length === 0) {
+    container.innerHTML = '<p class="empty-state">Dados de contribuições não disponíveis</p>';
+    return;
+  }
+  
+  const currentYear = years[0];
+  let selectedYear = null; // Começa sem filtro para mostrar radar
+  
+  // Calcular total de contribuições de todos os anos
+  const totalAllYears = Object.values(calendar).reduce((sum, data) => sum + (data.total || 0), 0);
+  
+  // Adicionar botão "Todos" + botões de anos
+  const allYearsLabel = window.i18n?.t('stats.all_years') || 'Todos';
+  filterContainer.innerHTML = `
+    <button class="year-btn active" data-year="all">${allYearsLabel} (${totalAllYears})</button>
+    ${years.map(year => {
+      const data = calendar[year];
+      return `<button class="year-btn" data-year="${year}">${year} (${data.total || 0})</button>`;
+    }).join('')}
+  `;
+  
+  const renderYear = (year) => {
+    // Se year é 'all', mostrar o ano mais recente mas manter selectedYear como null para o radar
+    const displayYear = year === 'all' ? currentYear : year;
+    const data = calendar[displayYear];
+    if (!data || !data.days) return;
+    
+    const days = data.days;
+    const maxCount = Math.max(...days.map(d => d.count), 1);
+    
+    const monthLabels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const weekdayLabels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    
+    const weeks = [];
+    let currentWeek = [];
+    
+    days.forEach((day, index) => {
+      const date = new Date(day.date);
+      const weekday = date.getDay();
+      
+      if (index === 0 && weekday > 0) {
+        for (let i = 0; i < weekday; i++) {
+          currentWeek.push(null);
+        }
+      }
+      
+      currentWeek.push(day);
+      
+      if (weekday === 6 || index === days.length - 1) {
+        weeks.push([...currentWeek]);
+        currentWeek = [];
+      }
+    });
+    
+    const getLevel = (count) => {
+      if (count === 0) return 0;
+      const quartile = maxCount / 4;
+      if (count <= quartile) return 1;
+      if (count <= quartile * 2) return 2;
+      if (count <= quartile * 3) return 3;
+      return 4;
+    };
+    
+    container.innerHTML = `
+      <div class="heatmap-grid">
+        <div class="heatmap-months">
+          ${monthLabels.map((m, i) => `<span style="grid-column: ${Math.floor(i * 4.3) + 1}">${m}</span>`).join('')}
+        </div>
+        <div class="heatmap-days">
+          <div class="weekday-labels">
+            ${weekdayLabels.map(w => `<span>${w}</span>`).join('')}
+          </div>
+          <div class="heatmap-weeks">
+            ${weeks.map(week => `
+              <div class="heatmap-week">
+                ${week.map(day => {
+                  if (!day) return '<span class="heatmap-day empty"></span>';
+                  const level = getLevel(day.count);
+                  const date = new Date(day.date).toLocaleDateString('pt-BR');
+                  return `<span class="heatmap-day level-${level}" 
+                            title="${day.count} contribuições em ${date}" 
+                            data-count="${day.count}"
+                            data-date="${day.date}"></span>`;
+                }).join('')}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  };
+  
+  // Renderizar ano atual e radar agregado inicialmente
+  renderYear('all');
+  renderActivityRadar(github, null);
+  
+  filterContainer.querySelectorAll('.year-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      filterContainer.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      const yearValue = e.target.dataset.year;
+      
+      if (yearValue === 'all') {
+        selectedYear = null;
+        renderYear('all');
+        renderActivityRadar(github, null); // Mostrar radar agregado
+      } else {
+        selectedYear = yearValue;
+        renderYear(yearValue);
+        renderActivityRadar(github, yearValue); // Mostrar radar do ano específico
+      }
+    });
+  });
+};
+
+const renderActivityRadar = (github = {}, selectedYear = null) => {
+  const radarSection = document.querySelector(".radar-section");
+  const svg = document.getElementById("activity-radar-svg");
+  if (!svg || !radarSection) return;
+  
+  radarSection.style.display = '';
+  
+  // Se um ano foi selecionado, usar breakdown daquele ano
+  // Caso contrário, usar breakdown agregado
+  let breakdown;
+  let yearLabel = '';
+  
+  if (selectedYear && github.activity_breakdown_by_year && github.activity_breakdown_by_year[selectedYear]) {
+    breakdown = github.activity_breakdown_by_year[selectedYear];
+    yearLabel = selectedYear;
+  } else {
+    breakdown = github.activity_breakdown || {};
+    yearLabel = window.i18n?.t('stats.all_years') || 'Todos os anos';
+  }
+  
+  const activities = [
+    { label: "Commits", value: breakdown.commits || 0, color: "#22c55e", angle: 0 },
+    { label: "Code review", value: breakdown.code_review || 0, color: "#3b82f6", angle: 90 },
+    { label: "Issues", value: breakdown.issues || 0, color: "#ef4444", angle: 180 },
+    { label: "Pull requests", value: breakdown.pull_requests || 0, color: "#a855f7", angle: 270 }
+  ];
+  
+  const centerX = 150;
+  const centerY = 150;
+  const maxRadius = 100;
+  
+  const polarToCartesian = (angle, radius) => {
+    const rad = (angle - 90) * Math.PI / 180;
+    return {
+      x: centerX + radius * Math.cos(rad),
+      y: centerY + radius * Math.sin(rad)
+    };
+  };
+  
+  const createPath = () => {
+    const points = activities.map(act => {
+      const radius = (act.value / 100) * maxRadius;
+      return polarToCartesian(act.angle, radius);
+    });
+    
+    const pathData = points.map((p, i) => 
+      `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
+    ).join(' ') + ' Z';
+    
+    return pathData;
+  };
+  
+  svg.innerHTML = `
+    ${[20, 40, 60, 80, 100].map(percent => {
+      const r = (percent / 100) * maxRadius;
+      return `<circle cx="${centerX}" cy="${centerY}" r="${r}" fill="none" 
+                stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
+    }).join('')}
+    
+    ${activities.map(act => {
+      const end = polarToCartesian(act.angle, maxRadius);
+      return `<line x1="${centerX}" y1="${centerY}" 
+                x2="${end.x}" y2="${end.y}" 
+                stroke="rgba(255,255,255,0.2)" stroke-width="1"/>`;
+    }).join('')}
+    
+    <path d="${createPath()}" fill="rgba(59, 130, 246, 0.2)" stroke="rgba(59, 130, 246, 0.8)" stroke-width="2"/>
+    
+    ${activities.map(act => {
+      const radius = (act.value / 100) * maxRadius;
+      const point = polarToCartesian(act.angle, radius);
+      return `<circle cx="${point.x}" cy="${point.y}" r="4" fill="${act.color}"/>`;
+    }).join('')}
+    
+    ${activities.map(act => {
+      const labelRadius = maxRadius + 32;
+      const labelPoint = polarToCartesian(act.angle, labelRadius);
+      const textAnchor = act.angle >= 45 && act.angle <= 225 ? 'end' : 'start';
+      return `
+        <text x="${labelPoint.x}" y="${labelPoint.y - 2}" 
+          text-anchor="${textAnchor}" 
+          fill="currentColor" 
+          font-size="13" 
+          font-weight="600">${act.value}%</text>
+        <text x="${labelPoint.x}" y="${labelPoint.y + 12}" 
+          text-anchor="${textAnchor}" 
+          fill="rgba(255,255,255,0.65)" 
+          font-size="9">${act.label}</text>
+      `;
+    }).join('')}
+  `;
 };
 
 const setupSlider = () => {
