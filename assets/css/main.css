@@ -40,7 +40,6 @@
 
 body {
   font-family: "Inter", sans-serif;
-  background: radial-gradient(circle at top, #101c30 0%, var(--bg) 55%);
   color: var(--text);
   line-height: 1.6;
   overflow-x: clip;
@@ -1261,6 +1260,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Light Theme */
+/* Dark theme (default) */
+body {
+  background: radial-gradient(circle at top, #101c30 0%, var(--bg) 55%);
+}
+
+/* Light Theme */
 body.light-theme {
   --bg: #f1f5f9;
   --bg-soft: #e2e8f0;
@@ -1271,9 +1276,6 @@ body.light-theme {
   --shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
   --primary: #3b82f6;
   --accent: #0ea5e9;
-}
-
-body.light-theme {
   background: radial-gradient(circle at top, #dbeafe 0%, var(--bg) 55%);
 }
 

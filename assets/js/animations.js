@@ -118,34 +118,7 @@ const setupCustomCursor = () => {
 };
 
 const setupThemeToggle = () => {
-  const themeToggle = document.getElementById('theme-toggle');
-  if (!themeToggle) return;
-
-  const sunIcon = themeToggle.querySelector('.sun-icon');
-  const moonIcon = themeToggle.querySelector('.moon-icon');
-  
-  const updateThemeIcons = (theme) => {
-    if (theme === 'light') {
-      sunIcon.style.display = 'none';
-      moonIcon.style.display = 'block';
-    } else {
-      sunIcon.style.display = 'block';
-      moonIcon.style.display = 'none';
-    }
-  };
-
-  const currentTheme = localStorage.getItem('theme') || 'dark';
-  if (currentTheme === 'light') {
-    document.body.classList.add('light-theme');
-  }
-  updateThemeIcons(currentTheme);
-
-  themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('light-theme');
-    const newTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcons(newTheme);
-  });
+  // Theme toggle is now handled by theme.js
 };
 
 const initAnimations = () => {

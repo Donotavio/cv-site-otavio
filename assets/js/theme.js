@@ -32,10 +32,8 @@ const ThemeManager = {
 
     if (theme === this.THEME_LIGHT) {
       body.classList.add(this.THEME_LIGHT);
-      body.classList.remove(this.THEME_DARK);
       this.updateIcons(true);
     } else {
-      body.classList.add(this.THEME_DARK);
       body.classList.remove(this.THEME_LIGHT);
       this.updateIcons(false);
     }
