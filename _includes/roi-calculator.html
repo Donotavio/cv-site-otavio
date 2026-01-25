@@ -1,0 +1,104 @@
+<section id="roi-calculator" class="section scroll-section" data-scroll-section="roi">
+  <div class="container">
+    <div class="roi-calculator card-entrance">
+      <div class="calculator-header">
+        <h3 data-i18n-key="roi_calculator.title"></h3>
+        <p data-i18n-key="roi_calculator.subtitle"></p>
+      </div>
+
+      <div class="calculator-grid">
+        <!-- Inputs -->
+        <div class="calculator-inputs">
+          <div class="input-group">
+            <label class="input-label">
+              <span data-i18n-key="roi_calculator.team_size_label"></span>
+              <span class="input-value" id="team-size-value">5</span>
+            </label>
+            <input 
+              type="range" 
+              id="team-size" 
+              class="range-input" 
+              min="1" 
+              max="50" 
+              value="5"
+              aria-label="Team size"
+            >
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">
+              <span data-i18n-key="roi_calculator.data_volume_label"></span>
+              <span class="input-value" id="data-volume-value">500 GB</span>
+            </label>
+            <input 
+              type="range" 
+              id="data-volume" 
+              class="range-input" 
+              min="100" 
+              max="5000" 
+              value="500" 
+              step="100"
+              aria-label="Data volume"
+            >
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">
+              <span data-i18n-key="roi_calculator.cloud_provider_label"></span>
+            </label>
+            <div class="select-field">
+              <select id="cloud-provider" class="input-field" aria-label="Cloud provider">
+                <option value="azure" data-i18n-key="roi_calculator.cloud_azure">Azure</option>
+                <option value="gcp" data-i18n-key="roi_calculator.cloud_gcp">Google Cloud (GCP)</option>
+                <option value="aws" data-i18n-key="roi_calculator.cloud_aws">Amazon Web Services (AWS)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="calculator-results">
+          <div class="results-header">
+            <h4 data-i18n-key="roi_calculator.results_title"></h4>
+            <p data-i18n-key="roi_calculator.results_subtitle"></p>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-card hover-lift">
+              <div class="result-label" data-i18n-key="roi_calculator.cost_savings_label"></div>
+              <div class="result-value" id="cost-savings">$0</div>
+              <div class="result-description" data-i18n-key="roi_calculator.cost_savings_desc"></div>
+              <span class="result-badge positive" data-i18n-key="roi_calculator.annual_badge"></span>
+            </div>
+
+            <div class="result-card hover-lift">
+              <div class="result-label" data-i18n-key="roi_calculator.time_reduction_label"></div>
+              <div class="result-value" id="time-reduction">0%</div>
+              <div class="result-description" data-i18n-key="roi_calculator.time_reduction_desc"></div>
+            </div>
+
+            <div class="result-card hover-lift">
+              <div class="result-label" data-i18n-key="roi_calculator.governance_label"></div>
+              <div class="result-value" id="governance-score">0/100</div>
+              <div class="result-description" data-i18n-key="roi_calculator.governance_desc"></div>
+            </div>
+
+            <div class="result-card hover-lift">
+              <div class="result-label" data-i18n-key="roi_calculator.productivity_label"></div>
+              <div class="result-value" id="productivity-gain">+0%</div>
+              <div class="result-description" data-i18n-key="roi_calculator.productivity_desc"></div>
+            </div>
+          </div>
+
+          <div class="calculation-note">
+            <p data-i18n-key="roi_calculator.disclaimer"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="calculator-actions">
+        <button id="calculator-reset" class="btn-reset" data-i18n-key="roi_calculator.reset_button"></button>
+      </div>
+    </div>
+  </div>
+</section>

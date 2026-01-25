@@ -43,9 +43,13 @@ body {
   background: radial-gradient(circle at top, #101c30 0%, var(--bg) 55%);
   color: var(--text);
   line-height: 1.6;
-  transition: background 0.4s ease, color 0.3s ease;
   overflow-x: clip;
   max-width: 100vw;
+}
+
+body.theme-transitioning,
+body.theme-transitioning * {
+  transition: background-color 0.4s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
 }
 
 html {
@@ -1258,22 +1262,65 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Light Theme */
 body.light-theme {
-  --bg: #e2e8f0;
-  --bg-soft: #cbd5e1;
+  --bg: #f1f5f9;
+  --bg-soft: #e2e8f0;
   --bg-card: #ffffff;
   --text: #0f172a;
-  --muted: #334155;
-  --line: rgba(0, 0, 0, 0.15);
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  --muted: #475569;
+  --line: rgba(15, 23, 42, 0.15);
+  --shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+  --primary: #3b82f6;
+  --accent: #0ea5e9;
 }
 
 body.light-theme {
-  background: radial-gradient(circle at top, #c7d2fe 0%, var(--bg) 55%);
+  background: radial-gradient(circle at top, #dbeafe 0%, var(--bg) 55%);
 }
 
 body.light-theme .site-header {
-  background: rgba(255, 255, 255, 0.85);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(20px);
+}
+
+body.light-theme .card,
+body.light-theme .skill-card,
+body.light-theme .stat-card,
+body.light-theme .about-card,
+body.light-theme .contact-card {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .btn.ghost {
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+body.light-theme .btn.ghost:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+body.light-theme .avatar-frame {
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.3), rgba(14, 165, 233, 0.15));
+}
+
+body.light-theme .tech-item {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+body.light-theme .tech-item:hover {
+  background: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+}
+
+body.light-theme .heatmap-day.level-0 {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+body.light-theme #scroll-progress-bar {
+  box-shadow: 2px 0 12px rgba(59, 130, 246, 0.3);
 }
 
 /* Reveal Animations */
