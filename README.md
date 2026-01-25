@@ -2,14 +2,14 @@
 
 <div align="center">
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-success?style=for-the-badge&logo=github)](https://donotavio.github.io/curr-don/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-success?style=for-the-badge&logo=github)](https://donotavio.github.io/cv-site-otavio/)
 [![Jekyll](https://img.shields.io/badge/Jekyll-4.x-CC0000?style=for-the-badge&logo=jekyll&logoColor=white)](https://jekyllrb.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![Made with Love](https://img.shields.io/badge/Made%20with-♥-red?style=for-the-badge)](https://github.com/Donotavio)
 
 **Portfolio moderno e responsivo de Engenharia de Dados e Liderança**
 
-[🌐 Ver Site](https://donotavio.github.io/curr-don/) • [📝 Documentação](AGENTS.md) • [🤖 Automações](AUTOMATIONS.md)
+[🌐 Ver Site](https://donotavio.github.io/cv-site-otavio/) • [📝 Documentação](AGENTS.md) • [🤖 Automações](AUTOMATIONS.md)
 
 ![Preview](https://img.shields.io/badge/Status-Online-brightgreen?style=flat-square)
 ![Build](https://img.shields.io/badge/Build-Passing-success?style=flat-square)
@@ -80,7 +80,7 @@
 ## 📂 Estrutura do Projeto
 
 ```
-curr-don/
+cv-site-otavio/
 ├── 📄 _config.yml              # Configuração Jekyll
 ├── 📁 _layouts/                # Templates de página
 │   ├── default.html            # Layout base
@@ -142,8 +142,8 @@ curr-don/
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/Donotavio/curr-don.git
-cd curr-don
+git clone https://github.com/Donotavio/cv-site-otavio.git
+cd cv-site-otavio
 
 # 2. Instale dependências Jekyll
 bundle install
@@ -297,7 +297,7 @@ Edite variáveis CSS em `assets/css/main.css`:
 Contribuições são bem-vindas! Siga o fluxo:
 
 1. **Fork** o projeto
-2. **Clone** seu fork: `git clone https://github.com/seu-usuario/curr-don.git`
+2. **Clone** seu fork: `git clone https://github.com/seu-usuario/cv-site-otavio.git`
 3. **Branch** para feature: `git checkout -b feature/nova-feature`
 4. **Commit** com Conventional Commits: `git commit -m "feat: adicionar nova feature"`
 5. **Push**: `git push origin feature/nova-feature`
@@ -371,8 +371,8 @@ Obrigado por visitar este projeto! Se gostou, considere dar uma ⭐ no repositó
 
 **Construído com ❤️ usando Jekyll, HTML5, CSS3 e JavaScript puro**
 
-![Visitors](https://visitor-badge.laobi.icu/badge?page_id=donotavio.curr-don)
-![Last Commit](https://img.shields.io/github/last-commit/donotavio/curr-don?style=flat-square)
-![Repo Size](https://img.shields.io/github/repo-size/donotavio/curr-don?style=flat-square)
+![Visitors](https://visitor-badge.laobi.icu/badge?page_id=donotavio.cv-site-otavio)
+![Last Commit](https://img.shields.io/github/last-commit/donotavio/cv-site-otavio?style=flat-square)
+![Repo Size](https://img.shields.io/github/repo-size/donotavio/cv-site-otavio?style=flat-square)
 
 </div>
