@@ -226,6 +226,19 @@
     }
   };
 
+  const animateGlow = () => {
+    const wheel = document.getElementById("timeline-wheel");
+    if (!wheel) return;
+    
+    let angle = 0;
+    const rotate = () => {
+      angle = (angle + 0.5) % 360;
+      wheel.style.setProperty('--glow-angle', `${angle}deg`);
+      requestAnimationFrame(rotate);
+    };
+    rotate();
+  };
+
   const init = () => {
     console.log('Timeline init called');
     const wheel = document.getElementById("timeline-wheel");
@@ -238,6 +251,7 @@
     console.log('Timeline wheel found, initializing...');
     initModal();
     loadExperiences();
+    animateGlow();
   };
 
   const refresh = () => {

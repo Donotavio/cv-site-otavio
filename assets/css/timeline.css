@@ -84,6 +84,49 @@ input[type="radio"] {
   padding: 0;
 }
 
+.cards::before {
+  content: '';
+  position: absolute;
+  inset: -80%;
+  background: conic-gradient(
+    from var(--glow-angle, 0deg),
+    transparent 0%,
+    transparent 25%,
+    rgba(59, 130, 246, 0.4) 30%,
+    rgba(34, 211, 238, 0.6) 35%,
+    rgba(59, 130, 246, 0.4) 40%,
+    transparent 45%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(40px);
+  opacity: 0.9;
+  animation: none;
+}
+
+.cards::after {
+  content: '';
+  position: absolute;
+  inset: -60%;
+  background: conic-gradient(
+    from var(--glow-angle, 0deg),
+    transparent 0%,
+    transparent 28%,
+    rgba(34, 211, 238, 0.3) 33%,
+    rgba(59, 130, 246, 0.5) 35%,
+    rgba(34, 211, 238, 0.3) 37%,
+    transparent 42%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -2;
+  filter: blur(60px);
+  opacity: 0.7;
+}
+
 .cards li {
   position: absolute;
   inset: 0;
