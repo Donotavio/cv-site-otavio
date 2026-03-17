@@ -255,6 +255,25 @@ layout: default
     </div>
   </section>
 
+  <div id="article-modal" class="article-modal" role="dialog" aria-labelledby="article-modal-title" aria-hidden="true">
+    <div class="article-modal-overlay" data-article-modal-close></div>
+    <div class="article-modal-content">
+      <button class="article-modal-close" data-article-modal-close aria-label="Close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <img class="article-modal-image" src="" alt="" hidden>
+      <div class="article-modal-body-wrap">
+        <h2 id="article-modal-title" class="article-modal-title"></h2>
+        <div class="article-modal-meta"></div>
+        <div class="article-modal-text"></div>
+        <a class="article-modal-link btn ghost" href="" target="_blank" rel="noopener" data-i18n-key="blog.read_on_linkedin"></a>
+      </div>
+    </div>
+  </div>
+
   <section id="projects" class="section scroll-section" data-scroll-section="projetos">
     <div class="container">
       <div class="section-header">
