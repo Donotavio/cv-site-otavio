@@ -44,8 +44,26 @@ jobs:
       - name: Translate project descriptions
         run: python scripts/translate_projects.py
 
+      - name: Fetch LinkedIn articles
+        env:
+          LINKEDIN_PROFILE_URL: https://linkedin.com/in/donotavio/
+        run: python scripts/fetch_linkedin_articles.py
+
       - name: Build profile data
         run: python scripts/build_profile_data.py
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Clone polyglot-ai and translate articles
+        env:
+          POLYGLOT_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          POLYGLOT_AI_PATH: /tmp/polyglot-ai
+        run: |
+          git clone https://github.com/Donotavio/polyglot-ai.git /tmp/polyglot-ai
+          node scripts/translate_articles.js
 
       - name: Commit updates
         run: |
