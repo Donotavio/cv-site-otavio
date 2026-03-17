@@ -35,7 +35,7 @@ HEADERS = {
 }
 
 
-def fetch_page(url: str) -> BeautifulSoup | None:
+def fetch_page(url: str):
     """Fetch a URL and return parsed HTML."""
     try:
         resp = requests.get(url, headers=HEADERS, timeout=30)
@@ -46,7 +46,7 @@ def fetch_page(url: str) -> BeautifulSoup | None:
         return None
 
 
-def extract_article_urls(profile_url: str) -> list[str]:
+def extract_article_urls(profile_url: str):
     """Extract Pulse article URLs from a LinkedIn public profile."""
     print(f"Fetching profile: {profile_url}")
     soup = fetch_page(profile_url)
@@ -77,7 +77,7 @@ def extract_article_urls(profile_url: str) -> list[str]:
     return sorted(urls)
 
 
-def extract_json_ld(soup: BeautifulSoup) -> dict | None:
+def extract_json_ld(soup: BeautifulSoup):
     """Extract JSON-LD structured data from an article page."""
     for script in soup.find_all("script", type="application/ld+json"):
         try:
@@ -93,7 +93,7 @@ def extract_json_ld(soup: BeautifulSoup) -> dict | None:
     return None
 
 
-def extract_body_text(soup: BeautifulSoup) -> str:
+def extract_body_text(soup: BeautifulSoup):
     """Extract the main article body text."""
     # Try common LinkedIn article content selectors
     content_selectors = [
@@ -134,7 +134,7 @@ def extract_body_text(soup: BeautifulSoup) -> str:
     return "\n\n".join(paragraphs)
 
 
-def extract_tags(soup: BeautifulSoup, body_text: str) -> list[str]:
+def extract_tags(soup: BeautifulSoup, body_text: str):
     """Extract hashtags from the article or infer from content."""
     tags = set()
 
@@ -164,14 +164,14 @@ def extract_tags(soup: BeautifulSoup, body_text: str) -> list[str]:
     return sorted(tags)[:5]
 
 
-def calculate_read_time(text: str) -> str:
+def calculate_read_time(text: str):
     """Estimate reading time in minutes."""
     words = len(text.split())
     minutes = max(1, math.ceil(words / WORDS_PER_MINUTE))
     return f"{minutes} min"
 
 
-def slugify(text: str) -> str:
+def slugify(text: str):
     """Create a URL-friendly slug from text."""
     text = text.lower().strip()
     text = re.sub(r"[àáâãäå]", "a", text)
@@ -184,7 +184,7 @@ def slugify(text: str) -> str:
     return text.strip("-")[:80]
 
 
-def extract_article(url: str) -> dict | None:
+def extract_article(url: str):
     """Extract full article data from a Pulse URL."""
     print(f"  Fetching article: {url}")
     soup = fetch_page(url)
@@ -235,9 +235,20 @@ def extract_article(url: str) -> dict | None:
     # Get likes
     likes = 0
     if json_ld:
-        for stat in json_ld.get("interactionStatistic", []):
-            if stat.get("interactionType", {}).get("@type") == "LikeAction":
-                likes = int(stat.get("userInteractionCount", 0))
+        stats = json_ld.get("interactionStatistic", [])
+        if isinstance(stats, list):
+            for stat in stats:
+                if not isinstance(stat, dict):
+                    continue
+                interaction_type = stat.get("interactionType", "")
+                if isinstance(interaction_type, dict):
+                    type_name = interaction_type.get("@type", "")
+                elif isinstance(interaction_type, str):
+                    type_name = interaction_type
+                else:
+                    type_name = ""
+                if "Like" in type_name:
+                    likes = int(stat.get("userInteractionCount", 0))
 
     tags = extract_tags(soup, body)
     read_time = calculate_read_time(body) if body else "3 min"
