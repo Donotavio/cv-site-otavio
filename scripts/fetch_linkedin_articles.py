@@ -14,8 +14,6 @@ import sys
 import time
 import math
 from pathlib import Path
-from urllib.parse import urlparse
-
 import requests
 from bs4 import BeautifulSoup
 
@@ -93,7 +91,30 @@ def extract_json_ld(soup: BeautifulSoup):
     return None
 
 
-def extract_body_text(soup: BeautifulSoup):
+NOISE_PATTERNS = [
+    re.compile(r"^denunciar\b", re.IGNORECASE),
+    re.compile(r"^report this", re.IGNORECASE),
+    re.compile(r"^publicado por\b", re.IGNORECASE),
+    re.compile(r"^published by\b", re.IGNORECASE),
+    re.compile(r"^sign in\b", re.IGNORECASE),
+    re.compile(r"^entrar\b", re.IGNORECASE),
+    re.compile(r"^join now\b", re.IGNORECASE),
+    re.compile(r"^cadastre-se\b", re.IGNORECASE),
+]
+
+
+def is_noise_text(text):
+    """Check if text is LinkedIn UI noise that should be filtered out."""
+    stripped = text.strip()
+    if len(stripped) < 5:
+        return True
+    for pattern in NOISE_PATTERNS:
+        if pattern.search(stripped):
+            return True
+    return False
+
+
+def extract_body_text(soup: BeautifulSoup, author_name: str = ""):
     """Extract the main article body text."""
     # Try common LinkedIn article content selectors
     content_selectors = [
@@ -121,15 +142,22 @@ def extract_body_text(soup: BeautifulSoup):
     paragraphs = []
     for el in content_el.find_all(["p", "h2", "h3", "h4", "blockquote", "li"]):
         text = el.get_text(strip=True)
-        if text:
-            if el.name in ("h2", "h3", "h4"):
-                paragraphs.append(f"## {text}")
-            elif el.name == "blockquote":
-                paragraphs.append(f"> {text}")
-            elif el.name == "li":
-                paragraphs.append(f"- {text}")
-            else:
-                paragraphs.append(text)
+        if not text:
+            continue
+        # Skip LinkedIn UI noise and author byline headers
+        if is_noise_text(text):
+            continue
+        if author_name and text.strip().lower() == author_name.lower():
+            continue
+
+        if el.name in ("h2", "h3", "h4"):
+            paragraphs.append(f"## {text}")
+        elif el.name == "blockquote":
+            paragraphs.append(f"> {text}")
+        elif el.name == "li":
+            paragraphs.append(f"- {text}")
+        else:
+            paragraphs.append(text)
 
     return "\n\n".join(paragraphs)
 
@@ -165,10 +193,10 @@ def extract_tags(soup: BeautifulSoup, body_text: str):
 
 
 def calculate_read_time(text: str):
-    """Estimate reading time in minutes."""
+    """Estimate reading time in minutes. Returns just the number string."""
     words = len(text.split())
     minutes = max(1, math.ceil(words / WORDS_PER_MINUTE))
-    return f"{minutes} min"
+    return str(minutes)
 
 
 def slugify(text: str):
@@ -192,7 +220,17 @@ def extract_article(url: str):
         return None
 
     json_ld = extract_json_ld(soup)
-    body = extract_body_text(soup)
+
+    # Get author name for filtering
+    author_name = ""
+    if json_ld:
+        author = json_ld.get("author", {})
+        if isinstance(author, dict):
+            author_name = author.get("name", "")
+        elif isinstance(author, list) and author:
+            author_name = author[0].get("name", "") if isinstance(author[0], dict) else ""
+
+    body = extract_body_text(soup, author_name)
 
     # Get title from JSON-LD or page title
     title = ""
@@ -251,7 +289,7 @@ def extract_article(url: str):
                     likes = int(stat.get("userInteractionCount", 0))
 
     tags = extract_tags(soup, body)
-    read_time = calculate_read_time(body) if body else "3 min"
+    read_time = calculate_read_time(body) if body else "3"
 
     return {
         "id": slugify(title),

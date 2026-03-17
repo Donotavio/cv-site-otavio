@@ -58,6 +58,8 @@ jobs:
           node-version: '20'
 
       - name: Clone polyglot-ai and translate articles
+        if: env.POLYGLOT_API_KEY != ''
+        continue-on-error: true
         env:
           POLYGLOT_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           POLYGLOT_AI_PATH: /tmp/polyglot-ai

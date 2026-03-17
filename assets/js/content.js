@@ -1,3 +1,12 @@
+const escapeHtml = (str) => {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+};
+
 const renderFeaturedProjects = async () => {
   const grid = document.getElementById('featured-projects-grid');
   if (!grid) return;
@@ -134,9 +143,9 @@ const openArticleModal = (article) => {
 
   const likesLabel = window.i18n?.t('blog.likes') || 'curtidas';
   const metaParts = [];
-  if (article.date) metaParts.push(`<span>${article.date}</span>`);
-  if (article.read_time) metaParts.push(`<span>${article.read_time} ${window.i18n?.t('blog.read_time') || 'leitura'}</span>`);
-  if (article.likes) metaParts.push(`<span>${article.likes} ${likesLabel}</span>`);
+  if (article.date) metaParts.push(`<span>${escapeHtml(article.date)}</span>`);
+  if (article.read_time) metaParts.push(`<span>${escapeHtml(article.read_time)} ${window.i18n?.t('blog.read_time') || 'leitura'}</span>`);
+  if (article.likes) metaParts.push(`<span>${escapeHtml(String(article.likes))} ${likesLabel}</span>`);
   meta.innerHTML = metaParts.join('<span>•</span>');
 
   // Render body as HTML
@@ -170,13 +179,13 @@ const renderArticleBody = (body) => {
     .map(block => {
       block = block.trim();
       if (!block) return '';
-      if (block.startsWith('## ')) return `<h3>${block.slice(3)}</h3>`;
-      if (block.startsWith('> ')) return `<blockquote>${block.slice(2)}</blockquote>`;
+      if (block.startsWith('## ')) return `<h3>${escapeHtml(block.slice(3))}</h3>`;
+      if (block.startsWith('> ')) return `<blockquote>${escapeHtml(block.slice(2))}</blockquote>`;
       if (block.startsWith('- ')) {
-        const items = block.split('\n').map(l => `<li>${l.replace(/^- /, '')}</li>`).join('');
+        const items = block.split('\n').map(l => `<li>${escapeHtml(l.replace(/^- /, ''))}</li>`).join('');
         return `<ul>${items}</ul>`;
       }
-      return `<p>${block}</p>`;
+      return `<p>${escapeHtml(block)}</p>`;
     })
     .join('\n');
 };
@@ -231,18 +240,18 @@ const renderBlogArticles = async () => {
         `<span class="blog-featured-badge">${window.i18n?.t('blog.featured_label') || 'Destaque'}</span>` : '';
 
       const tagsHtml = (article.tags || [])
-        .map(tag => `<span class="blog-tag">${tag}</span>`)
+        .map(tag => `<span class="blog-tag">${escapeHtml(tag)}</span>`)
         .join('');
 
       card.innerHTML = `
         ${featuredBadge}
-        ${article.image ? `<img class="blog-card-image" src="${article.image}" alt="${article.title}" loading="lazy">` : ''}
-        <h3>${article.title}</h3>
-        <p>${article.excerpt || ''}</p>
+        ${article.image ? `<img class="blog-card-image" src="${escapeHtml(article.image)}" alt="${escapeHtml(article.title)}" loading="lazy">` : ''}
+        <h3>${escapeHtml(article.title)}</h3>
+        <p>${escapeHtml(article.excerpt)}</p>
         <div class="blog-meta-info">
-          <span>${article.date || ''}</span>
+          <span>${escapeHtml(article.date)}</span>
           <span>•</span>
-          <span>${article.read_time} ${window.i18n?.t('blog.read_time') || 'leitura'}</span>
+          <span>${escapeHtml(article.read_time)} ${window.i18n?.t('blog.read_time') || 'leitura'}</span>
         </div>
         ${tagsHtml ? `<div class="blog-tags">${tagsHtml}</div>` : ''}
       `;
@@ -271,7 +280,6 @@ const renderBlogArticles = async () => {
 };
 
 const initContent = async () => {
-  initArticleModal();
   await Promise.all([
     renderFeaturedProjects(),
     renderTechStack(),
@@ -281,8 +289,12 @@ const initContent = async () => {
 };
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initContent);
+  document.addEventListener('DOMContentLoaded', () => {
+    initArticleModal();
+    initContent();
+  });
 } else {
+  initArticleModal();
   initContent();
 }
 
