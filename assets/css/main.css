@@ -1193,6 +1193,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .blog-featured-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1204,7 +1208,6 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 12px;
 }
 
 .blog-meta-info {
@@ -1596,9 +1599,24 @@ body.light-theme .article-modal-content {
 .blog-card-image {
   width: calc(100% + 48px);
   margin: -24px -24px 16px;
-  height: 160px;
+  height: 180px;
   object-fit: cover;
   border-radius: var(--radius) var(--radius) 0 0;
+}
+
+/* Uniform blog card layout */
+.blog-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-card p {
+  flex: 1 1 auto;
+}
+
+.blog-card .blog-meta-info,
+.blog-card .blog-tags {
+  margin-top: auto;
 }
 
 /* Clickable blog card */
