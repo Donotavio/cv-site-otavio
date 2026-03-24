@@ -1597,10 +1597,12 @@ body.light-theme .article-modal-content {
 
 /* Blog card image */
 .blog-card-image {
+  display: block;
   width: calc(100% + 48px);
   margin: -24px -24px 16px;
-  height: 180px;
+  height: 200px;
   object-fit: cover;
+  object-position: center;
   border-radius: var(--radius) var(--radius) 0 0;
 }
 

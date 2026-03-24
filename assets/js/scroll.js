@@ -29,8 +29,8 @@
     const normalized = clamp(distance, -1, 1);
     const progress = 1 - Math.min(1, Math.abs(normalized));
 
-    const opacity = 0.4 + progress * 0.6;
-    const scale = 0.96 + progress * 0.04;
+    const opacity = 0.75 + progress * 0.25;
+    const scale = 0.98 + progress * 0.02;
     const blur = (1 - progress) * blurMax;
     const shift = normalized * -strength;
 
@@ -45,8 +45,8 @@
   const update = () => {
     if (prefersReducedMotion) return;
     const viewportHeight = window.innerHeight;
-    const strength = 18;
-    const blurMax = 4;
+    const strength = 10;
+    const blurMax = 1.5;
     sections.forEach((section) =>
       updateSection(section, viewportHeight, strength, blurMax)
     );

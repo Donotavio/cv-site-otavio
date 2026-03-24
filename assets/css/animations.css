@@ -19,8 +19,8 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(11, 18, 32, 0.45) 0%,
-    rgba(11, 18, 32, 0.08) 45%,
+    rgba(11, 18, 32, 0.15) 0%,
+    rgba(11, 18, 32, 0.03) 45%,
     rgba(11, 18, 32, 0) 100%
   );
   opacity: calc(1 - var(--scroll-progress));
@@ -44,7 +44,6 @@
 }
 
 /* Desabilitar blur em seções com interação ou conteúdo importante */
-#featured-projects,
 #projects,
 #tech-stack,
 #recommendations {
