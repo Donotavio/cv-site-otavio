@@ -113,20 +113,18 @@ import { t } from '../lib/i18n';
 
   .ts-item__logo {
     font-family: var(--font-mono);
-    /* ASCII art: fonte minúscula, line-height 1 para encaixar a grade.
-       font-size fluido garante que as 24 colunas caibam na célula do grid. */
-    font-size: clamp(3.5px, 1.1vw, 5px);
-    line-height: 1.05;
+    /* ASCII art: canvas fixo 14 linhas × 26 cols (todos os logos iguais).
+       font-size fluido encaixa as 26 colunas; line-height 1 mantém a grade.
+       Sem overflow:hidden — o canvas uniforme garante mesma caixa. */
+    font-size: clamp(3px, 0.95vw, 4.5px);
+    line-height: 1;
     letter-spacing: 0;
     color: var(--ink);
     white-space: pre;
-    margin: 0;
-    height: 72px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0 auto;
+    display: block;
+    text-align: center;
     transition: color var(--transition-fast);
-    overflow: hidden;
   }
 
   .ts-item:hover .ts-item__logo { color: var(--accent); }
