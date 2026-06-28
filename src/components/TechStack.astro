@@ -60,6 +60,7 @@ import { t } from '../lib/i18n';
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-6);
+    align-items: stretch; /* cards com mesma altura */
   }
   @media (min-width: 768px)  { .ts-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 1280px) { .ts-grid { grid-template-columns: repeat(4, 1fr); } }
@@ -70,6 +71,8 @@ import { t } from '../lib/i18n';
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
     transition: border-color var(--transition-normal),
                 box-shadow var(--transition-normal);
   }
@@ -95,6 +98,8 @@ import { t } from '../lib/i18n';
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-5);
+    flex: 1;
+    align-content: start;
   }
 
   /* ── Item: logo ASCII + nome + nível ─────────────────────── */

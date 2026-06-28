@@ -14,7 +14,7 @@ import { DURATIONS, EASINGS, motionOk } from './constants';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function countUp(el: HTMLElement) {
+export function countUp(el: HTMLElement, trigger?: Element) {
   const target = parseFloat(el.dataset.countTo ?? '0');
   const prefix = el.dataset.countPrefix ?? '';
   const suffix = el.dataset.countSuffix ?? '';
@@ -29,17 +29,34 @@ export function countUp(el: HTMLElement) {
     return;
   }
 
-  const obj = { val: 0 };
-  gsap.to(obj, {
-    val: target,
-    duration: DURATIONS.entrance,
-    ease: EASINGS.outStrong,
-    onUpdate: () => { el.textContent = format(obj.val); },
-    scrollTrigger: {
-      trigger: el,
-      start: 'top 85%',
-      once: true,
-    },
+  const run = () => {
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      val: target,
+      duration: DURATIONS.entrance,
+      ease: EASINGS.outStrong,
+      onUpdate: () => { el.textContent = format(obj.val); },
+    });
+  };
+
+  const triggerEl = trigger ?? el;
+
+  // Se o elemento já está visível no load, conta imediatamente.
+  // (ScrollTrigger com start 'top 85%' não dispara de forma confiável
+  //  para elementos que já passaram do ponto de start no carregamento.)
+  const rect = triggerEl.getBoundingClientRect();
+  const alreadyVisible = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
+
+  if (alreadyVisible) {
+    run();
+    return;
+  }
+
+  ScrollTrigger.create({
+    trigger: triggerEl,
+    start: 'top 85%',
+    once: true,
+    onEnter: run,
   });
 }
 

@@ -3,7 +3,8 @@
  * Recommendations.astro — Seção [ 07 ] — Direção Blueprint (fundo --paper-soft)
  * Cards: foto, author, role, company, texto via i18n.
  * Foto path = baseUrl + rec.photo. Dados: fetch profile.json → recommendations[].
- * Motion: hairlineDraw + revealUp (cards).
+ * Motion: hairlineDraw + reveal-up staggered dos cards com a aspa serif
+ * decorativa crescendo (scale + opacity) em cascata.
  */
 import { t } from '../lib/i18n';
 ---
@@ -91,8 +92,8 @@ import { t } from '../lib/i18n';
     padding-top: var(--space-8);
   }
 
-  .rec-card__quote::before {
-    content: '\201C';
+  /* Aspa serif decorativa — elemento real p/ animar (scale + opacity) */
+  .rec-card__mark {
     position: absolute;
     top: 0;
     left: 0;
@@ -100,6 +101,9 @@ import { t } from '../lib/i18n';
     font-size: var(--text-3xl);
     color: var(--accent);
     line-height: 1;
+    transform-origin: top left;
+    pointer-events: none;
+    user-select: none;
   }
 
   .rec-card__quote p {
@@ -184,11 +188,18 @@ import { t } from '../lib/i18n';
 </style>
 
 <script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
-  import { motionOk } from '../scripts/motion/constants';
+  import { DURATIONS, EASINGS, motionOk, STAGGER } from '../scripts/motion/constants';
+
+  gsap.registerPlugin(ScrollTrigger);
 
   const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+
+  // ScrollTriggers criados nesta seção — limpos antes de re-render
+  let recTriggers: ScrollTrigger[] = [];
 
   interface Recommendation {
     id: string;
@@ -254,6 +265,7 @@ import { t } from '../lib/i18n';
       article.className = 'rec-card';
       article.innerHTML = `
         <div class="rec-card__quote">
+          <span class="rec-card__mark" aria-hidden="true">\u201C</span>
           <p>${text}</p>
         </div>
         <div class="rec-card__author">
@@ -271,8 +283,59 @@ import { t } from '../lib/i18n';
       grid.appendChild(article);
     });
 
-    const cards = grid.querySelectorAll<Element>('.rec-card');
-    revealUp(cards, grid, 0.1);
+    setupRecommendationsMotion(grid);
+  }
+
+  // ─── Motion: cards revelam staggered, aspa serif cresce ──────
+  function setupRecommendationsMotion(grid: HTMLElement) {
+    recTriggers.forEach((st) => st.kill());
+    recTriggers = [];
+
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>('.rec-card'));
+    const marks = cards
+      .map((c) => c.querySelector<HTMLElement>('.rec-card__mark'))
+      .filter((m): m is HTMLElement => !!m);
+
+    // Sem motion: tudo no estado final
+    if (!motionOk) {
+      gsap.set(cards, { clearProps: 'opacity,transform' });
+      gsap.set(marks, { clearProps: 'opacity,transform' });
+      return;
+    }
+
+    // Estado inicial: cards descem + fade, aspa pequena + transparente
+    gsap.set(cards, { opacity: 0, y: 24 });
+    gsap.set(marks, { opacity: 0, scale: 0.4, transformOrigin: 'top left' });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: grid,
+        start: 'top 85%',
+        once: true,
+      },
+    });
+
+    tl.to(cards, {
+      opacity: 1,
+      y: 0,
+      duration: DURATIONS.normal,
+      ease: EASINGS.out,
+      stagger: STAGGER.normal,
+    }).to(
+      marks,
+      {
+        opacity: 1,
+        scale: 1,
+        duration: DURATIONS.slow,
+        ease: EASINGS.outStrong,
+        stagger: STAGGER.normal,
+      },
+      // a aspa começa a crescer logo após o card iniciar a subida
+      '<0.15',
+    );
+
+    if (tl.scrollTrigger) recTriggers.push(tl.scrollTrigger);
+    ScrollTrigger.refresh();
   }
 
   // ─── Section line hairline + head reveal ─────────────────────
