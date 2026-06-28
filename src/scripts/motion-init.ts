@@ -44,5 +44,8 @@ export function initMotion(): Lenis | undefined {
 
   lenis.on('scroll', ScrollTrigger.update);
 
+  // Expor para scroll programático (navegação por menu → fireQueryLoader)
+  (window as Window & { __lenis?: Lenis }).__lenis = lenis;
+
   return lenis;
 }

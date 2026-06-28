@@ -74,9 +74,16 @@ const base = import.meta.env.BASE_URL;
     -->
     <script>
       import { initMotion } from '../scripts/motion-init';
+      import { registerQueryLoader } from '../scripts/motion/query-loader';
 
       document.addEventListener('DOMContentLoaded', () => {
         initMotion();
+
+        // Query Loader: cada seção carrega como o resultado de uma query.
+        // registerQueryLoader retorna cedo se reduced-motion / sem query.
+        document
+          .querySelectorAll<HTMLElement>('main section[id]')
+          .forEach((section) => registerQueryLoader(section));
       });
     </script>
   </body>

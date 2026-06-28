@@ -58,8 +58,10 @@ const navLinks = [
   </ul>
 </nav>
 
-<!-- Toggle mobile — JS inline mínimo, sem dependências externas -->
+<!-- Toggle mobile + navegação por menu (scroll suave + Query Loader) -->
 <script>
+  import { fireQueryLoader } from '../scripts/motion/query-loader';
+
   const toggle = document.querySelector('[data-nav-toggle]') as HTMLButtonElement | null;
   const list   = document.getElementById('nav-list');
 
@@ -77,13 +79,6 @@ const navLinks = [
       toggle.setAttribute('aria-expanded', String(isOpen));
     });
 
-    // Fechar ao clicar num link (mobile UX)
-    list.addEventListener('click', (e) => {
-      if ((e.target as HTMLElement).classList.contains('nav-link')) {
-        closeMenu();
-      }
-    });
-
     // Fechar ao pressionar Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && list.classList.contains('nav-list--open')) {
@@ -92,6 +87,41 @@ const navLinks = [
       }
     });
   }
+
+  /*
+   * Navegação por menu:
+   *  1. previne o jump instantâneo da âncora
+   *  2. scroll suave via Lenis (cai em scrollIntoView se Lenis ausente)
+   *  3. dispara o Query Loader da seção destino (uma vez por seção)
+   *  4. fecha o drawer mobile
+   */
+  type LenisLike = { scrollTo: (t: Element, o?: object) => void };
+
+  document.querySelectorAll<HTMLAnchorElement>('.nav-link').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href') ?? '';
+      if (!href.startsWith('#')) return;
+
+      const id = href.slice(1);
+      const target = document.getElementById(id);
+      if (!target) return;
+
+      e.preventDefault();
+
+      const lenis = (window as Window & { __lenis?: LenisLike }).__lenis;
+      if (lenis) {
+        lenis.scrollTo(target, { offset: 0, duration: 1.1 });
+      } else {
+        // reduced-motion / Lenis ausente → scroll nativo
+        target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      }
+
+      // dispara o loader temático da seção (no-op se já tocou ou reduced-motion)
+      fireQueryLoader(id);
+
+      closeMenu();
+    });
+  });
 </script>
 
 <style>

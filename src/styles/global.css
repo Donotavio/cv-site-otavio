@@ -206,3 +206,142 @@
   outline-offset: 3px;
   border-radius: var(--radius-sm);
 }
+
+/* ══════════════════════════════════════════════════════════
+ * Query Loader — overlay de "terminal" por seção (Blueprint)
+ * Cada seção carrega como o resultado de uma query SQL/Python.
+ * Criado/animado por JS (query-loader.ts). Sem JS → nunca aparece.
+ * ══════════════════════════════════════════════════════════ */
+
+/* Overlay FIXO na viewport: o terminal sempre aparece no centro da tela ativa
+   do usuário, independente do tamanho da seção (Carreira/Recomendações são
+   altas — com absolute o terminal ficava fora da área visível). */
+.ql-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: var(--paper);
+  opacity: 0;                 /* fade-in controlado pelo GSAP */
+  /* decorativo: não prende o foco/teclado, conteúdo real fica acessível */
+  pointer-events: none;
+}
+
+/* Terminal: card blueprint com crop marks nos cantos. */
+.ql-terminal {
+  position: relative;
+  width: min(640px, 92%);
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  overflow: hidden;
+}
+/* crop marks (cantos de blueprint) */
+.ql-terminal::before,
+.ql-terminal::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+.ql-terminal::before {
+  top: 6px; left: 6px;
+  border-top: 1px solid var(--line-strong);
+  border-left: 1px solid var(--line-strong);
+}
+.ql-terminal::after {
+  bottom: 6px; right: 6px;
+  border-bottom: 1px solid var(--line-strong);
+  border-right: 1px solid var(--line-strong);
+}
+
+/* Barra de título do terminal. */
+.ql-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-soft);
+}
+.ql-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  flex: none;
+}
+.ql-tab {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-faint);
+}
+
+/* Bloco de código digitado. */
+.ql-code {
+  margin: 0;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 4.5em;
+  font-size: var(--text-sm);
+}
+
+/* Linha de status / execução / resultado. */
+.ql-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5) var(--space-4);
+  border-top: 1px solid var(--line);
+  background: var(--paper-soft);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-soft);
+  min-height: 1.5em;
+}
+.ql-run { color: var(--ink-soft); }
+.ql-ok  { color: var(--accent); font-weight: 500; }
+.ql-bar-ascii { color: var(--ink-faint); white-space: pre; }
+.ql-roll { color: var(--accent); }
+
+/* Syntax highlight (blueprint: acento p/ keywords, ink-soft p/ resto). */
+.ql-kw  { color: var(--accent); }
+.ql-str { color: var(--ink-soft); }
+.ql-num { color: var(--ink-soft); font-weight: 500; }
+.ql-dim { color: var(--ink-faint); }
+
+/* effect 'sort': linhas reordenando e assentando. */
+.ql-sorted { color: var(--ink); }
+/* effect 'scan': linha sob o cursor de scan. */
+.ql-scan {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+/* Cursor █ piscando — CSS animation (não GSAP). */
+.ql-cursor {
+  display: inline-block;
+  color: var(--accent);
+  animation: ql-blink 1s steps(1) infinite;
+}
+@keyframes ql-blink {
+  0%, 50%   { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+/* Acessibilidade: reduced-motion → sem cursor piscando.
+   (O overlay em si nem é criado quando motionOk é false.) */
+@media (prefers-reduced-motion: reduce) {
+  .ql-cursor { animation: none; opacity: 1; }
+}
