@@ -7,6 +7,7 @@
  * Regras: zero hex (só tokens.css Blueprint), CSS scoped, mobile-first,
  *         texto UI via data-i18n-key, apenas padrões revealUp/hairlineDraw.
  */
+import { t } from '../lib/i18n';
 ---
 
 <section id="about" class="section about" aria-labelledby="about-title">
@@ -14,8 +15,8 @@
     <!-- Cabeçalho de seção: index + display + descrição -->
     <div class="section-head">
       <span class="mono-label">01</span>
-      <h2 id="about-title" class="about-display" data-i18n-key="about.title"></h2>
-      <p class="about-lead" data-i18n-key="about.subtitle"></p>
+      <h2 id="about-title" class="about-display" data-i18n-key="about.title">{t('about.title')}</h2>
+      <p class="about-lead" data-i18n-key="about.subtitle">{t('about.subtitle')}</p>
     </div>
 
     <hr class="section-line" aria-hidden="true" />
@@ -23,8 +24,8 @@
     <div class="about-grid">
       <!-- Coluna esquerda: texto editorial -->
       <div class="about-text">
-        <p class="about-body" data-i18n-key="about.body_1"></p>
-        <p class="about-body" data-i18n-key="about.body_2"></p>
+        <p class="about-body" data-i18n-key="about.body_1">{t('about.body_1')}</p>
+        <p class="about-body" data-i18n-key="about.body_2">{t('about.body_2')}</p>
       </div>
 
       <!-- Coluna direita: card de destaque com crop marks -->
@@ -33,26 +34,26 @@
           <span class="crop-mark-bl" aria-hidden="true"></span>
           <span class="crop-mark-br" aria-hidden="true"></span>
 
-          <p class="about-card-title mono-label mono-label--accent" data-i18n-key="about.card_title"></p>
+          <p class="about-card-title mono-label mono-label--accent" data-i18n-key="about.card_title">{t('about.card_title')}</p>
 
           <ul class="about-bullets" aria-label="deliverables">
             <li class="about-bullet">
               <span class="about-bullet-mark" aria-hidden="true">›</span>
-              <span data-i18n-key="about.bullet_1"></span>
+              <span data-i18n-key="about.bullet_1">{t('about.bullet_1')}</span>
             </li>
             <li class="about-bullet">
               <span class="about-bullet-mark" aria-hidden="true">›</span>
-              <span data-i18n-key="about.bullet_2"></span>
+              <span data-i18n-key="about.bullet_2">{t('about.bullet_2')}</span>
             </li>
             <li class="about-bullet">
               <span class="about-bullet-mark" aria-hidden="true">›</span>
-              <span data-i18n-key="about.bullet_3"></span>
+              <span data-i18n-key="about.bullet_3">{t('about.bullet_3')}</span>
             </li>
           </ul>
 
           <div class="about-card-footer">
-            <span class="tag tag--accent" data-i18n-key="about.tag"></span>
-            <p class="about-tagline" data-i18n-key="about.tagline"></p>
+            <span class="tag tag--accent" data-i18n-key="about.tag">{t('about.tag')}</span>
+            <p class="about-tagline" data-i18n-key="about.tagline">{t('about.tagline')}</p>
           </div>
         </div>
       </aside>

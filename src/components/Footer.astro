@@ -4,6 +4,7 @@
  * Logo [ OR ] + nome, tagline (footer.tagline) mono, links, copyright.
  * Sem motion conforme spec. Zero hex, CSS scoped, UI via data-i18n-key.
  */
+import { t } from '../lib/i18n';
 ---
 
 <footer class="footer" role="contentinfo">
@@ -18,7 +19,7 @@
       </div>
 
       <!-- Tagline -->
-      <p class="footer__tagline" data-i18n-key="footer.tagline"></p>
+      <p class="footer__tagline" data-i18n-key="footer.tagline">{t('footer.tagline')}</p>
 
       <!-- Links -->
       <nav class="footer__links" aria-label="Links de contato">
@@ -38,7 +39,7 @@
       </nav>
 
       <!-- Copyright -->
-      <p class="footer__rights" data-i18n-key="footer.rights"></p>
+      <p class="footer__rights" data-i18n-key="footer.rights">{t('footer.rights')}</p>
     </div>
   </div>
 </footer>

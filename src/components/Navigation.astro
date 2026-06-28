@@ -13,6 +13,8 @@
  * aria-label do <nav> via data-i18n-aria="nav.aria_label".
  */
 
+import { t } from '../lib/i18n';
+
 const navLinks = [
   { href: '#hero',            key: 'nav.home'            },
   { href: '#about',           key: 'nav.about'           },
@@ -50,7 +52,7 @@ const navLinks = [
   <ul class="nav-list" id="nav-list" role="list">
     {navLinks.map(({ href, key }) => (
       <li class="nav-item">
-        <a href={href} class="nav-link mono-label" data-i18n-key={key}></a>
+        <a href={href} class="nav-link mono-label" data-i18n-key={key}>{t(key)}</a>
       </li>
     ))}
   </ul>

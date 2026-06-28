@@ -6,14 +6,15 @@
  * Modal a11y (role=dialog, aria-modal, focus trap, Escape) para detalhes.
  * Dados: fetch profile.json. Motion: hairlineDraw (section-line) + revealUp (entradas).
  */
+import { t } from '../lib/i18n';
 ---
 
 <section id="timeline" class="section timeline" aria-labelledby="timeline-title">
   <div class="container">
     <div class="section-head">
       <span class="mono-label">03</span>
-      <h2 id="timeline-title" class="tl-display" data-i18n-key="timeline.title"></h2>
-      <p class="tl-lead" data-i18n-key="timeline.subtitle"></p>
+      <h2 id="timeline-title" class="tl-display" data-i18n-key="timeline.title">{t('timeline.title')}</h2>
+      <p class="tl-lead" data-i18n-key="timeline.subtitle">{t('timeline.subtitle')}</p>
     </div>
 
     <hr class="section-line" aria-hidden="true" />
@@ -25,7 +26,7 @@
       class="empty-state"
       data-i18n-key="timeline.empty"
       hidden
-    ></p>
+    >{t('timeline.empty')}</p>
   </div>
 </section>
 

@@ -5,14 +5,15 @@
  * + card "hire" com crop marks (título/mensagem/CTA btn-primary).
  * Motion: hairlineDraw + revealUp (cards). Textos UI via data-i18n-key.
  */
+import { t } from '../lib/i18n';
 ---
 
 <section id="contact" class="section contact" aria-labelledby="contact-title">
   <div class="container">
     <div class="section-head">
       <span class="mono-label">08</span>
-      <h2 id="contact-title" class="contact-display" data-i18n-key="contact.title"></h2>
-      <p class="contact-lead" data-i18n-key="contact.subtitle"></p>
+      <h2 id="contact-title" class="contact-display" data-i18n-key="contact.title">{t('contact.title')}</h2>
+      <p class="contact-lead" data-i18n-key="contact.subtitle">{t('contact.subtitle')}</p>
     </div>
 
     <hr class="section-line" aria-hidden="true" />
@@ -21,7 +22,7 @@
       <!-- Coluna esquerda: links -->
       <div class="contact-links" id="contact-links-card">
         <a class="contact-link" href="mailto:ribeitemp@gmail.com" aria-label="Email">
-          <span class="contact-link__label mono-label" data-i18n-key="contact.email_label"></span>
+          <span class="contact-link__label mono-label" data-i18n-key="contact.email_label">{t('contact.email_label')}</span>
           <span class="contact-link__value link-underline">ribeitemp@gmail.com</span>
         </a>
 
@@ -32,7 +33,7 @@
           rel="noopener noreferrer"
           aria-label="LinkedIn"
         >
-          <span class="contact-link__label mono-label" data-i18n-key="contact.linkedin_label"></span>
+          <span class="contact-link__label mono-label" data-i18n-key="contact.linkedin_label">{t('contact.linkedin_label')}</span>
           <span class="contact-link__value link-underline">linkedin.com/in/donotavio</span>
         </a>
 
@@ -43,7 +44,7 @@
           rel="noopener noreferrer"
           aria-label="GitHub"
         >
-          <span class="contact-link__label mono-label" data-i18n-key="contact.github_label"></span>
+          <span class="contact-link__label mono-label" data-i18n-key="contact.github_label">{t('contact.github_label')}</span>
           <span class="contact-link__value link-underline">github.com/donotavio</span>
         </a>
       </div>
@@ -52,13 +53,13 @@
       <div class="hire-card crop" id="contact-hire-card">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
-        <h3 class="hire-card__title" data-i18n-key="contact.hire_title"></h3>
-        <p class="hire-card__message" data-i18n-key="contact.hire_message"></p>
+        <h3 class="hire-card__title" data-i18n-key="contact.hire_title">{t('contact.hire_title')}</h3>
+        <p class="hire-card__message" data-i18n-key="contact.hire_message">{t('contact.hire_message')}</p>
         <a
           class="btn-primary hire-card__cta"
           href="mailto:ribeitemp@gmail.com?subject=Oportunidade%20de%20Contrata%C3%A7%C3%A3o"
           data-i18n-key="contact.hire_cta"
-        ></a>
+        >{t('contact.hire_cta')}</a>
       </div>
     </div>
   </div>

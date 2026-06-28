@@ -50,15 +50,10 @@ const base = import.meta.env.BASE_URL;
     <link rel="apple-touch-icon" href={`${base}assets/img/apple-touch-icon.png`} />
     <link rel="manifest" href={`${base}site.webmanifest`} />
 
-    <!-- Fonts: Instrument Serif (display) + Inter (body) + IBM Plex Mono (labels) — Blueprint -->
-    <!-- preconnect reduz o custo do handshake; display=swap evita FOIT.
-         Mantido como stylesheet bloqueante: garante CLS 0 (sem reflow de swap no H1 serif). -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Fonts self-hosted (Blueprint) — preload das críticas, zero render-block, zero request externo -->
+    <link rel="preload" href={`${base}assets/fonts/instrumentserif-400.woff2`} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${base}assets/fonts/inter-var.woff2`} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${base}assets/fonts/ibmplexmono-400.woff2`} as="font" type="font/woff2" crossorigin />
 
     <!-- Global styles: tokens → reset → layout → componentes (importado no frontmatter) -->
   </head>

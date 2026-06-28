@@ -8,14 +8,15 @@
  *
  * Fundo --paper-soft. Zero hex, CSS scoped, mobile-first, UI via data-i18n-key.
  */
+import { t } from '../lib/i18n';
 ---
 
 <section id="impact" class="section impact" aria-labelledby="impact-title">
   <div class="container">
     <div class="section-head">
       <span class="mono-label">02</span>
-      <h2 id="impact-title" class="impact-display" data-i18n-key="impact.title"></h2>
-      <p class="impact-lead" data-i18n-key="impact.subtitle"></p>
+      <h2 id="impact-title" class="impact-display" data-i18n-key="impact.title">{t('impact.title')}</h2>
+      <p class="impact-lead" data-i18n-key="impact.subtitle">{t('impact.subtitle')}</p>
     </div>
 
     <hr class="section-line" aria-hidden="true" />
@@ -25,23 +26,23 @@
       <div class="metric metric--lg crop" role="listitem" data-metric="1">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
-        <span class="metric-value" data-metric-value></span>
-        <span class="metric-label" data-i18n-key="impact.metric_1_label"></span>
+        <span class="metric-value" data-metric-value>{t('impact.metric_1_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_1_label">{t('impact.metric_1_label')}</span>
       </div>
 
       <div class="metric" role="listitem" data-metric="2">
-        <span class="metric-value" data-metric-value></span>
-        <span class="metric-label" data-i18n-key="impact.metric_2_label"></span>
+        <span class="metric-value" data-metric-value>{t('impact.metric_2_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_2_label">{t('impact.metric_2_label')}</span>
       </div>
 
       <div class="metric" role="listitem" data-metric="3">
-        <span class="metric-value" data-metric-value></span>
-        <span class="metric-label" data-i18n-key="impact.metric_3_label"></span>
+        <span class="metric-value" data-metric-value>{t('impact.metric_3_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_3_label">{t('impact.metric_3_label')}</span>
       </div>
 
       <div class="metric metric--wide" role="listitem" data-metric="4">
-        <span class="metric-value" data-metric-value></span>
-        <span class="metric-label" data-i18n-key="impact.metric_4_label"></span>
+        <span class="metric-value" data-metric-value>{t('impact.metric_4_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_4_label">{t('impact.metric_4_label')}</span>
       </div>
     </div>
 
@@ -49,8 +50,8 @@
     <div class="impact-highlight crop" role="complementary" aria-label="tech stack highlight">
       <span class="crop-mark-bl" aria-hidden="true"></span>
       <span class="crop-mark-br" aria-hidden="true"></span>
-      <p class="highlight-title mono-label" data-i18n-key="impact.highlight_title"></p>
-      <p class="highlight-items" data-i18n-key="impact.highlight_items"></p>
+      <p class="highlight-title mono-label" data-i18n-key="impact.highlight_title">{t('impact.highlight_title')}</p>
+      <p class="highlight-items" data-i18n-key="impact.highlight_items">{t('impact.highlight_items')}</p>
     </div>
   </div>
 </section>

@@ -21,6 +21,8 @@
  * A foto real fica acessível a leitores de tela via <img> sr-only com alt.
  */
 
+import { t } from '../lib/i18n';
+
 const asciiSrc = `${import.meta.env.BASE_URL}assets/data/portrait-ascii.txt`;
 const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.webp`;
 ---
@@ -41,7 +43,7 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
         class="hero-eyebrow mono-label mono-label--accent"
         data-hero-eyebrow
         data-i18n-key="hero.eyebrow"
-      ></p>
+      >{t('hero.eyebrow')}</p>
 
       <!-- H1 — Instrument Serif, escala de cartaz -->
       <h1
@@ -49,14 +51,14 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
         class="hero-title"
         data-hero-title
         data-i18n-key="hero.role"
-      ></h1>
+      >{t('hero.role')}</h1>
 
       <!-- Subtítulo -->
       <p
         class="hero-subtitle"
         data-hero-subtitle
         data-i18n-key="hero.summary"
-      ></p>
+      >{t('hero.summary')}</p>
 
       <!-- CTAs -->
       <div class="hero-ctas" data-hero-ctas>
@@ -66,12 +68,12 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
           href={`${import.meta.env.BASE_URL}assets/cv/cv-otavio-ptBR.pdf`}
           download
           data-i18n-key="hero.cta_cv"
-        ></a>
+        >{t('hero.cta_cv')}</a>
         <a
           href="#contact"
           class="btn-secondary"
           data-i18n-key="hero.cta_contact"
-        ></a>
+        >{t('hero.cta_contact')}</a>
       </div>
 
       <!-- Localização — mono label entre colchetes + pin -->
@@ -92,7 +94,7 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
           <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        <span class="mono-label" data-i18n-key="hero.location_label"></span>
+        <span class="mono-label" data-i18n-key="hero.location_label">{t('hero.location_label')}</span>
       </div>
     </div>
 

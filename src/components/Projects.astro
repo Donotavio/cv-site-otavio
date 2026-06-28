@@ -5,14 +5,15 @@
  * linguagem como .tag, stars em mono, link com .link-underline.
  * Dados: fetch profile.json → projects[]. Motion: hairlineDraw + revealUp (cards).
  */
+import { t } from '../lib/i18n';
 ---
 
 <section id="projects" class="section projects" aria-labelledby="projects-title">
   <div class="container">
     <div class="section-head">
       <span class="mono-label">06</span>
-      <h2 id="projects-title" class="proj-display" data-i18n-key="projects.title"></h2>
-      <p class="proj-lead" data-i18n-key="projects.subtitle"></p>
+      <h2 id="projects-title" class="proj-display" data-i18n-key="projects.title">{t('projects.title')}</h2>
+      <p class="proj-lead" data-i18n-key="projects.subtitle">{t('projects.subtitle')}</p>
     </div>
 
     <hr class="section-line" aria-hidden="true" />
@@ -24,7 +25,7 @@
       class="empty-state"
       data-i18n-key="projects.empty"
       hidden
-    ></p>
+    >{t('projects.empty')}</p>
   </div>
 </section>
 
