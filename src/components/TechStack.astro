@@ -112,41 +112,43 @@ import { t } from '../lib/i18n';
   }
 
   /* ── Spotlight por logo: ASCII (topo) + SVG real (baixo, mascarado) ── */
-  .ts-item__spot {
+  /* Spotlight: elementos injetados via JS (innerHTML) NÃO recebem o atributo
+     de scoping do Astro → usar :global() para o CSS aplicar. */
+  :global(.ts-item__spot) {
     position: relative;
     display: inline-block;
     cursor: crosshair;
   }
 
   /* SVG colorido original — revelado pela lanterna sob o ASCII */
-  .ts-item__photo {
+  :global(.ts-item__photo) {
     position: absolute;
     inset: 0;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     opacity: 0;
-    -webkit-mask: radial-gradient(circle var(--spot-r, 40px) at var(--mx) var(--my), #000 0%, #000 55%, transparent 100%);
-    mask: radial-gradient(circle var(--spot-r, 40px) at var(--mx) var(--my), #000 0%, #000 55%, transparent 100%);
+    -webkit-mask: radial-gradient(circle var(--spot-r, 40px) at var(--mx, -999px) var(--my, -999px), #000 0%, #000 55%, transparent 100%);
+    mask: radial-gradient(circle var(--spot-r, 40px) at var(--mx, -999px) var(--my, -999px), #000 0%, #000 55%, transparent 100%);
     transition: opacity var(--transition-fast);
     pointer-events: none;
+    z-index: 1;
   }
 
-  .is-spotting .ts-item__photo { opacity: 1; }
+  :global(.ts-item__spot.is-spotting .ts-item__photo) { opacity: 1; }
 
-  .is-revealed .ts-item__photo {
+  :global(.ts-item__spot.is-revealed .ts-item__photo) {
     opacity: 1;
     -webkit-mask: none;
     mask: none;
     transition: opacity var(--transition-normal);
   }
-  .is-revealed .ts-item__logo { opacity: 0; }
+  :global(.ts-item__spot.is-revealed .ts-item__logo) { opacity: 0; }
 
-  .ts-item__logo {
+  :global(.ts-item__logo) {
     font-family: var(--font-mono);
     /* ASCII art: canvas fixo 14 linhas × 26 cols (todos os logos iguais).
-       font-size fluido encaixa as 26 colunas; line-height 1 mantém a grade.
-       Sem overflow:hidden — o canvas uniforme garante mesma caixa. */
+       font-size fluido encaixa as 26 colunas; line-height 1 mantém a grade. */
     font-size: clamp(3px, 0.95vw, 4.5px);
     line-height: 1;
     letter-spacing: 0;
@@ -158,11 +160,11 @@ import { t } from '../lib/i18n';
     transition: color var(--transition-fast), opacity var(--transition-fast);
   }
 
-  .ts-item:hover .ts-item__logo { color: var(--accent); }
+  :global(.ts-item:hover .ts-item__logo) { color: var(--accent); }
 
   @media (prefers-reduced-motion: reduce) {
-    .ts-item__spot { cursor: default; }
-    .ts-item__photo { opacity: 0 !important; }
+    :global(.ts-item__spot) { cursor: default; }
+    :global(.ts-item__photo) { opacity: 0 !important; }
   }
 
   .ts-item__name {
@@ -240,8 +242,12 @@ import { t } from '../lib/i18n';
         const art = asciiData?.[key] ?? '';
         const levelLabel = window.i18n?.t(`tech_stack.level_${tech.level}`) ?? tech.level;
         const levelClass = tech.level === 'expert' ? 'ts-item__level ts-item__level--expert' : 'ts-item__level';
-        // logo SVG original (colorido) revelado pela lanterna sob o ASCII
-        const logoUrl = joinUrl(baseUrl, tech.logo);
+        // logo SVG original (colorido) revelado pela lanterna sob o ASCII.
+        // tech.logo já vem com o baseurl embutido (ex /cv-site-otavio/assets/...);
+        // se por acaso vier sem, joinUrl prefixa — mas NÃO duplica.
+        const logoUrl = tech.logo.startsWith(baseUrl) || tech.logo.startsWith('/cv-site-otavio')
+          ? tech.logo
+          : joinUrl(baseUrl, tech.logo);
         return `
           <div class="ts-item">
             <div class="ts-item__spot" data-spotlight aria-hidden="true">
