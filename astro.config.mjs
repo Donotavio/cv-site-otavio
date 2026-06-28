@@ -7,8 +7,8 @@ export default defineConfig({
   base: '/cv-site-otavio/',
   output: 'static',
   build: {
-    // Keep assets folder name consistent with existing pipeline paths
-    assets: 'assets',
+    // _astro evita conflito com public/assets/ (dados, imagens, i18n)
+    assets: '_astro',
   },
   vite: {
     build: {
