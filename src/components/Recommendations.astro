@@ -89,6 +89,7 @@ import { t } from '../lib/i18n';
     flex: 1;
     position: relative;
     padding-top: var(--space-8);
+    --quote-scale: 1;
   }
 
   .rec-card__quote::before {
@@ -100,6 +101,8 @@ import { t } from '../lib/i18n';
     font-size: var(--text-3xl);
     color: var(--accent);
     line-height: 1;
+    transform: scale(var(--quote-scale));
+    transform-origin: top left;
   }
 
   .rec-card__quote p {
@@ -119,13 +122,46 @@ import { t } from '../lib/i18n';
     border-top: 1px solid var(--line);
   }
 
-  .rec-card__photo {
+  .rec-card__avatar {
+    position: relative;
     width: 44px;
     height: 44px;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    /* placeholder blueprint visível ANTES da foto carregar */
+    background: var(--accent-dim);
+    border: 1px solid var(--line);
+    /* máscara cinematográfica de entrada da foto */
+    clip-path: inset(0 round var(--radius-full));
+  }
+
+  .rec-card__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     border-radius: var(--radius-full);
     object-fit: cover;
-    flex-shrink: 0;
     border: 1px solid var(--line-strong);
+    /* sobre o placeholder de iniciais */
+    z-index: 1;
+  }
+
+  /* fallback iniciais — círculo blueprint, mono sobre accent-dim */
+  .rec-card__initials {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    color: var(--accent);
+    user-select: none;
+    pointer-events: none;
   }
 
   .rec-card__author-info { flex: 1; min-width: 0; }
@@ -184,11 +220,16 @@ import { t } from '../lib/i18n';
 </style>
 
 <script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
-  import { motionOk } from '../scripts/motion/constants';
+  import { motionOk, DURATIONS, EASINGS, STAGGER } from '../scripts/motion/constants';
+
+  gsap.registerPlugin(ScrollTrigger);
 
   const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+  let entrancePlayed = false;
 
   interface Recommendation {
     id: string;
@@ -197,6 +238,23 @@ import { t } from '../lib/i18n';
     company: string;
     linkedin: string;
     photo: string;
+  }
+
+  /**
+   * Normaliza join de baseUrl (trailing slash) + path (leading slash)
+   * evitando barra dupla (//) que quebra no serve estático do GitHub Pages.
+   */
+  function joinUrl(base: string, path: string): string {
+    if (!path) return '';
+    return base.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '');
+  }
+
+  /** Iniciais do autor para o placeholder blueprint (máx. 2). */
+  function initialsOf(name: string): string {
+    const parts = (name ?? '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '·';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
 
   const LINKEDIN_SVG = `
@@ -233,10 +291,18 @@ import { t } from '../lib/i18n';
       const text = window.i18n?.t(`recommendations.items.${rec.id}.text`) ?? '';
       const date = window.i18n?.t(`recommendations.items.${rec.id}.date`) ?? '';
 
-      const photoSrc = rec.photo ? `${baseUrl}${rec.photo}` : '';
-      const photoHtml = photoSrc
-        ? `<img class="rec-card__photo" src="${photoSrc}" alt="${rec.author}" loading="lazy">`
+      const photoSrc = joinUrl(baseUrl, rec.photo);
+      const initials = initialsOf(rec.author);
+      // placeholder de iniciais sempre presente sob a foto;
+      // se a foto falhar (404/erro), onerror remove a <img> e expõe o placeholder.
+      const photoImg = photoSrc
+        ? `<img class="rec-card__photo" src="${photoSrc}" alt="${rec.author}" loading="lazy" onerror="this.remove()">`
         : '';
+      const photoHtml = `
+        <span class="rec-card__avatar" role="img" aria-label="${rec.author}">
+          <span class="rec-card__initials" aria-hidden="true">${initials}</span>
+          ${photoImg}
+        </span>`;
 
       const linkedinHtml = rec.linkedin
         ? `<a
@@ -271,8 +337,55 @@ import { t } from '../lib/i18n';
       grid.appendChild(article);
     });
 
-    const cards = grid.querySelectorAll<Element>('.rec-card');
-    revealUp(cards, grid, 0.1);
+    // Entrada só na 1ª render. Em re-render (languageChanged) o conteúdo
+    // aparece direto — evita cards/fotos presos no estado `from` (invisíveis)
+    // quando a seção já foi vista e o ScrollTrigger once:true não re-dispara.
+    if (!entrancePlayed) {
+      entrancePlayed = true;
+      const cards = grid.querySelectorAll<Element>('.rec-card');
+      revealUp(cards, grid, STAGGER.tight);
+      revealPortraits(grid);
+    }
+  }
+
+  /**
+   * Entrada cinematográfica dos retratos: a máscara circular (clip-path)
+   * abre de baixo→cima enquanto a foto faz scale 1.08→1. Aspa serif cresce.
+   * Só transform/opacity/clip-path. once:true. prefers-reduced-motion = direto.
+   */
+  function revealPortraits(grid: HTMLElement) {
+    if (!motionOk) return;
+
+    const trigger = { trigger: grid, start: 'top 88%', once: true } as const;
+
+    const avatars = grid.querySelectorAll<Element>('.rec-card__avatar');
+    gsap.from(avatars, {
+      clipPath: 'inset(100% 0 0 0 round 50%)',
+      duration: DURATIONS.slow,
+      ease: EASINGS.out,
+      stagger: STAGGER.tight,
+      scrollTrigger: { ...trigger },
+    });
+
+    const photos = grid.querySelectorAll<Element>('.rec-card__photo');
+    gsap.from(photos, {
+      scale: 1.08,
+      duration: DURATIONS.entrance,
+      ease: EASINGS.out,
+      stagger: STAGGER.tight,
+      transformOrigin: 'center center',
+      scrollTrigger: { ...trigger },
+    });
+
+    const quotes = grid.querySelectorAll<Element>('.rec-card__quote');
+    gsap.from(quotes, {
+      '--quote-scale': 0,
+      opacity: 0,
+      duration: DURATIONS.slow,
+      ease: EASINGS.out,
+      stagger: STAGGER.tight,
+      scrollTrigger: { ...trigger },
+    });
   }
 
   // ─── Section line hairline + head reveal ─────────────────────

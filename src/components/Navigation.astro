@@ -206,8 +206,18 @@ const navLinks = [
     border-radius: var(--radius-sm);
   }
 
-  /* ── Desktop: hamburguer some, lista inline ─────────── */
-  @media (min-width: 1024px) {
+  /* ── Desktop: hamburguer some, lista inline ───────────
+     Breakpoint 1100px: a partir daqui os 8 links mono compactos + logo +
+     lang-switcher cabem      numa linha sem corte, mesmo nos idiomas verbosos (pt-BR/es-ES, ex.:
+     "Recomendações"/"Recomendaciones"). Abaixo disso, drawer hamburger
+     (evita o lang-switcher estourar para fora da viewport).
+
+     Os links inline ficam mais enxutos que no drawer: sem os colchetes [ ]
+     (que no drawer dão a assinatura blueprint) e com tracking levemente menor,
+     porque 8 labels verbosos (ex.: "Recomendações") não cabem de outra forma.
+     A assinatura de colchetes segue presente no logo [ OR ] e nos labels de
+     seção [ 01 ]…, então a coesão visual é mantida. */
+  @media (min-width: 1200px) {
     .nav-toggle {
       display: none;
     }
@@ -217,7 +227,7 @@ const navLinks = [
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: var(--space-2);
+      gap: var(--space-1);
 
       position: static;
       width: auto;
@@ -233,8 +243,27 @@ const navLinks = [
     }
 
     .nav-link {
-      padding: var(--space-2) var(--space-2);
+      padding: var(--space-2);
       white-space: nowrap;
+      /* Nav inline mais compacto: tracking menor que o mono-label padrão */
+      letter-spacing: var(--tracking-wide);
+    }
+
+    /* Inline não usa colchetes — economia de ~32 chars no conjunto.
+       Os colchetes seguem no drawer mobile e no logo/section labels. */
+    .nav-link.mono-label::before,
+    .nav-link.mono-label::after {
+      content: none;
+    }
+  }
+
+  /* ── Widescreen: respiro extra entre links ──────────── */
+  @media (min-width: 1440px) {
+    .nav-list {
+      gap: var(--space-2);
+    }
+    .nav-link {
+      letter-spacing: var(--tracking-wider);
     }
   }
 </style>
