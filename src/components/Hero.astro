@@ -25,6 +25,7 @@ import { t } from '../lib/i18n';
 
 const asciiSrc = `${import.meta.env.BASE_URL}assets/data/portrait-ascii.txt`;
 const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.webp`;
+const portraitPhoto = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-880.webp`;
 ---
 
 <section id="hero" aria-labelledby="hero-title">
@@ -114,13 +115,23 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
         <!-- Glow azul sutil ATRÁS do ASCII (único lugar com glow) -->
         <span class="hero-portrait__glow" aria-hidden="true"></span>
 
-        <!-- ASCII art — decorativo; preenchido via fetch no script abaixo -->
-        <pre
-          class="ascii-portrait"
-          data-hero-portrait
-          data-ascii-src={asciiSrc}
-          aria-hidden="true"
-        ></pre>
+        <!-- Spotlight: lanterna revela a foto real sob o ASCII -->
+        <div class="hero-portrait__spotlight" data-spotlight aria-hidden="true">
+          <!-- Foto real (camada de baixo, revelada pela máscara-lanterna) -->
+          <div
+            class="hero-portrait__photo"
+            data-spotlight-photo
+            style={`background-image:url(${portraitPhoto})`}
+          ></div>
+
+          <!-- ASCII art — decorativo; preenchido via fetch no script abaixo -->
+          <pre
+            class="ascii-portrait"
+            data-hero-portrait
+            data-spotlight-ascii
+            data-ascii-src={asciiSrc}
+          ></pre>
+        </div>
 
         <!-- Foto real acessível a leitores de tela (visualmente oculta) -->
         <img class="sr-only" src={portraitImg} alt="Otávio Ribeiro" width="440" height="440" />
@@ -142,6 +153,7 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
 <!-- ── Motion: padrão 5 (resolve) + carga do ASCII portrait ─────── -->
 <script>
   import { resolveHero } from '../scripts/motion/resolve';
+  import { spotlightReveal } from '../scripts/motion/spotlight-reveal';
 
   async function loadAscii() {
     const pre = document.querySelector<HTMLElement>('[data-hero-portrait]');
@@ -159,6 +171,11 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
   function init() {
     const hero = document.querySelector('#hero');
     if (hero) resolveHero(hero);
+
+    // Lanterna revela a foto real sob o ASCII; shake = foto inteira por 3s.
+    // Em touch / reduced-motion o helper retorna cedo → ASCII estático.
+    const spot = document.querySelector<HTMLElement>('[data-spotlight]');
+    if (spot) spotlightReveal(spot, { radius: 100, holdMs: 3000 });
   }
 
   // Carrega o ASCII antes de medir/animar para o scan ter conteúdo real.
@@ -326,6 +343,41 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
     .hero-portrait__glow { animation: none; }
   }
 
+  /* ── Spotlight: ASCII (topo) + foto real (baixo, revelada por máscara) ── */
+  .hero-portrait__spotlight {
+    position: relative;
+    z-index: var(--z-raised);
+    cursor: crosshair;
+  }
+
+  /* Foto real — camada de baixo, invisível até a lanterna "furar" o ASCII */
+  .hero-portrait__photo {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-base);
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    /* máscara-lanterna radial na posição do cursor (#000/transparent técnicos) */
+    -webkit-mask: radial-gradient(circle var(--spot-r, 100px) at var(--mx) var(--my), #000 0%, #000 55%, transparent 100%);
+    mask: radial-gradient(circle var(--spot-r, 100px) at var(--mx) var(--my), #000 0%, #000 55%, transparent 100%);
+    transition: opacity var(--transition-normal);
+    pointer-events: none;
+  }
+
+  /* Lanterna ativa (hover) → foto visível dentro do raio */
+  .is-spotting .hero-portrait__photo { opacity: 1; }
+
+  /* Shake → foto INTEIRA por holdMs; ASCII some suavemente */
+  .is-revealed .hero-portrait__photo {
+    opacity: 1;
+    -webkit-mask: none;
+    mask: none;
+    transition: opacity var(--transition-slow);
+  }
+  .is-revealed .ascii-portrait { opacity: 0; }
+
   /* O <pre> do ASCII — mono minúsculo p/ caber 100 colunas */
   .ascii-portrait {
     position: relative;
@@ -342,6 +394,7 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
     min-height: 1px;
     text-align: center;
     will-change: clip-path;
+    transition: opacity var(--transition-normal);
   }
 
   .hero-portrait__caption {
@@ -414,5 +467,8 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
       transform: none !important;
       clip-path: none !important;
     }
+    /* Sem lanterna em reduced-motion: ASCII estático, foto oculta. */
+    .hero-portrait__spotlight { cursor: default; }
+    .hero-portrait__photo { opacity: 0 !important; }
   }
 </style>

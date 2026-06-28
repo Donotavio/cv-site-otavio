@@ -146,6 +146,18 @@ import { t } from '../lib/i18n';
     border: 1px solid var(--line-strong);
     /* sobre o placeholder de iniciais */
     z-index: 1;
+    transition: filter var(--transition-slow);
+  }
+
+  /* P&B → cor no hover. :global porque as fotos são injetadas via JS
+     (innerHTML) e não recebem o atributo de scoping do Astro.
+     grayscale(.99): o minificador transforma 1/100% em "" (inválido). */
+  :global(.rec-card__photo) {
+    filter: grayscale(0.99);
+  }
+  :global(.rec-card:hover .rec-card__photo),
+  :global(.rec-card:focus-within .rec-card__photo) {
+    filter: grayscale(0);
   }
 
   /* fallback iniciais — círculo blueprint, mono sobre accent-dim */

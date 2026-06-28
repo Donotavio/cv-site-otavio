@@ -111,6 +111,37 @@ import { t } from '../lib/i18n';
     text-align: center;
   }
 
+  /* ── Spotlight por logo: ASCII (topo) + SVG real (baixo, mascarado) ── */
+  .ts-item__spot {
+    position: relative;
+    display: inline-block;
+    cursor: crosshair;
+  }
+
+  /* SVG colorido original — revelado pela lanterna sob o ASCII */
+  .ts-item__photo {
+    position: absolute;
+    inset: 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0;
+    -webkit-mask: radial-gradient(circle var(--spot-r, 40px) at var(--mx) var(--my), #000 0%, #000 55%, transparent 100%);
+    mask: radial-gradient(circle var(--spot-r, 40px) at var(--mx) var(--my), #000 0%, #000 55%, transparent 100%);
+    transition: opacity var(--transition-fast);
+    pointer-events: none;
+  }
+
+  .is-spotting .ts-item__photo { opacity: 1; }
+
+  .is-revealed .ts-item__photo {
+    opacity: 1;
+    -webkit-mask: none;
+    mask: none;
+    transition: opacity var(--transition-normal);
+  }
+  .is-revealed .ts-item__logo { opacity: 0; }
+
   .ts-item__logo {
     font-family: var(--font-mono);
     /* ASCII art: canvas fixo 14 linhas × 26 cols (todos os logos iguais).
@@ -124,10 +155,15 @@ import { t } from '../lib/i18n';
     margin: 0 auto;
     display: block;
     text-align: center;
-    transition: color var(--transition-fast);
+    transition: color var(--transition-fast), opacity var(--transition-fast);
   }
 
   .ts-item:hover .ts-item__logo { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ts-item__spot { cursor: default; }
+    .ts-item__photo { opacity: 0 !important; }
+  }
 
   .ts-item__name {
     font-family: var(--font-sans);
@@ -153,9 +189,16 @@ import { t } from '../lib/i18n';
 <script>
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { spotlightReveal } from '../scripts/motion/spotlight-reveal';
   import { motionOk } from '../scripts/motion/constants';
 
   const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+
+  /** Join baseUrl + path evitando barra dupla. */
+  function joinUrl(base: string, path: string): string {
+    if (!path) return '';
+    return base.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '');
+  }
 
   interface Technology {
     name: string;
@@ -197,9 +240,14 @@ import { t } from '../lib/i18n';
         const art = asciiData?.[key] ?? '';
         const levelLabel = window.i18n?.t(`tech_stack.level_${tech.level}`) ?? tech.level;
         const levelClass = tech.level === 'expert' ? 'ts-item__level ts-item__level--expert' : 'ts-item__level';
+        // logo SVG original (colorido) revelado pela lanterna sob o ASCII
+        const logoUrl = joinUrl(baseUrl, tech.logo);
         return `
           <div class="ts-item">
-            <pre class="ts-item__logo" aria-hidden="true">${escapeHtml(art)}</pre>
+            <div class="ts-item__spot" data-spotlight aria-hidden="true">
+              <div class="ts-item__photo" data-spotlight-photo style="background-image:url(${logoUrl})"></div>
+              <pre class="ts-item__logo" data-spotlight-ascii>${escapeHtml(art)}</pre>
+            </div>
             <span class="ts-item__name">${escapeHtml(tech.name)}</span>
             <span class="${levelClass}">${escapeHtml(levelLabel)}</span>
           </div>`;
@@ -219,6 +267,12 @@ import { t } from '../lib/i18n';
     // se a seção já está visível, dispara imediatamente (start: top 85%).
     const cards = grid.querySelectorAll<Element>('.ts-category');
     revealUp(cards, grid, 0.08);
+
+    // Lanterna por logo: raio menor (logos pequenos). touch/reduced-motion
+    // tratados no helper (retorna cedo → ASCII estático).
+    grid.querySelectorAll<HTMLElement>('.ts-item__spot').forEach((spot) => {
+      spotlightReveal(spot, { radius: 40, holdMs: 3000 });
+    });
   }
 
   async function loadAndRender() {
