@@ -46,7 +46,7 @@
       class="tl-modal__close"
       data-tl-close
       data-i18n-aria="timeline.close_modal"
-      aria-label="Fechar"
+      aria-label="Close"
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -57,7 +57,7 @@
     <div class="tl-modal__header">
       <div class="tl-modal__logo" id="tl-modal-logo" aria-hidden="true"></div>
       <div class="tl-modal__meta">
-        <h2 class="tl-modal__role" id="tl-modal-role"></h2>
+        <h3 class="tl-modal__role" id="tl-modal-role"></h3>
         <p class="tl-modal__company" id="tl-modal-company"></p>
         <p class="tl-modal__period" id="tl-modal-period"></p>
         <p class="tl-modal__location" id="tl-modal-location"></p>
@@ -243,7 +243,7 @@
   .tl-modal__overlay {
     position: absolute;
     inset: 0;
-    background: rgba(10, 14, 39, 0.85);
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     cursor: pointer;
