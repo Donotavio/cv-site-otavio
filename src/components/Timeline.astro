@@ -234,6 +234,11 @@
     justify-content: center;
   }
 
+  /* O atributo HTML `hidden` deve ganhar do display: flex do CSS */
+  .tl-modal[hidden] {
+    display: none;
+  }
+
   @media (min-width: 640px) {
     .tl-modal {
       align-items: center;
@@ -467,6 +472,8 @@
       const img = document.createElement('img');
       img.src = item.companyLogo;
       img.alt = item.company;
+      img.width = 56;
+      img.height = 56;
       logoEl.appendChild(img);
     }
 
@@ -581,7 +588,7 @@
 
       const logoHtml = item.companyLogo
         ? `<div class="tl-card__logo">
-             <img src="${item.companyLogo}" alt="${item.company}" loading="lazy">
+             <img src="${item.companyLogo}" alt="${item.company}" loading="lazy" width="48" height="48">
            </div>`
         : '';
 

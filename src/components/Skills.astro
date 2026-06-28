@@ -42,10 +42,18 @@ const leadershipSkills = [
           {technicalSkills.map(({ key, level }) => (
             <li class="skill-item">
               <div class="skill-header-row">
-                <span class="skill-label" data-i18n-key={key}></span>
+                <span class="skill-label" id={`skill-label-${key}`} data-i18n-key={key}></span>
                 <span class="skill-pct" aria-hidden="true">{level}%</span>
               </div>
-              <div class="skill-track" role="progressbar" aria-valuenow={level} aria-valuemin={0} aria-valuemax={100}>
+              <div
+                class="skill-track"
+                role="progressbar"
+                aria-valuenow={level}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-labelledby={`skill-label-${key}`}
+                aria-valuetext={`${level}%`}
+              >
                 <div class="skill-fill" data-level={level} style={`--target-width: ${level}%`}></div>
               </div>
             </li>
@@ -60,10 +68,18 @@ const leadershipSkills = [
           {leadershipSkills.map(({ key, level }) => (
             <li class="skill-item">
               <div class="skill-header-row">
-                <span class="skill-label" data-i18n-key={key}></span>
+                <span class="skill-label" id={`skill-label-${key}`} data-i18n-key={key}></span>
                 <span class="skill-pct" aria-hidden="true">{level}%</span>
               </div>
-              <div class="skill-track" role="progressbar" aria-valuenow={level} aria-valuemin={0} aria-valuemax={100}>
+              <div
+                class="skill-track"
+                role="progressbar"
+                aria-valuenow={level}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-labelledby={`skill-label-${key}`}
+                aria-valuetext={`${level}%`}
+              >
                 <div class="skill-fill" data-level={level} style={`--target-width: ${level}%`}></div>
               </div>
             </li>

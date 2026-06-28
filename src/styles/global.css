@@ -165,3 +165,16 @@
 .skip-link:focus {
   top: var(--space-4);
 }
+
+/* Visually hidden — leitores de tela leem, visualmente invisível */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
