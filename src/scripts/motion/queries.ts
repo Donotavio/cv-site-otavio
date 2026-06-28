@@ -19,7 +19,7 @@
 
 export type QueryEffect =
   | 'type' | 'fetch' | 'plan' | 'stream'
-  | 'aggregate' | 'import' | 'sort' | 'scan' | 'insert';
+  | 'aggregate' | 'import' | 'sort' | 'scan' | 'insert' | 'paginate';
 
 export interface QuerySpec {
   lang: 'sql' | 'python';
@@ -126,6 +126,18 @@ export const QUERIES: Record<string, QuerySpec> = {
       'JOIN people p ON p.id = r.author_id;',
     ],
     result: 'join scan complete · 6 rows',
+  },
+
+  blog: {
+    lang: 'python',
+    effect: 'paginate',
+    code: [
+      'import requests',
+      '',
+      'feed = requests.get("/api/articles?lang=pt")',
+      'articles = feed.json()["items"]',
+    ],
+    result: 'feed loaded · 10 articles',
   },
 
   contact: {

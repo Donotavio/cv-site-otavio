@@ -252,6 +252,35 @@ async function effectScan(pre: HTMLElement, spec: QuerySpec) {
   renderLines(pre, rows, spec.lang);
 }
 
+/** paginate: feed de artigos carregando lote a lote, como uma API paginada. */
+async function effectPaginate(pre: HTMLElement, spec: QuerySpec, status: HTMLElement) {
+  const acc: string[] = [];
+  for (const line of spec.code) {
+    acc.push(line);
+    renderLines(pre, acc, spec.lang);
+    await sleep(line === '' ? 50 : 120);
+  }
+  const base = spec.code.map((l) => highlight(l, spec.lang)).join('\n');
+  // títulos curtos simulando o feed chegando
+  const titles = [
+    'every good prompt is a syllogism',
+    'building lakehouse governance at scale',
+    'delta live tables in production',
+    'the cost of bad data contracts',
+  ];
+  const shown: string[] = [];
+  for (let i = 0; i < titles.length; i++) {
+    shown.push(`  ↳ "${titles[i]}"`);
+    pre.innerHTML = base + '\n\n' +
+      shown.map((t) => `<span class="ql-dim">${t}</span>`).join('\n');
+    status.innerHTML =
+      `<span class="ql-run">▸ paginando feed</span>` +
+      `<span class="ql-bar-ascii">page ${i + 1}/4 · ${(i + 1) * 3} items</span>`;
+    await sleep(150);
+  }
+  await sleep(120);
+}
+
 /** fetch: query surge instantânea; status faz "fetching… N rows" contando. */
 async function effectFetch(pre: HTMLElement, spec: QuerySpec, status: HTMLElement) {
   renderLines(pre, spec.code, spec.lang);
@@ -343,6 +372,9 @@ async function run(section: HTMLElement, spec: QuerySpec) {
     case 'aggregate':
       await effectAggregate(pre, spec, status);
       break;
+    case 'paginate':
+      await effectPaginate(pre, spec, status);
+      break;
     default:
       await effectType(pre, spec, 24);
   }
@@ -351,7 +383,8 @@ async function run(section: HTMLElement, spec: QuerySpec) {
   const ownsStatus =
     spec.effect === 'import' ||
     spec.effect === 'fetch' ||
-    spec.effect === 'aggregate';
+    spec.effect === 'aggregate' ||
+    spec.effect === 'paginate';
   if (!ownsStatus) {
     status.innerHTML = `<span class="ql-run">▸ executando</span>${CURSOR}`;
     await sleep(320);

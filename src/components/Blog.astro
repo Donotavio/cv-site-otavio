@@ -1,0 +1,317 @@
+---
+/**
+ * Blog.astro — Seção [ 07 ] — Direção Blueprint
+ * Artigos técnicos (LinkedIn). Cards com crop marks: data/read_time em mono,
+ * título em serif, excerpt, tags, link "Ler no LinkedIn".
+ * Dados: fetch blog_articles_{lang}.json com fallback (pt-BR vazio → en-US).
+ * Motion: hairlineDraw + revealUp (cards). Query loader: effect 'paginate'.
+ */
+import { t } from '../lib/i18n';
+---
+
+<section id="blog" class="section blog" aria-labelledby="blog-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">07</span>
+      <h2 id="blog-title" class="blog-display" data-i18n-key="blog.title">{t('blog.title')}</h2>
+      <p class="blog-lead" data-i18n-key="blog.subtitle">{t('blog.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <div id="blog-grid" class="blog-grid"></div>
+
+    <p
+      id="blog-empty"
+      class="empty-state"
+      data-i18n-key="blog.coming_soon"
+      hidden
+    >{t('blog.coming_soon')}</p>
+
+    <a
+      id="blog-all"
+      class="blog-all link-underline"
+      href="https://linkedin.com/in/donotavio/recent-activity/all/"
+      target="_blank"
+      rel="noopener noreferrer"
+      data-i18n-key="blog.all_posts"
+      hidden
+    >{t('blog.all_posts')}</a>
+  </div>
+</section>
+
+<style>
+  .blog-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .blog-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .section-line { margin-block-end: var(--space-16); }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  @media (min-width: 640px)  { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .blog-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  /* Cards injetados via JS → :global (CSS scoped do Astro não os alcança) */
+  :global(.blog-card) {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    transition: border-color var(--transition-normal),
+                box-shadow var(--transition-normal),
+                transform var(--transition-normal);
+  }
+  :global(.blog-card:hover) {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  :global(.blog-card__meta) {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+  :global(.blog-card__meta::before) { content: '[ '; }
+  :global(.blog-card__meta::after)  { content: ' ]'; }
+
+  :global(.blog-card__featured) {
+    align-self: flex-start;
+  }
+
+  :global(.blog-card__title) {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  :global(.blog-card__excerpt) {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  :global(.blog-card__tags) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  :global(.blog-card__footer) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--line);
+  }
+
+  :global(.blog-card__link) {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    text-decoration: none;
+  }
+  :global(.blog-card__link::after) { content: ' →'; }
+
+  :global(.blog-card__likes) {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+
+  .blog-all {
+    display: inline-block;
+    margin-top: var(--space-12);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+  }
+  .blog-all::after { content: ' →'; }
+
+  .empty-state {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-faint);
+    text-align: center;
+    padding: var(--space-12) 0;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+
+  interface Article {
+    id: string;
+    title: string;
+    excerpt: string;
+    date: string;
+    external_url: string;
+    likes?: number;
+    read_time?: number;
+    tags?: string[];
+    featured?: boolean;
+  }
+
+  function escapeHtml(s: string): string {
+    return (s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  const LANG_FILE: Record<string, string> = {
+    'pt-BR': 'blog_articles.json',
+    'en-US': 'blog_articles_en-US.json',
+    'es-ES': 'blog_articles_es-ES.json',
+  };
+
+  async function fetchArticles(lang: string): Promise<Article[]> {
+    const tryFile = async (file: string): Promise<Article[]> => {
+      try {
+        const res = await fetch(`${baseUrl}assets/data/${file}`);
+        if (!res.ok) return [];
+        const data = await res.json();
+        return Array.isArray(data.articles) ? data.articles : [];
+      } catch {
+        return [];
+      }
+    };
+    let articles = await tryFile(LANG_FILE[lang] ?? LANG_FILE['pt-BR']);
+    // fallback: idioma sem artigos → usa en-US (que tem o conteúdo)
+    if (!articles.length && lang !== 'en-US') {
+      articles = await tryFile(LANG_FILE['en-US']);
+    }
+    return articles;
+  }
+
+  function formatDate(iso: string, lang: string): string {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return new Intl.DateTimeFormat(lang, { day: '2-digit', month: 'short', year: 'numeric' })
+      .format(d)
+      .replace(/\./g, '')
+      .toUpperCase();
+  }
+
+  async function renderBlog() {
+    const grid = document.getElementById('blog-grid') as HTMLElement;
+    const emptyEl = document.getElementById('blog-empty') as HTMLElement;
+    const allEl = document.getElementById('blog-all') as HTMLElement;
+    if (!grid) return;
+
+    const lang = window.i18n?.lang ?? 'pt-BR';
+    const articles = await fetchArticles(lang);
+
+    grid.innerHTML = '';
+    if (!articles.length) {
+      emptyEl.hidden = false;
+      allEl.hidden = true;
+      return;
+    }
+    emptyEl.hidden = true;
+    allEl.hidden = false;
+
+    const readLabel = window.i18n?.t('blog.read_on_linkedin') ?? 'Ler no LinkedIn';
+    const readTimeLabel = window.i18n?.t('blog.read_time') ?? 'min';
+    const featuredLabel = window.i18n?.t('blog.featured_label') ?? 'Destaque';
+    const likesLabel = window.i18n?.t('blog.likes') ?? 'curtidas';
+
+    // featured primeiro, depois por data desc
+    const sorted = [...articles].sort((a, b) => {
+      if (a.featured !== b.featured) return a.featured ? -1 : 1;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    }).slice(0, 6);
+
+    sorted.forEach((art) => {
+      const meta = `${formatDate(art.date, lang)} · ${art.read_time ?? 5} ${readTimeLabel}`;
+      const tags = (art.tags ?? []).slice(0, 3)
+        .map((tg) => `<span class="tag">${escapeHtml(tg)}</span>`).join('');
+      const featured = art.featured
+        ? `<span class="tag tag--accent blog-card__featured">${escapeHtml(featuredLabel)}</span>`
+        : '';
+      const likes = art.likes
+        ? `<span class="blog-card__likes">${art.likes} ${escapeHtml(likesLabel)}</span>`
+        : '';
+
+      const article = document.createElement('article');
+      article.className = 'blog-card crop';
+      article.innerHTML = `
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        ${featured}
+        <span class="blog-card__meta">${meta}</span>
+        <h3 class="blog-card__title">${escapeHtml(art.title)}</h3>
+        <p class="blog-card__excerpt">${escapeHtml(art.excerpt)}</p>
+        ${tags ? `<div class="blog-card__tags">${tags}</div>` : ''}
+        <div class="blog-card__footer">
+          <a class="blog-card__link link-underline"
+             href="${art.external_url ?? '#'}"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="${escapeHtml(readLabel)}: ${escapeHtml(art.title)}"
+          >${escapeHtml(readLabel)}</a>
+          ${likes}
+        </div>`;
+      grid.appendChild(article);
+    });
+
+    const cards = grid.querySelectorAll<Element>('.blog-card');
+    revealUp(cards, grid, 0.1);
+  }
+
+  // ─── Section line hairline + head reveal ─────────────────────
+  const section = document.getElementById('blog');
+  if (section) {
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    if (line) hairlineDraw(line, section);
+    if (motionOk && head) revealUp([head], section, 0);
+  }
+
+  // ─── i18n ────────────────────────────────────────────────────
+  window.addEventListener('languageChanged', () => renderBlog());
+
+  if (window.i18n) {
+    renderBlog();
+  } else {
+    window.addEventListener('languageChanged', () => renderBlog(), { once: true });
+  }
+</script>
