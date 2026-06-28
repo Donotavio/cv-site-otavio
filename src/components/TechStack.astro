@@ -219,7 +219,8 @@ import { t } from '../lib/i18n';
 
   // Extrai a chave do logo a partir do path (".../databricks.svg" → "databricks")
   function logoKey(logoPath: string): string {
-    return logoPath.split('/').pop()?.replace('.svg', '') ?? '';
+    // remove qualquer extensão (.svg, .png, .jpg) — a chave do ASCII é só o nome
+    return logoPath.split('/').pop()?.replace(/\.[a-z0-9]+$/i, '') ?? '';
   }
 
   function escapeHtml(s: string): string {
