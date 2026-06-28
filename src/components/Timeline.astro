@@ -4,10 +4,7 @@
  * Timeline vertical com linha de blueprint à esquerda. Cada experiência:
  * período em mono [ ... ], role em serif, company, highlights.
  * Modal a11y (role=dialog, aria-modal, focus trap, Escape) para detalhes.
- * Dados: fetch profile.json.
- * Motion: hairlineDraw (section-line) + linha de blueprint que se desenha
- * conforme o scroll (scrub scaleY) percorrendo o histórico — cada nó acende
- * (--accent) e o card revela (reveal-up) quando a linha passa por ele.
+ * Dados: fetch profile.json. Motion: hairlineDraw (section-line) + revealUp (entradas).
  */
 import { t } from '../lib/i18n';
 ---
@@ -22,10 +19,7 @@ import { t } from '../lib/i18n';
 
     <hr class="section-line" aria-hidden="true" />
 
-    <div class="timeline-wrap">
-      <span class="timeline-progress" aria-hidden="true"></span>
-      <ol id="timeline-list" class="timeline-list" aria-label="career timeline"></ol>
-    </div>
+    <ol id="timeline-list" class="timeline-list" aria-label="career timeline"></ol>
 
     <p
       id="timeline-empty"
@@ -106,10 +100,6 @@ import { t } from '../lib/i18n';
   }
 
   /* ── Timeline list — linha de blueprint à esquerda ───────── */
-  .timeline-wrap {
-    position: relative;
-  }
-
   .timeline-list {
     list-style: none;
     margin: 0;
@@ -117,36 +107,19 @@ import { t } from '../lib/i18n';
     position: relative;
   }
 
-  /* Trilho estático: linha vertical contínua faint */
-  .timeline-wrap::before {
+  /* Linha vertical contínua */
+  .timeline-list::before {
     content: '';
     position: absolute;
-    top: 6px;
-    bottom: 6px;
+    top: 0;
+    bottom: 0;
     left: 7px;
     width: 1px;
     background: var(--line);
-    z-index: 0;
-  }
-
-  /* Linha de progresso: desenha de cima→baixo conforme o scroll (scaleY) */
-  .timeline-progress {
-    position: absolute;
-    top: 6px;
-    bottom: 6px;
-    left: 7px;
-    width: 1px;
-    background: var(--accent);
-    transform-origin: top center;
-    /* Default: cheia (sem JS = visível). JS define scaleY(0) p/ o scrub. */
-    transform: scaleY(1);
-    z-index: 1;
-    pointer-events: none;
   }
 
   @media (min-width: 640px) {
-    .timeline-wrap::before { left: 9px; }
-    .timeline-progress { left: 9px; }
+    .timeline-list::before { left: 9px; }
   }
 
   .tl-entry {
@@ -180,8 +153,7 @@ import { t } from '../lib/i18n';
   }
 
   .tl-entry:hover::before,
-  .tl-entry:focus-within::before,
-  .tl-entry.is-active::before {
+  .tl-entry:focus-within::before {
     background: var(--accent);
     border-color: var(--accent);
   }
@@ -514,18 +486,11 @@ import { t } from '../lib/i18n';
 </style>
 
 <script>
-  import gsap from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
-  import { DURATIONS, EASINGS, motionOk } from '../scripts/motion/constants';
-
-  gsap.registerPlugin(ScrollTrigger);
+  import { motionOk } from '../scripts/motion/constants';
 
   const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
-
-  // ScrollTriggers criados nesta seção — limpos antes de re-render (languageChanged)
-  let timelineTriggers: ScrollTrigger[] = [];
 
   interface TimelineItem {
     role: string;
@@ -744,68 +709,9 @@ import { t } from '../lib/i18n';
       list.appendChild(li);
     });
 
-    // Motion: linha de blueprint percorrendo o histórico
-    setupTimelineMotion(list);
-  }
-
-  // ─── Motion: a linha se desenha (scrub) e os nós acendem ─────
-  function setupTimelineMotion(list: HTMLElement) {
-    // Limpar triggers de um render anterior (ex.: languageChanged)
-    timelineTriggers.forEach((st) => st.kill());
-    timelineTriggers = [];
-
-    const wrap = list.closest('.timeline-wrap') as HTMLElement | null;
-    const progress = wrap?.querySelector<HTMLElement>('.timeline-progress') ?? null;
-    const entries = Array.from(list.querySelectorAll<HTMLElement>('.tl-entry'));
-
-    // Sem motion: estado final — linha cheia, nós acesos, cards visíveis
-    if (!motionOk) {
-      if (progress) progress.style.transform = 'scaleY(1)';
-      entries.forEach((e) => {
-        e.classList.add('is-active');
-        gsap.set(e, { clearProps: 'opacity,transform' });
-      });
-      return;
-    }
-
-    // Entradas começam invisíveis (revelam conforme a linha passa)
-    gsap.set(entries, { opacity: 0, y: 24 });
-
-    // 1) A linha vertical se DESENHA conforme o scroll percorre a lista (scrub)
-    if (progress) {
-      gsap.set(progress, { scaleY: 0, transformOrigin: 'top center' });
-      const drawTl = gsap.to(progress, {
-        scaleY: 1,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: wrap,
-          start: 'top 70%',
-          end: 'bottom 80%',
-          scrub: true,
-        },
-      });
-      if (drawTl.scrollTrigger) timelineTriggers.push(drawTl.scrollTrigger);
-    }
-
-    // 2) Cada nó acende + card revela conforme a linha "passa" por ele
-    entries.forEach((entry) => {
-      const reveal = gsap.to(entry, {
-        opacity: 1,
-        y: 0,
-        duration: DURATIONS.normal,
-        ease: EASINGS.out,
-        scrollTrigger: {
-          trigger: entry,
-          start: 'top 78%',
-          once: true,
-          onEnter: () => entry.classList.add('is-active'),
-        },
-      });
-      if (reveal.scrollTrigger) timelineTriggers.push(reveal.scrollTrigger);
-    });
-
-    // Conteúdo veio de fetch → recalcular posições dos triggers
-    ScrollTrigger.refresh();
+    // Motion: revealUp nas entradas
+    const entries = list.querySelectorAll<Element>('.tl-entry');
+    revealUp(entries, list, 0.08);
   }
 
   // ─── Fechar modal ────────────────────────────────────────────

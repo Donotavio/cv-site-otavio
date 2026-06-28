@@ -1,25 +1,14 @@
 ---
 /**
  * Impact.astro — Seção [ 02 ] — Direção Blueprint
- * Redesign "leituras de instrumento": números GIGANTES em Instrument Serif
- * (escala de cartaz), cada métrica como uma spec de blueprint:
- *   [ MÉTRICA 0N ] · número serif gigante · descrição.
- * Uma métrica dominante (01 — anos de experiência) ocupa destaque e as outras
- * três formam uma spec-list à direita, separadas por hairlines que crescem.
- * Crop marks emolduram o bloco dominante.
+ * Bento grid assimétrico de métricas (inspiração StackGrid).
+ * Números GIGANTES em mono com count-up quando o valor é numérico;
+ * valores textuais (ex.: "Petabytes") exibidos direto.
+ * Motion: countUpAll + revealUp + hairlineDraw.
  *
- * Motion: countUp (números numéricos, preserva sufixo textual) + revealUp + hairlineDraw.
  * Fundo --paper-soft. Zero hex, CSS scoped, mobile-first, UI via data-i18n-key.
  */
 import { t } from '../lib/i18n';
-
-// idx: índice; spec: rótulo de instrumento mono fixo (independente de idioma)
-const metrics = [
-  { idx: 1, spec: 'METRIC 01' },
-  { idx: 2, spec: 'METRIC 02' },
-  { idx: 3, spec: 'METRIC 03' },
-  { idx: 4, spec: 'METRIC 04' },
-];
 ---
 
 <section id="impact" class="section impact" aria-labelledby="impact-title">
@@ -32,34 +21,32 @@ const metrics = [
 
     <hr class="section-line" aria-hidden="true" />
 
-    <div class="impact-readout" role="list" aria-label="impact metrics">
-      <!-- Métrica dominante (01) — leitura principal, emoldurada -->
-      <article class="readout-hero crop" role="listitem" data-metric="1">
+    <!-- Bento grid de métricas -->
+    <div class="impact-bento" role="list" aria-label="impact metrics">
+      <div class="metric metric--lg crop" role="listitem" data-metric="1">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
-        <p class="readout-spec mono-label">{metrics[0].spec}</p>
-        <span class="readout-number" data-metric-value>{t('impact.metric_1_value')}</span>
-        <p class="readout-desc" data-i18n-key="impact.metric_1_label">{t('impact.metric_1_label')}</p>
-      </article>
+        <span class="metric-value" data-metric-value>{t('impact.metric_1_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_1_label">{t('impact.metric_1_label')}</span>
+      </div>
 
-      <!-- Spec-list: as três métricas secundárias, separadas por hairlines -->
-      <div class="readout-specs">
-        {metrics.slice(1).map((m) => (
-          <article class="readout-row" role="listitem" data-metric={m.idx}>
-            <hr class="readout-rule" aria-hidden="true" />
-            <p class="readout-spec mono-label">{m.spec}</p>
-            <span class="readout-number readout-number--sm" data-metric-value>
-              {t(`impact.metric_${m.idx}_value`)}
-            </span>
-            <p class="readout-desc" data-i18n-key={`impact.metric_${m.idx}_label`}>
-              {t(`impact.metric_${m.idx}_label`)}
-            </p>
-          </article>
-        ))}
+      <div class="metric" role="listitem" data-metric="2">
+        <span class="metric-value" data-metric-value>{t('impact.metric_2_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_2_label">{t('impact.metric_2_label')}</span>
+      </div>
+
+      <div class="metric" role="listitem" data-metric="3">
+        <span class="metric-value" data-metric-value>{t('impact.metric_3_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_3_label">{t('impact.metric_3_label')}</span>
+      </div>
+
+      <div class="metric metric--wide" role="listitem" data-metric="4">
+        <span class="metric-value" data-metric-value>{t('impact.metric_4_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_4_label">{t('impact.metric_4_label')}</span>
       </div>
     </div>
 
-    <!-- Highlight strip — stack principal -->
+    <!-- Highlight strip -->
     <div class="impact-highlight crop" role="complementary" aria-label="tech stack highlight">
       <span class="crop-mark-bl" aria-hidden="true"></span>
       <span class="crop-mark-br" aria-hidden="true"></span>
@@ -97,82 +84,71 @@ const metrics = [
     margin-block-end: var(--space-16);
   }
 
-  /* ── Readout layout: hero dominante + spec-list ───────────── */
-  .impact-readout {
+  /* ── Bento grid assimétrico ──────────────────────────────── */
+  .impact-bento {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-12);
+    gap: var(--space-4);
     margin-block-end: var(--space-12);
-    align-items: start;
   }
 
-  @media (min-width: 1024px) {
-    .impact-readout {
-      /* hero domina a esquerda; spec-list ocupa a coluna direita */
-      grid-template-columns: 1.4fr 1fr;
-      gap: var(--space-20);
+  @media (min-width: 640px) {
+    .impact-bento {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-6);
     }
   }
 
-  /* ── Métrica dominante ────────────────────────────────────── */
-  .readout-hero {
-    padding: var(--space-10) var(--space-8) var(--space-8);
+  @media (min-width: 1024px) {
+    .impact-bento {
+      /* 3 colunas; métrica destaque ocupa 2 col + 2 linhas */
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: minmax(180px, auto);
+    }
+    .metric--lg {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+    .metric--wide {
+      grid-column: span 2;
+    }
+  }
+
+  /* ── Metric card ─────────────────────────────────────────── */
+  .metric {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    justify-content: flex-end;
+    gap: var(--space-3);
+    transition: border-color var(--transition-normal);
   }
 
-  .readout-spec {
-    margin: 0;
-    color: var(--ink-faint);
+  .metric:hover {
+    border-color: var(--line-strong);
   }
 
-  .readout-number {
-    font-family: var(--font-display);
-    font-weight: 400;
+  .metric-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-3xl);
+    font-weight: 500;
     color: var(--accent);
     line-height: var(--leading-tight);
     letter-spacing: var(--tracking-tight);
-    font-variant-numeric: tabular-nums;
-    /* escala de cartaz para a leitura principal */
-    font-size: var(--display-1);
   }
 
-  .readout-number--sm {
-    color: var(--ink);
-    font-size: var(--text-3xl);
+  .metric--lg .metric-value {
+    font-size: var(--display-2);
   }
 
-  .readout-desc {
-    margin: 0;
+  .metric-label {
     font-family: var(--font-sans);
-    font-size: var(--text-base);
+    font-size: var(--text-sm);
     color: var(--ink-soft);
     line-height: var(--leading-normal);
-    max-width: 32ch;
-  }
-
-  /* ── Spec-list (métricas secundárias) ─────────────────────── */
-  .readout-specs {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-8);
-  }
-
-  .readout-row {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  /* hairline conectora — cresce via hairlineDraw */
-  .readout-rule {
-    width: 100%;
-    height: 1px;
-    border: 0;
-    background: var(--line);
-    margin: 0 0 var(--space-3);
-    transform-origin: left center;
   }
 
   /* ── Highlight strip ─────────────────────────────────────── */
@@ -209,14 +185,14 @@ const metrics = [
   const section = document.getElementById('impact');
 
   /**
-   * Preenche os números a partir do i18n. Valores que começam com número
-   * (ex.: "10+", "3 Clouds") recebem count-up no número, preservando o sufixo
-   * textual. Valores puramente textuais ("Petabytes") são exibidos direto.
+   * Preenche as métricas a partir do i18n. Para valores que começam com
+   * número (ex.: "10+", "3 Clouds") aplica count-up no número e preserva o
+   * sufixo textual. Valores puramente textuais ("Petabytes") são exibidos direto.
    */
   function renderMetrics() {
     if (!section || !window.i18n) return;
 
-    section.querySelectorAll<HTMLElement>('[data-metric]').forEach((metric) => {
+    section.querySelectorAll<HTMLElement>('.metric').forEach((metric) => {
       const idx = metric.dataset.metric;
       const valueEl = metric.querySelector<HTMLElement>('[data-metric-value]');
       if (!idx || !valueEl) return;
@@ -243,21 +219,16 @@ const metrics = [
   }
 
   if (section) {
-    const line  = section.querySelector('.section-line') as Element;
-    const head  = section.querySelector('.section-head') as Element;
-    const hero  = section.querySelector('.readout-hero') as Element;
-    const rows  = section.querySelectorAll('.readout-row');
-    const rules = section.querySelectorAll('.readout-rule');
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    const cards = section.querySelectorAll('.metric');
     const highlight = section.querySelector('.impact-highlight') as Element;
 
     if (line) hairlineDraw(line, section);
-    // Hairlines conectoras das specs crescem ao entrar
-    rules.forEach((rule) => hairlineDraw(rule, rule));
 
     if (motionOk) {
       revealUp([head], section, 0);
-      if (hero) revealUp([hero], section, 0);
-      revealUp(rows, section, 0.1);
+      revealUp(cards, section, 0.08);
       if (highlight) revealUp([highlight], section, 0);
     }
 

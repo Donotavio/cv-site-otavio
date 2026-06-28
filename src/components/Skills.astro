@@ -1,15 +1,9 @@
 ---
 /**
  * Skills.astro — Seção [ 04 ] — Direção Blueprint
- * Layout editorial: 2 grupos (técnicas / liderança).
- * Cada skill: label (sans) + barra fina blueprint (trilho --line + preenchimento
- * --accent) + percentual em mono. As barras CRESCEM de 0 → nível via GSAP scaleX
- * (transform-origin: left, nunca width direto). O percentual conta junto (count-up)
- * sincronizado. Stagger entre barras.
- * Níveis fixos por spec.
- * Motion: hairlineDraw (section-line) + revealUp (head/grupos) + barGrow (barras)
- *   + countUp (percentuais).
- * Sem JS: barra renderizada cheia (scaleX 1 default). prefers-reduced-motion: idem.
+ * Layout editorial: 2 grupos (técnicas / liderança). Em vez de barras pesadas,
+ * notação mono blueprint [████████··] + percentual, com hairline fina de progresso.
+ * Níveis fixos por spec. Motion: hairlineDraw (section-line) + revealUp (grupos).
  */
 
 import { t } from '../lib/i18n';
@@ -27,6 +21,13 @@ const leadershipSkills = [
   { key: 'skills.items.product_partnership', level: 80 },
   { key: 'skills.items.culture',             level: 75 },
 ];
+
+const CELLS = 10;
+// Gera a notação mono [████····] proporcional ao nível (10 células)
+const meter = (level: number) => {
+  const filled = Math.round((level / 100) * CELLS);
+  return '█'.repeat(filled) + '·'.repeat(CELLS - filled);
+};
 ---
 
 <section id="skills" class="section skills" aria-labelledby="skills-title">
@@ -49,8 +50,6 @@ const leadershipSkills = [
                 <span class="skill-label" id={`skill-${key}`} data-i18n-key={key}>{t(key)}</span>
                 <span
                   class="skill-pct"
-                  data-skill-pct
-                  data-level={level}
                   role="meter"
                   aria-valuenow={level}
                   aria-valuemin={0}
@@ -59,9 +58,7 @@ const leadershipSkills = [
                   aria-valuetext={`${level}%`}
                 >{level}%</span>
               </div>
-              <span class="skill-track" aria-hidden="true">
-                <span class="skill-fill" data-skill-fill style={`width:${level}%`}></span>
-              </span>
+              <span class="skill-meter" aria-hidden="true">{meter(level)}</span>
             </li>
           ))}
         </ul>
@@ -76,8 +73,6 @@ const leadershipSkills = [
                 <span class="skill-label" id={`skill-${key}`} data-i18n-key={key}>{t(key)}</span>
                 <span
                   class="skill-pct"
-                  data-skill-pct
-                  data-level={level}
                   role="meter"
                   aria-valuenow={level}
                   aria-valuemin={0}
@@ -86,9 +81,7 @@ const leadershipSkills = [
                   aria-valuetext={`${level}%`}
                 >{level}%</span>
               </div>
-              <span class="skill-track" aria-hidden="true">
-                <span class="skill-fill" data-skill-fill style={`width:${level}%`}></span>
-              </span>
+              <span class="skill-meter" aria-hidden="true">{meter(level)}</span>
             </li>
           ))}
         </ul>
@@ -158,7 +151,7 @@ const leadershipSkills = [
   .skill-item {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-2);
   }
 
   .skill-row {
@@ -179,68 +172,41 @@ const leadershipSkills = [
   .skill-pct {
     font-family: var(--font-mono);
     font-size: var(--text-sm);
-    font-weight: 500;
-    color: var(--accent);
+    color: var(--ink-soft);
     letter-spacing: var(--tracking-wide);
     flex-shrink: 0;
-    font-variant-numeric: tabular-nums;
   }
 
-  /* ── Barra blueprint: trilho fino + preenchimento ─────────── */
-  .skill-track {
-    display: block;
-    width: 100%;
-    height: 2px;
-    background: var(--line);
-    position: relative;
+  /* Notação mono blueprint */
+  .skill-meter {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    line-height: 1;
     overflow: hidden;
-  }
-
-  .skill-fill {
-    display: block;
-    height: 100%;
-    background: var(--accent);
-    /* Largura final via inline style; GSAP anima scaleX 0 → 1.
-       Default scaleX 1 garante barra cheia sem JS / reduced-motion. */
-    transform-origin: left center;
-    will-change: transform;
+    white-space: nowrap;
   }
 </style>
 
 <script>
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
-  import { barGrow } from '../scripts/motion/bar-grow';
-  import { countUp } from '../scripts/motion/count-up';
-  import { motionOk, STAGGER } from '../scripts/motion/constants';
+  import { motionOk } from '../scripts/motion/constants';
 
   const section = document.getElementById('skills');
   if (section) {
     const line   = section.querySelector('.section-line') as Element;
     const head   = section.querySelector('.section-head') as Element;
     const groups = section.querySelectorAll('[data-skills-group]');
+    const items  = section.querySelectorAll('.skill-item');
 
     if (line) hairlineDraw(line, section);
 
     if (motionOk) {
       revealUp([head], section, 0);
       revealUp(groups, section, 0.1);
-
-      // Por grupo: barras crescem com stagger + percentuais contam sincronizados.
-      groups.forEach((group) => {
-        const fills = group.querySelectorAll('[data-skill-fill]');
-        barGrow(fills, group, STAGGER.tight);
-
-        group.querySelectorAll<HTMLElement>('[data-skill-pct]').forEach((pct) => {
-          const level = pct.dataset.level ?? '0';
-          pct.dataset.countTo = level;
-          pct.dataset.countSuffix = '%';
-          pct.textContent = '0%';
-          // trigger = grupo: dispara junto com as barras; alreadyVisible cobre
-          // os itens que já estão na tela no carregamento.
-          countUp(pct, group);
-        });
-      });
+      revealUp(items, section, 0.06);
     }
   }
 </script>
