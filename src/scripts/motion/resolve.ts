@@ -13,7 +13,10 @@
  */
 
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DURATIONS, EASINGS, motionOk } from './constants';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function resolveHero(heroEl: Element) {
   if (!motionOk) return;
@@ -58,7 +61,7 @@ export function resolveHero(heroEl: Element) {
   if (title) {
     tl.from(title, {
       opacity: 0,
-      y: 24,
+      y: 48, // momentum maior — feel premium (StackGrid/Mattis)
       duration: DURATIONS.entrance,
       ease: EASINGS.outStrong,
     }, 0.2);
@@ -67,7 +70,7 @@ export function resolveHero(heroEl: Element) {
   if (subtitle) {
     tl.from(subtitle, {
       opacity: 0,
-      y: 16,
+      y: 24,
       duration: DURATIONS.normal,
       ease: EASINGS.out,
     }, 0.55);
@@ -90,6 +93,21 @@ export function resolveHero(heroEl: Element) {
       ease: EASINGS.out,
       stagger: 0.1,
     }, 1.0);
+  }
+
+  // Parallax sutil do portrait ligado ao scroll (ref: Mattis/StackGrid).
+  // Move o ASCII mais devagar que o scroll — profundidade sem distração.
+  if (portrait) {
+    gsap.to(portrait, {
+      yPercent: -12,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: heroEl,
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true,
+      },
+    });
   }
 
   return tl;

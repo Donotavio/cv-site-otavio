@@ -22,13 +22,13 @@ export function revealUp(
 
   gsap.from(elements, {
     opacity: 0,
-    y: 24,
+    y: 32,
     duration: DURATIONS.normal,
-    ease: EASINGS.out,
+    ease: EASINGS.out, // expo.out — desaceleração longa, feel premium
     stagger,
     scrollTrigger: {
       trigger: container,
-      start: 'top 85%',
+      start: 'top 88%',
       once: true, // sem re-trigger (web-motion.md guardrail)
     },
   });

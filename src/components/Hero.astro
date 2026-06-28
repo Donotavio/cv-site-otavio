@@ -300,7 +300,8 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
     border-radius: var(--radius-sm);
   }
 
-  /* Glow azul sutil atrás do ASCII (único uso de glow — DESIGN.md) */
+  /* Glow azul sutil atrás do ASCII (único uso de glow — DESIGN.md).
+     Pulsa lentamente (breathing) — micro-vida sem distração, ref StackGrid. */
   .hero-portrait__glow {
     position: absolute;
     inset: 12%;
@@ -313,6 +314,16 @@ const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.w
     opacity: 0.1;
     filter: blur(28px);
     pointer-events: none;
+    animation: portrait-breathe 6s ease-in-out infinite;
+  }
+
+  @keyframes portrait-breathe {
+    0%, 100% { opacity: 0.08; transform: scale(1); }
+    50%      { opacity: 0.16; transform: scale(1.04); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-portrait__glow { animation: none; }
   }
 
   /* O <pre> do ASCII — mono minúsculo p/ caber 100 colunas */
