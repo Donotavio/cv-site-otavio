@@ -533,6 +533,7 @@ import { t } from '../lib/i18n';
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
   import { DURATIONS, EASINGS, motionOk } from '../scripts/motion/constants';
+  import { lockScroll, unlockScroll } from '../scripts/scroll-lock';
 
   gsap.registerPlugin(ScrollTrigger);
 
@@ -656,7 +657,7 @@ import { t } from '../lib/i18n';
 
     modal.hidden = false;
     modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    lockScroll(); // trava Lenis + body (senão a página rola atrás do modal)
     lastFocused = document.activeElement as HTMLElement;
     cleanupTrap = trapFocus(modal);
 
@@ -669,7 +670,7 @@ import { t } from '../lib/i18n';
     if (!modal) return;
     modal.hidden = true;
     modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    unlockScroll();
     cleanupTrap?.();
     cleanupTrap = null;
     lastFocused?.focus();
