@@ -1,0 +1,187 @@
+---
+/**
+ * Impact.astro — Seção "Impacto em números"
+ * Layout: grid 2×2 mobile → 4 colunas desktop; fundo --bg-soft
+ * Motion: revealUp (cards, stagger 0.08), hairlineDraw (section-line)
+ * Direção: The Architect
+ */
+---
+
+<section id="impact" class="section impact" aria-labelledby="impact-title">
+  <div class="container">
+    <hr class="section-line" aria-hidden="true" />
+
+    <!-- Cabeçalho -->
+    <div class="impact-header">
+      <h2 id="impact-title" class="impact-heading" data-i18n-key="impact.title"></h2>
+      <p class="impact-subtitle" data-i18n-key="impact.subtitle"></p>
+    </div>
+
+    <!-- Grid de métricas -->
+    <div class="impact-metrics" role="list" aria-label="impact metrics">
+      <div class="card metric-card" role="listitem">
+        <span class="metric-value" data-i18n-key="impact.metric_1_value"></span>
+        <span class="metric-label" data-i18n-key="impact.metric_1_label"></span>
+      </div>
+      <div class="card metric-card" role="listitem">
+        <span class="metric-value" data-i18n-key="impact.metric_2_value"></span>
+        <span class="metric-label" data-i18n-key="impact.metric_2_label"></span>
+      </div>
+      <div class="card metric-card" role="listitem">
+        <span class="metric-value" data-i18n-key="impact.metric_3_value"></span>
+        <span class="metric-label" data-i18n-key="impact.metric_3_label"></span>
+      </div>
+      <div class="card metric-card" role="listitem">
+        <span class="metric-value" data-i18n-key="impact.metric_4_value"></span>
+        <span class="metric-label" data-i18n-key="impact.metric_4_label"></span>
+      </div>
+    </div>
+
+    <!-- Highlight strip -->
+    <div class="impact-highlight" role="complementary" aria-label="tech stack highlight">
+      <p class="highlight-title" data-i18n-key="impact.highlight_title"></p>
+      <p class="highlight-items" data-i18n-key="impact.highlight_items"></p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .impact {
+    background: var(--bg-soft);
+    padding-block: var(--space-20);
+  }
+
+  /* Section line */
+  .section-line {
+    border: none;
+    height: 1px;
+    background: var(--line);
+    width: 100%;
+    transform-origin: left center;
+    margin-block-end: var(--space-12);
+  }
+
+  /* Cabeçalho */
+  .impact-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-block-end: var(--space-10);
+  }
+
+  .impact-heading {
+    font-family: var(--font-sans);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--text);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-normal);
+    margin: 0;
+  }
+
+  .impact-subtitle {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  /* Grid de métricas: 2×2 mobile → 4 colunas desktop */
+  .impact-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    margin-block-end: var(--space-10);
+  }
+
+  @media (min-width: 1024px) {
+    .impact-metrics {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-6);
+    }
+  }
+
+  /* Metric card */
+  .metric-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: var(--space-8) var(--space-6);
+    text-align: center;
+  }
+
+  .metric-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--primary);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .metric-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    color: var(--muted);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
+  }
+
+  /* Highlight strip */
+  .impact-highlight {
+    background: var(--bg-card);
+    border: 1px solid var(--line-accent);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .highlight-title {
+    font-family: var(--font-sans);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--text);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-normal);
+    margin: 0;
+  }
+
+  .highlight-items {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    line-height: var(--leading-loose);
+    letter-spacing: var(--tracking-wide);
+    margin: 0;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const section = document.getElementById('impact');
+  if (section) {
+    const line      = section.querySelector('.section-line') as Element;
+    const header    = section.querySelector('.impact-header') as Element;
+    const cards     = section.querySelectorAll('.metric-card');
+    const highlight = section.querySelector('.impact-highlight') as Element;
+
+    if (line) hairlineDraw(line, section);
+
+    if (motionOk) {
+      revealUp([header], section, 0);
+      revealUp(cards, section, 0.08);
+      revealUp([highlight], section, 0);
+    }
+  }
+</script>

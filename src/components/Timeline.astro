@@ -1,0 +1,663 @@
+---
+/**
+ * Timeline.astro
+ * Seção de experiência profissional — carrega profile.json em runtime.
+ *
+ * Regras aplicadas:
+ *  - design-system.md: zero hex, CSS scoped, tokens apenas, mobile-first
+ *  - web-motion.md: apenas revealUp, motionOk verificado, once: true
+ *  - content-i18n.md: data-i18n-key para textos UI, fetch() para dados,
+ *                     window.i18n.t() para rótulos em JS,
+ *                     languageChanged re-renderiza conteúdo dinâmico
+ */
+---
+
+<section id="timeline" class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 data-i18n-key="timeline.title"></h2>
+      <p class="section-subtitle" data-i18n-key="timeline.subtitle"></p>
+    </div>
+
+    <ul id="timeline-list" class="timeline-list" aria-label="career timeline"></ul>
+
+    <p
+      id="timeline-empty"
+      class="empty-state"
+      data-i18n-key="timeline.empty"
+      hidden
+    ></p>
+  </div>
+</section>
+
+<!-- Modal de detalhes -->
+<div
+  id="timeline-modal"
+  class="tl-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="tl-modal-role"
+  aria-hidden="true"
+  hidden
+>
+  <div class="tl-modal__overlay" data-tl-close></div>
+  <div class="tl-modal__panel">
+    <button
+      class="tl-modal__close"
+      data-tl-close
+      data-i18n-aria="timeline.close_modal"
+      aria-label="Fechar"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <div class="tl-modal__header">
+      <div class="tl-modal__logo" id="tl-modal-logo" aria-hidden="true"></div>
+      <div class="tl-modal__meta">
+        <h2 class="tl-modal__role" id="tl-modal-role"></h2>
+        <p class="tl-modal__company" id="tl-modal-company"></p>
+        <p class="tl-modal__period" id="tl-modal-period"></p>
+        <p class="tl-modal__location" id="tl-modal-location"></p>
+      </div>
+    </div>
+
+    <div class="tl-modal__body">
+      <div id="tl-modal-extra-role" class="tl-modal__extra" hidden></div>
+      <div id="tl-modal-description" class="tl-modal__description"></div>
+      <div id="tl-modal-skills" class="tl-modal__skills"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ── Section ─────────────────────────────────────────────── */
+  .section {
+    padding-block: var(--space-20);
+  }
+
+  .section-header {
+    margin-bottom: var(--space-12);
+  }
+
+  .section-header h2 {
+    font-family: var(--font-sans);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    line-height: var(--leading-snug);
+    color: var(--text);
+    margin-bottom: var(--space-4);
+  }
+
+  .section-subtitle {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--muted);
+    line-height: var(--leading-normal);
+  }
+
+  /* ── Timeline list ───────────────────────────────────────── */
+  .timeline-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  /* ── Timeline card ───────────────────────────────────────── */
+  .timeline-card {
+    cursor: pointer;
+    outline: none;
+  }
+
+  .timeline-card:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-lg);
+  }
+
+  .tl-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .tl-card__logo {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tl-card__logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .tl-card__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tl-card__role {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--text);
+    line-height: var(--leading-snug);
+    margin-bottom: var(--space-1);
+  }
+
+  .tl-card__company {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: var(--space-1);
+  }
+
+  .tl-card__period,
+  .tl-card__location {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .tl-card__highlights {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-4) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .tl-card__highlights li {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    line-height: var(--leading-normal);
+    padding-left: var(--space-4);
+    position: relative;
+  }
+
+  .tl-card__highlights li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+  }
+
+  .tl-card__skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tl-card__hint {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    letter-spacing: var(--tracking-wide);
+    margin-top: var(--space-4);
+    opacity: 0.7;
+  }
+
+  /* ── Empty state ─────────────────────────────────────────── */
+  .empty-state {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    text-align: center;
+    padding: var(--space-12) 0;
+  }
+
+  /* ── Modal ───────────────────────────────────────────────── */
+  .tl-modal {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  @media (min-width: 640px) {
+    .tl-modal {
+      align-items: center;
+    }
+  }
+
+  .tl-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 14, 39, 0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    cursor: pointer;
+  }
+
+  .tl-modal__panel {
+    position: relative;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    width: 100%;
+    max-height: 90dvh;
+    overflow-y: auto;
+    padding: var(--space-8) var(--space-6);
+    z-index: var(--z-raised);
+  }
+
+  @media (min-width: 640px) {
+    .tl-modal__panel {
+      border-radius: var(--radius-xl);
+      max-width: var(--container-md);
+      max-height: 85dvh;
+      padding: var(--space-8);
+    }
+  }
+
+  .tl-modal__close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+  }
+
+  .tl-modal__close:hover {
+    border-color: var(--line-accent);
+    color: var(--primary);
+  }
+
+  .tl-modal__close:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
+
+  .tl-modal__header {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+    padding-right: var(--space-10);
+  }
+
+  .tl-modal__logo {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tl-modal__logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .tl-modal__role {
+    font-family: var(--font-sans);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--text);
+    line-height: var(--leading-snug);
+    margin-bottom: var(--space-2);
+  }
+
+  .tl-modal__company {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: var(--space-1);
+  }
+
+  .tl-modal__period,
+  .tl-modal__location {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .tl-modal__extra {
+    background: var(--bg-card);
+    border: 1px solid var(--line-accent);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+
+  .tl-modal__extra-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--primary);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    margin-bottom: var(--space-2);
+  }
+
+  .tl-modal__extra-role {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .tl-modal__extra-period {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .tl-modal__description {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    line-height: var(--leading-loose);
+    margin-bottom: var(--space-6);
+  }
+
+  .tl-modal__description p + p {
+    margin-top: var(--space-4);
+  }
+
+  .tl-modal__skills-title {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: var(--space-4);
+  }
+
+  .tl-modal__skills-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+
+  const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+
+  interface TimelineItem {
+    role: string;
+    company: string;
+    period: string;
+    location: string;
+    highlights?: string[];
+    description?: string;
+    skills?: string;
+    companyLogo?: string;
+    companyUrl?: string;
+    extraRole?: string;
+    extraPeriod?: string;
+    extraDescription?: string;
+  }
+
+  // ─── Trap focus dentro do modal ─────────────────────────────
+  function trapFocus(modal: HTMLElement): () => void {
+    const focusable = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    modal.addEventListener('keydown', handler);
+    return () => modal.removeEventListener('keydown', handler);
+  }
+
+  // ─── Modal ───────────────────────────────────────────────────
+  let cleanupTrap: (() => void) | null = null;
+  let lastFocused: HTMLElement | null = null;
+
+  function openModal(item: TimelineItem) {
+    const modal = document.getElementById('timeline-modal') as HTMLElement;
+    if (!modal) return;
+
+    // Logo
+    const logoEl = document.getElementById('tl-modal-logo') as HTMLElement;
+    logoEl.innerHTML = '';
+    if (item.companyLogo) {
+      const img = document.createElement('img');
+      img.src = item.companyLogo;
+      img.alt = item.company;
+      logoEl.appendChild(img);
+    }
+
+    // Dados principais
+    (document.getElementById('tl-modal-role') as HTMLElement).textContent = item.role ?? '';
+    (document.getElementById('tl-modal-company') as HTMLElement).textContent = item.company ?? '';
+    (document.getElementById('tl-modal-period') as HTMLElement).textContent = item.period ?? '';
+    (document.getElementById('tl-modal-location') as HTMLElement).textContent = item.location ?? '';
+
+    // Extra role / período
+    const extraEl = document.getElementById('tl-modal-extra-role') as HTMLElement;
+    if (item.extraRole || item.extraPeriod) {
+      const extraLabel = window.i18n?.t('timeline.extra_experience_title') ?? 'Experiência adicional na empresa';
+      extraEl.innerHTML = `
+        <p class="tl-modal__extra-label">${extraLabel}</p>
+        ${item.extraRole ? `<p class="tl-modal__extra-role">${item.extraRole}</p>` : ''}
+        ${item.extraPeriod ? `<p class="tl-modal__extra-period">${item.extraPeriod}</p>` : ''}
+      `;
+      extraEl.hidden = false;
+    } else {
+      extraEl.hidden = true;
+    }
+
+    // Descrição
+    const descEl = document.getElementById('tl-modal-description') as HTMLElement;
+    if (item.description) {
+      descEl.innerHTML = item.description
+        .split('\n\n')
+        .filter(Boolean)
+        .map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`)
+        .join('');
+    } else {
+      descEl.innerHTML = '';
+    }
+
+    // Skills
+    const skillsEl = document.getElementById('tl-modal-skills') as HTMLElement;
+    if (item.skills) {
+      const skillsTitle = window.i18n?.t('timeline.skills_title') ?? 'Competências';
+      const tags = item.skills
+        .split(' · ')
+        .map((s) => `<span class="tag">${s.trim()}</span>`)
+        .join('');
+      skillsEl.innerHTML = `
+        <p class="tl-modal__skills-title">${skillsTitle}</p>
+        <div class="tl-modal__skills-tags">${tags}</div>
+      `;
+    } else {
+      skillsEl.innerHTML = '';
+    }
+
+    // Abrir
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    lastFocused = document.activeElement as HTMLElement;
+    cleanupTrap = trapFocus(modal);
+
+    // Foco no primeiro elemento
+    const closeBtn = modal.querySelector<HTMLElement>('[data-tl-close] ~ *, button[data-tl-close]');
+    const firstBtn = modal.querySelector<HTMLElement>('button[data-tl-close]');
+    firstBtn?.focus();
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('timeline-modal') as HTMLElement;
+    if (!modal) return;
+    modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    cleanupTrap?.();
+    cleanupTrap = null;
+    lastFocused?.focus();
+  }
+
+  // ─── Render ──────────────────────────────────────────────────
+  async function renderTimeline() {
+    const list = document.getElementById('timeline-list') as HTMLElement;
+    const emptyEl = document.getElementById('timeline-empty') as HTMLElement;
+    if (!list) return;
+
+    let data: { timeline?: TimelineItem[] } = {};
+    try {
+      const res = await fetch(`${baseUrl}assets/data/profile.json`);
+      if (!res.ok) throw new Error('fetch failed');
+      data = await res.json();
+    } catch {
+      emptyEl.hidden = false;
+      return;
+    }
+
+    const items: TimelineItem[] = data.timeline ?? [];
+    list.innerHTML = '';
+
+    if (!items.length) {
+      emptyEl.hidden = false;
+      return;
+    }
+    emptyEl.hidden = true;
+
+    const clickLabel = window.i18n?.t('timeline.click_to_expand') ?? 'Clique para ver detalhes completos';
+
+    items.forEach((item) => {
+      const highlights = (item.highlights ?? []).slice(0, 3);
+      const skills = item.skills
+        ? item.skills
+            .split(' · ')
+            .slice(0, 6)
+            .map((s) => `<span class="tag">${s.trim()}</span>`)
+            .join('')
+        : '';
+
+      const logoHtml = item.companyLogo
+        ? `<div class="tl-card__logo">
+             <img src="${item.companyLogo}" alt="${item.company}" loading="lazy">
+           </div>`
+        : '';
+
+      const hasDetails = !!(item.description || item.skills);
+      const hintHtml = hasDetails
+        ? `<p class="tl-card__hint">${clickLabel}</p>`
+        : '';
+
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <article
+          class="timeline-card card hover-glow"
+          ${hasDetails ? 'tabindex="0" role="button"' : ''}
+          aria-label="${item.role} · ${item.company}"
+        >
+          <div class="tl-card__header">
+            ${logoHtml}
+            <div class="tl-card__info">
+              <h3 class="tl-card__role">${item.role ?? ''}</h3>
+              <p class="tl-card__company">${item.company ?? ''}</p>
+              <p class="tl-card__period">${item.period ?? ''}</p>
+              ${item.location ? `<p class="tl-card__location">${item.location}</p>` : ''}
+            </div>
+          </div>
+          ${
+            highlights.length
+              ? `<ul class="tl-card__highlights">${highlights
+                  .map((h) => `<li>${h}</li>`)
+                  .join('')}</ul>`
+              : ''
+          }
+          ${skills ? `<div class="tl-card__skills">${skills}</div>` : ''}
+          ${hintHtml}
+        </article>
+      `;
+
+      const card = li.querySelector<HTMLElement>('.timeline-card');
+      if (card && hasDetails) {
+        const capturedItem = item;
+        card.addEventListener('click', () => openModal(capturedItem));
+        card.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openModal(capturedItem);
+          }
+        });
+      }
+
+      list.appendChild(li);
+    });
+
+    // Motion: revealUp nos cards após renderização
+    const cards = list.querySelectorAll<Element>('.timeline-card');
+    revealUp(cards, list, 0.08);
+  }
+
+  // ─── Fechar modal ────────────────────────────────────────────
+  document.addEventListener('click', (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-tl-close]')) closeModal();
+  });
+
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('timeline-modal');
+      if (modal && !modal.hidden) closeModal();
+    }
+  });
+
+  // ─── i18n: renderizar ao carregar e ao trocar idioma ─────────
+  window.addEventListener('languageChanged', () => renderTimeline());
+
+  // Render imediato se i18n já estiver pronto
+  if (window.i18n) {
+    renderTimeline();
+  } else {
+    window.addEventListener('languageChanged', () => renderTimeline(), { once: true });
+  }
+</script>

@@ -1,0 +1,301 @@
+---
+/**
+ * Recommendations.astro
+ * Grade de recomendações — carrega profile.json em runtime.
+ *
+ * Regras aplicadas:
+ *  - design-system.md: zero hex, CSS scoped, tokens apenas, mobile-first
+ *  - web-motion.md: revealUp stagger 0.1 nos cards, motionOk verificado
+ *  - content-i18n.md: textos de UI via data-i18n-key, textos das recs via
+ *                     window.i18n.t('recommendations.items.{id}.text'),
+ *                     re-renderiza ao languageChanged
+ */
+---
+
+<section id="recommendations" class="section section--soft">
+  <div class="container">
+    <div class="section-header">
+      <h2 data-i18n-key="recommendations.title"></h2>
+      <p class="section-subtitle" data-i18n-key="recommendations.subtitle"></p>
+    </div>
+
+    <div id="recommendations-grid" class="rec-grid"></div>
+
+    <p
+      id="recommendations-empty"
+      class="empty-state"
+      data-i18n-key="recommendations.empty"
+      hidden
+    ></p>
+  </div>
+</section>
+
+<style>
+  /* ── Section ─────────────────────────────────────────────── */
+  .section {
+    padding-block: var(--space-20);
+  }
+
+  .section--soft {
+    background: var(--bg-soft);
+  }
+
+  .section-header {
+    margin-bottom: var(--space-12);
+  }
+
+  .section-header h2 {
+    font-family: var(--font-sans);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    line-height: var(--leading-snug);
+    color: var(--text);
+    margin-bottom: var(--space-4);
+  }
+
+  .section-subtitle {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--muted);
+    line-height: var(--leading-normal);
+  }
+
+  /* ── Grid ────────────────────────────────────────────────── */
+  .rec-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .rec-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .rec-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ── Rec card ────────────────────────────────────────────── */
+  .rec-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  /* Aspas decorativas */
+  .rec-card__quote {
+    flex: 1;
+    position: relative;
+    padding-top: var(--space-6);
+  }
+
+  .rec-card__quote::before {
+    content: '"';
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-family: var(--font-sans);
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+    opacity: 0.4;
+  }
+
+  .rec-card__quote p {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    line-height: var(--leading-loose);
+  }
+
+  /* ── Author ──────────────────────────────────────────────── */
+  .rec-card__author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--line);
+  }
+
+  .rec-card__photo {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid var(--line);
+  }
+
+  .rec-card__author-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rec-card__author-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .rec-card__name {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rec-card__linkedin {
+    display: inline-flex;
+    align-items: center;
+    color: var(--muted);
+    transition: color var(--transition-fast);
+    flex-shrink: 0;
+  }
+
+  .rec-card__linkedin:hover {
+    color: var(--primary);
+  }
+
+  .rec-card__linkedin:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  .rec-card__role {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    letter-spacing: var(--tracking-wide);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── Empty state ─────────────────────────────────────────── */
+  .empty-state {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    text-align: center;
+    padding: var(--space-12) 0;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+
+  const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+
+  interface Recommendation {
+    id: string;
+    author: string;
+    role: string;
+    company: string;
+    linkedin: string;
+    photo: string;
+  }
+
+  const LINKEDIN_SVG = `
+    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+    </svg>
+  `;
+
+  async function renderRecommendations() {
+    const grid = document.getElementById('recommendations-grid') as HTMLElement;
+    const emptyEl = document.getElementById('recommendations-empty') as HTMLElement;
+    if (!grid) return;
+
+    let data: { recommendations?: Recommendation[] } = {};
+    try {
+      const res = await fetch(`${baseUrl}assets/data/profile.json`);
+      if (!res.ok) throw new Error('fetch failed');
+      data = await res.json();
+    } catch {
+      emptyEl.hidden = false;
+      return;
+    }
+
+    const recs: Recommendation[] = data.recommendations ?? [];
+    grid.innerHTML = '';
+
+    if (!recs.length) {
+      emptyEl.hidden = false;
+      return;
+    }
+    emptyEl.hidden = true;
+
+    recs.forEach((rec) => {
+      const text =
+        window.i18n?.t(`recommendations.items.${rec.id}.text`) ?? '';
+      const date =
+        window.i18n?.t(`recommendations.items.${rec.id}.date`) ?? '';
+
+      // photo: vem sem baseurl no profile.json (campo photo = "/assets/img/...")
+      const photoSrc = rec.photo ? `${baseUrl}${rec.photo}` : '';
+
+      const photoHtml = photoSrc
+        ? `<img
+             class="rec-card__photo"
+             src="${photoSrc}"
+             alt="${rec.author}"
+             loading="lazy"
+           >`
+        : '';
+
+      const linkedinHtml = rec.linkedin
+        ? `<a
+             class="rec-card__linkedin hover-glow"
+             href="${rec.linkedin}"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="LinkedIn de ${rec.author}"
+           >${LINKEDIN_SVG}</a>`
+        : '';
+
+      const roleDate = [rec.role, date].filter(Boolean).join(' · ');
+
+      const article = document.createElement('article');
+      article.className = 'rec-card card';
+      article.innerHTML = `
+        <div class="rec-card__quote">
+          <p>${text}</p>
+        </div>
+        <div class="rec-card__author">
+          ${photoHtml}
+          <div class="rec-card__author-info">
+            <div class="rec-card__author-header">
+              <span class="rec-card__name">${rec.author ?? ''}</span>
+              ${linkedinHtml}
+            </div>
+            <p class="rec-card__role">${roleDate}</p>
+          </div>
+        </div>
+      `;
+
+      grid.appendChild(article);
+    });
+
+    // Motion: revealUp nos cards
+    const cards = grid.querySelectorAll<Element>('.rec-card');
+    revealUp(cards, grid, 0.1);
+  }
+
+  // ─── i18n: re-renderizar ao trocar idioma (textos mudam) ─────
+  window.addEventListener('languageChanged', () => renderRecommendations());
+
+  if (window.i18n) {
+    renderRecommendations();
+  } else {
+    window.addEventListener('languageChanged', () => renderRecommendations(), { once: true });
+  }
+</script>

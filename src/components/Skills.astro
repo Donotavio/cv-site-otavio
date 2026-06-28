@@ -1,0 +1,267 @@
+---
+/**
+ * Skills.astro — Seção "Competências"
+ * Layout: H2 + subtítulo; 2 grupos (técnicas / liderança); grade de skill bars
+ * Motion: revealUp (grupos, stagger 0.06); skill bars via CSS + IntersectionObserver
+ * Direção: The Architect
+ */
+
+// Níveis hardcoded conforme especificação
+const technicalSkills = [
+  { key: 'skills.items.data_engineering',   level: 95 },
+  { key: 'skills.items.databricks',         level: 90 },
+  { key: 'skills.items.ml_platforms',       level: 80 },
+  { key: 'skills.items.cloud_architecture', level: 85 },
+];
+
+const leadershipSkills = [
+  { key: 'skills.items.team_leadership',     level: 90 },
+  { key: 'skills.items.strategy',            level: 85 },
+  { key: 'skills.items.product_partnership', level: 80 },
+  { key: 'skills.items.culture',             level: 75 },
+];
+---
+
+<section id="skills" class="section skills" aria-labelledby="skills-title">
+  <div class="container">
+    <hr class="section-line" aria-hidden="true" />
+
+    <!-- Cabeçalho -->
+    <div class="skills-header">
+      <h2 id="skills-title" class="skills-heading" data-i18n-key="skills.title"></h2>
+      <p class="skills-subtitle" data-i18n-key="skills.subtitle"></p>
+    </div>
+
+    <!-- Grupos de skills -->
+    <div class="skills-grid">
+
+      <!-- Grupo técnico -->
+      <div class="skills-group" data-skills-group>
+        <h3 class="group-heading" data-i18n-key="skills.technical"></h3>
+        <ul class="skill-list" aria-label="technical skills">
+          {technicalSkills.map(({ key, level }) => (
+            <li class="skill-item">
+              <div class="skill-header-row">
+                <span class="skill-label" data-i18n-key={key}></span>
+                <span class="skill-pct" aria-hidden="true">{level}%</span>
+              </div>
+              <div class="skill-track" role="progressbar" aria-valuenow={level} aria-valuemin={0} aria-valuemax={100}>
+                <div class="skill-fill" data-level={level} style={`--target-width: ${level}%`}></div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Grupo liderança -->
+      <div class="skills-group" data-skills-group>
+        <h3 class="group-heading" data-i18n-key="skills.leadership"></h3>
+        <ul class="skill-list" aria-label="leadership skills">
+          {leadershipSkills.map(({ key, level }) => (
+            <li class="skill-item">
+              <div class="skill-header-row">
+                <span class="skill-label" data-i18n-key={key}></span>
+                <span class="skill-pct" aria-hidden="true">{level}%</span>
+              </div>
+              <div class="skill-track" role="progressbar" aria-valuenow={level} aria-valuemin={0} aria-valuemax={100}>
+                <div class="skill-fill" data-level={level} style={`--target-width: ${level}%`}></div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  .skills {
+    padding-block: var(--space-20);
+  }
+
+  /* Section line */
+  .section-line {
+    border: none;
+    height: 1px;
+    background: var(--line);
+    width: 100%;
+    transform-origin: left center;
+    margin-block-end: var(--space-12);
+  }
+
+  /* Cabeçalho */
+  .skills-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-block-end: var(--space-12);
+  }
+
+  .skills-heading {
+    font-family: var(--font-sans);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--text);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-normal);
+    margin: 0;
+  }
+
+  .skills-subtitle {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  /* Grid de grupos: 1 coluna mobile → 2 colunas desktop */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+  }
+
+  @media (min-width: 1024px) {
+    .skills-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-16);
+    }
+  }
+
+  /* Grupo */
+  .skills-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .group-heading {
+    font-family: var(--font-sans);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--text);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-normal);
+    margin: 0;
+    padding-block-end: var(--space-4);
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Lista de skills */
+  .skill-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .skill-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  /* Linha label + percentual */
+  .skill-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .skill-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    color: var(--text);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
+  }
+
+  .skill-pct {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--primary);
+    letter-spacing: var(--tracking-wide);
+    flex-shrink: 0;
+  }
+
+  /* Track da barra */
+  .skill-track {
+    height: 4px;
+    background: var(--line);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+
+  /* Fill animado via CSS — estado inicial: width 0 */
+  .skill-fill {
+    height: 100%;
+    width: 0;
+    background: var(--primary);
+    border-radius: var(--radius-full);
+    /* Animação de width acionada quando .is-visible é adicionado */
+    transition: width 1.2s ease;
+  }
+
+  /* Estado visível: expandir para o target-width */
+  .skill-fill.is-visible {
+    width: var(--target-width);
+  }
+
+  /* Garante conteúdo visível sem JS */
+  @media (prefers-reduced-motion: reduce) {
+    .skill-fill {
+      width: var(--target-width);
+    }
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const section = document.getElementById('skills');
+  if (section) {
+    const line   = section.querySelector('.section-line') as Element;
+    const header = section.querySelector('.skills-header') as Element;
+    const groups = section.querySelectorAll('[data-skills-group]');
+    const fills  = section.querySelectorAll('.skill-fill');
+
+    if (line) hairlineDraw(line, section);
+
+    if (motionOk) {
+      revealUp([header], section, 0);
+      revealUp(groups, section, 0.06);
+    }
+
+    // Animar as barras via IntersectionObserver quando entram no viewport
+    // (CSS transition: width 1.2s ease — não usa GSAP, compatível com reduced-motion)
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reducedMotion && fills.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.2 },
+      );
+
+      fills.forEach((fill) => observer.observe(fill));
+    } else {
+      // Sem motion: aplicar estado final direto
+      fills.forEach((fill) => fill.classList.add('is-visible'));
+    }
+  }
+</script>

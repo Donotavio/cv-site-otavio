@@ -1,0 +1,72 @@
+---
+/**
+ * LanguageSwitcher.astro — frontend-builder
+ * Segue: design-system.md, content-i18n.md
+ *
+ * Três botões PT | EN | ES.
+ * Classes .lang-btn e data-lang são obrigatórias para i18n.js funcionar.
+ * Estado ativo (.active) é gerenciado pelo i18n.js em runtime — sem JS aqui.
+ * Separadores · entre botões, em --muted.
+ */
+---
+
+<div class="lang-switcher" role="group" aria-label="Language / Idioma">
+  <button class="lang-btn" data-lang="pt-BR" type="button">PT</button>
+  <span class="lang-sep" aria-hidden="true">·</span>
+  <button class="lang-btn" data-lang="en-US" type="button">EN</button>
+  <span class="lang-sep" aria-hidden="true">·</span>
+  <button class="lang-btn" data-lang="es-ES" type="button">ES</button>
+</div>
+
+<style>
+  .lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .lang-btn {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wider);
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+    line-height: var(--leading-tight);
+  }
+
+  .lang-btn:hover {
+    color: var(--text);
+  }
+
+  .lang-btn.active {
+    color: var(--primary);
+  }
+
+  .lang-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
+
+  /* Sem hover em touch */
+  @media (hover: none) {
+    .lang-btn:hover {
+      color: var(--muted);
+    }
+    .lang-btn.active:hover {
+      color: var(--primary);
+    }
+  }
+
+  .lang-sep {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    user-select: none;
+    line-height: var(--leading-tight);
+  }
+</style>

@@ -1,0 +1,213 @@
+---
+/**
+ * About.astro — Seção "Quem eu sou"
+ * Layout: 2 colunas desktop (55% texto / 45% card), 1 coluna mobile
+ * Motion: revealUp (parágrafos + card), hairlineDraw (section-line)
+ * Direção: The Architect
+ */
+---
+
+<section id="about" class="section about" aria-labelledby="about-title">
+  <div class="container">
+    <hr class="section-line" aria-hidden="true" />
+
+    <div class="about-grid">
+      <!-- Coluna esquerda: texto -->
+      <div class="about-text">
+        <p class="about-eyebrow" data-i18n-key="about.subtitle"></p>
+        <h2 id="about-title" class="about-heading" data-i18n-key="about.title"></h2>
+        <p class="about-body" data-i18n-key="about.body_1"></p>
+        <p class="about-body" data-i18n-key="about.body_2"></p>
+      </div>
+
+      <!-- Coluna direita: card -->
+      <div class="about-card-col">
+        <div class="card about-card">
+          <p class="about-card-title" data-i18n-key="about.card_title"></p>
+
+          <ul class="about-bullets" aria-label="deliverables">
+            <li class="about-bullet">
+              <span class="about-bullet-icon" aria-hidden="true">·</span>
+              <span data-i18n-key="about.bullet_1"></span>
+            </li>
+            <li class="about-bullet">
+              <span class="about-bullet-icon" aria-hidden="true">·</span>
+              <span data-i18n-key="about.bullet_2"></span>
+            </li>
+            <li class="about-bullet">
+              <span class="about-bullet-icon" aria-hidden="true">·</span>
+              <span data-i18n-key="about.bullet_3"></span>
+            </li>
+          </ul>
+
+          <div class="about-card-footer">
+            <span class="tag tag--accent" data-i18n-key="about.tag"></span>
+            <p class="about-tagline" data-i18n-key="about.tagline"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    padding-block: var(--space-20);
+  }
+
+  /* Section line — alvo do hairlineDraw */
+  .section-line {
+    border: none;
+    height: 1px;
+    background: var(--line);
+    width: 100%;
+    transform-origin: left center;
+    margin-block-end: var(--space-12);
+  }
+
+  /* Grid 2 colunas no desktop */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+  }
+
+  @media (min-width: 1024px) {
+    .about-grid {
+      grid-template-columns: 55fr 45fr;
+      gap: var(--space-16);
+      align-items: start;
+    }
+  }
+
+  /* Coluna de texto */
+  .about-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .about-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  .about-heading {
+    font-family: var(--font-sans);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--text);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-normal);
+    margin: 0;
+  }
+
+  .about-body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    font-weight: 400;
+    color: var(--muted);
+    line-height: var(--leading-loose);
+    letter-spacing: var(--tracking-normal);
+    margin: 0;
+  }
+
+  /* Coluna do card */
+  .about-card-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .about-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .about-card-title {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: var(--tracking-wide);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  /* Bullets */
+  .about-bullets {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .about-bullet {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    color: var(--text);
+    line-height: var(--leading-normal);
+  }
+
+  .about-bullet-icon {
+    color: var(--primary);
+    font-weight: 700;
+    line-height: var(--leading-normal);
+    flex-shrink: 0;
+  }
+
+  /* Rodapé do card: tag + tagline */
+  .about-card-footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-block-start: var(--space-4);
+    border-top: 1px solid var(--line);
+  }
+
+  .about-tagline {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
+    margin: 0;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const section = document.getElementById('about');
+  if (section) {
+    const line       = section.querySelector('.section-line') as Element;
+    const paragraphs = section.querySelectorAll('.about-body');
+    const eyebrow    = section.querySelector('.about-eyebrow') as Element;
+    const heading    = section.querySelector('.about-heading') as Element;
+    const card       = section.querySelector('.about-card') as Element;
+
+    if (line) hairlineDraw(line, section);
+
+    if (motionOk) {
+      // Heading + eyebrow revelados juntos antes dos parágrafos
+      revealUp([eyebrow, heading], section, 0.08);
+      // Parágrafos em sequência
+      revealUp(paragraphs, section, 0.1);
+      // Card direito
+      revealUp([card], section, 0);
+    }
+  }
+</script>

@@ -1,14 +1,30 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Impact from '../components/Impact.astro';
+import Timeline from '../components/Timeline.astro';
+import Skills from '../components/Skills.astro';
+import TechStack from '../components/TechStack.astro';
+import Projects from '../components/Projects.astro';
+import Recommendations from '../components/Recommendations.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
 ---
 
 <BaseLayout>
-  <!-- Placeholder — Phase 3 scaffold. Conteúdo completo na Phase 4. -->
-  <main>
-    <section style="min-height:100vh;display:flex;align-items:center;justify-content:center;">
-      <p style="font-family:var(--font-mono);color:var(--primary);font-size:var(--text-lg);">
-        The Architect — scaffold ativo
-      </p>
-    </section>
+  <Header />
+  <main id="main-content">
+    <Hero />
+    <About />
+    <Impact />
+    <Timeline />
+    <Skills />
+    <TechStack />
+    <Projects />
+    <Recommendations />
+    <Contact />
   </main>
+  <Footer />
 </BaseLayout>

@@ -1,0 +1,248 @@
+---
+/**
+ * Navigation.astro — frontend-builder
+ * Segue: design-system.md, content-i18n.md
+ *
+ * Nav com 9 links + hamburger para mobile.
+ * Todos os links têm data-i18n-key — conteúdo preenchido pelo i18n.js.
+ * aria-label do <nav> via data-i18n-aria="nav.aria_label".
+ *
+ * NOTA: A chave "nav.aria_label" não existe ainda nos JSONs de i18n.
+ * Deve ser adicionada em pt-BR.json, en-US.json e es-ES.json:
+ *   pt-BR: "nav.aria_label" → "Navegação principal"
+ *   en-US: "nav.aria_label" → "Main navigation"
+ *   es-ES: "nav.aria_label" → "Navegación principal"
+ */
+
+const navLinks = [
+  { href: '#hero',            key: 'nav.home'               },
+  { href: '#about',           key: 'nav.about'              },
+  { href: '#timeline',        key: 'nav.timeline'           },
+  { href: '#skills',          key: 'nav.skills'             },
+  { href: '#recommendations', key: 'nav.recommendations'    },
+  { href: '#tech-stack',      key: 'nav.tech_stack'         },
+  { href: '#blog',            key: 'nav.blog'               },
+  { href: '#projects',        key: 'nav.projects'           },
+  { href: '#contact',         key: 'nav.contact'            },
+];
+---
+
+<nav
+  class="site-nav"
+  data-nav
+  aria-label="Main navigation"
+  data-i18n-aria="nav.aria_label"
+>
+  <!-- Hamburger — visível apenas em mobile -->
+  <button
+    class="nav-toggle"
+    data-nav-toggle
+    type="button"
+    aria-expanded="false"
+    aria-controls="nav-list"
+    aria-label="Menu"
+  >
+    <span class="nav-toggle__bar"></span>
+    <span class="nav-toggle__bar"></span>
+    <span class="nav-toggle__bar"></span>
+  </button>
+
+  <!-- Lista de links -->
+  <ul class="nav-list" id="nav-list" role="list">
+    {navLinks.map(({ href, key }) => (
+      <li class="nav-item">
+        <a
+          href={href}
+          class="nav-link hover-glow"
+          data-i18n-key={key}
+        ></a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<!-- Toggle mobile — JS inline mínimo, sem dependências externas -->
+<script>
+  const toggle = document.querySelector('[data-nav-toggle]') as HTMLButtonElement | null;
+  const list   = document.getElementById('nav-list');
+
+  if (toggle && list) {
+    toggle.addEventListener('click', () => {
+      const isOpen = list.classList.toggle('nav-list--open');
+      toggle.classList.toggle('nav-toggle--open', isOpen);
+      toggle.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    // Fechar ao clicar num link (mobile UX)
+    list.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).classList.contains('nav-link')) {
+        list.classList.remove('nav-list--open');
+        toggle.classList.remove('nav-toggle--open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Fechar ao pressionar Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && list.classList.contains('nav-list--open')) {
+        list.classList.remove('nav-list--open');
+        toggle.classList.remove('nav-toggle--open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .site-nav {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  /* ── Hamburger ──────────────────────────────────────── */
+  .nav-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-1);
+    width: var(--space-10);
+    height: var(--space-10);
+    padding: var(--space-2);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast);
+    z-index: var(--z-raised);
+  }
+
+  .nav-toggle:hover {
+    background: var(--primary-dim);
+  }
+
+  .nav-toggle:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
+
+  @media (hover: none) {
+    .nav-toggle:hover {
+      background: transparent;
+    }
+  }
+
+  .nav-toggle__bar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--text);
+    border-radius: var(--radius-full);
+    transform-origin: center;
+    transition:
+      transform var(--transition-normal),
+      opacity var(--transition-fast);
+  }
+
+  /* Animação X quando aberto */
+  .nav-toggle--open .nav-toggle__bar:nth-child(1) {
+    transform: translateY(calc(var(--space-1) + 2px)) rotate(45deg);
+  }
+  .nav-toggle--open .nav-toggle__bar:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .nav-toggle--open .nav-toggle__bar:nth-child(3) {
+    transform: translateY(calc(-1 * (var(--space-1) + 2px))) rotate(-45deg);
+  }
+
+  /* ── Nav list — mobile ──────────────────────────────── */
+  .nav-list {
+    /* Oculto em mobile por padrão */
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: var(--space-4) var(--space-6);
+
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    width: min(280px, 85vw);
+    height: 100dvh;
+    background: var(--bg-soft);
+    border-left: 1px solid var(--line);
+    padding-block-start: calc(var(--space-16) + var(--space-8));
+    z-index: calc(var(--z-nav) - 1);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .nav-list--open {
+    display: flex;
+  }
+
+  .nav-item {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-link {
+    display: block;
+    padding: var(--space-4) var(--space-2);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: var(--tracking-normal);
+    transition: color var(--transition-fast);
+  }
+
+  .nav-link:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── Desktop: hamburguer some, lista inline ─────────── */
+  @media (min-width: 1024px) {
+    .nav-toggle {
+      display: none;
+    }
+
+    .nav-list {
+      /* Sobrescreve o estado mobile */
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-1);
+
+      position: static;
+      width: auto;
+      height: auto;
+      background: transparent;
+      border: none;
+      padding: 0;
+      overflow: visible;
+    }
+
+    .nav-item {
+      border-bottom: none;
+    }
+
+    .nav-link {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      padding: var(--space-2) var(--space-3);
+      color: var(--muted);
+      letter-spacing: var(--tracking-normal);
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      color: var(--primary);
+    }
+  }
+</style>

@@ -1,0 +1,143 @@
+---
+/**
+ * Header.astro — frontend-builder
+ * Segue: design-system.md, web-motion.md, content-i18n.md
+ *
+ * Header sticky com:
+ * - Logo "OR" (mono bold) + "Otávio Ribeiro" (sans)
+ * - Navigation e LanguageSwitcher
+ * - backdrop-filter blur quando .scrolled (via JS inline)
+ * - Transições apenas via --transition-normal (sem GSAP — web-motion.md)
+ */
+
+import Navigation from './Navigation.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+---
+
+<header class="site-header" id="site-header">
+  <div class="header-inner container">
+    <!-- Logo -->
+    <a href="#hero" class="logo" aria-label="Otávio Ribeiro — início">
+      <span class="logo-mark">OR</span>
+      <span class="logo-text">Otávio Ribeiro</span>
+    </a>
+
+    <!-- Navegação principal -->
+    <Navigation />
+
+    <!-- Seletor de idioma -->
+    <div class="header-lang">
+      <LanguageSwitcher />
+    </div>
+  </div>
+</header>
+
+<!-- Scroll observer: adiciona .scrolled ao header sem GSAP -->
+<script>
+  const header = document.getElementById('site-header');
+
+  if (header) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Quando o sentinel (topo da página) sai do viewport → scrollado
+        header.classList.toggle('scrolled', !entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: '0px 0px 0px 0px' }
+    );
+
+    // Sentinel: elemento invisível no topo absoluto da página
+    const sentinel = document.createElement('div');
+    sentinel.setAttribute('aria-hidden', 'true');
+    sentinel.style.cssText =
+      'position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;';
+    document.body.prepend(sentinel);
+    observer.observe(sentinel);
+  }
+</script>
+
+<style>
+  /* ── Header shell ───────────────────────────────────── */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-nav);
+    width: 100%;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition:
+      background var(--transition-normal),
+      border-color var(--transition-normal),
+      backdrop-filter var(--transition-normal);
+  }
+
+  .site-header.scrolled {
+    background: var(--bg-card);
+    border-bottom-color: var(--line);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* ── Inner layout ───────────────────────────────────── */
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    height: var(--space-16);
+  }
+
+  /* ── Logo ───────────────────────────────────────────── */
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .logo-mark {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+  }
+
+  .logo-text {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: var(--tracking-normal);
+    line-height: var(--leading-tight);
+
+    /* Ocultar em telas muito pequenas para não comprimir o layout */
+    display: none;
+  }
+
+  .logo:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── Language switcher wrapper ──────────────────────── */
+  .header-lang {
+    flex-shrink: 0;
+  }
+
+  /* ── Tablet: mostrar logo-text ──────────────────────── */
+  @media (min-width: 640px) {
+    .logo-text {
+      display: block;
+    }
+  }
+
+  /* ── Desktop: mais espaço interno ──────────────────── */
+  @media (min-width: 1024px) {
+    .header-inner {
+      gap: var(--space-8);
+    }
+  }
+</style>

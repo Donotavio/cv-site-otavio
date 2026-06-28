@@ -1,0 +1,328 @@
+---
+/**
+ * Hero.astro — frontend-builder
+ * Art-director: "The Architect"
+ *
+ * Skills consultadas:
+ *   .claude/skills/design-system.md  — tokens CSS, zero hex
+ *   .claude/skills/web-motion.md     — padrão 5 (resolve), apenas entrance
+ *   .claude/skills/content-i18n.md   — data-i18n-key, nenhum texto hardcoded
+ *
+ * Regras obrigatórias:
+ *   - H1 em IBM Plex Mono (var(--font-mono))
+ *   - CTA coral var(--cta) — não azul
+ *   - Sem canvas, sem gradientes, sem glow no fundo
+ *   - Avatar com borda var(--line-accent) — não sombra colorida
+ *   - Zero hex hardcoded — apenas var(--*)
+ *   - Mobile-first, apenas min-width
+ */
+---
+
+<section id="hero" aria-label="Hero">
+  <div class="hero-container">
+
+    <!-- ── Coluna esquerda: conteúdo ──────────────────────────── -->
+    <div class="hero-content">
+
+      <!-- Eyebrow -->
+      <p class="hero-eyebrow" data-hero-eyebrow data-i18n-key="hero.eyebrow"></p>
+
+      <!-- H1 — IBM Plex Mono 700, var(--text-4xl) -->
+      <h1 class="hero-title" data-hero-title data-i18n-key="hero.role"></h1>
+
+      <!-- Subtítulo -->
+      <p class="hero-subtitle" data-hero-subtitle data-i18n-key="hero.summary"></p>
+
+      <!-- CTAs -->
+      <div class="hero-ctas" data-hero-ctas>
+        <a
+          id="cv-download"
+          class="btn-primary"
+          href="/cv-site-otavio/assets/cv/cv-otavio-ptBR.pdf"
+          download
+          data-i18n-key="hero.cta_cv"
+        ></a>
+        <a
+          href="#contact"
+          class="btn-secondary"
+          data-i18n-key="hero.cta_contact"
+        ></a>
+      </div>
+
+      <!-- Localização -->
+      <div class="hero-location">
+        <!-- Ícone pin SVG inline — sem fill hardcoded, usa currentColor -->
+        <svg
+          class="hero-location-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <span class="hero-location-label" data-i18n-key="hero.location_label"></span>
+      </div>
+
+    </div>
+
+    <!-- ── Coluna direita: visual ─────────────────────────────── -->
+    <div class="hero-visual">
+
+      <!-- Avatar circular -->
+      <div class="hero-avatar-wrap">
+        <img
+          class="hero-avatar"
+          src="/cv-site-otavio/assets/img/me.jpg"
+          alt="Otávio Ribeiro"
+          width="220"
+          height="220"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+
+      <!-- 3 highlight cards -->
+      <div class="hero-highlights">
+
+        <div class="hero-highlight-card">
+          <span class="highlight-label" data-i18n-key="hero.highlight_1_label"></span>
+          <span class="highlight-value" data-i18n-key="hero.highlight_1_value"></span>
+        </div>
+
+        <div class="hero-highlight-card">
+          <span class="highlight-label" data-i18n-key="hero.highlight_2_label"></span>
+          <span class="highlight-value" data-i18n-key="hero.highlight_2_value"></span>
+        </div>
+
+        <div class="hero-highlight-card">
+          <span class="highlight-label" data-i18n-key="hero.highlight_3_label"></span>
+          <span class="highlight-value" data-i18n-key="hero.highlight_3_value"></span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Motion: padrão 5 (resolve) — entrance sem ScrollTrigger ── -->
+<script>
+  import { resolveHero } from '../scripts/motion/resolve';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const hero = document.querySelector('#hero');
+    if (hero) resolveHero(hero);
+  });
+</script>
+
+<style>
+  /* ── Container raiz ───────────────────────────────────────── */
+  #hero {
+    min-height: 100svh;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    padding-block: var(--space-16);
+  }
+
+  .hero-container {
+    width: 100%;
+    max-width: var(--container-xl);
+    margin-inline: auto;
+    padding-inline: var(--space-4);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  /* ── Coluna esquerda: conteúdo ──────────────────────────── */
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  /* Eyebrow — monospace, xs, wider, uppercase, primary */
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 400;
+    letter-spacing: var(--tracking-wider);
+    line-height: var(--leading-normal);
+    text-transform: uppercase;
+    color: var(--primary);
+    margin: 0;
+  }
+
+  /* H1 — IBM Plex Mono 700, 4xl, leading-tight, tracking-tight */
+  .hero-title {
+    font-family: var(--font-mono);
+    font-size: var(--text-4xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+    color: var(--text);
+    margin: 0;
+  }
+
+  /* Subtítulo — Inter 400, lg, leading-normal, muted */
+  .hero-subtitle {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    line-height: var(--leading-normal);
+    color: var(--muted);
+    margin: 0;
+    max-width: 52ch;
+  }
+
+  /* CTAs — dois botões lado a lado */
+  .hero-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  /* Localização — ícone pin + label muted sm */
+  .hero-location {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--muted);
+  }
+
+  .hero-location-icon {
+    flex-shrink: 0;
+    color: var(--muted);
+  }
+
+  .hero-location-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  /* ── Coluna direita: visual ────────────────────────────── */
+  .hero-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+  }
+
+  /* Avatar circular */
+  .hero-avatar-wrap {
+    flex-shrink: 0;
+  }
+
+  .hero-avatar {
+    display: block;
+    width: clamp(160px, 20vw, 220px);
+    height: clamp(160px, 20vw, 220px);
+    border-radius: var(--radius-full);
+    border: 2px solid var(--line-accent);
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  /* Grid de highlight cards */
+  .hero-highlights {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    width: 100%;
+    max-width: 320px;
+  }
+
+  /* Highlight card individual */
+  .hero-highlight-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: border-color var(--transition-normal);
+  }
+
+  .hero-highlight-card:hover {
+    border-color: var(--line-accent);
+  }
+
+  /* Label do card — mono xs muted */
+  .highlight-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 400;
+    letter-spacing: var(--tracking-wide);
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Valor do card — mono bold lg primary */
+  .highlight-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--primary);
+    line-height: var(--leading-snug);
+  }
+
+  /* ── Desktop: grid 2 colunas 60/40 ───────────────────────── */
+  @media (min-width: 1024px) {
+    #hero {
+      padding-block: var(--space-20);
+    }
+
+    .hero-container {
+      grid-template-columns: 60fr 40fr;
+      gap: var(--space-16);
+      padding-inline: var(--space-8);
+      align-items: center;
+    }
+
+    .hero-visual {
+      align-items: center;
+    }
+
+    .hero-highlights {
+      grid-template-columns: 1fr;
+      max-width: 100%;
+    }
+  }
+
+  /* ── Widescreen: mais padding lateral ───────────────────── */
+  @media (min-width: 1440px) {
+    .hero-container {
+      padding-inline: var(--space-12);
+    }
+  }
+
+  /* ── Reduced motion: conteúdo sempre visível sem JS ─────── */
+  /*
+   * resolve.ts verifica motionOk antes de animar.
+   * Este bloco garante visibilidade mesmo sem JS.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-eyebrow,
+    .hero-title,
+    .hero-subtitle,
+    .hero-ctas {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
