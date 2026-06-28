@@ -667,7 +667,7 @@
       const li = document.createElement('li');
       li.className = 'tl-entry';
       li.innerHTML = `
-        <article
+        <div
           class="timeline-card"
           ${hasDetails ? 'tabindex="0" role="button"' : ''}
           aria-label="${item.role} · ${item.company}"
@@ -690,7 +690,7 @@
           }
           ${skills ? `<div class="tl-card__skills">${skills}</div>` : ''}
           ${hintHtml}
-        </article>
+        </div>
       `;
 
       const card = li.querySelector<HTMLElement>('.timeline-card');
