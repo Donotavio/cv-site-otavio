@@ -1,55 +1,98 @@
 ---
 /**
- * TechStack.astro
- * Grade de tecnologias — carrega tech_stack.json em runtime.
- *
- * Regras aplicadas:
- *  - design-system.md: zero hex, CSS scoped, tokens apenas, mobile-first
- *  - web-motion.md: revealUp com stagger 0.08 nas categorias, motionOk verificado
- *  - content-i18n.md: data-i18n-key para UI, fetch() para dados,
- *                     window.i18n.t() para nível em JS
+ * TechStack.astro — Seção [ 05 ] — Direção Blueprint (fundo --paper-soft)
+ * Grid de tecnologias por categoria: logo + nome + nível como .tag.
+ * Marquee horizontal de logos no topo (pausa no hover / reduced-motion).
+ * Dados: fetch tech_stack.json. Motion: hairlineDraw + revealUp (categorias).
  */
 ---
 
-<section id="tech-stack" class="section section--soft">
+<section id="tech-stack" class="section tech-stack" aria-labelledby="tech-stack-title">
   <div class="container">
-    <div class="section-header">
-      <h2 data-i18n-key="tech_stack.title"></h2>
-      <p class="section-subtitle" data-i18n-key="tech_stack.subtitle"></p>
+    <div class="section-head">
+      <span class="mono-label">05</span>
+      <h2 id="tech-stack-title" class="ts-display" data-i18n-key="tech_stack.title"></h2>
+      <p class="ts-lead" data-i18n-key="tech_stack.subtitle"></p>
     </div>
 
+    <hr class="section-line" aria-hidden="true" />
+  </div>
+
+  <!-- Marquee de logos (full-bleed) -->
+  <div class="ts-marquee" aria-hidden="true">
+    <div id="ts-marquee-track" class="ts-marquee__track"></div>
+  </div>
+
+  <div class="container">
     <div id="tech-stack-grid" class="ts-grid"></div>
   </div>
 </section>
 
 <style>
-  /* ── Section ─────────────────────────────────────────────── */
-  .section {
-    padding-block: var(--space-20);
+  .tech-stack {
+    background: var(--paper-soft);
   }
 
-  .section--soft {
-    background: var(--bg-soft);
+  .ts-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
   }
 
-  .section-header {
-    margin-bottom: var(--space-12);
-  }
-
-  .section-header h2 {
+  .ts-lead {
     font-family: var(--font-sans);
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    line-height: var(--leading-snug);
-    color: var(--text);
-    margin-bottom: var(--space-4);
-  }
-
-  .section-subtitle {
-    font-family: var(--font-sans);
-    font-size: var(--text-base);
-    color: var(--muted);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
     line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .section-line {
+    margin-block-end: var(--space-12);
+  }
+
+  /* ── Marquee ─────────────────────────────────────────────── */
+  .ts-marquee {
+    overflow: hidden;
+    border-block: 1px solid var(--line);
+    padding-block: var(--space-6);
+    margin-block-end: var(--space-12);
+    -webkit-mask-image: linear-gradient(90deg, transparent, var(--ink) 8%, var(--ink) 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, var(--ink) 8%, var(--ink) 92%, transparent);
+  }
+
+  .ts-marquee__track {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    width: max-content;
+    animation: ts-scroll 32s linear infinite;
+  }
+
+  .ts-marquee:hover .ts-marquee__track {
+    animation-play-state: paused;
+  }
+
+  .ts-marquee__logo {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  @keyframes ts-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ts-marquee__track { animation: none; }
   }
 
   /* ── Grid de categorias ──────────────────────────────────── */
@@ -60,42 +103,36 @@
   }
 
   @media (min-width: 640px) {
-    .ts-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    .ts-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (min-width: 1024px) {
-    .ts-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
+    .ts-grid { grid-template-columns: repeat(4, 1fr); }
   }
 
-  /* ── Categoria card ──────────────────────────────────────── */
+  /* ── Categoria ───────────────────────────────────────────── */
   .ts-category {
-    background: var(--bg-card);
+    background: var(--paper-card);
     border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     padding: var(--space-6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+    transition: border-color var(--transition-normal);
   }
 
-  .ts-category:hover {
-    border-color: var(--line-accent);
-    box-shadow: var(--shadow-glow);
-  }
+  .ts-category:hover { border-color: var(--line-strong); }
 
   .ts-category__name {
-    font-family: var(--font-sans);
-    font-size: var(--text-base);
-    font-weight: 700;
-    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
     margin-bottom: var(--space-6);
     padding-bottom: var(--space-4);
     border-bottom: 1px solid var(--line);
   }
+  .ts-category__name::before { content: '[ '; }
+  .ts-category__name::after  { content: ' ]'; }
 
   .ts-items {
     display: flex;
@@ -103,7 +140,6 @@
     gap: var(--space-4);
   }
 
-  /* ── Tech item ───────────────────────────────────────────── */
   .ts-item {
     display: flex;
     align-items: center;
@@ -111,8 +147,8 @@
   }
 
   .ts-item__logo {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
     object-fit: contain;
   }
@@ -121,7 +157,8 @@
     flex: 1;
     font-family: var(--font-sans);
     font-size: var(--text-sm);
-    color: var(--text);
+    font-weight: 500;
+    color: var(--ink);
     min-width: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -131,6 +168,8 @@
 
 <script>
   import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
 
   const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
 
@@ -147,8 +186,21 @@
   }
 
   function levelTagClass(level: string): string {
-    if (level === 'expert') return 'tag tag--accent';
-    return 'tag';
+    return level === 'expert' ? 'tag tag--accent' : 'tag';
+  }
+
+  function renderMarquee(categories: Category[]) {
+    const track = document.getElementById('ts-marquee-track');
+    if (!track) return;
+    const logos = categories.flatMap((c) => c.technologies ?? []);
+    // Duplicar a sequência para loop contínuo (-50% no keyframe)
+    const seq = [...logos, ...logos];
+    track.innerHTML = seq
+      .map(
+        (t) =>
+          `<img class="ts-marquee__logo" src="${t.logo}" alt="" loading="lazy" onerror="this.style.display='none'">`
+      )
+      .join('');
   }
 
   async function renderTechStack() {
@@ -166,6 +218,7 @@
 
     const categories: Category[] = data.categories ?? [];
     grid.innerHTML = '';
+    renderMarquee(categories);
 
     categories.forEach((cat) => {
       const div = document.createElement('div');
@@ -173,8 +226,7 @@
 
       const itemsHtml = (cat.technologies ?? [])
         .map((tech) => {
-          const levelLabel =
-            window.i18n?.t(`tech_stack.level_${tech.level}`) ?? tech.level;
+          const levelLabel = window.i18n?.t(`tech_stack.level_${tech.level}`) ?? tech.level;
           const tagClass = levelTagClass(tech.level);
           return `
             <div class="ts-item">
@@ -200,12 +252,20 @@
       grid.appendChild(div);
     });
 
-    // Motion: revealUp nas categorias
     const cards = grid.querySelectorAll<Element>('.ts-category');
     revealUp(cards, grid, 0.08);
   }
 
-  // ─── i18n: renderizar ao carregar e ao trocar idioma ─────────
+  // ─── Section line hairline + head reveal ─────────────────────
+  const section = document.getElementById('tech-stack');
+  if (section) {
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    if (line) hairlineDraw(line, section);
+    if (motionOk && head) revealUp([head], section, 0);
+  }
+
+  // ─── i18n ────────────────────────────────────────────────────
   window.addEventListener('languageChanged', () => renderTechStack());
 
   if (window.i18n) {

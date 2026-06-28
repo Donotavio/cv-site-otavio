@@ -1,22 +1,21 @@
 ---
 /**
- * Projects.astro
- * Grade de repositórios do GitHub — carrega profile.json em runtime.
- *
- * Regras aplicadas:
- *  - design-system.md: zero hex, CSS scoped, tokens apenas, mobile-first
- *  - web-motion.md: revealUp com stagger 0.1, motionOk verificado, once: true
- *  - content-i18n.md: data-i18n-key para UI, fetch() para dados,
- *                     window.i18n.t() para descrições de projetos
+ * Projects.astro — Seção [ 06 ] — Direção Blueprint
+ * Cards de repositórios com crop marks: nome em serif, descrição via i18n,
+ * linguagem como .tag, stars em mono, link com .link-underline.
+ * Dados: fetch profile.json → projects[]. Motion: hairlineDraw + revealUp (cards).
  */
 ---
 
-<section id="projects" class="section">
+<section id="projects" class="section projects" aria-labelledby="projects-title">
   <div class="container">
-    <div class="section-header">
-      <h2 data-i18n-key="projects.title"></h2>
-      <p class="section-subtitle" data-i18n-key="projects.subtitle"></p>
+    <div class="section-head">
+      <span class="mono-label">06</span>
+      <h2 id="projects-title" class="proj-display" data-i18n-key="projects.title"></h2>
+      <p class="proj-lead" data-i18n-key="projects.subtitle"></p>
     </div>
+
+    <hr class="section-line" aria-hidden="true" />
 
     <div id="projects-grid" class="projects-grid"></div>
 
@@ -30,32 +29,29 @@
 </section>
 
 <style>
-  /* ── Section ─────────────────────────────────────────────── */
-  .section {
-    padding-block: var(--space-20);
+  .proj-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
   }
 
-  .section-header {
-    margin-bottom: var(--space-12);
-  }
-
-  .section-header h2 {
+  .proj-lead {
     font-family: var(--font-sans);
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    line-height: var(--leading-snug);
-    color: var(--text);
-    margin-bottom: var(--space-4);
-  }
-
-  .section-subtitle {
-    font-family: var(--font-sans);
-    font-size: var(--text-base);
-    color: var(--muted);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
     line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
   }
 
-  /* ── Projects grid ───────────────────────────────────────── */
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
   .projects-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -63,22 +59,31 @@
   }
 
   @media (min-width: 640px) {
-    .projects-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    .projects-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (min-width: 1024px) {
-    .projects-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
+    .projects-grid { grid-template-columns: repeat(3, 1fr); }
   }
 
-  /* ── Project card ────────────────────────────────────────── */
+  /* ── Card ─────────────────────────────────────────────────── */
   .proj-card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+    transition: border-color var(--transition-normal),
+                box-shadow var(--transition-normal),
+                transform var(--transition-normal);
+  }
+
+  .proj-card:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
   }
 
   .proj-card__header {
@@ -89,28 +94,26 @@
   }
 
   .proj-card__name {
-    font-family: var(--font-sans);
-    font-size: var(--text-base);
-    font-weight: 700;
-    color: var(--text);
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
     line-height: var(--leading-snug);
   }
 
   .proj-card__github-icon {
     flex-shrink: 0;
-    color: var(--muted);
+    color: var(--ink-faint);
     transition: color var(--transition-fast);
   }
 
-  .proj-card:hover .proj-card__github-icon {
-    color: var(--primary);
-  }
+  .proj-card:hover .proj-card__github-icon { color: var(--accent); }
 
   .proj-card__description {
     font-family: var(--font-sans);
     font-size: var(--text-sm);
-    color: var(--muted);
-    line-height: var(--leading-normal);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
     flex: 1;
   }
 
@@ -124,47 +127,29 @@
   .proj-card__stars {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--ink-faint);
     letter-spacing: var(--tracking-wide);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: var(--space-1);
   }
 
   .proj-card__link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
     font-size: var(--text-sm);
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: var(--tracking-wide);
-    color: var(--text);
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    padding: var(--space-2) var(--space-4);
     text-decoration: none;
-    transition: border-color var(--transition-fast), color var(--transition-fast);
-    margin-top: var(--space-2);
     align-self: flex-start;
+    margin-top: var(--space-2);
   }
-
-  .proj-card__link:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-
-  .proj-card__link:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 3px;
-  }
+  .proj-card__link::after { content: ' →'; }
 
   /* ── Empty state ─────────────────────────────────────────── */
   .empty-state {
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
     font-size: var(--text-sm);
-    color: var(--muted);
+    color: var(--ink-faint);
     text-align: center;
     padding: var(--space-12) 0;
   }
@@ -172,6 +157,8 @@
 
 <script>
   import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
 
   const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
 
@@ -184,14 +171,7 @@
   }
 
   const GITHUB_SVG = `
-    <svg
-      class="proj-card__github-icon"
-      width="20"
-      height="20"
-      fill="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg class="proj-card__github-icon" width="18" height="18" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
     </svg>
   `;
@@ -229,8 +209,10 @@
         '';
 
       const article = document.createElement('article');
-      article.className = 'proj-card card hover-glow';
+      article.className = 'proj-card crop';
       article.innerHTML = `
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
         <div class="proj-card__header">
           <h3 class="proj-card__name">${project.name ?? ''}</h3>
           ${GITHUB_SVG}
@@ -246,7 +228,7 @@
           </span>
         </div>
         <a
-          class="proj-card__link"
+          class="proj-card__link link-underline"
           href="${project.url ?? '#'}"
           target="_blank"
           rel="noopener noreferrer"
@@ -257,9 +239,17 @@
       grid.appendChild(article);
     });
 
-    // Motion: revealUp nos cards
     const cards = grid.querySelectorAll<Element>('.proj-card');
     revealUp(cards, grid, 0.1);
+  }
+
+  // ─── Section line hairline + head reveal ─────────────────────
+  const section = document.getElementById('projects');
+  if (section) {
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    if (line) hairlineDraw(line, section);
+    if (motionOk && head) revealUp([head], section, 0);
   }
 
   // ─── i18n ────────────────────────────────────────────────────

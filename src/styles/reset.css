@@ -1,6 +1,6 @@
 /*
- * Reset + base styles
- * Segue design-system.md: is:global permitido aqui.
+ * Reset + base styles — Blueprint
+ * is:global permitido aqui (design-system.md)
  */
 
 *, *::before, *::after {
@@ -17,8 +17,8 @@ html {
 }
 
 body {
-  background-color: var(--bg);
-  color: var(--text);
+  background-color: var(--paper);
+  color: var(--ink);
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
@@ -26,7 +26,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Conteúdo visível sem JS — estado padrão é visível (web-motion.md guardrail) */
+/* Conteúdo visível sem JS — estado padrão é visível */
 [data-motion] {
   opacity: 1;
   transform: none;
@@ -42,6 +42,7 @@ button {
   font-family: inherit;
   background: none;
   border: none;
+  color: inherit;
 }
 
 a {
@@ -51,6 +52,12 @@ a {
 
 ul, ol {
   list-style: none;
+}
+
+/* Seleção de texto com acento */
+::selection {
+  background: var(--accent);
+  color: var(--paper);
 }
 
 /* prefers-reduced-motion — fallback CSS obrigatório (web-motion.md) */

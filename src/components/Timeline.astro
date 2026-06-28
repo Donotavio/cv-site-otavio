@@ -1,25 +1,24 @@
 ---
 /**
- * Timeline.astro
- * Seção de experiência profissional — carrega profile.json em runtime.
- *
- * Regras aplicadas:
- *  - design-system.md: zero hex, CSS scoped, tokens apenas, mobile-first
- *  - web-motion.md: apenas revealUp, motionOk verificado, once: true
- *  - content-i18n.md: data-i18n-key para textos UI, fetch() para dados,
- *                     window.i18n.t() para rótulos em JS,
- *                     languageChanged re-renderiza conteúdo dinâmico
+ * Timeline.astro — Seção [ 03 ] — Direção Blueprint
+ * Timeline vertical com linha de blueprint à esquerda. Cada experiência:
+ * período em mono [ ... ], role em serif, company, highlights.
+ * Modal a11y (role=dialog, aria-modal, focus trap, Escape) para detalhes.
+ * Dados: fetch profile.json. Motion: hairlineDraw (section-line) + revealUp (entradas).
  */
 ---
 
-<section id="timeline" class="section">
+<section id="timeline" class="section timeline" aria-labelledby="timeline-title">
   <div class="container">
-    <div class="section-header">
-      <h2 data-i18n-key="timeline.title"></h2>
-      <p class="section-subtitle" data-i18n-key="timeline.subtitle"></p>
+    <div class="section-head">
+      <span class="mono-label">03</span>
+      <h2 id="timeline-title" class="tl-display" data-i18n-key="timeline.title"></h2>
+      <p class="tl-lead" data-i18n-key="timeline.subtitle"></p>
     </div>
 
-    <ul id="timeline-list" class="timeline-list" aria-label="career timeline"></ul>
+    <hr class="section-line" aria-hidden="true" />
+
+    <ol id="timeline-list" class="timeline-list" aria-label="career timeline"></ol>
 
     <p
       id="timeline-empty"
@@ -41,14 +40,17 @@
   hidden
 >
   <div class="tl-modal__overlay" data-tl-close></div>
-  <div class="tl-modal__panel">
+  <div class="tl-modal__panel crop">
+    <span class="crop-mark-bl" aria-hidden="true"></span>
+    <span class="crop-mark-br" aria-hidden="true"></span>
+
     <button
       class="tl-modal__close"
       data-tl-close
       data-i18n-aria="timeline.close_modal"
       aria-label="Close"
     >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
       </svg>
@@ -57,9 +59,9 @@
     <div class="tl-modal__header">
       <div class="tl-modal__logo" id="tl-modal-logo" aria-hidden="true"></div>
       <div class="tl-modal__meta">
+        <p class="tl-modal__period" id="tl-modal-period"></p>
         <h3 class="tl-modal__role" id="tl-modal-role"></h3>
         <p class="tl-modal__company" id="tl-modal-company"></p>
-        <p class="tl-modal__period" id="tl-modal-period"></p>
         <p class="tl-modal__location" id="tl-modal-location"></p>
       </div>
     </div>
@@ -73,51 +75,111 @@
 </div>
 
 <style>
-  /* ── Section ─────────────────────────────────────────────── */
-  .section {
-    padding-block: var(--space-20);
+  .tl-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
   }
 
-  .section-header {
-    margin-bottom: var(--space-12);
-  }
-
-  .section-header h2 {
+  .tl-lead {
     font-family: var(--font-sans);
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    line-height: var(--leading-snug);
-    color: var(--text);
-    margin-bottom: var(--space-4);
-  }
-
-  .section-subtitle {
-    font-family: var(--font-sans);
-    font-size: var(--text-base);
-    color: var(--muted);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
     line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
   }
 
-  /* ── Timeline list ───────────────────────────────────────── */
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
+  /* ── Timeline list — linha de blueprint à esquerda ───────── */
   .timeline-list {
     list-style: none;
-    padding: 0;
     margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
+    padding: 0;
+    position: relative;
   }
 
-  /* ── Timeline card ───────────────────────────────────────── */
+  /* Linha vertical contínua */
+  .timeline-list::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 7px;
+    width: 1px;
+    background: var(--line);
+  }
+
+  @media (min-width: 640px) {
+    .timeline-list::before { left: 9px; }
+  }
+
+  .tl-entry {
+    position: relative;
+    padding-left: var(--space-8);
+    padding-bottom: var(--space-12);
+  }
+
+  .tl-entry:last-child { padding-bottom: 0; }
+
+  @media (min-width: 640px) {
+    .tl-entry { padding-left: var(--space-10); }
+  }
+
+  /* Nó na linha */
+  .tl-entry::before {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 6px;
+    width: 9px;
+    height: 9px;
+    border: 1px solid var(--line-strong);
+    background: var(--paper);
+    border-radius: var(--radius-full);
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  @media (min-width: 640px) {
+    .tl-entry::before { left: 5px; }
+  }
+
+  .tl-entry:hover::before,
+  .tl-entry:focus-within::before {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ── Card da entrada ─────────────────────────────────────── */
   .timeline-card {
+    display: block;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
     cursor: pointer;
     outline: none;
+    transition: border-color var(--transition-normal),
+                box-shadow var(--transition-normal),
+                transform var(--transition-normal);
   }
 
-  .timeline-card:focus-visible {
-    outline: 2px solid var(--primary);
+  .timeline-card:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .timeline-card[role='button']:focus-visible {
+    outline: 2px solid var(--accent);
     outline-offset: 3px;
-    border-radius: var(--radius-lg);
   }
 
   .tl-card__header {
@@ -128,12 +190,13 @@
   }
 
   .tl-card__logo {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     overflow: hidden;
-    background: var(--bg-soft);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -145,16 +208,24 @@
     object-fit: contain;
   }
 
-  .tl-card__info {
-    flex: 1;
-    min-width: 0;
+  .tl-card__info { flex: 1; min-width: 0; }
+
+  .tl-card__period {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    margin-bottom: var(--space-2);
   }
+  .tl-card__period::before { content: '[ '; }
+  .tl-card__period::after  { content: ' ]'; }
 
   .tl-card__role {
-    font-family: var(--font-sans);
-    font-size: var(--text-lg);
-    font-weight: 700;
-    color: var(--text);
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
     line-height: var(--leading-snug);
     margin-bottom: var(--space-1);
   }
@@ -163,22 +234,21 @@
     font-family: var(--font-sans);
     font-size: var(--text-sm);
     font-weight: 600;
-    color: var(--primary);
+    color: var(--accent);
     margin-bottom: var(--space-1);
   }
 
-  .tl-card__period,
   .tl-card__location {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--ink-faint);
     letter-spacing: var(--tracking-wide);
   }
 
   .tl-card__highlights {
     list-style: none;
     padding: 0;
-    margin: 0 0 var(--space-4) 0;
+    margin: var(--space-4) 0 0 0;
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
@@ -187,7 +257,7 @@
   .tl-card__highlights li {
     font-family: var(--font-sans);
     font-size: var(--text-sm);
-    color: var(--muted);
+    color: var(--ink-soft);
     line-height: var(--leading-normal);
     padding-left: var(--space-4);
     position: relative;
@@ -197,29 +267,31 @@
     content: '›';
     position: absolute;
     left: 0;
-    color: var(--primary);
+    color: var(--accent);
+    font-family: var(--font-mono);
   }
 
   .tl-card__skills {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
+    margin-top: var(--space-4);
   }
 
   .tl-card__hint {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--ink-faint);
     letter-spacing: var(--tracking-wide);
     margin-top: var(--space-4);
-    opacity: 0.7;
   }
+  .tl-card__hint::before { content: '→ '; }
 
   /* ── Empty state ─────────────────────────────────────────── */
   .empty-state {
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
     font-size: var(--text-sm);
-    color: var(--muted);
+    color: var(--ink-faint);
     text-align: center;
     padding: var(--space-12) 0;
   }
@@ -233,45 +305,39 @@
     align-items: flex-end;
     justify-content: center;
   }
-
-  /* O atributo HTML `hidden` deve ganhar do display: flex do CSS */
-  .tl-modal[hidden] {
-    display: none;
-  }
+  .tl-modal[hidden] { display: none; }
 
   @media (min-width: 640px) {
-    .tl-modal {
-      align-items: center;
-    }
+    .tl-modal { align-items: center; }
   }
 
   .tl-modal__overlay {
     position: absolute;
     inset: 0;
-    background: color-mix(in srgb, var(--bg) 85%, transparent);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: color-mix(in srgb, var(--ink) 35%, transparent);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     cursor: pointer;
   }
 
   .tl-modal__panel {
     position: relative;
-    background: var(--bg-soft);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    background: var(--paper-card);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
     width: 100%;
     max-height: 90dvh;
     overflow-y: auto;
-    padding: var(--space-8) var(--space-6);
+    padding: var(--space-10) var(--space-6);
     z-index: var(--z-raised);
   }
 
   @media (min-width: 640px) {
     .tl-modal__panel {
-      border-radius: var(--radius-xl);
+      border-radius: var(--radius-md);
       max-width: var(--container-md);
       max-height: 85dvh;
-      padding: var(--space-8);
+      padding: var(--space-10);
     }
   }
 
@@ -286,19 +352,19 @@
     justify-content: center;
     background: transparent;
     border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    color: var(--muted);
+    border-radius: var(--radius-sm);
+    color: var(--ink-soft);
     cursor: pointer;
     transition: border-color var(--transition-fast), color var(--transition-fast);
   }
 
   .tl-modal__close:hover {
-    border-color: var(--line-accent);
-    color: var(--primary);
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   .tl-modal__close:focus-visible {
-    outline: 2px solid var(--primary);
+    outline: 2px solid var(--accent);
     outline-offset: 3px;
   }
 
@@ -313,26 +379,33 @@
     width: 56px;
     height: 56px;
     flex-shrink: 0;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     overflow: hidden;
-    background: var(--bg-card);
+    background: var(--paper-soft);
     border: 1px solid var(--line);
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .tl-modal__logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+  .tl-modal__logo img { width: 100%; height: 100%; object-fit: contain; }
+
+  .tl-modal__period {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    margin-bottom: var(--space-2);
   }
+  .tl-modal__period:not(:empty)::before { content: '[ '; }
+  .tl-modal__period:not(:empty)::after  { content: ' ]'; }
 
   .tl-modal__role {
-    font-family: var(--font-sans);
-    font-size: var(--text-xl);
-    font-weight: 700;
-    color: var(--text);
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
     line-height: var(--leading-snug);
     margin-bottom: var(--space-2);
   }
@@ -341,22 +414,21 @@
     font-family: var(--font-sans);
     font-size: var(--text-sm);
     font-weight: 600;
-    color: var(--primary);
+    color: var(--accent);
     margin-bottom: var(--space-1);
   }
 
-  .tl-modal__period,
   .tl-modal__location {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--ink-faint);
     letter-spacing: var(--tracking-wide);
   }
 
   .tl-modal__extra {
-    background: var(--bg-card);
+    background: var(--accent-dim);
     border: 1px solid var(--line-accent);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     padding: var(--space-4) var(--space-6);
     margin-bottom: var(--space-6);
   }
@@ -364,7 +436,7 @@
   .tl-modal__extra-label {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    color: var(--primary);
+    color: var(--accent);
     letter-spacing: var(--tracking-wider);
     text-transform: uppercase;
     margin-bottom: var(--space-2);
@@ -374,35 +446,36 @@
     font-family: var(--font-sans);
     font-size: var(--text-sm);
     font-weight: 600;
-    color: var(--text);
+    color: var(--ink);
   }
 
   .tl-modal__extra-period {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--ink-soft);
     letter-spacing: var(--tracking-wide);
   }
 
   .tl-modal__description {
     font-family: var(--font-sans);
     font-size: var(--text-sm);
-    color: var(--muted);
+    color: var(--ink-soft);
     line-height: var(--leading-loose);
     margin-bottom: var(--space-6);
   }
 
-  .tl-modal__description p + p {
-    margin-top: var(--space-4);
-  }
+  .tl-modal__description p + p { margin-top: var(--space-4); }
 
   .tl-modal__skills-title {
-    font-family: var(--font-sans);
-    font-size: var(--text-base);
-    font-weight: 600;
-    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
     margin-bottom: var(--space-4);
   }
+  .tl-modal__skills-title::before { content: '[ '; }
+  .tl-modal__skills-title::after  { content: ' ]'; }
 
   .tl-modal__skills-tags {
     display: flex;
@@ -413,6 +486,8 @@
 
 <script>
   import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
 
   const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
 
@@ -465,7 +540,6 @@
     const modal = document.getElementById('timeline-modal') as HTMLElement;
     if (!modal) return;
 
-    // Logo
     const logoEl = document.getElementById('tl-modal-logo') as HTMLElement;
     logoEl.innerHTML = '';
     if (item.companyLogo) {
@@ -477,13 +551,11 @@
       logoEl.appendChild(img);
     }
 
-    // Dados principais
+    (document.getElementById('tl-modal-period') as HTMLElement).textContent = item.period ?? '';
     (document.getElementById('tl-modal-role') as HTMLElement).textContent = item.role ?? '';
     (document.getElementById('tl-modal-company') as HTMLElement).textContent = item.company ?? '';
-    (document.getElementById('tl-modal-period') as HTMLElement).textContent = item.period ?? '';
     (document.getElementById('tl-modal-location') as HTMLElement).textContent = item.location ?? '';
 
-    // Extra role / período
     const extraEl = document.getElementById('tl-modal-extra-role') as HTMLElement;
     if (item.extraRole || item.extraPeriod) {
       const extraLabel = window.i18n?.t('timeline.extra_experience_title') ?? 'Experiência adicional na empresa';
@@ -497,7 +569,6 @@
       extraEl.hidden = true;
     }
 
-    // Descrição
     const descEl = document.getElementById('tl-modal-description') as HTMLElement;
     if (item.description) {
       descEl.innerHTML = item.description
@@ -509,7 +580,6 @@
       descEl.innerHTML = '';
     }
 
-    // Skills
     const skillsEl = document.getElementById('tl-modal-skills') as HTMLElement;
     if (item.skills) {
       const skillsTitle = window.i18n?.t('timeline.skills_title') ?? 'Competências';
@@ -525,15 +595,12 @@
       skillsEl.innerHTML = '';
     }
 
-    // Abrir
     modal.hidden = false;
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     lastFocused = document.activeElement as HTMLElement;
     cleanupTrap = trapFocus(modal);
 
-    // Foco no primeiro elemento
-    const closeBtn = modal.querySelector<HTMLElement>('[data-tl-close] ~ *, button[data-tl-close]');
     const firstBtn = modal.querySelector<HTMLElement>('button[data-tl-close]');
     firstBtn?.focus();
   }
@@ -588,7 +655,7 @@
 
       const logoHtml = item.companyLogo
         ? `<div class="tl-card__logo">
-             <img src="${item.companyLogo}" alt="${item.company}" loading="lazy" width="48" height="48">
+             <img src="${item.companyLogo}" alt="${item.company}" loading="lazy" width="44" height="44">
            </div>`
         : '';
 
@@ -598,18 +665,19 @@
         : '';
 
       const li = document.createElement('li');
+      li.className = 'tl-entry';
       li.innerHTML = `
         <article
-          class="timeline-card card hover-glow"
+          class="timeline-card"
           ${hasDetails ? 'tabindex="0" role="button"' : ''}
           aria-label="${item.role} · ${item.company}"
         >
           <div class="tl-card__header">
             ${logoHtml}
             <div class="tl-card__info">
+              <p class="tl-card__period">${item.period ?? ''}</p>
               <h3 class="tl-card__role">${item.role ?? ''}</h3>
               <p class="tl-card__company">${item.company ?? ''}</p>
-              <p class="tl-card__period">${item.period ?? ''}</p>
               ${item.location ? `<p class="tl-card__location">${item.location}</p>` : ''}
             </div>
           </div>
@@ -640,9 +708,9 @@
       list.appendChild(li);
     });
 
-    // Motion: revealUp nos cards após renderização
-    const cards = list.querySelectorAll<Element>('.timeline-card');
-    revealUp(cards, list, 0.08);
+    // Motion: revealUp nas entradas
+    const entries = list.querySelectorAll<Element>('.tl-entry');
+    revealUp(entries, list, 0.08);
   }
 
   // ─── Fechar modal ────────────────────────────────────────────
@@ -658,10 +726,18 @@
     }
   });
 
+  // ─── Section line hairline ───────────────────────────────────
+  const section = document.getElementById('timeline');
+  if (section) {
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    if (line) hairlineDraw(line, section);
+    if (motionOk && head) revealUp([head], section, 0);
+  }
+
   // ─── i18n: renderizar ao carregar e ao trocar idioma ─────────
   window.addEventListener('languageChanged', () => renderTimeline());
 
-  // Render imediato se i18n já estiver pronto
   if (window.i18n) {
     renderTimeline();
   } else {

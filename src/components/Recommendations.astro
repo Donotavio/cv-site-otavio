@@ -1,23 +1,21 @@
 ---
 /**
- * Recommendations.astro
- * Grade de recomendações — carrega profile.json em runtime.
- *
- * Regras aplicadas:
- *  - design-system.md: zero hex, CSS scoped, tokens apenas, mobile-first
- *  - web-motion.md: revealUp stagger 0.1 nos cards, motionOk verificado
- *  - content-i18n.md: textos de UI via data-i18n-key, textos das recs via
- *                     window.i18n.t('recommendations.items.{id}.text'),
- *                     re-renderiza ao languageChanged
+ * Recommendations.astro — Seção [ 07 ] — Direção Blueprint (fundo --paper-soft)
+ * Cards: foto, author, role, company, texto via i18n.
+ * Foto path = baseUrl + rec.photo. Dados: fetch profile.json → recommendations[].
+ * Motion: hairlineDraw + revealUp (cards).
  */
 ---
 
-<section id="recommendations" class="section section--soft">
+<section id="recommendations" class="section recommendations" aria-labelledby="recommendations-title">
   <div class="container">
-    <div class="section-header">
-      <h2 data-i18n-key="recommendations.title"></h2>
-      <p class="section-subtitle" data-i18n-key="recommendations.subtitle"></p>
+    <div class="section-head">
+      <span class="mono-label">07</span>
+      <h2 id="recommendations-title" class="rec-display" data-i18n-key="recommendations.title"></h2>
+      <p class="rec-lead" data-i18n-key="recommendations.subtitle"></p>
     </div>
+
+    <hr class="section-line" aria-hidden="true" />
 
     <div id="recommendations-grid" class="rec-grid"></div>
 
@@ -31,36 +29,33 @@
 </section>
 
 <style>
-  /* ── Section ─────────────────────────────────────────────── */
-  .section {
-    padding-block: var(--space-20);
+  .recommendations {
+    background: var(--paper-soft);
   }
 
-  .section--soft {
-    background: var(--bg-soft);
+  .rec-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
   }
 
-  .section-header {
-    margin-bottom: var(--space-12);
-  }
-
-  .section-header h2 {
+  .rec-lead {
     font-family: var(--font-sans);
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    line-height: var(--leading-snug);
-    color: var(--text);
-    margin-bottom: var(--space-4);
-  }
-
-  .section-subtitle {
-    font-family: var(--font-sans);
-    font-size: var(--text-base);
-    color: var(--muted);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
     line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
   }
 
-  /* ── Grid ────────────────────────────────────────────────── */
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
   .rec-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -68,49 +63,50 @@
   }
 
   @media (min-width: 640px) {
-    .rec-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    .rec-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (min-width: 1024px) {
-    .rec-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
+    .rec-grid { grid-template-columns: repeat(3, 1fr); }
   }
 
-  /* ── Rec card ────────────────────────────────────────────── */
+  /* ── Card ─────────────────────────────────────────────────── */
   .rec-card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-5);
+    transition: border-color var(--transition-normal);
   }
 
-  /* Aspas decorativas */
+  .rec-card:hover { border-color: var(--line-strong); }
+
   .rec-card__quote {
     flex: 1;
     position: relative;
-    padding-top: var(--space-6);
+    padding-top: var(--space-8);
   }
 
   .rec-card__quote::before {
-    content: '"';
+    content: '\201C';
     position: absolute;
     top: 0;
     left: 0;
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
     font-size: var(--text-3xl);
-    font-weight: 700;
-    color: var(--primary);
+    color: var(--accent);
     line-height: 1;
-    opacity: 0.4;
   }
 
   .rec-card__quote p {
     font-family: var(--font-sans);
     font-size: var(--text-sm);
-    color: var(--muted);
+    color: var(--ink-soft);
     line-height: var(--leading-loose);
+    margin: 0;
   }
 
   /* ── Author ──────────────────────────────────────────────── */
@@ -118,7 +114,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding-top: var(--space-4);
+    padding-top: var(--space-5);
     border-top: 1px solid var(--line);
   }
 
@@ -128,13 +124,10 @@
     border-radius: var(--radius-full);
     object-fit: cover;
     flex-shrink: 0;
-    border: 2px solid var(--line);
+    border: 1px solid var(--line-strong);
   }
 
-  .rec-card__author-info {
-    flex: 1;
-    min-width: 0;
-  }
+  .rec-card__author-info { flex: 1; min-width: 0; }
 
   .rec-card__author-header {
     display: flex;
@@ -146,7 +139,7 @@
     font-family: var(--font-sans);
     font-size: var(--text-sm);
     font-weight: 600;
-    color: var(--text);
+    color: var(--ink);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -155,17 +148,15 @@
   .rec-card__linkedin {
     display: inline-flex;
     align-items: center;
-    color: var(--muted);
+    color: var(--ink-faint);
     transition: color var(--transition-fast);
     flex-shrink: 0;
   }
 
-  .rec-card__linkedin:hover {
-    color: var(--primary);
-  }
+  .rec-card__linkedin:hover { color: var(--accent); }
 
   .rec-card__linkedin:focus-visible {
-    outline: 2px solid var(--primary);
+    outline: 2px solid var(--accent);
     outline-offset: 3px;
     border-radius: var(--radius-sm);
   }
@@ -173,18 +164,19 @@
   .rec-card__role {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--ink-faint);
     letter-spacing: var(--tracking-wide);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin: 0;
   }
 
   /* ── Empty state ─────────────────────────────────────────── */
   .empty-state {
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
     font-size: var(--text-sm);
-    color: var(--muted);
+    color: var(--ink-faint);
     text-align: center;
     padding: var(--space-12) 0;
   }
@@ -192,6 +184,8 @@
 
 <script>
   import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
 
   const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
 
@@ -235,26 +229,17 @@
     emptyEl.hidden = true;
 
     recs.forEach((rec) => {
-      const text =
-        window.i18n?.t(`recommendations.items.${rec.id}.text`) ?? '';
-      const date =
-        window.i18n?.t(`recommendations.items.${rec.id}.date`) ?? '';
+      const text = window.i18n?.t(`recommendations.items.${rec.id}.text`) ?? '';
+      const date = window.i18n?.t(`recommendations.items.${rec.id}.date`) ?? '';
 
-      // photo: vem sem baseurl no profile.json (campo photo = "/assets/img/...")
       const photoSrc = rec.photo ? `${baseUrl}${rec.photo}` : '';
-
       const photoHtml = photoSrc
-        ? `<img
-             class="rec-card__photo"
-             src="${photoSrc}"
-             alt="${rec.author}"
-             loading="lazy"
-           >`
+        ? `<img class="rec-card__photo" src="${photoSrc}" alt="${rec.author}" loading="lazy">`
         : '';
 
       const linkedinHtml = rec.linkedin
         ? `<a
-             class="rec-card__linkedin hover-glow"
+             class="rec-card__linkedin"
              href="${rec.linkedin}"
              target="_blank"
              rel="noopener noreferrer"
@@ -265,7 +250,7 @@
       const roleDate = [rec.role, date].filter(Boolean).join(' · ');
 
       const article = document.createElement('article');
-      article.className = 'rec-card card';
+      article.className = 'rec-card';
       article.innerHTML = `
         <div class="rec-card__quote">
           <p>${text}</p>
@@ -285,12 +270,20 @@
       grid.appendChild(article);
     });
 
-    // Motion: revealUp nos cards
     const cards = grid.querySelectorAll<Element>('.rec-card');
     revealUp(cards, grid, 0.1);
   }
 
-  // ─── i18n: re-renderizar ao trocar idioma (textos mudam) ─────
+  // ─── Section line hairline + head reveal ─────────────────────
+  const section = document.getElementById('recommendations');
+  if (section) {
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    if (line) hairlineDraw(line, section);
+    if (motionOk && head) revealUp([head], section, 0);
+  }
+
+  // ─── i18n ────────────────────────────────────────────────────
   window.addEventListener('languageChanged', () => renderRecommendations());
 
   if (window.i18n) {
