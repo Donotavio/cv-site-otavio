@@ -1,0 +1,475 @@
+---
+/**
+ * GitHubStats.astro — Seção [ ~/.git ] — Direção Blueprint
+ *
+ * Restaura a seção de atividade do GitHub no design Blueprint:
+ *  - Summary cards (repos, stars, contribuições) — números em mono com count-up
+ *  - Heatmap de contribuições estilo GitHub (grade de quadradinhos por dia),
+ *    com seletor de ano (2022–2026)
+ *  - Top linguagens — barras finas blueprint com % em mono
+ *
+ * NÃO está no menu Navigation. Registrada automaticamente pelo BaseLayout (id).
+ * Dados: github_activity.json (fetch via document.body.dataset.baseurl).
+ * Motion: revealUp + hairlineDraw + reveal stagger sutil no heatmap + count-up.
+ *
+ * frontend-builder + motion-engineer · skills: design-system, web-motion, content-i18n
+ */
+import { t } from '../lib/i18n';
+---
+
+<section id="stats" class="section stats" aria-labelledby="stats-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">~/.git</span>
+      <h2 id="stats-title" class="stats-display" data-i18n-key="stats.title">{t('stats.title')}</h2>
+      <p class="stats-lead" data-i18n-key="stats.subtitle">{t('stats.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <!-- Summary cards -->
+    <div class="stats-summary" role="list" aria-label="github summary">
+      <div class="summary-card crop" role="listitem">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <span class="summary-value" data-summary="public_repos">—</span>
+        <span class="summary-label mono-label" data-i18n-key="stats.labels.repos">{t('stats.labels.repos')}</span>
+      </div>
+      <div class="summary-card crop" role="listitem">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <span class="summary-value" data-summary="total_stars">—</span>
+        <span class="summary-label mono-label" data-i18n-key="stats.labels.stars">{t('stats.labels.stars')}</span>
+      </div>
+      <div class="summary-card crop" role="listitem">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <span class="summary-value" data-summary="contributions">—</span>
+        <span class="summary-label mono-label" data-i18n-key="stats.labels.contributions">{t('stats.labels.contributions')}</span>
+      </div>
+    </div>
+
+    <!-- Heatmap de contribuições -->
+    <div class="stats-block crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <div class="block-head">
+        <h3 class="block-title mono-label" data-i18n-key="stats.contributions_title">{t('stats.contributions_title')}</h3>
+        <div id="stats-years" class="year-tabs" role="tablist" aria-label="years"></div>
+      </div>
+      <div class="heatmap-scroll">
+        <div id="stats-heatmap" class="heatmap" aria-hidden="true"></div>
+      </div>
+      <div class="heatmap-legend">
+        <span class="mono-label" data-i18n-key="stats.less">{t('stats.less')}</span>
+        <span class="legend-cells" aria-hidden="true">
+          <i class="legend-cell" data-lvl="0"></i>
+          <i class="legend-cell" data-lvl="1"></i>
+          <i class="legend-cell" data-lvl="2"></i>
+          <i class="legend-cell" data-lvl="3"></i>
+          <i class="legend-cell" data-lvl="4"></i>
+        </span>
+        <span class="mono-label" data-i18n-key="stats.more">{t('stats.more')}</span>
+      </div>
+    </div>
+
+    <!-- Top linguagens -->
+    <div class="stats-block crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <h3 class="block-title mono-label" data-i18n-key="stats.labels.languages">{t('stats.labels.languages')}</h3>
+      <ul id="stats-languages" class="lang-list"></ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .stats { background: var(--paper); }
+
+  .stats-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .stats-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .section-line { margin-block-end: var(--space-12); }
+
+  /* ── Summary cards ───────────────────────────────────────── */
+  .stats-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-block-end: var(--space-8);
+  }
+  @media (min-width: 640px) {
+    .stats-summary { grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+  }
+
+  .summary-card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    transition: border-color var(--transition-normal);
+  }
+  .summary-card:hover { border-color: var(--line-strong); }
+
+  .summary-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-3xl);
+    font-weight: 500;
+    color: var(--accent);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .summary-label { margin: 0; }
+
+  /* ── Blocks (heatmap + linguagens) ───────────────────────── */
+  .stats-block {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    margin-block-end: var(--space-6);
+  }
+  .stats-block:last-child { margin-block-end: 0; }
+
+  .block-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-block-end: var(--space-6);
+  }
+
+  .block-title { margin: 0; }
+
+  /* ── Year tabs ───────────────────────────────────────────── */
+  .year-tabs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  :global(.year-tab) {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: var(--space-1) var(--space-3);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+  }
+  :global(.year-tab:hover) { border-color: var(--line-strong); color: var(--ink); }
+  :global(.year-tab[aria-selected='true']) {
+    color: var(--accent);
+    border-color: var(--line-accent);
+    background: var(--accent-dim);
+  }
+  :global(.year-tab:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ── Heatmap ─────────────────────────────────────────────── */
+  .heatmap-scroll {
+    overflow-x: auto;
+    padding-block-end: var(--space-2);
+  }
+  .heatmap {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(7, 1fr);
+    gap: 3px;
+    min-width: max-content;
+  }
+  :global(.heat-cell) {
+    width: 11px;
+    height: 11px;
+    border-radius: var(--radius-sm);
+    background: var(--line);
+  }
+  /* tons crescentes de --accent por nível de intensidade */
+  :global(.heat-cell[data-lvl='1']) { background: rgba(26, 26, 255, 0.25); }
+  :global(.heat-cell[data-lvl='2']) { background: rgba(26, 26, 255, 0.45); }
+  :global(.heat-cell[data-lvl='3']) { background: rgba(26, 26, 255, 0.70); }
+  :global(.heat-cell[data-lvl='4']) { background: var(--accent); }
+
+  .heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block-start: var(--space-4);
+  }
+  .legend-cells { display: inline-flex; gap: 3px; }
+  .legend-cell {
+    width: 11px;
+    height: 11px;
+    border-radius: var(--radius-sm);
+    background: var(--line);
+    display: inline-block;
+  }
+  .legend-cell[data-lvl='1'] { background: rgba(26, 26, 255, 0.25); }
+  .legend-cell[data-lvl='2'] { background: rgba(26, 26, 255, 0.45); }
+  .legend-cell[data-lvl='3'] { background: rgba(26, 26, 255, 0.70); }
+  .legend-cell[data-lvl='4'] { background: var(--accent); }
+
+  /* ── Top linguagens ──────────────────────────────────────── */
+  .lang-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+  :global(.lang-row) {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-2) var(--space-4);
+    align-items: baseline;
+  }
+  :global(.lang-name) {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--ink);
+  }
+  :global(.lang-pct) {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-faint);
+  }
+  :global(.lang-track) {
+    grid-column: 1 / -1;
+    height: 3px;
+    background: var(--line);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  :global(.lang-fill) {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--accent);
+    border-radius: var(--radius-full);
+    transform-origin: left center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.lang-fill) { transition: none; }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { countUp } from '../scripts/motion/count-up';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { DURATIONS, EASINGS, motionOk } from '../scripts/motion/constants';
+
+  const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+
+  interface CalendarDay { date: string; count: number; weekday: number; }
+  interface CalendarYear { year: number; total: number; days: CalendarDay[]; }
+  interface Language { name: string; bytes: number; percentage: number; }
+  interface Summary {
+    public_repos: number;
+    total_stars: number;
+    recent_commits: number;
+    contributions_last_year: number;
+  }
+  interface ActivityData {
+    summary?: Summary;
+    top_languages?: Language[];
+    contributions_calendar?: Record<string, CalendarYear>;
+  }
+
+  let data: ActivityData | null = null;
+  let selectedYear = '';
+
+  /** Mapeia uma contagem de commits para um nível 0–4 de intensidade. */
+  function level(count: number): number {
+    if (count <= 0) return 0;
+    if (count < 3) return 1;
+    if (count < 6) return 2;
+    if (count < 10) return 3;
+    return 4;
+  }
+
+  function renderSummary() {
+    const section = document.getElementById('stats');
+    if (!section || !data?.summary) return;
+    const s = data.summary;
+    const contributions = data.contributions_calendar
+      ? Object.values(data.contributions_calendar).reduce((a, y) => a + (y.total ?? 0), 0)
+      : (s.contributions_last_year ?? 0);
+
+    const values: Record<string, number> = {
+      public_repos: s.public_repos ?? 0,
+      total_stars: s.total_stars ?? 0,
+      contributions,
+    };
+
+    section.querySelectorAll<HTMLElement>('[data-summary]').forEach((el) => {
+      const key = el.dataset.summary ?? '';
+      const target = values[key] ?? 0;
+      el.dataset.countTo = String(target);
+      el.textContent = '0';
+      countUp(el);
+    });
+  }
+
+  function renderYears() {
+    const tabsEl = document.getElementById('stats-years');
+    if (!tabsEl || !data?.contributions_calendar) return;
+    const years = Object.keys(data.contributions_calendar).sort();
+    if (!selectedYear) selectedYear = years[years.length - 1];
+
+    tabsEl.innerHTML = years
+      .map(
+        (y) =>
+          `<button class="year-tab" role="tab" data-year="${y}" aria-selected="${y === selectedYear}">${y}</button>`,
+      )
+      .join('');
+
+    tabsEl.querySelectorAll<HTMLButtonElement>('.year-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectedYear = btn.dataset.year ?? selectedYear;
+        renderYears();
+        renderHeatmap(true);
+      });
+    });
+  }
+
+  function renderHeatmap(animate = false) {
+    const grid = document.getElementById('stats-heatmap');
+    if (!grid || !data?.contributions_calendar) return;
+    const year = data.contributions_calendar[selectedYear];
+    if (!year) return;
+
+    const days = year.days ?? [];
+    grid.innerHTML = '';
+
+    // Offset inicial: alinhar o primeiro dia à sua linha (weekday 0 = topo).
+    const first = days[0];
+    const lead = first ? first.weekday : 0;
+    for (let i = 0; i < lead; i++) {
+      const pad = document.createElement('span');
+      pad.className = 'heat-cell';
+      pad.style.visibility = 'hidden';
+      grid.appendChild(pad);
+    }
+
+    days.forEach((d) => {
+      const cell = document.createElement('span');
+      cell.className = 'heat-cell';
+      cell.dataset.lvl = String(level(d.count));
+      cell.title = `${d.date}: ${d.count}`;
+      grid.appendChild(cell);
+    });
+
+    if (animate && motionOk) {
+      gsap.from(grid.querySelectorAll('.heat-cell'), {
+        opacity: 0,
+        scale: 0.4,
+        duration: DURATIONS.fast,
+        ease: EASINGS.out,
+        stagger: { each: 0.0015, from: 'start' },
+      });
+    }
+  }
+
+  function renderLanguages() {
+    const list = document.getElementById('stats-languages');
+    if (!list || !data?.top_languages) return;
+    const langs = data.top_languages.slice(0, 6);
+
+    list.innerHTML = langs
+      .map(
+        (l) => `
+          <li class="lang-row">
+            <span class="lang-name">${l.name}</span>
+            <span class="lang-pct">${l.percentage.toFixed(2)}%</span>
+            <span class="lang-track"><span class="lang-fill" data-pct="${l.percentage}"></span></span>
+          </li>`,
+      )
+      .join('');
+
+    const fills = list.querySelectorAll<HTMLElement>('.lang-fill');
+    if (motionOk) {
+      fills.forEach((fill) => {
+        const pct = parseFloat(fill.dataset.pct ?? '0');
+        gsap.fromTo(
+          fill,
+          { width: '0%' },
+          {
+            width: `${pct}%`,
+            duration: DURATIONS.slow,
+            ease: EASINGS.outStrong,
+            scrollTrigger: { trigger: fill, start: 'top 90%', once: true },
+          },
+        );
+      });
+    } else {
+      fills.forEach((fill) => {
+        fill.style.width = `${fill.dataset.pct ?? 0}%`;
+      });
+    }
+  }
+
+  function renderAll() {
+    renderSummary();
+    renderYears();
+    renderHeatmap(false);
+    renderLanguages();
+  }
+
+  async function loadAndRender() {
+    try {
+      if (!data) {
+        const res = await fetch(`${baseUrl}assets/data/github_activity.json`);
+        if (res.ok) data = await res.json();
+      }
+      renderAll();
+    } catch {
+      // sem quebrar a página
+    }
+  }
+
+  // ── Section line hairline + head reveal + blocks reveal ─────
+  const section = document.getElementById('stats');
+  if (section) {
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    if (line) hairlineDraw(line, section);
+    if (motionOk) {
+      revealUp([head], section, 0);
+      revealUp(section.querySelectorAll('.summary-card'), section, 0.08);
+      revealUp(section.querySelectorAll('.stats-block'), section, 0.1);
+    }
+  }
+
+  loadAndRender();
+  // Re-render ao trocar idioma (labels já via data-i18n-key; re-render por garantia)
+  window.addEventListener('languageChanged', () => renderAll());
+</script>

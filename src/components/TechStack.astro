@@ -175,14 +175,6 @@ import { t } from '../lib/i18n';
     line-height: var(--leading-snug);
   }
 
-  .ts-item__level {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-wide);
-    color: var(--ink-faint);
-  }
-  .ts-item__level--expert { color: var(--accent); }
-
   @media (prefers-reduced-motion: reduce) {
     .ts-grid { opacity: 1 !important; }
   }
@@ -242,7 +234,9 @@ import { t } from '../lib/i18n';
         const key = logoKey(tech.logo);
         const art = asciiData?.[key] ?? '';
         const levelLabel = window.i18n?.t(`tech_stack.level_${tech.level}`) ?? tech.level;
-        const levelClass = tech.level === 'expert' ? 'ts-item__level ts-item__level--expert' : 'ts-item__level';
+        // Tag de nível com o MESMO visual das tags da seção Repositórios (.tag).
+        // Especialista (expert) usa o destaque .tag--accent.
+        const levelClass = tech.level === 'expert' ? 'tag tag--accent' : 'tag';
         // logo SVG original (colorido) revelado pela lanterna sob o ASCII.
         // tech.logo já vem com o baseurl embutido (ex /cv-site-otavio/assets/...);
         // se por acaso vier sem, joinUrl prefixa — mas NÃO duplica.

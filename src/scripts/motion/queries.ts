@@ -117,6 +117,17 @@ export const QUERIES: Record<string, QuerySpec> = {
     result: 'sorted · 0.014s',
   },
 
+  stats: {
+    lang: 'sql',
+    effect: 'aggregate',
+    code: [
+      'SELECT lang, SUM(bytes) AS total',
+      'FROM github.languages',
+      'GROUP BY lang ORDER BY total DESC;',
+    ],
+    result: 'aggregated · 6 languages',
+  },
+
   recommendations: {
     lang: 'sql',
     effect: 'scan',

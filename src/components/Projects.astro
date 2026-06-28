@@ -102,6 +102,13 @@ import { t } from '../lib/i18n';
     line-height: var(--leading-snug);
   }
 
+  .proj-card__icons {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+
   .proj-card__github-icon {
     flex-shrink: 0;
     color: var(--ink-faint);
@@ -109,6 +116,17 @@ import { t } from '../lib/i18n';
   }
 
   .proj-card:hover .proj-card__github-icon { color: var(--accent); }
+
+  /* Logo da linguagem ao lado do ícone Git — discreto, monocromático (--ink-faint). */
+  .proj-card__lang-logo {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    opacity: 0.6;
+    transition: opacity var(--transition-fast);
+  }
+
+  .proj-card:hover .proj-card__lang-logo { opacity: 1; }
 
   .proj-card__description {
     font-family: var(--font-sans);
@@ -177,6 +195,29 @@ import { t } from '../lib/i18n';
     </svg>
   `;
 
+  // Mapa linguagem → arquivo de logo (assets/img/logos/lang/). Apenas os que existem.
+  // Fallback gracioso: linguagem sem logo → só o ícone Git.
+  const LANG_LOGO: Record<string, string> = {
+    HTML: 'html5.svg',
+    CSS: 'css3.svg',
+    JavaScript: 'javascript.svg',
+    TypeScript: 'typescript.svg',
+    Python: 'python.svg',
+    Shell: 'gnubash.svg',
+    'Jupyter Notebook': 'jupyter.svg',
+    Java: 'openjdk.svg',
+    Go: 'go.svg',
+    Ruby: 'ruby.svg',
+    Swift: 'swift.svg',
+  };
+
+  function langLogoHtml(language: string): string {
+    const file = LANG_LOGO[language];
+    if (!file) return '';
+    const src = `${baseUrl}assets/img/logos/lang/${file}`;
+    return `<img class="proj-card__lang-logo" src="${src}" alt="${language}" width="16" height="16" loading="lazy" decoding="async" />`;
+  }
+
   async function renderProjects() {
     const grid = document.getElementById('projects-grid') as HTMLElement;
     const emptyEl = document.getElementById('projects-empty') as HTMLElement;
@@ -216,7 +257,10 @@ import { t } from '../lib/i18n';
         <span class="crop-mark-br" aria-hidden="true"></span>
         <div class="proj-card__header">
           <h3 class="proj-card__name">${project.name ?? ''}</h3>
-          ${GITHUB_SVG}
+          <span class="proj-card__icons">
+            ${langLogoHtml(project.language ?? '')}
+            ${GITHUB_SVG}
+          </span>
         </div>
         ${description ? `<p class="proj-card__description">${description}</p>` : ''}
         <div class="proj-card__meta">
