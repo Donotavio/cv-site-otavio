@@ -19,7 +19,10 @@ import { t } from '../lib/i18n';
 
     <hr class="section-line" aria-hidden="true" />
 
-    <ol id="timeline-list" class="timeline-list" aria-label="career timeline"></ol>
+    <div class="timeline-track">
+      <span class="timeline-progress" aria-hidden="true"></span>
+      <ol id="timeline-list" class="timeline-list" aria-label="career timeline"></ol>
+    </div>
 
     <p
       id="timeline-empty"
@@ -99,16 +102,13 @@ import { t } from '../lib/i18n';
     margin-block-end: var(--space-16);
   }
 
-  /* ── Timeline list — linha de blueprint à esquerda ───────── */
-  .timeline-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  /* ── Timeline track — trilho + linha de progresso ────────── */
+  .timeline-track {
     position: relative;
   }
 
-  /* Linha vertical contínua */
-  .timeline-list::before {
+  /* Trilho vertical faint (sempre visível) */
+  .timeline-track::before {
     content: '';
     position: absolute;
     top: 0;
@@ -118,8 +118,31 @@ import { t } from '../lib/i18n';
     background: var(--line);
   }
 
+  /* Linha de progresso (accent) sobreposta — cresce com o scroll.
+     Default scaleY:1 => visível sem JS / reduced-motion (linha cheia). */
+  .timeline-progress {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 7px;
+    width: 1px;
+    background: var(--accent);
+    transform: scaleY(1);
+    transform-origin: top center;
+    pointer-events: none;
+  }
+
   @media (min-width: 640px) {
-    .timeline-list::before { left: 9px; }
+    .timeline-track::before { left: 9px; }
+    .timeline-progress { left: 9px; }
+  }
+
+  /* ── Timeline list ───────────────────────────────────────── */
+  .timeline-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
   }
 
   .tl-entry {
@@ -153,7 +176,8 @@ import { t } from '../lib/i18n';
   }
 
   .tl-entry:hover::before,
-  .tl-entry:focus-within::before {
+  .tl-entry:focus-within::before,
+  .tl-entry.is-active::before {
     background: var(--accent);
     border-color: var(--accent);
   }
@@ -486,9 +510,25 @@ import { t } from '../lib/i18n';
 </style>
 
 <script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
-  import { motionOk } from '../scripts/motion/constants';
+  import { DURATIONS, EASINGS, motionOk } from '../scripts/motion/constants';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Triggers/tweens criados após o render (conteúdo vem de fetch).
+  // Guardados para serem destruídos antes de re-render (languageChanged).
+  let timelineTriggers: ScrollTrigger[] = [];
+  let timelineTweens: gsap.core.Tween[] = [];
+
+  function killTimelineMotion() {
+    timelineTriggers.forEach((tr) => tr.kill());
+    timelineTweens.forEach((tw) => tw.kill());
+    timelineTriggers = [];
+    timelineTweens = [];
+  }
 
   const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
 
@@ -709,9 +749,67 @@ import { t } from '../lib/i18n';
       list.appendChild(li);
     });
 
-    // Motion: revealUp nas entradas
-    const entries = list.querySelectorAll<Element>('.tl-entry');
-    revealUp(entries, list, 0.08);
+    // Motion: criar triggers DEPOIS de renderizar os cards.
+    setupTimelineMotion();
+  }
+
+  // ─── Motion da timeline (cinematográfico, premium calmo) ─────
+  function setupTimelineMotion() {
+    if (!motionOk) return;
+
+    // Mata triggers/tweens de um render anterior (ex: languageChanged).
+    killTimelineMotion();
+
+    const track = document.querySelector('.timeline-track') as HTMLElement | null;
+    const progress = document.querySelector('.timeline-progress') as HTMLElement | null;
+    const entries = Array.from(
+      document.querySelectorAll<HTMLElement>('#timeline-list .tl-entry'),
+    );
+    if (!entries.length) return;
+
+    // 1) Linha de progresso desenha conforme o scroll percorre a timeline
+    //    (scaleY 0 → 1, scrub). transform-origin: top. Só transform.
+    if (track && progress) {
+      const lineTween = gsap.fromTo(
+        progress,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: track,
+            start: 'top 70%',
+            end: 'bottom 80%',
+            scrub: true,
+          },
+        },
+      );
+      timelineTweens.push(lineTween);
+      if (lineTween.scrollTrigger) timelineTriggers.push(lineTween.scrollTrigger);
+    }
+
+    // 2) Cada entrada revela com reveal premium quando a linha "passa" por ela.
+    //    Por entrada: ScrollTrigger once:true, start 'top 80%'. O nó acende
+    //    em --accent (color/transform via classe is-active) quando ativo.
+    entries.forEach((entry) => {
+      const tween = gsap.from(entry, {
+        opacity: 0,
+        y: 32,
+        duration: DURATIONS.normal,
+        ease: EASINGS.out, // expo.out — desaceleração longa, calmo
+        scrollTrigger: {
+          trigger: entry,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => entry.classList.add('is-active'),
+        },
+      });
+      timelineTweens.push(tween);
+      if (tween.scrollTrigger) timelineTriggers.push(tween.scrollTrigger);
+    });
+
+    // Conteúdo veio de fetch async — recalcular posições dos triggers.
+    ScrollTrigger.refresh();
   }
 
   // ─── Fechar modal ────────────────────────────────────────────

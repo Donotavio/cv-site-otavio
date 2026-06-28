@@ -56,6 +56,8 @@ const meter = (level: number) => {
                   aria-valuemax={100}
                   aria-labelledby={`skill-${key}`}
                   aria-valuetext={`${level}%`}
+                  data-count-to={level}
+                  data-count-suffix="%"
                 >{level}%</span>
               </div>
               <span class="skill-meter" aria-hidden="true">{meter(level)}</span>
@@ -79,6 +81,8 @@ const meter = (level: number) => {
                   aria-valuemax={100}
                   aria-labelledby={`skill-${key}`}
                   aria-valuetext={`${level}%`}
+                  data-count-to={level}
+                  data-count-suffix="%"
                 >{level}%</span>
               </div>
               <span class="skill-meter" aria-hidden="true">{meter(level)}</span>
@@ -192,21 +196,34 @@ const meter = (level: number) => {
 <script>
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
-  import { motionOk } from '../scripts/motion/constants';
+  import { meterSweep } from '../scripts/motion/meter-sweep';
+  import { countUp } from '../scripts/motion/count-up';
+  import { motionOk, STAGGER } from '../scripts/motion/constants';
 
   const section = document.getElementById('skills');
   if (section) {
     const line   = section.querySelector('.section-line') as Element;
     const head   = section.querySelector('.section-head') as Element;
-    const groups = section.querySelectorAll('[data-skills-group]');
-    const items  = section.querySelectorAll('.skill-item');
+    const groups = section.querySelectorAll<HTMLElement>('[data-skills-group]');
 
     if (line) hairlineDraw(line, section);
 
     if (motionOk) {
+      // Cabeçalho e grupos entram com reveal premium.
       revealUp([head], section, 0);
-      revealUp(groups, section, 0.1);
-      revealUp(items, section, 0.06);
+      revealUp(groups, section, STAGGER.normal);
+
+      // Por grupo: "carregando dados" — labels revelam, medidores varrem
+      // da esquerda p/ direita e o percentual conta junto (count-up).
+      groups.forEach((group) => {
+        const labels = group.querySelectorAll<Element>('.skill-label');
+        const meters = group.querySelectorAll<Element>('.skill-meter');
+        const pcts   = group.querySelectorAll<HTMLElement>('.skill-pct');
+
+        revealUp(labels, group, STAGGER.tight);
+        meterSweep(meters, group, STAGGER.tight);
+        pcts.forEach((pct) => countUp(pct, group));
+      });
     }
   }
 </script>
