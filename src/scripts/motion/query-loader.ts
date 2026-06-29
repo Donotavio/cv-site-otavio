@@ -38,11 +38,9 @@ import { motionOk, EASINGS } from './constants';
 gsap.registerPlugin(ScrollTrigger);
 
 // Guard por seção: evita dois loaders sobrepostos na MESMA seção.
-// (não bloqueia repetição — o loader roda em todo carregamento solicitado)
 const running = new Set<string>();
-// Cooldown: após terminar, evita re-disparo imediato por micro-scroll na borda.
-const lastRun = new Map<string, number>();
-const COOLDOWN_MS = 1200;
+// Seções já vistas por scroll: o loader por scroll roda só na 1ª vez.
+const seenByScroll = new Set<string>();
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** Token de syntax highlight simples para SQL/Python. */
@@ -404,8 +402,9 @@ async function run(section: HTMLElement, spec: QuerySpec) {
 }
 
 /**
- * Registra o query loader numa seção. Dispara TODA vez que a seção entra no
- * viewport (scroll) e a cada `fireQueryLoader(id)` (navegação por menu).
+ * Registra o query loader numa seção.
+ *  - Scroll: dispara SÓ na primeira vez que a seção entra no viewport.
+ *  - Menu (fireQueryLoader): dispara SEMPRE (force).
  * Um guard `running` impede sobrepor dois loaders na mesma seção.
  */
 export function registerQueryLoader(section: HTMLElement) {
@@ -417,28 +416,27 @@ export function registerQueryLoader(section: HTMLElement) {
 
   const fire = async (opts?: { force?: boolean }) => {
     if (running.has(id)) return;     // já tem um loader rodando nesta seção
-    // cooldown apenas para disparos por scroll (force ignora — clique no menu)
+    // Scroll dispara SÓ na primeira vez que a seção aparece (não a cada scroll —
+    // ficava cansativo). Menu (force:true) dispara sempre.
     if (!opts?.force) {
-      const last = lastRun.get(id) ?? 0;
-      if (Date.now() - last < COOLDOWN_MS) return;
+      if (seenByScroll.has(id)) return;
+      seenByScroll.add(id);
     }
     running.add(id);
     try {
       await run(section, spec);
     } finally {
       running.delete(id);
-      lastRun.set(id, Date.now());   // marca fim para o cooldown
     }
   };
 
-  // Dispara toda vez que a seção (re)entra no viewport — sem `once`.
-  // onEnter (descendo) e onEnterBack (subindo de volta) cobrem ambas direções.
+  // Scroll: dispara apenas na primeira entrada (once). Subir de volta não
+  // re-dispara — o guard seenByScroll garante "só primeiro carregamento".
   ScrollTrigger.create({
     trigger: section,
     start: 'top 70%',
-    end: 'bottom 30%',
+    once: true,
     onEnter: () => fire(),
-    onEnterBack: () => fire(),
   });
 
   // expõe trigger manual para navegação por menu (force: ignora cooldown)
