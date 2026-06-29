@@ -1,12 +1,21 @@
 ---
 /**
  * Impact.astro — Seção [ 02 ] — Direção Blueprint
- * Bento grid assimétrico de métricas (inspiração StackGrid).
- * Números GIGANTES em mono com count-up quando o valor é numérico;
- * valores textuais (ex.: "Petabytes") exibidos direto.
- * Motion: countUpAll + revealUp + hairlineDraw.
+ * "Contador de telemetria de dados" — bento ASSIMÉTRICO ousado.
+ *
+ * Layout:
+ *  - Uma métrica DOMINANTE gigante (metric_1, "10+" anos) ocupando a coluna
+ *    larga e duas linhas, com sparkline ASCII de telemetria ao lado.
+ *  - Métricas secundárias em composição assimétrica ao redor (não grid uniforme).
+ *  - Highlight strip (stack) ancorando o rodapé.
+ *
+ * Efeito: digit-roll (slot-machine / odômetro) nos valores numéricos;
+ * scramble nos textuais. Números GIGANTES em Instrument Serif (--font-display).
+ * Detalhes blueprint: labels mono [colchetes], crop marks, hairlines conectoras,
+ * sparkline ASCII (▁▂▃▅▇).
  *
  * Fundo --paper-soft. Zero hex, CSS scoped, mobile-first, UI via data-i18n-key.
+ * Conteúdo visível sem JS (valores no HTML via SSG). prefers-reduced-motion ok.
  */
 import { t } from '../lib/i18n';
 ---
@@ -21,33 +30,52 @@ import { t } from '../lib/i18n';
 
     <hr class="section-line" aria-hidden="true" />
 
-    <!-- Bento grid de métricas -->
-    <div class="impact-bento" role="list" aria-label="impact metrics">
-      <div class="metric metric--lg crop" role="listitem" data-metric="1">
+    <!-- Bento assimétrico de telemetria -->
+    <div class="impact-bento">
+      <!-- Métrica DOMINANTE -->
+      <article class="metric metric--hero crop" data-metric="1">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
-        <span class="metric-value" data-metric-value>{t('impact.metric_1_value')}</span>
+        <header class="metric-head">
+          <span class="metric-index mono-label">01</span>
+          <span class="metric-spark" aria-hidden="true" data-spark>▁▁▂▃▅▆▇▇</span>
+        </header>
+        <span class="metric-value metric-value--hero" data-metric-value>{t('impact.metric_1_value')}</span>
         <span class="metric-label" data-i18n-key="impact.metric_1_label">{t('impact.metric_1_label')}</span>
-      </div>
+      </article>
 
-      <div class="metric" role="listitem" data-metric="2">
-        <span class="metric-value" data-metric-value>{t('impact.metric_2_value')}</span>
+      <!-- Métrica textual (scramble) -->
+      <article class="metric metric--data" data-metric="2">
+        <header class="metric-head">
+          <span class="metric-index mono-label">02</span>
+        </header>
+        <span class="metric-value metric-value--word" data-metric-value>{t('impact.metric_2_value')}</span>
         <span class="metric-label" data-i18n-key="impact.metric_2_label">{t('impact.metric_2_label')}</span>
-      </div>
+      </article>
 
-      <div class="metric" role="listitem" data-metric="3">
+      <!-- Métrica numérica -->
+      <article class="metric metric--num crop" data-metric="3">
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="metric-head">
+          <span class="metric-index mono-label">03</span>
+        </header>
         <span class="metric-value" data-metric-value>{t('impact.metric_3_value')}</span>
         <span class="metric-label" data-i18n-key="impact.metric_3_label">{t('impact.metric_3_label')}</span>
-      </div>
+      </article>
 
-      <div class="metric metric--wide" role="listitem" data-metric="4">
+      <!-- Métrica clouds (numérica + sufixo) -->
+      <article class="metric metric--wide" data-metric="4">
+        <header class="metric-head">
+          <span class="metric-index mono-label">04</span>
+          <span class="metric-spark metric-spark--sm" aria-hidden="true" data-spark>▂▅▇▅▂▅▇</span>
+        </header>
         <span class="metric-value" data-metric-value>{t('impact.metric_4_value')}</span>
         <span class="metric-label" data-i18n-key="impact.metric_4_label">{t('impact.metric_4_label')}</span>
-      </div>
+      </article>
     </div>
 
     <!-- Highlight strip -->
-    <div class="impact-highlight crop" role="complementary" aria-label="tech stack highlight">
+    <div class="impact-highlight crop">
       <span class="crop-mark-bl" aria-hidden="true"></span>
       <span class="crop-mark-br" aria-hidden="true"></span>
       <p class="highlight-title mono-label" data-i18n-key="impact.highlight_title">{t('impact.highlight_title')}</p>
@@ -84,7 +112,7 @@ import { t } from '../lib/i18n';
     margin-block-end: var(--space-16);
   }
 
-  /* ── Bento grid assimétrico ──────────────────────────────── */
+  /* ── Bento assimétrico ───────────────────────────────────── */
   .impact-bento {
     display: grid;
     grid-template-columns: 1fr;
@@ -95,31 +123,48 @@ import { t } from '../lib/i18n';
   @media (min-width: 640px) {
     .impact-bento {
       grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-6);
+      gap: var(--space-5);
     }
+    /* hero ocupa as duas colunas no tablet */
+    .metric--hero { grid-column: span 2; }
   }
 
   @media (min-width: 1024px) {
+    /* 12 colunas → composição assimétrica deliberada */
     .impact-bento {
-      /* 3 colunas; métrica destaque ocupa 2 col + 2 linhas */
-      grid-template-columns: repeat(3, 1fr);
-      grid-auto-rows: minmax(180px, auto);
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: minmax(150px, auto);
+      gap: var(--space-5);
     }
-    .metric--lg {
-      grid-column: span 2;
-      grid-row: span 2;
+    /* dominante: 7 col × 2 linhas */
+    .metric--hero {
+      grid-column: 1 / 8;
+      grid-row: 1 / 3;
     }
+    /* textual: 5 col, linha 1 */
+    .metric--data {
+      grid-column: 8 / 13;
+      grid-row: 1 / 2;
+    }
+    /* numérica: 5 col, linha 2 (desloca para criar assimetria) */
+    .metric--num {
+      grid-column: 8 / 13;
+      grid-row: 2 / 3;
+    }
+    /* clouds: faixa larga embaixo da dominante */
     .metric--wide {
-      grid-column: span 2;
+      grid-column: 1 / 13;
+      grid-row: 3 / 4;
     }
   }
 
   /* ── Metric card ─────────────────────────────────────────── */
   .metric {
+    position: relative;
     background: var(--paper-card);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
-    padding: var(--space-8);
+    padding: var(--space-6);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -131,17 +176,68 @@ import { t } from '../lib/i18n';
     border-color: var(--line-strong);
   }
 
-  .metric-value {
+  .metric--hero {
+    padding: var(--space-8);
+    justify-content: space-between;
+  }
+
+  .metric--wide {
+    flex-direction: column;
+  }
+
+  @media (min-width: 640px) {
+    .metric--wide {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+  }
+
+  /* ── Header da métrica (index + sparkline) ───────────────── */
+  .metric-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .metric-index {
+    color: var(--ink-faint);
+  }
+
+  .metric-spark {
     font-family: var(--font-mono);
-    font-size: var(--text-3xl);
-    font-weight: 500;
+    font-size: var(--text-base);
     color: var(--accent);
-    line-height: var(--leading-tight);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    opacity: 0.85;
+  }
+
+  .metric-spark--sm {
+    font-size: var(--text-sm);
+  }
+
+  /* ── Valor ───────────────────────────────────────────────── */
+  .metric-value {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 0.95;
     letter-spacing: var(--tracking-tight);
   }
 
-  .metric--lg .metric-value {
-    font-size: var(--display-2);
+  .metric-value--hero {
+    font-size: var(--display-1);
+    line-height: 0.9;
+  }
+
+  /* valor textual ("Petabytes") em serif menor, ink (não accent) */
+  .metric-value--word {
+    font-size: var(--text-2xl);
+    color: var(--ink);
+    line-height: var(--leading-tight);
   }
 
   .metric-label {
@@ -151,8 +247,42 @@ import { t } from '../lib/i18n';
     line-height: var(--leading-normal);
   }
 
+  .metric--wide .metric-label {
+    max-width: 40ch;
+  }
+
+  /* ── digit-roll (slot-machine) ───────────────────────────── */
+  /* Host do valor quando montado com colunas roláveis. */
+  .metric-value :global(.digit-roll-host),
+  .metric-value:global(.digit-roll-host) {
+    display: inline-flex;
+    align-items: flex-end;
+  }
+  .metric-value :global(.digit-roll) {
+    display: inline-block;
+    height: 1em;
+    line-height: 1;
+    overflow: hidden;
+    vertical-align: bottom;
+  }
+  .metric-value :global(.digit-col) {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+  }
+  .metric-value :global(.digit-cell) {
+    display: block;
+    height: 1em;
+    line-height: 1;
+    text-align: center;
+  }
+  .metric-value :global(.digit-fixed) {
+    display: inline-block;
+  }
+
   /* ── Highlight strip ─────────────────────────────────────── */
   .impact-highlight {
+    position: relative;
     background: var(--paper-card);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
@@ -164,6 +294,7 @@ import { t } from '../lib/i18n';
 
   .highlight-title {
     margin: 0;
+    color: var(--ink-faint);
   }
 
   .highlight-items {
@@ -179,42 +310,35 @@ import { t } from '../lib/i18n';
 <script>
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
-  import { countUp } from '../scripts/motion/count-up';
+  import { digitRoll } from '../scripts/motion/digit-roll';
   import { motionOk } from '../scripts/motion/constants';
 
   const section = document.getElementById('impact');
 
   /**
-   * Preenche as métricas a partir do i18n. Para valores que começam com
-   * número (ex.: "10+", "3 Clouds") aplica count-up no número e preserva o
-   * sufixo textual. Valores puramente textuais ("Petabytes") são exibidos direto.
+   * Preenche os valores das métricas a partir do i18n e aplica o digit-roll.
+   * - Reset do valor para texto antes de remontar (re-render ao trocar idioma).
+   * - digitRoll cuida do slot-machine (numérico) ou scramble (textual).
    */
   function renderMetrics() {
-    if (!section || !window.i18n) return;
+    if (!section) return;
 
     section.querySelectorAll<HTMLElement>('.metric').forEach((metric) => {
       const idx = metric.dataset.metric;
       const valueEl = metric.querySelector<HTMLElement>('[data-metric-value]');
       if (!idx || !valueEl) return;
 
-      const raw = window.i18n?.t(`impact.metric_${idx}_value`) ?? '';
-      const match = raw.match(/^(\d+(?:\.\d+)?)(.*)$/);
+      const raw =
+        window.i18n?.t(`impact.metric_${idx}_value`) ?? valueEl.textContent ?? '';
 
-      if (match) {
-        const num = match[1];
-        const suffix = match[2] ?? '';
-        valueEl.dataset.countTo = num;
-        valueEl.dataset.countSuffix = suffix;
-        valueEl.dataset.countDecimals = num.includes('.')
-          ? String(num.split('.')[1].length)
-          : '0';
-        valueEl.textContent = `0${suffix}`;
-        countUp(valueEl);
-      } else {
-        // Valor textual: exibe direto, sem count-up
-        delete valueEl.dataset.countTo;
-        valueEl.textContent = raw;
-      }
+      // reset para estado de texto simples antes de (re)montar
+      valueEl.dataset.rollValue = raw.trim();
+      valueEl.removeAttribute('aria-label');
+      valueEl.classList.remove('digit-roll-host');
+      valueEl.textContent = raw;
+
+      // dispara o efeito (com ScrollTrigger interno) usando o card como trigger
+      digitRoll(valueEl, metric);
     });
   }
 
@@ -232,12 +356,8 @@ import { t } from '../lib/i18n';
       if (highlight) revealUp([highlight], section, 0);
     }
 
-    // Render inicial + re-render ao trocar idioma (valores são localizados)
-    if (window.i18n) {
-      renderMetrics();
-    } else {
-      window.addEventListener('languageChanged', () => renderMetrics(), { once: true });
-    }
+    // Render inicial (valores localizados) + re-render ao trocar idioma
+    renderMetrics();
     window.addEventListener('languageChanged', () => renderMetrics());
   }
 </script>

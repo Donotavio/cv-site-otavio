@@ -399,6 +399,14 @@ async function run(section: HTMLElement, spec: QuerySpec) {
     ease: EASINGS.inOut,
     onComplete: () => root.remove(),
   });
+
+  // Sinaliza que o loader terminou de revelar esta seção. Seções com motion
+  // de conteúdo (ex.: GitHubStats count-up / heatmap) devem disparar SUA
+  // animação aqui — caso contrário o motion roda escondido sob o overlay e o
+  // usuário nunca o vê ("seção sem animação").
+  window.dispatchEvent(
+    new CustomEvent('queryLoaderDone', { detail: { id: section.id } }),
+  );
 }
 
 /**
