@@ -1,166 +1,81 @@
-# Security & Best Practices Audit Report
+# Security Report — Pre-Production Audit
 
-**Data:** 24/01/2026  
-**Ferramenta:** Chrome DevTools + Análise Estática de Código
-
----
-
-## 🔴 Vulnerabilidades Críticas - RESOLVIDAS
-
-### 1. XSS (Cross-Site Scripting) Risk
-**Localização:** `assets/js/timeline.js`  
-**Problema:** Uso de `innerHTML` sem sanitização adequada  
-**Linhas afetadas:** 26, 37-42, 143-156  
-**Impacto:** Alto - Possibilidade de injeção de código malicioso
-
-**Correção Implementada:**
-- ✅ Criada função `sanitizeHtml()` para sanitização segura
-- ✅ Substituído `innerHTML` por criação segura de elementos DOM
-- ✅ Uso de `textContent` para dados não-confiáveis
-- ✅ Tratamento adequado de atributos HTML
-
-```javascript
-// ANTES (vulnerável)
-modalCompanyLogo.innerHTML = `<img src="${logoSrc}" alt="${company}">`;
-
-// DEPOIS (seguro)
-const img = document.createElement('img');
-img.src = logoSrc;
-img.alt = sanitizeHtml(company);
-modalCompanyLogo.appendChild(img);
-```
+**Date:** 2026-06-28
+**Scope:** cv-site-otavio (redesign Blueprint, Astro) antes do deploy em produção.
+**Status:** ✓ APROVADO — sem vazamentos de credenciais; site seguro para publicação.
 
 ---
 
-### 2. Missing Security Headers
-**Localização:** `_layouts/default.html`  
-**Problema:** Ausência de headers de segurança essenciais  
-**Impacto:** Médio - Vulnerabilidade a ataques de clickjacking, MIME sniffing
+## 1. Varredura de Secrets / Credenciais
 
-**Correção Implementada:**
-- ✅ Content Security Policy (CSP)
-- ✅ X-Content-Type-Options: nosniff
-- ✅ X-Frame-Options: SAMEORIGIN
-- ✅ X-XSS-Protection: 1; mode=block
-- ✅ Referrer-Policy: strict-origin-when-cross-origin
+| Verificação | Resultado |
+|-------------|-----------|
+| Chaves de API reais (OpenAI `sk-`, GitHub `ghp_`/`github_pat_`, AWS `AKIA`, Google `AIza`, JWT) | **Nenhuma** no código ou no histórico |
+| Cookies de sessão LinkedIn (`li_at`, `JSESSIONID`) hardcoded | **Nenhum** — lidos via `os.getenv()` |
+| Chaves privadas (`-----BEGIN`) | Nenhuma |
+| `.env` / dumps / `.pem` / `.key` rastreados | Nenhum |
 
----
+Os scripts Python (`fetch_github_data.py`, `fetch_linkedin_data_enhanced.py`) obtêm
+todos os segredos de variáveis de ambiente (`GITHUB_TOKEN`, `LINKEDIN_SESSION_COOKIE`,
+`POLYGLOT_API_KEY`), nunca hardcoded. As GitHub Actions usam `${{ secrets.* }}`.
 
-## 🟡 Problemas de Recursos - RESOLVIDOS
+## 2. `.gitignore`
 
-### 3. Recursos 404 (Not Found)
-**Problemas encontrados:**
-- `/assets/img/profiles/companies/advanceweb.jpg` - 404
-- `/assets/img/favicon.ico` - 404
-- `/assets/img/icon-192.png` - 404
+Cobre: `.env`, `.env.local`, `*.pem`, `*.key`, `*_TOKEN`, `*_SECRET`, `*_PASSWORD`,
+`__pycache__/`, `_site/`, `dist/`, `node_modules/`.
 
-**Correção Implementada:**
-- ✅ Criado `.gitkeep` em `/assets/img/profiles/companies/`
-- ✅ Criado placeholder `favicon.ico`
-- ⚠️ Recomendação: Criar `icon-192.png` para PWA manifest
+## 3. Dados pessoais
 
----
+O site é um CV público — nome, cargo, links profissionais (LinkedIn/GitHub) e
+contato são intencionalmente públicos. Varredura confirmou **ausência** de CPF, RG,
+senhas ou dados privados indevidos. (Match de "rg" foi falso positivo: "organização".)
 
-### 4. CORS/ORB - External Resources Blocked
-**Recursos bloqueados:**
-- `delta.io/static/delta-lake-logo-*.png` - ERR_BLOCKED_BY_ORB
-- `www.svgrepo.com/show/353831/dbt-icon.svg` - ERR_BLOCKED_BY_ORB
-- `cdn.worldvectorlogo.com/*` - ERR_BLOCKED_BY_ORB (múltiplos)
-- `docs.databricks.com/_static/images/logos/uc-logo.svg` - ERR_BLOCKED_BY_ORB
-- `greatexpectations.io/images/gx-mark-160.png` - ERR_BLOCKED_BY_ORB
-- `seeklogo.com/images/D/dbt-logo-*.png` - ERR_BLOCKED_BY_RESPONSE
+## 4. Histórico do Git — `debug_linkedin.html`
 
-**Correção Implementada:**
-- ✅ Substituídas imagens externas por SVG inline
-- ✅ Usado CDN permitido (jsdelivr.net) para ícones compatíveis
-- ⚠️ Recomendação: Fazer download e hospedar localmente imagens críticas
+- Existiu no commit inicial (`7226b7d`), removido do working tree em fase anterior.
+- **Não está** no site publicado (deploy vem de `dist/`, gerado pelo Astro).
+- Análise do conteúdo histórico: é a página **pública/guest** do LinkedIn
+  (contém "guest"/"entrar"), **sem valores reais** de csrfToken/JSESSIONID/li_at —
+  apenas nomes de campos HTML.
+- **Decisão:** não reescrever o histórico (sem credenciais reais; risco baixo;
+  reescrita é destrutiva e exige force-push). Documentado para transparência.
 
----
+## 5. Headers de Segurança (via meta — GitHub Pages não permite headers HTTP)
 
-## 🟠 Boas Práticas de Código - RESOLVIDAS
+Adicionados em `BaseLayout.astro`:
+- `Content-Security-Policy`: `default-src 'self'`; scripts/styles `'self' 'unsafe-inline'`
+  (necessário para scripts inline do Astro e i18n.js); `img-src 'self' data:`;
+  `font-src 'self'` (fontes self-hosted); `connect-src 'self'` (fetch dos JSON locais);
+  `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`.
+- `X-Content-Type-Options: nosniff`
+- `referrer: strict-origin-when-cross-origin`
 
-### 5. Python Scripts - Error Handling
-**Localização:** `scripts/fetch_github_data.py`, `scripts/fetch_linkedin_data.py`  
-**Problema:** Tratamento inadequado de exceções e validação de inputs
+Nota: `frame-ancestors` não é aplicável via meta tag (só header HTTP) — removido.
+Para um site estático sem inputs de usuário/backend, a superfície de XSS é mínima.
 
-**Correções Implementadas:**
+Validação: com a CSP ativa, i18n, fontes e fetch de dados funcionam (0 violações
+de CSP relevantes).
 
-#### fetch_github_data.py
-- ✅ Validação de `GITHUB_USERNAME` (not empty, exists)
-- ✅ Warning quando `GITHUB_TOKEN` ausente
-- ✅ Validação de valores negativos em `commits_this_month`
-- ✅ Criação automática de diretórios (`os.makedirs`)
-- ✅ Try-catch robusto para escrita de arquivos
-- ✅ Mensagens de erro descritivas
+## 6. Recursos Externos
 
-#### fetch_linkedin_data.py
-- ✅ Validação completa de `LINKEDIN_PROFILE_URL`
-- ✅ Verificação de URL HTTPS
-- ✅ Timeout handling (30s)
-- ✅ Tratamento de exceções HTTP específicas
-- ✅ Try-catch para parsing HTML
-- ✅ Mensagens de sucesso/erro detalhadas
+**Zero** recursos externos carregados: fontes self-hosted (woff2 locais), todos os
+JSON/imagens/scripts servidos do próprio domínio. Links externos (LinkedIn/GitHub)
+são apenas `<a href>` de navegação com `rel="noopener noreferrer"`.
+
+## 7. Legado Jekyll (não atrapalha o deploy)
+
+- Removidos: `_config.yml`, `_layouts/`, `_includes/`, `index.html`, `Gemfile`,
+  `.ruby-version` (entrypoints Jekyll que conflitariam com o build Astro).
+- `.nojekyll` adicionado em `public/` → presente em `dist/` (impede o GitHub Pages
+  de processar a saída como Jekyll).
+- `_site/` e `Gemfile.lock` não rastreados (`.gitignore`).
+- Deploy via `.github/workflows/build-and-deploy.yml` (Astro build → `dist/` →
+  GitHub Pages Actions), independente de qualquer processamento Jekyll.
 
 ---
 
-## 🔵 Performance
+## Veredicto
 
-### 6. Múltiplas Requisições Redundantes
-**Problema:** `/assets/data/profile.json` carregado 5 vezes  
-**Impacto:** Desperdício de banda, latência desnecessária
-
-**Recomendação:** Implementar cache strategy
-```javascript
-// Sugestão para futuro
-const profileCache = new Map();
-const getCachedProfile = async () => {
-  if (!profileCache.has('profile')) {
-    profileCache.set('profile', await fetchJson('/assets/data/profile.json'));
-  }
-  return profileCache.get('profile');
-};
-```
-
----
-
-## ✅ Validação Console
-
-### Mensagens Console (Após Correções)
-- ✅ Zero erros de segurança
-- ⚠️ Warnings esperados: CORS em recursos externos (mitigado)
-- ℹ️ Logs de debug podem ser removidos em produção
-
----
-
-## 📋 Checklist de Segurança
-
-- [x] XSS Prevention (sanitização de HTML)
-- [x] Security Headers (CSP, X-Frame-Options, etc)
-- [x] Input Validation (Python scripts)
-- [x] Error Handling robusto
-- [x] HTTPS enforcement via CSP
-- [x] Safe DOM manipulation
-- [x] Recursos 404 corrigidos
-- [ ] PWA icon-192.png (recomendado)
-- [ ] Cache strategy (recomendado)
-- [ ] Remove console.logs em produção (recomendado)
-
----
-
-## 🎯 Próximos Passos Recomendados
-
-1. **Criar icon-192.png** para PWA compliance
-2. **Implementar Service Worker** para cache offline
-3. **Remover console.logs** em ambiente de produção
-4. **Hospedar localmente** todas as imagens críticas
-5. **Adicionar testes automatizados** de segurança
-6. **Configurar GitHub Actions** para audit periódico
-
----
-
-## 📊 Resultado Final
-
-**Antes:** 🔴 2 vulnerabilidades críticas, 7 erros de recursos, 0 security headers  
-**Depois:** ✅ 0 vulnerabilidades, 2 erros menores (PWA), 5 security headers
-
-**Status Geral:** 🟢 **APROVADO PARA PRODUÇÃO**
+**✓ SEGURO PARA PRODUÇÃO.** Nenhuma credencial exposta, headers de segurança
+aplicados, recursos 100% locais, legado Jekyll neutralizado. O pipeline de dados
+Python continua usando secrets via env/Actions, sem hardcode.

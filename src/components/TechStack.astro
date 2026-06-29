@@ -1,0 +1,307 @@
+---
+/**
+ * TechStack.astro — Seção [ 05 ] — Direção Blueprint (fundo --paper-soft)
+ *
+ * Logos renderizados como ASCII ART (coeso com o retrato do hero).
+ * Grid de cards por categoria com crop marks. Sem marquee.
+ * Dados: tech_stack.json (estrutura) + logos-ascii.json (arte).
+ * Motion: hairlineDraw na linha + revealUp nas categorias.
+ *
+ * frontend-builder + motion-engineer · skills: design-system, web-motion, content-i18n
+ */
+import { t } from '../lib/i18n';
+---
+
+<section id="tech-stack" class="section tech-stack" aria-labelledby="tech-stack-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">05</span>
+      <h2 id="tech-stack-title" class="ts-display" data-i18n-key="tech_stack.title">{t('tech_stack.title')}</h2>
+      <p class="ts-lead" data-i18n-key="tech_stack.subtitle">{t('tech_stack.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <div id="tech-stack-grid" class="ts-grid" data-motion>
+      <!-- preenchido por script: cards de categoria com logos ASCII -->
+      <p class="ts-loading mono-label" aria-live="polite">carregando stack</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tech-stack { background: var(--paper-soft); }
+
+  .ts-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .ts-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .section-line { margin-block-end: var(--space-12); }
+
+  .ts-loading { color: var(--ink-faint); }
+
+  /* ── Grid de categorias ──────────────────────────────────── */
+  .ts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    align-items: stretch; /* cards com mesma altura */
+  }
+  @media (min-width: 768px)  { .ts-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1280px) { .ts-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  /* ── Card de categoria (com crop marks via .crop) ────────── */
+  .ts-category {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    transition: border-color var(--transition-normal),
+                box-shadow var(--transition-normal);
+  }
+  .ts-category:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .ts-category__name {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--line);
+  }
+  .ts-category__name::before { content: '[ '; }
+  .ts-category__name::after  { content: ' ]'; }
+
+  .ts-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-5);
+    flex: 1;
+    align-content: start;
+  }
+
+  /* ── Item: logo ASCII + nome + nível ─────────────────────── */
+  .ts-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    text-align: center;
+  }
+
+  /* ── Spotlight por logo: ASCII (topo) + SVG real (baixo, mascarado) ── */
+  /* Spotlight: elementos injetados via JS (innerHTML) NÃO recebem o atributo
+     de scoping do Astro → usar :global() para o CSS aplicar. */
+  :global(.ts-item__spot) {
+    position: relative;
+    display: inline-block;
+    cursor: crosshair;
+  }
+
+  /* SVG colorido original — revelado pela lanterna sob o ASCII */
+  :global(.ts-item__photo) {
+    position: absolute;
+    inset: 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0;
+    -webkit-mask: radial-gradient(circle var(--spot-r, 40px) at var(--mx, -999px) var(--my, -999px), #000 0%, #000 55%, transparent 100%);
+    mask: radial-gradient(circle var(--spot-r, 40px) at var(--mx, -999px) var(--my, -999px), #000 0%, #000 55%, transparent 100%);
+    transition: opacity var(--transition-fast);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  :global(.ts-item__spot.is-spotting .ts-item__photo) { opacity: 1; }
+
+  :global(.ts-item__spot.is-revealed .ts-item__photo) {
+    opacity: 1;
+    -webkit-mask: none;
+    mask: none;
+    transition: opacity var(--transition-normal);
+  }
+  :global(.ts-item__spot.is-revealed .ts-item__logo) { opacity: 0; }
+
+  :global(.ts-item__logo) {
+    font-family: var(--font-mono);
+    /* ASCII art: canvas fixo 14 linhas × 26 cols (todos os logos iguais).
+       font-size fluido encaixa as 26 colunas; line-height 1 mantém a grade. */
+    font-size: clamp(3px, 0.95vw, 4.5px);
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--ink);
+    white-space: pre;
+    margin: 0 auto;
+    display: block;
+    text-align: center;
+    transition: color var(--transition-fast), opacity var(--transition-fast);
+  }
+
+  :global(.ts-item:hover .ts-item__logo) { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.ts-item__spot) { cursor: default; }
+    :global(.ts-item__photo) { opacity: 0 !important; }
+  }
+
+  .ts-item__name {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ts-grid { opacity: 1 !important; }
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { spotlightReveal } from '../scripts/motion/spotlight-reveal';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+
+  /** Join baseUrl + path evitando barra dupla. */
+  function joinUrl(base: string, path: string): string {
+    if (!path) return '';
+    return base.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '');
+  }
+
+  interface Technology {
+    name: string;
+    level: 'expert' | 'advanced' | 'intermediate';
+    logo: string;
+  }
+  interface Category {
+    name: string;
+    icon: string;
+    technologies: Technology[];
+  }
+
+  // Cache dos dois JSON — buscados uma vez
+  let stackData: { categories?: Category[] } | null = null;
+  let asciiData: Record<string, string> | null = null;
+
+  // Extrai a chave do logo a partir do path (".../databricks.svg" → "databricks")
+  function logoKey(logoPath: string): string {
+    // remove qualquer extensão (.svg, .png, .jpg) — a chave do ASCII é só o nome
+    return logoPath.split('/').pop()?.replace(/\.[a-z0-9]+$/i, '') ?? '';
+  }
+
+  function escapeHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function render() {
+    const grid = document.getElementById('tech-stack-grid');
+    if (!grid || !stackData || !asciiData) return;
+
+    const categories = stackData.categories ?? [];
+    grid.innerHTML = '';
+
+    categories.forEach((cat) => {
+      const card = document.createElement('div');
+      card.className = 'ts-category crop';
+
+      const items = (cat.technologies ?? []).map((tech) => {
+        const key = logoKey(tech.logo);
+        const art = asciiData?.[key] ?? '';
+        const levelLabel = window.i18n?.t(`tech_stack.level_${tech.level}`) ?? tech.level;
+        // Tag de nível com o MESMO visual das tags da seção Repositórios (.tag).
+        // Especialista (expert) usa o destaque .tag--accent.
+        const levelClass = tech.level === 'expert' ? 'tag tag--accent' : 'tag';
+        // logo SVG original (colorido) revelado pela lanterna sob o ASCII.
+        // tech.logo já vem com o baseurl embutido (ex /cv-site-otavio/assets/...);
+        // se por acaso vier sem, joinUrl prefixa — mas NÃO duplica.
+        const logoUrl = tech.logo.startsWith(baseUrl) || tech.logo.startsWith('/cv-site-otavio')
+          ? tech.logo
+          : joinUrl(baseUrl, tech.logo);
+        return `
+          <div class="ts-item">
+            <div class="ts-item__spot" data-spotlight aria-hidden="true">
+              <div class="ts-item__photo" data-spotlight-photo style="background-image:url(${logoUrl})"></div>
+              <pre class="ts-item__logo" data-spotlight-ascii>${escapeHtml(art)}</pre>
+            </div>
+            <span class="ts-item__name">${escapeHtml(tech.name)}</span>
+            <span class="${levelClass}">${escapeHtml(levelLabel)}</span>
+          </div>`;
+      }).join('');
+
+      card.innerHTML = `
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <h3 class="ts-category__name">${escapeHtml(cat.name)}</h3>
+        <div class="ts-items">${items}</div>`;
+
+      grid.appendChild(card);
+    });
+
+    // Motion: revela os cards. revealUp já checa motionOk.
+    // Como o conteúdo entra após o load, o ScrollTrigger é criado agora;
+    // se a seção já está visível, dispara imediatamente (start: top 85%).
+    const cards = grid.querySelectorAll<Element>('.ts-category');
+    revealUp(cards, grid, 0.08);
+
+    // Lanterna por logo: raio menor (logos pequenos). touch/reduced-motion
+    // tratados no helper (retorna cedo → ASCII estático).
+    grid.querySelectorAll<HTMLElement>('.ts-item__spot').forEach((spot) => {
+      spotlightReveal(spot, { radius: 40, holdMs: 3000 });
+    });
+  }
+
+  async function loadAndRender() {
+    try {
+      if (!stackData) {
+        const r = await fetch(`${baseUrl}assets/data/tech_stack.json`);
+        if (r.ok) stackData = await r.json();
+      }
+      if (!asciiData) {
+        const r = await fetch(`${baseUrl}assets/data/logos-ascii.json`);
+        if (r.ok) asciiData = await r.json();
+      }
+      render();
+    } catch {
+      // mantém o estado de loading; sem quebrar a página
+    }
+  }
+
+  // Section line + head reveal
+  const section = document.getElementById('tech-stack');
+  if (section) {
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    if (line) hairlineDraw(line, section);
+    if (motionOk && head) revealUp([head], section, 0);
+  }
+
+  // Render inicial + re-render no troca de idioma (níveis são traduzidos)
+  loadAndRender();
+  window.addEventListener('languageChanged', () => render());
+</script>

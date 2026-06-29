@@ -1,0 +1,88 @@
+/*
+ * Design tokens — Blueprint
+ * Fonte de verdade: DESIGN.md
+ * NUNCA usar hex hardcoded fora deste arquivo.
+ */
+
+:root {
+  /* ─── Base (papel claro, editorial) ───────────────── */
+  --paper:      #FDFDFD;
+  --paper-soft: #F4F4F2;
+  --paper-card: #FFFFFF;
+
+  /* ─── Tinta ───────────────────────────────────────── */
+  --ink:        #0A0A0A;
+  --ink-soft:   #545454;
+  --ink-faint:  #6F6F6F;   /* WCAG AA em todos os fundos: 4.94:1 /paper, 4.56:1 /paper-soft, 5.02:1 /paper-card (era #999 = 2.80:1, reprovava) */
+
+  /* ─── Acento elétrico (único) ─────────────────────── */
+  --accent:     #1A1AFF;
+  --accent-dim: rgba(26, 26, 255, 0.08);
+
+  /* ─── Glows seletivos (só no ASCII / signature) ───── */
+  --glow-blue:    #2B6BFF;
+  --glow-magenta: #FF3DCA;
+
+  /* ─── Linhas (blueprint) ──────────────────────────── */
+  --line:        rgba(10, 10, 10, 0.12);
+  --line-strong: rgba(10, 10, 10, 0.25);
+  --line-accent: rgba(26, 26, 255, 0.4);
+
+  /* ─── Sombras (mínimas) ───────────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(10, 10, 10, 0.06);
+  --shadow-md: 0 8px 32px rgba(10, 10, 10, 0.10);
+
+  /* ─── Tipografia ──────────────────────────────────── */
+  --font-display: 'Instrument Serif', 'Instrument Serif Fallback', Georgia, serif;
+  --font-sans:    'Inter', 'Inter Fallback', system-ui, sans-serif;
+  --font-mono:    'IBM Plex Mono', 'Fragment Mono', monospace;
+
+  /* Escala fluida — salto dramático no topo (cartaz) */
+  --text-xs:   clamp(0.75rem,  0.72rem + 0.15vw, 0.8125rem);
+  --text-sm:   clamp(0.875rem, 0.84rem + 0.2vw,  0.9375rem);
+  --text-base: clamp(1rem,     0.96rem + 0.25vw, 1.125rem);
+  --text-lg:   clamp(1.25rem,  1.1rem  + 0.6vw,  1.5rem);
+  --text-xl:   clamp(1.5rem,   1.2rem  + 1.2vw,  2rem);
+  --text-2xl:  clamp(2rem,     1.5rem  + 2.2vw,  3rem);
+  --text-3xl:  clamp(2.75rem,  1.8rem  + 4vw,    4.5rem);
+  --display-1: clamp(3.5rem,   2rem    + 7vw,    8rem);
+  --display-2: clamp(2.75rem,  1.6rem  + 5.5vw,  6rem);
+
+  --leading-tight:  1.05;
+  --leading-snug:   1.2;
+  --leading-normal: 1.5;
+  --leading-loose:  1.7;
+
+  --tracking-tight:  -0.03em;
+  --tracking-normal: 0em;
+  --tracking-wide:   0.04em;
+  --tracking-wider:  0.12em;
+
+  /* ─── Espaçamento (base 4px) ──────────────────────── */
+  --space-1:  4px;   --space-2:  8px;   --space-3:  12px;  --space-4:  16px;
+  --space-5:  20px;  --space-6:  24px;  --space-8:  32px;  --space-10: 40px;
+  --space-12: 48px;  --space-16: 64px;  --space-20: 80px;  --space-24: 96px;
+  --space-32: 128px; --space-40: 160px; --space-48: 192px;
+
+  /* ─── Radius (cantos quase retos) ─────────────────── */
+  --radius-sm:   2px;
+  --radius-md:   4px;
+  --radius-lg:   8px;
+  --radius-full: 9999px;
+
+  /* ─── Transitions ─────────────────────────────────── */
+  --transition-fast:   0.2s ease;
+  --transition-normal: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ─── Z-index ─────────────────────────────────────── */
+  --z-below:  -1;  --z-base:    0;  --z-raised: 10;
+  --z-nav:    100; --z-modal:  200; --z-toast:  300;
+
+  /* ─── Container ───────────────────────────────────── */
+  --container-sm:  640px;
+  --container-md:  768px;
+  --container-lg:  1024px;
+  --container-xl:  1280px;
+  --container-max: 1440px;
+}

@@ -1,0 +1,229 @@
+---
+/**
+ * Skills.astro — Seção [ 04 ] — Direção Blueprint
+ * Layout editorial: 2 grupos (técnicas / liderança). Em vez de barras pesadas,
+ * notação mono blueprint [████████··] + percentual, com hairline fina de progresso.
+ * Níveis fixos por spec. Motion: hairlineDraw (section-line) + revealUp (grupos).
+ */
+
+import { t } from '../lib/i18n';
+
+const technicalSkills = [
+  { key: 'skills.items.data_engineering',   level: 95 },
+  { key: 'skills.items.databricks',         level: 90 },
+  { key: 'skills.items.ml_platforms',       level: 80 },
+  { key: 'skills.items.cloud_architecture', level: 85 },
+];
+
+const leadershipSkills = [
+  { key: 'skills.items.team_leadership',     level: 90 },
+  { key: 'skills.items.strategy',            level: 85 },
+  { key: 'skills.items.product_partnership', level: 80 },
+  { key: 'skills.items.culture',             level: 75 },
+];
+
+const CELLS = 10;
+// Gera a notação mono [████····] proporcional ao nível (10 células)
+const meter = (level: number) => {
+  const filled = Math.round((level / 100) * CELLS);
+  return '█'.repeat(filled) + '·'.repeat(CELLS - filled);
+};
+---
+
+<section id="skills" class="section skills" aria-labelledby="skills-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">04</span>
+      <h2 id="skills-title" class="skills-display" data-i18n-key="skills.title">{t('skills.title')}</h2>
+      <p class="skills-lead" data-i18n-key="skills.subtitle">{t('skills.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <div class="skills-grid">
+      <div class="skills-group" data-skills-group>
+        <h3 class="group-heading mono-label" data-i18n-key="skills.technical">{t('skills.technical')}</h3>
+        <ul class="skill-list" aria-label="technical skills">
+          {technicalSkills.map(({ key, level }) => (
+            <li class="skill-item">
+              <div class="skill-row">
+                <span class="skill-label" id={`skill-${key}`} data-i18n-key={key}>{t(key)}</span>
+                <span
+                  class="skill-pct"
+                  role="meter"
+                  aria-valuenow={level}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-labelledby={`skill-${key}`}
+                  aria-valuetext={`${level}%`}
+                  data-count-to={level}
+                  data-count-suffix="%"
+                >{level}%</span>
+              </div>
+              <span class="skill-meter" aria-hidden="true">{meter(level)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="skills-group" data-skills-group>
+        <h3 class="group-heading mono-label" data-i18n-key="skills.leadership">{t('skills.leadership')}</h3>
+        <ul class="skill-list" aria-label="leadership skills">
+          {leadershipSkills.map(({ key, level }) => (
+            <li class="skill-item">
+              <div class="skill-row">
+                <span class="skill-label" id={`skill-${key}`} data-i18n-key={key}>{t(key)}</span>
+                <span
+                  class="skill-pct"
+                  role="meter"
+                  aria-valuenow={level}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-labelledby={`skill-${key}`}
+                  aria-valuetext={`${level}%`}
+                  data-count-to={level}
+                  data-count-suffix="%"
+                >{level}%</span>
+              </div>
+              <span class="skill-meter" aria-hidden="true">{meter(level)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .skills-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .skills-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+  }
+
+  @media (min-width: 1024px) {
+    .skills-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-16);
+    }
+  }
+
+  .skills-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .group-heading {
+    margin: 0;
+    padding-block-end: var(--space-4);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .skill-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .skill-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .skill-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .skill-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+  }
+
+  .skill-pct {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    letter-spacing: var(--tracking-wide);
+    flex-shrink: 0;
+  }
+
+  /* Notação mono blueprint */
+  .skill-meter {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    line-height: 1;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { meterSweep } from '../scripts/motion/meter-sweep';
+  import { countUp } from '../scripts/motion/count-up';
+  import { motionOk, STAGGER } from '../scripts/motion/constants';
+
+  const section = document.getElementById('skills');
+  if (section) {
+    const line   = section.querySelector('.section-line') as Element;
+    const head   = section.querySelector('.section-head') as Element;
+    const groups = section.querySelectorAll<HTMLElement>('[data-skills-group]');
+
+    if (line) hairlineDraw(line, section);
+
+    if (motionOk) {
+      // Cabeçalho e grupos entram com reveal premium.
+      revealUp([head], section, 0);
+      revealUp(groups, section, STAGGER.normal);
+
+      // Por grupo: "carregando dados" — labels revelam, medidores varrem
+      // da esquerda p/ direita e o percentual conta junto (count-up).
+      groups.forEach((group) => {
+        const labels = group.querySelectorAll<Element>('.skill-label');
+        const meters = group.querySelectorAll<Element>('.skill-meter');
+        const pcts   = group.querySelectorAll<HTMLElement>('.skill-pct');
+
+        revealUp(labels, group, STAGGER.tight);
+        meterSweep(meters, group, STAGGER.tight);
+        pcts.forEach((pct) => countUp(pct, group));
+      });
+    }
+  }
+</script>

@@ -1,0 +1,207 @@
+---
+/**
+ * About.astro — Seção [ 01 ] — Direção Blueprint
+ * Layout editorial: texto grande à esquerda + card de destaque com crop marks à direita.
+ * Motion: hairlineDraw (section-line) + revealUp (parágrafos, card).
+ *
+ * Regras: zero hex (só tokens.css Blueprint), CSS scoped, mobile-first,
+ *         texto UI via data-i18n-key, apenas padrões revealUp/hairlineDraw.
+ */
+import { t } from '../lib/i18n';
+---
+
+<section id="about" class="section about" aria-labelledby="about-title">
+  <div class="container">
+    <!-- Cabeçalho de seção: index + display + descrição -->
+    <div class="section-head">
+      <span class="mono-label">01</span>
+      <h2 id="about-title" class="about-display" data-i18n-key="about.title">{t('about.title')}</h2>
+      <p class="about-lead" data-i18n-key="about.subtitle">{t('about.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <div class="about-grid">
+      <!-- Coluna esquerda: texto editorial -->
+      <div class="about-text">
+        <p class="about-body" data-i18n-key="about.body_1">{t('about.body_1')}</p>
+        <p class="about-body" data-i18n-key="about.body_2">{t('about.body_2')}</p>
+      </div>
+
+      <!-- Coluna direita: card de destaque com crop marks -->
+      <aside class="about-card-col">
+        <div class="card about-card crop">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+
+          <p class="about-card-title mono-label mono-label--accent" data-i18n-key="about.card_title">{t('about.card_title')}</p>
+
+          <ul class="about-bullets" aria-label="deliverables">
+            <li class="about-bullet">
+              <span class="about-bullet-mark" aria-hidden="true">›</span>
+              <span data-i18n-key="about.bullet_1">{t('about.bullet_1')}</span>
+            </li>
+            <li class="about-bullet">
+              <span class="about-bullet-mark" aria-hidden="true">›</span>
+              <span data-i18n-key="about.bullet_2">{t('about.bullet_2')}</span>
+            </li>
+            <li class="about-bullet">
+              <span class="about-bullet-mark" aria-hidden="true">›</span>
+              <span data-i18n-key="about.bullet_3">{t('about.bullet_3')}</span>
+            </li>
+          </ul>
+
+          <div class="about-card-footer">
+            <span class="tag tag--accent" data-i18n-key="about.tag">{t('about.tag')}</span>
+            <p class="about-tagline" data-i18n-key="about.tagline">{t('about.tagline')}</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Display title — Instrument Serif, escala de cartaz */
+  .about-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .about-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
+  /* Grid 2 colunas no desktop */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+  }
+
+  @media (min-width: 1024px) {
+    .about-grid {
+      grid-template-columns: 1.25fr 1fr;
+      gap: var(--space-16);
+      align-items: start;
+    }
+  }
+
+  /* Coluna de texto editorial */
+  .about-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .about-body {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+  }
+
+  .about-body:first-child::first-letter {
+    color: var(--ink);
+  }
+
+  /* Card de destaque */
+  .about-card-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .about-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding: var(--space-10);
+  }
+
+  .about-card-title {
+    margin: 0;
+  }
+
+  .about-bullets {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .about-bullet {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-normal);
+  }
+
+  .about-bullet-mark {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    line-height: var(--leading-normal);
+    flex-shrink: 0;
+  }
+
+  .about-card-footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-block-start: var(--space-6);
+    border-top: 1px solid var(--line);
+  }
+
+  .about-tagline {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--text-lg);
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const section = document.getElementById('about');
+  if (section) {
+    const line       = section.querySelector('.section-line') as Element;
+    const head       = section.querySelector('.section-head') as Element;
+    const paragraphs = section.querySelectorAll('.about-body');
+    const card       = section.querySelector('.about-card') as Element;
+
+    if (line) hairlineDraw(line, section);
+
+    if (motionOk) {
+      revealUp([head], section, 0);
+      revealUp(paragraphs, section, 0.12);
+      if (card) revealUp([card], section, 0);
+    }
+  }
+</script>

@@ -1,0 +1,75 @@
+/*
+ * Reset + base styles — Blueprint
+ * is:global permitido aqui (design-system.md)
+ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Nunca scroll-behavior: smooth — conflita com Lenis (web-motion.md) */
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  /* Rede de segurança contra scroll horizontal acidental.
+     clip não cria contexto de scroll (diferente de hidden) e não quebra sticky. */
+  overflow-x: clip;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+/* Conteúdo visível sem JS — estado padrão é visível */
+[data-motion] {
+  opacity: 1;
+  transform: none;
+}
+
+img, video, svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  background: none;
+  border: none;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* Seleção de texto com acento */
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+/* prefers-reduced-motion — fallback CSS obrigatório (web-motion.md) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+    scroll-behavior:           auto   !important;
+  }
+}

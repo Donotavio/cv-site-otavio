@@ -1,0 +1,189 @@
+---
+/**
+ * Contact.astro — Seção [ 08 ] — Direção Blueprint
+ * 2 colunas: card de links (email, LinkedIn, GitHub com .link-underline)
+ * + card "hire" com crop marks (título/mensagem/CTA btn-primary).
+ * Motion: hairlineDraw + revealUp (cards). Textos UI via data-i18n-key.
+ */
+import { t } from '../lib/i18n';
+---
+
+<section id="contact" class="section contact" aria-labelledby="contact-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">09</span>
+      <h2 id="contact-title" class="contact-display" data-i18n-key="contact.title">{t('contact.title')}</h2>
+      <p class="contact-lead" data-i18n-key="contact.subtitle">{t('contact.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <div class="contact-layout">
+      <!-- Coluna esquerda: links -->
+      <div class="contact-links" id="contact-links-card">
+        <a class="contact-link" href="mailto:ribeitemp@gmail.com" aria-label="Email">
+          <span class="contact-link__label mono-label" data-i18n-key="contact.email_label">{t('contact.email_label')}</span>
+          <span class="contact-link__value link-underline">ribeitemp@gmail.com</span>
+        </a>
+
+        <a
+          class="contact-link"
+          href="https://linkedin.com/in/donotavio/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LinkedIn"
+        >
+          <span class="contact-link__label mono-label" data-i18n-key="contact.linkedin_label">{t('contact.linkedin_label')}</span>
+          <span class="contact-link__value link-underline">linkedin.com/in/donotavio</span>
+        </a>
+
+        <a
+          class="contact-link"
+          href="https://github.com/donotavio"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub"
+        >
+          <span class="contact-link__label mono-label" data-i18n-key="contact.github_label">{t('contact.github_label')}</span>
+          <span class="contact-link__value link-underline">github.com/donotavio</span>
+        </a>
+      </div>
+
+      <!-- Coluna direita: card hire com crop marks -->
+      <div class="hire-card crop" id="contact-hire-card">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <h3 class="hire-card__title" data-i18n-key="contact.hire_title">{t('contact.hire_title')}</h3>
+        <p class="hire-card__message" data-i18n-key="contact.hire_message">{t('contact.hire_message')}</p>
+        <a
+          class="btn-primary hire-card__cta"
+          href="mailto:ribeitemp@gmail.com?subject=Oportunidade%20de%20Contrata%C3%A7%C3%A3o"
+          data-i18n-key="contact.hire_cta"
+        >{t('contact.hire_cta')}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .contact-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
+  .contact-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 1024px) {
+    .contact-layout {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+      align-items: start;
+    }
+  }
+
+  /* ── Links ────────────────────────────────────────────────── */
+  .contact-links {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .contact-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-block: var(--space-6);
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+  }
+
+  .contact-link:first-child { padding-top: 0; }
+
+  .contact-link__value {
+    font-family: var(--font-sans);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    align-self: flex-start;
+  }
+
+  .contact-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* ── Hire card ───────────────────────────────────────────── */
+  .hire-card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-10);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .hire-card__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .hire-card__message {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+    flex: 1;
+  }
+
+  .hire-card__cta {
+    align-self: flex-start;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const section = document.getElementById('contact');
+  if (section) {
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    const linksCard = document.getElementById('contact-links-card') as Element;
+    const hireCard = document.getElementById('contact-hire-card') as Element;
+
+    if (line) hairlineDraw(line, section);
+
+    if (motionOk) {
+      if (head) revealUp([head], section, 0);
+      if (linksCard && hireCard) revealUp([linksCard, hireCard], section, 0.12);
+    }
+  }
+</script>

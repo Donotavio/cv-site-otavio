@@ -1,0 +1,131 @@
+---
+/**
+ * Footer.astro — Direção Blueprint
+ * Logo [ OR ] + nome, tagline (footer.tagline) mono, links, copyright.
+ * Sem motion conforme spec. Zero hex, CSS scoped, UI via data-i18n-key.
+ */
+import { t } from '../lib/i18n';
+---
+
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <hr class="footer__line" aria-hidden="true" />
+
+    <div class="footer__inner">
+      <!-- Identidade -->
+      <div class="footer__brand">
+        <span class="footer__logo" aria-hidden="true">OR</span>
+        <span class="footer__name">Otávio Ribeiro</span>
+      </div>
+
+      <!-- Tagline -->
+      <p class="footer__tagline" data-i18n-key="footer.tagline">{t('footer.tagline')}</p>
+
+      <!-- Links -->
+      <nav class="footer__links" aria-label="Links de contato">
+        <a class="footer__link link-underline" href="mailto:ribeitemp@gmail.com">ribeitemp@gmail.com</a>
+        <a
+          class="footer__link link-underline"
+          href="https://linkedin.com/in/donotavio/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >LinkedIn</a>
+        <a
+          class="footer__link link-underline"
+          href="https://github.com/donotavio"
+          target="_blank"
+          rel="noopener noreferrer"
+        >GitHub</a>
+      </nav>
+
+      <!-- Copyright -->
+      <p class="footer__rights" data-i18n-key="footer.rights">{t('footer.rights')}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--paper-soft);
+    padding-block: var(--space-16);
+  }
+
+  .footer__line {
+    width: 100%;
+    height: 1px;
+    background: var(--line);
+    border: none;
+    margin-block-end: var(--space-12);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+    text-align: center;
+  }
+
+  /* ── Brand ───────────────────────────────────────────────── */
+  .footer__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .footer__logo {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: var(--tracking-wider);
+    border: 1px solid var(--line-accent);
+    border-radius: var(--radius-sm);
+    padding: var(--space-1) var(--space-2);
+  }
+  .footer__logo::before { content: '[ '; }
+  .footer__logo::after  { content: ' ]'; }
+
+  .footer__name {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  /* ── Tagline ─────────────────────────────────────────────── */
+  .footer__tagline {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  /* ── Links ───────────────────────────────────────────────── */
+  .footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-6);
+  }
+
+  .footer__link {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  /* ── Copyright ───────────────────────────────────────────── */
+  .footer__rights {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+</style>

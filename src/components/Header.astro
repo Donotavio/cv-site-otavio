@@ -1,0 +1,146 @@
+---
+/**
+ * Header.astro — frontend-builder + motion-engineer
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Skills consultadas:
+ *   src/styles/tokens.css            — tokens Blueprint, zero hex
+ *   .opencode/skills/web-motion.md   — sem GSAP no header (só CSS transitions)
+ *   .opencode/skills/content-i18n.md — i18n via componentes filhos
+ *
+ * Header sticky sobre papel claro (sólido, não transparente):
+ *   - Logo: marca mono [ OR ] + nome "Otávio Ribeiro" em sans 600
+ *   - Navigation + LanguageSwitcher
+ *   - Borda inferior --line + leve sombra quando .scrolled (IntersectionObserver)
+ */
+
+import Navigation from './Navigation.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+---
+
+<header class="site-header" id="site-header">
+  <div class="header-inner container">
+    <!-- Logo: marca mono + nome -->
+    <a href="#hero" class="logo" aria-label="OR — Otávio Ribeiro, início">
+      <span class="logo-mark mono-label" aria-hidden="true">OR</span>
+      <span class="logo-text">Otávio Ribeiro</span>
+    </a>
+
+    <!-- Navegação principal -->
+    <Navigation />
+
+    <!-- Seletor de idioma -->
+    <div class="header-lang">
+      <LanguageSwitcher />
+    </div>
+  </div>
+</header>
+
+<!-- Scroll observer: adiciona .scrolled ao header sem GSAP -->
+<script>
+  const header = document.getElementById('site-header');
+
+  if (header) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Quando o sentinel (topo da página) sai do viewport → scrollado
+        header.classList.toggle('scrolled', !entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: '0px' }
+    );
+
+    // Sentinel: elemento invisível no topo absoluto da página
+    const sentinel = document.createElement('div');
+    sentinel.setAttribute('aria-hidden', 'true');
+    sentinel.style.cssText =
+      'position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;';
+    document.body.prepend(sentinel);
+    observer.observe(sentinel);
+  }
+</script>
+
+<style>
+  /* ── Header shell — papel sólido (blueprint não usa dark/transparente) ── */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-nav);
+    width: 100%;
+    background: var(--paper);
+    border-bottom: 1px solid transparent;
+    transition:
+      border-color var(--transition-normal),
+      box-shadow var(--transition-normal);
+  }
+
+  .site-header.scrolled {
+    border-bottom-color: var(--line);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* ── Inner layout ───────────────────────────────────── */
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    height: var(--space-16);
+  }
+
+  /* ── Logo ───────────────────────────────────────────── */
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  /* Marca [ OR ] — usa .mono-label (colchetes via ::before/::after) */
+  .logo-mark {
+    font-weight: 500;
+    color: var(--ink);
+    transition: color var(--transition-fast);
+  }
+
+  .logo:hover .logo-mark {
+    color: var(--accent);
+  }
+
+  .logo-text {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: var(--tracking-normal);
+    line-height: var(--leading-tight);
+
+    /* Ocultar em telas muito pequenas para não comprimir o layout */
+    display: none;
+  }
+
+  .logo:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── Language switcher wrapper ──────────────────────── */
+  .header-lang {
+    flex-shrink: 0;
+  }
+
+  /* ── Tablet: mostrar nome ───────────────────────────── */
+  @media (min-width: 640px) {
+    .logo-text {
+      display: block;
+    }
+  }
+
+  /* ── Desktop: mais espaço interno ──────────────────── */
+  @media (min-width: 1024px) {
+    .header-inner {
+      gap: var(--space-8);
+    }
+  }
+</style>

@@ -1,0 +1,363 @@
+---
+/**
+ * Impact.astro — Seção [ 02 ] — Direção Blueprint
+ * "Contador de telemetria de dados" — bento ASSIMÉTRICO ousado.
+ *
+ * Layout:
+ *  - Uma métrica DOMINANTE gigante (metric_1, "10+" anos) ocupando a coluna
+ *    larga e duas linhas, com sparkline ASCII de telemetria ao lado.
+ *  - Métricas secundárias em composição assimétrica ao redor (não grid uniforme).
+ *  - Highlight strip (stack) ancorando o rodapé.
+ *
+ * Efeito: digit-roll (slot-machine / odômetro) nos valores numéricos;
+ * scramble nos textuais. Números GIGANTES em Instrument Serif (--font-display).
+ * Detalhes blueprint: labels mono [colchetes], crop marks, hairlines conectoras,
+ * sparkline ASCII (▁▂▃▅▇).
+ *
+ * Fundo --paper-soft. Zero hex, CSS scoped, mobile-first, UI via data-i18n-key.
+ * Conteúdo visível sem JS (valores no HTML via SSG). prefers-reduced-motion ok.
+ */
+import { t } from '../lib/i18n';
+---
+
+<section id="impact" class="section impact" aria-labelledby="impact-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">02</span>
+      <h2 id="impact-title" class="impact-display" data-i18n-key="impact.title">{t('impact.title')}</h2>
+      <p class="impact-lead" data-i18n-key="impact.subtitle">{t('impact.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <!-- Bento assimétrico de telemetria -->
+    <div class="impact-bento">
+      <!-- Métrica DOMINANTE -->
+      <article class="metric metric--hero crop" data-metric="1">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="metric-head">
+          <span class="metric-index mono-label">01</span>
+          <span class="metric-spark" aria-hidden="true" data-spark>▁▁▂▃▅▆▇▇</span>
+        </header>
+        <span class="metric-value metric-value--hero" data-metric-value>{t('impact.metric_1_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_1_label">{t('impact.metric_1_label')}</span>
+      </article>
+
+      <!-- Métrica textual (scramble) -->
+      <article class="metric metric--data" data-metric="2">
+        <header class="metric-head">
+          <span class="metric-index mono-label">02</span>
+        </header>
+        <span class="metric-value metric-value--word" data-metric-value>{t('impact.metric_2_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_2_label">{t('impact.metric_2_label')}</span>
+      </article>
+
+      <!-- Métrica numérica -->
+      <article class="metric metric--num crop" data-metric="3">
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="metric-head">
+          <span class="metric-index mono-label">03</span>
+        </header>
+        <span class="metric-value" data-metric-value>{t('impact.metric_3_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_3_label">{t('impact.metric_3_label')}</span>
+      </article>
+
+      <!-- Métrica clouds (numérica + sufixo) -->
+      <article class="metric metric--wide" data-metric="4">
+        <header class="metric-head">
+          <span class="metric-index mono-label">04</span>
+          <span class="metric-spark metric-spark--sm" aria-hidden="true" data-spark>▂▅▇▅▂▅▇</span>
+        </header>
+        <span class="metric-value" data-metric-value>{t('impact.metric_4_value')}</span>
+        <span class="metric-label" data-i18n-key="impact.metric_4_label">{t('impact.metric_4_label')}</span>
+      </article>
+    </div>
+
+    <!-- Highlight strip -->
+    <div class="impact-highlight crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <p class="highlight-title mono-label" data-i18n-key="impact.highlight_title">{t('impact.highlight_title')}</p>
+      <p class="highlight-items" data-i18n-key="impact.highlight_items">{t('impact.highlight_items')}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .impact {
+    background: var(--paper-soft);
+  }
+
+  .impact-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .impact-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
+  /* ── Bento assimétrico ───────────────────────────────────── */
+  .impact-bento {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-block-end: var(--space-12);
+  }
+
+  @media (min-width: 640px) {
+    .impact-bento {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-5);
+    }
+    /* hero ocupa as duas colunas no tablet */
+    .metric--hero { grid-column: span 2; }
+  }
+
+  @media (min-width: 1024px) {
+    /* 12 colunas → composição assimétrica deliberada */
+    .impact-bento {
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: minmax(150px, auto);
+      gap: var(--space-5);
+    }
+    /* dominante: 7 col × 2 linhas */
+    .metric--hero {
+      grid-column: 1 / 8;
+      grid-row: 1 / 3;
+    }
+    /* textual: 5 col, linha 1 */
+    .metric--data {
+      grid-column: 8 / 13;
+      grid-row: 1 / 2;
+    }
+    /* numérica: 5 col, linha 2 (desloca para criar assimetria) */
+    .metric--num {
+      grid-column: 8 / 13;
+      grid-row: 2 / 3;
+    }
+    /* clouds: faixa larga embaixo da dominante */
+    .metric--wide {
+      grid-column: 1 / 13;
+      grid-row: 3 / 4;
+    }
+  }
+
+  /* ── Metric card ─────────────────────────────────────────── */
+  .metric {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    transition: border-color var(--transition-normal);
+  }
+
+  .metric:hover {
+    border-color: var(--line-strong);
+  }
+
+  .metric--hero {
+    padding: var(--space-8);
+    justify-content: space-between;
+  }
+
+  .metric--wide {
+    flex-direction: column;
+  }
+
+  @media (min-width: 640px) {
+    .metric--wide {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+  }
+
+  /* ── Header da métrica (index + sparkline) ───────────────── */
+  .metric-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .metric-index {
+    color: var(--ink-faint);
+  }
+
+  .metric-spark {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    opacity: 0.85;
+  }
+
+  .metric-spark--sm {
+    font-size: var(--text-sm);
+  }
+
+  /* ── Valor ───────────────────────────────────────────────── */
+  .metric-value {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .metric-value--hero {
+    font-size: var(--display-1);
+    line-height: 0.9;
+  }
+
+  /* valor textual ("Petabytes") em serif menor, ink (não accent) */
+  .metric-value--word {
+    font-size: var(--text-2xl);
+    color: var(--ink);
+    line-height: var(--leading-tight);
+  }
+
+  .metric-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+  }
+
+  .metric--wide .metric-label {
+    max-width: 40ch;
+  }
+
+  /* ── digit-roll (slot-machine) ───────────────────────────── */
+  /* Host do valor quando montado com colunas roláveis. */
+  .metric-value :global(.digit-roll-host),
+  .metric-value:global(.digit-roll-host) {
+    display: inline-flex;
+    align-items: flex-end;
+  }
+  .metric-value :global(.digit-roll) {
+    display: inline-block;
+    height: 1em;
+    line-height: 1;
+    overflow: hidden;
+    vertical-align: bottom;
+  }
+  .metric-value :global(.digit-col) {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+  }
+  .metric-value :global(.digit-cell) {
+    display: block;
+    height: 1em;
+    line-height: 1;
+    text-align: center;
+  }
+  .metric-value :global(.digit-fixed) {
+    display: inline-block;
+  }
+
+  /* ── Highlight strip ─────────────────────────────────────── */
+  .impact-highlight {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .highlight-title {
+    margin: 0;
+    color: var(--ink-faint);
+  }
+
+  .highlight-items {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink);
+    line-height: var(--leading-loose);
+    letter-spacing: var(--tracking-wide);
+    margin: 0;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { digitRoll } from '../scripts/motion/digit-roll';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const section = document.getElementById('impact');
+
+  /**
+   * Preenche os valores das métricas a partir do i18n e aplica o digit-roll.
+   * - Reset do valor para texto antes de remontar (re-render ao trocar idioma).
+   * - digitRoll cuida do slot-machine (numérico) ou scramble (textual).
+   */
+  function renderMetrics() {
+    if (!section) return;
+
+    section.querySelectorAll<HTMLElement>('.metric').forEach((metric) => {
+      const idx = metric.dataset.metric;
+      const valueEl = metric.querySelector<HTMLElement>('[data-metric-value]');
+      if (!idx || !valueEl) return;
+
+      const raw =
+        window.i18n?.t(`impact.metric_${idx}_value`) ?? valueEl.textContent ?? '';
+
+      // reset para estado de texto simples antes de (re)montar
+      valueEl.dataset.rollValue = raw.trim();
+      valueEl.removeAttribute('aria-label');
+      valueEl.classList.remove('digit-roll-host');
+      valueEl.textContent = raw;
+
+      // dispara o efeito (com ScrollTrigger interno) usando o card como trigger
+      digitRoll(valueEl, metric);
+    });
+  }
+
+  if (section) {
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    const cards = section.querySelectorAll('.metric');
+    const highlight = section.querySelector('.impact-highlight') as Element;
+
+    if (line) hairlineDraw(line, section);
+
+    if (motionOk) {
+      revealUp([head], section, 0);
+      revealUp(cards, section, 0.08);
+      if (highlight) revealUp([highlight], section, 0);
+    }
+
+    // Render inicial (valores localizados) + re-render ao trocar idioma
+    renderMetrics();
+    window.addEventListener('languageChanged', () => renderMetrics());
+  }
+</script>

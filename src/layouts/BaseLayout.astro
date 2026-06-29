@@ -1,0 +1,95 @@
+---
+/**
+ * BaseLayout.astro — frontend-builder
+ * Segue: design-system.md, web-motion.md, content-i18n.md
+ *
+ * Responsabilidades:
+ * - <head> com fonts, meta tags, CSP
+ * - data-baseurl no <body> para i18n.js (content-i18n.md)
+ * - global.css (tokens → reset → layout → componentes)
+ * - i18n.js runtime (portado sem alteração)
+ * - motion-init.ts: Lenis + GSAP — uma única vez (web-motion.md)
+ */
+
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Otávio Ribeiro — Data Engineering Manager',
+  description = 'Portfolio profissional de Engenharia de Dados e Liderança',
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="pt-BR" id="html-root">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#FDFDFD" />
+
+    <!-- Segurança (GitHub Pages não permite headers HTTP → via meta) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- SEO — conteúdo atualizado em runtime por i18n.js -->
+    <title id="page-title">{title}</title>
+    <meta id="page-description" name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://donotavio.github.io/cv-site-otavio/" />
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://donotavio.github.io/cv-site-otavio/" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href={`${base}assets/img/favicon.svg`} />
+    <link rel="icon" type="image/x-icon" href={`${base}assets/img/favicon.ico`} />
+    <link rel="apple-touch-icon" href={`${base}assets/img/apple-touch-icon.png`} />
+    <link rel="manifest" href={`${base}site.webmanifest`} />
+
+    <!-- Fonts self-hosted (Blueprint) — preload das críticas, zero render-block, zero request externo -->
+    <link rel="preload" href={`${base}assets/fonts/instrumentserif-400.woff2`} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${base}assets/fonts/inter-var.woff2`} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${base}assets/fonts/ibmplexmono-400.woff2`} as="font" type="font/woff2" crossorigin />
+
+    <!-- Global styles: tokens → reset → layout → componentes (importado no frontmatter) -->
+  </head>
+
+  <body data-baseurl={base}>
+    <a href="#main-content" class="skip-link" data-i18n-key="a11y.skip_to_content">Ir para o conteúdo principal</a>
+    <slot />
+
+    <!--
+      i18n runtime — portado sem alteração (content-i18n.md).
+      Lê data-baseurl do body para prefixar fetch de traduções.
+    -->
+    <script src={`${base}assets/js/i18n.js`} is:inline defer></script>
+
+    <!--
+      Motion init — Lenis + GSAP ScrollTrigger (web-motion.md padrão 4).
+      Executa uma única vez, no layout root.
+    -->
+    <script>
+      import { initMotion } from '../scripts/motion-init';
+      import { registerQueryLoader } from '../scripts/motion/query-loader';
+
+      document.addEventListener('DOMContentLoaded', () => {
+        initMotion();
+
+        // Query Loader: cada seção carrega como o resultado de uma query.
+        // registerQueryLoader retorna cedo se reduced-motion / sem query.
+        document
+          .querySelectorAll<HTMLElement>('main section[id]')
+          .forEach((section) => registerQueryLoader(section));
+      });
+    </script>
+  </body>
+</html>

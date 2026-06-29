@@ -1,0 +1,70 @@
+/*
+ * Self-hosted fonts — Blueprint
+ * Elimina render-blocking do Google Fonts + zero requests externos.
+ * font-display: swap para FCP rápido. Fallbacks métricos minimizam CLS.
+ */
+
+/* Instrument Serif — display (H1, títulos de seção) */
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/cv-site-otavio/assets/fonts/instrumentserif-400.woff2') format('woff2');
+}
+
+/*
+ * Fallback com métricas ajustadas — elimina CLS no swap do H1 serif gigante.
+ * O Georgia (fallback) é remapeado para ocupar a mesma altura/largura
+ * que o Instrument Serif, então não há reflow quando a fonte real carrega.
+ */
+@font-face {
+  font-family: 'Instrument Serif Fallback';
+  src: local('Georgia');
+  size-adjust: 91%;
+  ascent-override: 90%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/cv-site-otavio/assets/fonts/instrumentserif-italic.woff2') format('woff2');
+}
+
+/* Inter — corpo (variable font, cobre 400–700) */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/cv-site-otavio/assets/fonts/inter-var.woff2') format('woff2');
+}
+
+/* Fallback métrico do Inter — usa Arial remapeado para evitar CLS */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial');
+  size-adjust: 107%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
+/* IBM Plex Mono — labels, nav, números */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/cv-site-otavio/assets/fonts/ibmplexmono-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/cv-site-otavio/assets/fonts/ibmplexmono-500.woff2') format('woff2');
+}

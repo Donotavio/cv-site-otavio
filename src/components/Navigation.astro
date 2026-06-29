@@ -1,0 +1,300 @@
+---
+/**
+ * Navigation.astro — frontend-builder + motion-engineer
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Skills consultadas:
+ *   src/styles/tokens.css            — tokens Blueprint, zero hex
+ *   src/styles/global.css            — .mono-label (colchetes automáticos)
+ *   .opencode/skills/content-i18n.md — todos os links com data-i18n-key
+ *
+ * Links de nav em mono entre colchetes [ ] (assinatura blueprint).
+ * Hover/ativo → --accent. Mobile: drawer com hamburger, aria-expanded, Escape.
+ * aria-label do <nav> via data-i18n-aria="nav.aria_label".
+ */
+
+import { t } from '../lib/i18n';
+
+const navLinks = [
+  { href: '#hero',            key: 'nav.home'            },
+  { href: '#about',           key: 'nav.about'           },
+  { href: '#timeline',        key: 'nav.timeline'        },
+  { href: '#skills',          key: 'nav.skills'          },
+  { href: '#recommendations', key: 'nav.recommendations' },
+  { href: '#tech-stack',      key: 'nav.tech_stack'      },
+  { href: '#projects',        key: 'nav.projects'        },
+  { href: '#blog',            key: 'nav.blog'            },
+  { href: '#contact',         key: 'nav.contact'         },
+];
+---
+
+<nav
+  class="site-nav"
+  data-nav
+  aria-label="Main navigation"
+  data-i18n-aria="nav.aria_label"
+>
+  <!-- Hamburger — visível apenas em mobile/tablet -->
+  <button
+    class="nav-toggle"
+    data-nav-toggle
+    type="button"
+    aria-expanded="false"
+    aria-controls="nav-list"
+    aria-label="Menu"
+    data-i18n-aria="nav.menu_label"
+  >
+    <span class="nav-toggle__bar"></span>
+    <span class="nav-toggle__bar"></span>
+    <span class="nav-toggle__bar"></span>
+  </button>
+
+  <!-- Lista de links -->
+  <ul class="nav-list" id="nav-list" role="list">
+    {navLinks.map(({ href, key }) => (
+      <li class="nav-item">
+        <a href={href} class="nav-link mono-label" data-i18n-key={key}>{t(key)}</a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<!-- Toggle mobile + navegação por menu (scroll suave + Query Loader) -->
+<script>
+  import { fireQueryLoader } from '../scripts/motion/query-loader';
+
+  const toggle = document.querySelector('[data-nav-toggle]') as HTMLButtonElement | null;
+  const list   = document.getElementById('nav-list');
+
+  function closeMenu() {
+    if (!toggle || !list) return;
+    list.classList.remove('nav-list--open');
+    toggle.classList.remove('nav-toggle--open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  if (toggle && list) {
+    toggle.addEventListener('click', () => {
+      const isOpen = list.classList.toggle('nav-list--open');
+      toggle.classList.toggle('nav-toggle--open', isOpen);
+      toggle.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    // Fechar ao pressionar Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && list.classList.contains('nav-list--open')) {
+        closeMenu();
+        toggle.focus();
+      }
+    });
+  }
+
+  /*
+   * Navegação por menu:
+   *  1. previne o jump instantâneo da âncora
+   *  2. scroll suave via Lenis (cai em scrollIntoView se Lenis ausente)
+   *  3. dispara o Query Loader da seção destino (uma vez por seção)
+   *  4. fecha o drawer mobile
+   */
+  type LenisLike = { scrollTo: (t: Element, o?: object) => void };
+
+  document.querySelectorAll<HTMLAnchorElement>('.nav-link').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href') ?? '';
+      if (!href.startsWith('#')) return;
+
+      const id = href.slice(1);
+      const target = document.getElementById(id);
+      if (!target) return;
+
+      e.preventDefault();
+
+      const lenis = (window as Window & { __lenis?: LenisLike }).__lenis;
+      if (lenis) {
+        lenis.scrollTo(target, { offset: 0, duration: 1.1 });
+      } else {
+        // reduced-motion / Lenis ausente → scroll nativo
+        target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      }
+
+      // dispara o loader temático da seção (no-op se já tocou ou reduced-motion)
+      fireQueryLoader(id);
+
+      closeMenu();
+    });
+  });
+</script>
+
+<style>
+  .site-nav {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  /* ── Hamburger ──────────────────────────────────────── */
+  .nav-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-1);
+    width: var(--space-10);
+    height: var(--space-10);
+    padding: var(--space-2);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast);
+    z-index: var(--z-raised);
+  }
+
+  .nav-toggle:hover {
+    background: var(--accent-dim);
+  }
+
+  .nav-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  @media (hover: none) {
+    .nav-toggle:hover {
+      background: transparent;
+    }
+  }
+
+  .nav-toggle__bar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--ink);
+    border-radius: var(--radius-full);
+    transform-origin: center;
+    transition:
+      transform var(--transition-normal),
+      opacity var(--transition-fast);
+  }
+
+  /* Animação X quando aberto */
+  .nav-toggle--open .nav-toggle__bar:nth-child(1) {
+    transform: translateY(calc(var(--space-1) + 2px)) rotate(45deg);
+  }
+  .nav-toggle--open .nav-toggle__bar:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .nav-toggle--open .nav-toggle__bar:nth-child(3) {
+    transform: translateY(calc(-1 * (var(--space-1) + 2px))) rotate(-45deg);
+  }
+
+  /* ── Nav list — mobile drawer ───────────────────────── */
+  .nav-list {
+    /* Oculto em mobile por padrão */
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    width: min(280px, 85vw);
+    height: 100dvh;
+    background: var(--paper-soft);
+    border-left: 1px solid var(--line);
+    padding: calc(var(--space-16) + var(--space-8)) var(--space-6) var(--space-6);
+    z-index: calc(var(--z-nav) - 1);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .nav-list--open {
+    display: flex;
+  }
+
+  .nav-item {
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Link mono — .mono-label já aplica font/colchetes/uppercase */
+  .nav-link {
+    display: block;
+    padding: var(--space-4) var(--space-1);
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .nav-link:hover {
+    color: var(--accent);
+  }
+
+  .nav-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── Desktop: hamburguer some, lista inline ───────────
+     Breakpoint 1100px: a partir daqui os 8 links mono compactos + logo +
+     lang-switcher cabem      numa linha sem corte, mesmo nos idiomas verbosos (pt-BR/es-ES, ex.:
+     "Recomendações"/"Recomendaciones"). Abaixo disso, drawer hamburger
+     (evita o lang-switcher estourar para fora da viewport).
+
+     Os links inline ficam mais enxutos que no drawer: sem os colchetes [ ]
+     (que no drawer dão a assinatura blueprint) e com tracking levemente menor,
+     porque 8 labels verbosos (ex.: "Recomendações") não cabem de outra forma.
+     A assinatura de colchetes segue presente no logo [ OR ] e nos labels de
+     seção [ 01 ]…, então a coesão visual é mantida. */
+  @media (min-width: 1200px) {
+    .nav-toggle {
+      display: none;
+    }
+
+    .nav-list {
+      /* Sobrescreve o estado mobile */
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-1);
+
+      position: static;
+      width: auto;
+      height: auto;
+      background: transparent;
+      border: none;
+      padding: 0;
+      overflow: visible;
+    }
+
+    .nav-item {
+      border-bottom: none;
+    }
+
+    .nav-link {
+      padding: var(--space-2);
+      white-space: nowrap;
+      /* Nav inline mais compacto: tracking menor que o mono-label padrão */
+      letter-spacing: var(--tracking-wide);
+    }
+
+    /* Inline não usa colchetes — economia de ~32 chars no conjunto.
+       Os colchetes seguem no drawer mobile e no logo/section labels. */
+    .nav-link.mono-label::before,
+    .nav-link.mono-label::after {
+      content: none;
+    }
+  }
+
+  /* ── Widescreen: respiro extra entre links ──────────── */
+  @media (min-width: 1440px) {
+    .nav-list {
+      gap: var(--space-2);
+    }
+    .nav-link {
+      letter-spacing: var(--tracking-wider);
+    }
+  }
+</style>

@@ -1,0 +1,474 @@
+---
+/**
+ * Hero.astro — frontend-builder + motion-engineer
+ * Direção: Blueprint (DESIGN.md) — POV: "a folha de especificação de um
+ * engenheiro sênior virou portfólio". Inspiração: StackGrid + Mattis.
+ *
+ * Skills / fontes consultadas:
+ *   DESIGN.md                        — direção Blueprint completa
+ *   src/styles/tokens.css            — tokens (fonte de verdade), zero hex
+ *   src/styles/global.css            — .mono-label, .crop, .btn-*, crop marks
+ *   .opencode/skills/web-motion.md   — padrão 5 (resolve), só entrance
+ *   .opencode/skills/content-i18n.md — data-i18n-key, nenhum texto hardcoded
+ *
+ * Layout editorial dramático:
+ *   - H1 GIGANTE em Instrument Serif (escala de cartaz, até 128px) — a estrela
+ *   - ASCII portrait como visual signature, emoldurado por crop marks
+ *   - Labels mono entre colchetes [ ], linhas conectoras, números de versão
+ *   - Único acento elétrico (--accent); glow azul só atrás do ASCII
+ *
+ * Conteúdo legível sem JS; ASCII portrait com aria-hidden (decorativo).
+ * A foto real fica acessível a leitores de tela via <img> sr-only com alt.
+ */
+
+import { t } from '../lib/i18n';
+
+const asciiSrc = `${import.meta.env.BASE_URL}assets/data/portrait-ascii.txt`;
+const portraitImg = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-440.webp`;
+const portraitPhoto = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-880.webp`;
+---
+
+<section id="hero" aria-labelledby="hero-title">
+  <!-- Linha de spec superior — vocabulário de blueprint -->
+  <div class="hero-specline container" aria-hidden="true">
+    <span class="mono-label">v2.0</span>
+    <span class="hero-specline__rule"></span>
+    <span class="mono-label">portfolio.spec</span>
+  </div>
+
+  <div class="hero-grid container">
+    <!-- ── Coluna de conteúdo ───────────────────────────────── -->
+    <div class="hero-content">
+      <!-- Eyebrow → [ LIDERANÇA EM DADOS ] -->
+      <p
+        class="hero-eyebrow mono-label mono-label--accent"
+        data-hero-eyebrow
+        data-i18n-key="hero.eyebrow"
+      >{t('hero.eyebrow')}</p>
+
+      <!-- H1 — Instrument Serif, escala de cartaz -->
+      <h1
+        id="hero-title"
+        class="hero-title"
+        data-hero-title
+        data-i18n-key="hero.role"
+      >{t('hero.role')}</h1>
+
+      <!-- Subtítulo -->
+      <p
+        class="hero-subtitle"
+        data-hero-subtitle
+        data-i18n-key="hero.summary"
+      >{t('hero.summary')}</p>
+
+      <!-- CTAs -->
+      <div class="hero-ctas" data-hero-ctas>
+        <a
+          id="cv-download"
+          class="btn-primary"
+          href={`${import.meta.env.BASE_URL}assets/cv/cv-otavio-ptBR.pdf`}
+          download
+          data-i18n-key="hero.cta_cv"
+        >{t('hero.cta_cv')}</a>
+        <a
+          href="#contact"
+          class="btn-secondary"
+          data-i18n-key="hero.cta_contact"
+        >{t('hero.cta_contact')}</a>
+      </div>
+
+      <!-- Localização — mono label entre colchetes + pin -->
+      <div class="hero-location" data-hero-detail>
+        <svg
+          class="hero-location-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        <span class="mono-label" data-i18n-key="hero.location_label">{t('hero.location_label')}</span>
+      </div>
+    </div>
+
+    <!-- ── Coluna visual: ASCII portrait emoldurado ─────────── -->
+    <div class="hero-visual">
+      <!-- Linha conectora com label (estilo "The AI" do StackGrid) -->
+      <div class="hero-connector" data-hero-detail aria-hidden="true">
+        <span class="mono-label">fig.01 — portrait.txt</span>
+        <span class="hero-connector__line"></span>
+      </div>
+
+      <!-- Bloco emoldurado por crop marks de blueprint -->
+      <figure class="hero-portrait crop" data-hero-detail>
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+
+        <!-- Glow azul sutil ATRÁS do ASCII (único lugar com glow) -->
+        <span class="hero-portrait__glow" aria-hidden="true"></span>
+
+        <!-- Spotlight: lanterna revela a foto real sob o ASCII -->
+        <div class="hero-portrait__spotlight" data-spotlight aria-hidden="true">
+          <!-- Foto real (camada de baixo, revelada pela máscara-lanterna) -->
+          <div
+            class="hero-portrait__photo"
+            data-spotlight-photo
+            style={`background-image:url(${portraitPhoto})`}
+          ></div>
+
+          <!-- ASCII art — decorativo; preenchido via fetch no script abaixo -->
+          <pre
+            class="ascii-portrait"
+            data-hero-portrait
+            data-spotlight-ascii
+            data-ascii-src={asciiSrc}
+          ></pre>
+        </div>
+
+        <!-- Foto real acessível a leitores de tela (visualmente oculta) -->
+        <img class="sr-only" src={portraitImg} alt="Otávio Ribeiro" width="440" height="440" />
+
+        <figcaption class="hero-portrait__caption mono-label" aria-hidden="true">
+          render: ascii · 100×52
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <!-- Marcação de borda inferior — coordenadas de spec -->
+  <div class="hero-coords container" data-hero-detail aria-hidden="true">
+    <span class="mono-label">lat -23.55 · lon -46.63</span>
+    <span class="mono-label">scroll ↓</span>
+  </div>
+</section>
+
+<!-- ── Motion: padrão 5 (resolve) + carga do ASCII portrait ─────── -->
+<script>
+  import { resolveHero } from '../scripts/motion/resolve';
+  import { spotlightReveal } from '../scripts/motion/spotlight-reveal';
+
+  async function loadAscii() {
+    const pre = document.querySelector<HTMLElement>('[data-hero-portrait]');
+    if (!pre) return;
+    const src = pre.dataset.asciiSrc;
+    if (!src) return;
+    try {
+      const res = await fetch(src);
+      if (res.ok) pre.textContent = await res.text();
+    } catch {
+      // Falha silenciosa — portrait é decorativo, hero continua legível.
+    }
+  }
+
+  function init() {
+    const hero = document.querySelector('#hero');
+    if (hero) resolveHero(hero);
+
+    // Lanterna revela a foto real sob o ASCII; shake = foto inteira por 3s.
+    // Em touch / reduced-motion o helper retorna cedo → ASCII estático.
+    const spot = document.querySelector<HTMLElement>('[data-spotlight]');
+    if (spot) spotlightReveal(spot, { radius: 100, holdMs: 3000 });
+  }
+
+  // Carrega o ASCII antes de medir/animar para o scan ter conteúdo real.
+  loadAscii().finally(() => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+      init();
+    }
+  });
+</script>
+
+<style>
+  /* ── Container raiz ───────────────────────────────────────── */
+  #hero {
+    position: relative;
+    min-height: 100svh;
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* topo deixa espaço para o header fixo; specline ancora no topo */
+    padding-block: var(--space-24) var(--space-16);
+    overflow: hidden;
+  }
+
+  /* ── Linha de spec superior — ancorada no topo do hero ─────── */
+  .hero-specline {
+    position: absolute;
+    top: var(--space-16);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .hero-specline__rule {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* ── Grid principal ───────────────────────────────────────── */
+  .hero-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  /* ── Conteúdo ─────────────────────────────────────────────── */
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .hero-eyebrow {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+
+  /* H1 — Instrument Serif, escala de cartaz. A estrela. */
+  .hero-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: var(--display-1);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink);
+    max-width: 16ch;
+  }
+
+  .hero-subtitle {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-lg);
+    line-height: var(--leading-normal);
+    color: var(--ink-soft);
+    max-width: 52ch;
+  }
+
+  .hero-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+    margin-top: var(--space-2);
+  }
+
+  .hero-location {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--ink-faint);
+  }
+
+  .hero-location-icon {
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+
+  /* ── Coluna visual ────────────────────────────────────────── */
+  .hero-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  /* Linha conectora com label */
+  .hero-connector {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .hero-connector__line {
+    flex: 1;
+    height: 1px;
+    background: var(--line-accent);
+  }
+
+  /* Bloco do ASCII portrait emoldurado por crop marks */
+  .hero-portrait {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    padding: var(--space-5);
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+
+  /* Glow azul sutil atrás do ASCII (único uso de glow — DESIGN.md).
+     Pulsa lentamente (breathing) — micro-vida sem distração, ref StackGrid. */
+  .hero-portrait__glow {
+    position: absolute;
+    inset: 12%;
+    z-index: var(--z-base);
+    background: radial-gradient(
+      ellipse at 50% 45%,
+      var(--glow-blue) 0%,
+      transparent 65%
+    );
+    opacity: 0.1;
+    filter: blur(28px);
+    pointer-events: none;
+    animation: portrait-breathe 6s ease-in-out infinite;
+  }
+
+  @keyframes portrait-breathe {
+    0%, 100% { opacity: 0.08; transform: scale(1); }
+    50%      { opacity: 0.16; transform: scale(1.04); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-portrait__glow { animation: none; }
+  }
+
+  /* ── Spotlight: ASCII (topo) + foto real (baixo, revelada por máscara) ── */
+  .hero-portrait__spotlight {
+    position: relative;
+    z-index: var(--z-raised);
+    cursor: crosshair;
+  }
+
+  /* Foto real — camada de baixo, invisível até a lanterna "furar" o ASCII */
+  .hero-portrait__photo {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-base);
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    /* máscara-lanterna radial na posição do cursor (#000/transparent técnicos) */
+    -webkit-mask: radial-gradient(circle var(--spot-r, 100px) at var(--mx) var(--my), #000 0%, #000 55%, transparent 100%);
+    mask: radial-gradient(circle var(--spot-r, 100px) at var(--mx) var(--my), #000 0%, #000 55%, transparent 100%);
+    transition: opacity var(--transition-normal);
+    pointer-events: none;
+  }
+
+  /* Lanterna ativa (hover) → foto visível dentro do raio */
+  .is-spotting .hero-portrait__photo { opacity: 1; }
+
+  /* Shake → foto INTEIRA por holdMs; ASCII some suavemente */
+  .is-revealed .hero-portrait__photo {
+    opacity: 1;
+    -webkit-mask: none;
+    mask: none;
+    transition: opacity var(--transition-slow);
+  }
+  .is-revealed .ascii-portrait { opacity: 0; }
+
+  /* O <pre> do ASCII — mono minúsculo p/ caber 100 colunas */
+  .ascii-portrait {
+    position: relative;
+    z-index: var(--z-raised);
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: clamp(4px, 0.9vw, 9px);
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--ink);
+    white-space: pre;
+    overflow: hidden;
+    /* Mantém proporção e centraliza enquanto o fetch não chega */
+    min-height: 1px;
+    text-align: center;
+    will-change: clip-path;
+    transition: opacity var(--transition-normal);
+  }
+
+  .hero-portrait__caption {
+    position: absolute;
+    bottom: calc(-1 * var(--space-6));
+    right: 0;
+    font-size: var(--text-xs);
+  }
+
+  /* ── Coordenadas inferiores ───────────────────────────────── */
+  .hero-coords {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--space-16);
+  }
+
+  /* ── Tablet ───────────────────────────────────────────────── */
+  @media (min-width: 640px) {
+    .ascii-portrait {
+      font-size: clamp(5px, 0.85vw, 8px);
+    }
+  }
+
+  /* ── Desktop: grid 2 colunas, texto à esquerda ────────────── */
+  @media (min-width: 1024px) {
+    #hero {
+      padding-block: var(--space-24) var(--space-12);
+    }
+
+    .hero-grid {
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: var(--space-16);
+      align-items: center;
+    }
+
+    .hero-visual {
+      align-items: flex-end;
+    }
+
+    .hero-portrait {
+      max-width: 100%;
+    }
+
+    .ascii-portrait {
+      font-size: clamp(5px, 0.6vw, 8px);
+    }
+  }
+
+  /* ── Widescreen ───────────────────────────────────────────── */
+  @media (min-width: 1440px) {
+    .hero-grid {
+      gap: var(--space-20);
+    }
+  }
+
+  /*
+   * Reduced motion / sem JS: tudo visível de imediato.
+   * resolve.ts já verifica motionOk; este bloco garante o estado final
+   * mesmo sem JS e neutraliza o clip-path do scan do portrait.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-eyebrow,
+    .hero-title,
+    .hero-subtitle,
+    .hero-ctas,
+    .ascii-portrait,
+    [data-hero-detail] {
+      opacity: 1 !important;
+      transform: none !important;
+      clip-path: none !important;
+    }
+    /* Sem lanterna em reduced-motion: ASCII estático, foto oculta. */
+    .hero-portrait__spotlight { cursor: default; }
+    .hero-portrait__photo { opacity: 0 !important; }
+  }
+</style>

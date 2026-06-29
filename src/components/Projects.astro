@@ -1,0 +1,308 @@
+---
+/**
+ * Projects.astro — Seção [ 06 ] — Direção Blueprint
+ * Cards de repositórios com crop marks: nome em serif, descrição via i18n,
+ * linguagem como .tag, stars em mono, link com .link-underline.
+ * Dados: fetch profile.json → projects[]. Motion: hairlineDraw + revealUp (cards).
+ */
+import { t } from '../lib/i18n';
+---
+
+<section id="projects" class="section projects" aria-labelledby="projects-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">06</span>
+      <h2 id="projects-title" class="proj-display" data-i18n-key="projects.title">{t('projects.title')}</h2>
+      <p class="proj-lead" data-i18n-key="projects.subtitle">{t('projects.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <div id="projects-grid" class="projects-grid"></div>
+
+    <p
+      id="projects-empty"
+      class="empty-state"
+      data-i18n-key="projects.empty"
+      hidden
+    >{t('projects.empty')}</p>
+  </div>
+</section>
+
+<style>
+  .proj-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .proj-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .projects-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 1024px) {
+    .projects-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* ── Card ─────────────────────────────────────────────────── */
+  .proj-card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    transition: border-color var(--transition-normal),
+                box-shadow var(--transition-normal),
+                transform var(--transition-normal);
+  }
+
+  .proj-card:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .proj-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .proj-card__name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+  }
+
+  .proj-card__icons {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+
+  .proj-card__github-icon {
+    flex-shrink: 0;
+    color: var(--ink-faint);
+    transition: color var(--transition-fast);
+  }
+
+  .proj-card:hover .proj-card__github-icon { color: var(--accent); }
+
+  /* Logo da linguagem ao lado do ícone Git — discreto, monocromático (--ink-faint). */
+  .proj-card__lang-logo {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    opacity: 0.6;
+    transition: opacity var(--transition-fast);
+  }
+
+  .proj-card:hover .proj-card__lang-logo { opacity: 1; }
+
+  .proj-card__description {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    flex: 1;
+  }
+
+  .proj-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: auto;
+  }
+
+  .proj-card__stars {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .proj-card__link {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    text-decoration: none;
+    align-self: flex-start;
+    margin-top: var(--space-2);
+  }
+  .proj-card__link::after { content: ' →'; }
+
+  /* ── Empty state ─────────────────────────────────────────── */
+  .empty-state {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-faint);
+    text-align: center;
+    padding: var(--space-12) 0;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+
+  interface Project {
+    name: string;
+    description: string;
+    language: string;
+    stars: number;
+    url: string;
+  }
+
+  const GITHUB_SVG = `
+    <svg class="proj-card__github-icon" width="18" height="18" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+    </svg>
+  `;
+
+  // Mapa linguagem → arquivo de logo (assets/img/logos/lang/). Apenas os que existem.
+  // Fallback gracioso: linguagem sem logo → só o ícone Git.
+  const LANG_LOGO: Record<string, string> = {
+    HTML: 'html5.svg',
+    CSS: 'css3.svg',
+    JavaScript: 'javascript.svg',
+    TypeScript: 'typescript.svg',
+    Python: 'python.svg',
+    Shell: 'gnubash.svg',
+    'Jupyter Notebook': 'jupyter.svg',
+    Java: 'openjdk.svg',
+    Go: 'go.svg',
+    Ruby: 'ruby.svg',
+    Swift: 'swift.svg',
+  };
+
+  function langLogoHtml(language: string): string {
+    const file = LANG_LOGO[language];
+    if (!file) return '';
+    const src = `${baseUrl}assets/img/logos/lang/${file}`;
+    return `<img class="proj-card__lang-logo" src="${src}" alt="${language}" width="16" height="16" loading="lazy" decoding="async" />`;
+  }
+
+  async function renderProjects() {
+    const grid = document.getElementById('projects-grid') as HTMLElement;
+    const emptyEl = document.getElementById('projects-empty') as HTMLElement;
+    if (!grid) return;
+
+    let data: { projects?: Project[] } = {};
+    try {
+      const res = await fetch(`${baseUrl}assets/data/profile.json`);
+      if (!res.ok) throw new Error('fetch failed');
+      data = await res.json();
+    } catch {
+      emptyEl.hidden = false;
+      return;
+    }
+
+    const projects: Project[] = data.projects ?? [];
+    grid.innerHTML = '';
+
+    if (!projects.length) {
+      emptyEl.hidden = false;
+      return;
+    }
+    emptyEl.hidden = true;
+
+    const ctaLabel = window.i18n?.t('projects.cta') ?? 'Ver repositório';
+
+    projects.forEach((project) => {
+      const description =
+        window.i18n?.t(`projects.descriptions.${project.name}`) ||
+        project.description ||
+        '';
+
+      const article = document.createElement('article');
+      article.className = 'proj-card crop';
+      article.innerHTML = `
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <div class="proj-card__header">
+          <h3 class="proj-card__name">${project.name ?? ''}</h3>
+          <span class="proj-card__icons">
+            ${langLogoHtml(project.language ?? '')}
+            ${GITHUB_SVG}
+          </span>
+        </div>
+        ${description ? `<p class="proj-card__description">${description}</p>` : ''}
+        <div class="proj-card__meta">
+          <span class="tag">${project.language ?? ''}</span>
+          <span class="proj-card__stars">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            ${project.stars ?? 0}
+          </span>
+        </div>
+        <a
+          class="proj-card__link link-underline"
+          href="${project.url ?? '#'}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="${ctaLabel}: ${project.name}"
+        >${ctaLabel}</a>
+      `;
+
+      grid.appendChild(article);
+    });
+
+    const cards = grid.querySelectorAll<Element>('.proj-card');
+    revealUp(cards, grid, 0.1);
+  }
+
+  // ─── Section line hairline + head reveal ─────────────────────
+  const section = document.getElementById('projects');
+  if (section) {
+    const line = section.querySelector('.section-line') as Element;
+    const head = section.querySelector('.section-head') as Element;
+    if (line) hairlineDraw(line, section);
+    if (motionOk && head) revealUp([head], section, 0);
+  }
+
+  // ─── i18n ────────────────────────────────────────────────────
+  window.addEventListener('languageChanged', () => renderProjects());
+
+  if (window.i18n) {
+    renderProjects();
+  } else {
+    window.addEventListener('languageChanged', () => renderProjects(), { once: true });
+  }
+</script>
