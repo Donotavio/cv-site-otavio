@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   collect-jobs:
-    name: Coleta de vagas (Gupy) + skills + gold
+    name: Coleta de vagas (Gupy + Greenhouse) + skills + gold
     runs-on: ubuntu-latest
 
     steps:
@@ -34,15 +34,18 @@ jobs:
 
       - name: Criar diretórios de dados
         run: |
-          mkdir -p data/bronze/radar_jobs data/silver data/gold
+          mkdir -p data/bronze/radar_jobs data/bronze/radar_jobs_greenhouse data/silver data/gold
 
       - name: Coletar vagas (Gupy — 8 termos de busca)
         run: python ingestion_radar/collect_jobs.py
 
-      - name: Silver — extrair skills por semana
+      - name: Coletar vagas (Greenhouse — 11 empresas BR/LatAm curadas)
+        run: python ingestion_radar/collect_jobs_greenhouse.py
+
+      - name: Silver — extrair skills por semana (Gupy + Greenhouse)
         run: python transform_radar/silver_jobs.py
 
-      - name: Gold — análise de vagas (remoto/cidade/senioridade/skills)
+      - name: Gold — análise de vagas (remoto/cidade/senioridade/skills/fonte)
         run: python transform_radar/gold_jobs_analysis.py
 
       - name: Gold — recalcular scores do radar (job_score muda toda semana)
@@ -53,7 +56,7 @@ jobs:
           git config user.name "radar-pipeline[bot]"
           git config user.email "radar-pipeline@users.noreply.github.com"
 
-          git add data/bronze/radar_jobs/ data/silver/ data/gold/ \
+          git add data/bronze/radar_jobs/ data/bronze/radar_jobs_greenhouse/ data/silver/ data/gold/ \
                   assets/data/radar_scores.json assets/data/radar_trending.json \
                   assets/data/radar_jobs_analysis.json || true
 

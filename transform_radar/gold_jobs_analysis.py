@@ -62,10 +62,18 @@ def main() -> int:
         GROUP BY _matched_term ORDER BY n DESC
     """).df().to_dict(orient="records")
 
+    by_source = con.execute("""
+        SELECT source AS fonte, COUNT(*) AS n,
+               ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 1) AS pct
+        FROM 'data/silver/jobs_clean.parquet'
+        GROUP BY source ORDER BY n DESC
+    """).df().to_dict(orient="records")
+
     payload = {
         "gerado_em": datetime.now(timezone.utc).isoformat(),
         "total_vagas": int(total_jobs),
         "remoto_pct": float(remote_pct) if remote_pct is not None else None,
+        "por_fonte": by_source,
         "por_senioridade": by_seniority,
         "por_cidade": by_city,
         "por_termo_busca": by_term,

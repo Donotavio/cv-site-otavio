@@ -5,8 +5,9 @@
  *
  * Segunda página de projeto do portfólio (irmã de pix-observatory.astro,
  * mesmo padrão estrutural). Radar de adoção de 16 ferramentas de dados no
- * mercado brasileiro — cruza vagas reais (Gupy), repositórios novos no
- * GitHub e downloads no PyPI num score único (Adopt/Trial/Assess/Hold).
+ * mercado brasileiro — cruza vagas reais (Gupy + carreiras diretas via
+ * Greenhouse), repositórios novos no GitHub e downloads no PyPI num score
+ * único (Adopt/Trial/Assess/Hold).
  *
  * Seções (mono-labels [ 01 ]…[ 06 ]):
  *  0. Hero — sem número
@@ -14,7 +15,8 @@
  *         raio = pypi_score, cor = quadrant) + legenda de tiers
  *  2. [02] Ranking Adopt → Hold — as 16 ferramentas, segmentadas por tier
  *  3. [03] Breakdown de sinais — os 3 sinais brutos por ferramenta
- *  4. [04] Análise de vagas — remoto, senioridade, cidade, skills (274 vagas)
+ *  4. [04] Análise de vagas — remoto, senioridade, cidade, skills (1075
+ *         vagas, 2 fontes: Gupy scraping + Greenhouse Jobs API)
  *  5. [05] Pipeline Bronze → Silver → Gold
  *  6. [06] Stack do pipeline (meta — o que constrói o radar)
  *  7. Metodologia & limitações — sem número, transparência total
@@ -71,9 +73,10 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
           </h1>
 
           <p class="hero-lead">
-            Cruzamos menções em vagas reais (Gupy), repositórios novos no GitHub e
-            downloads no PyPI para descobrir o que o mercado brasileiro de dados
-            está de fato adotando — e o que ainda é aposta. Score único, sem achismo.
+            Cruzamos menções em vagas reais (Gupy + carreiras diretas via
+            Greenhouse), repositórios novos no GitHub e downloads no PyPI
+            para descobrir o que o mercado brasileiro de dados está de fato
+            adotando — e o que ainda é aposta. Score único, sem achismo.
           </p>
 
           <div class="hero-actions">
@@ -237,15 +240,17 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
               id="jobs-total-vagas"
               data-count-to="0"
               aria-label="vagas coletadas"
-            >0</span> vagas coletadas via Gupy — remoto, senioridade, cidade e skills.
+            >0</span> vagas coletadas via Gupy + Greenhouse — remoto, senioridade, cidade e skills.
           </p>
         </div>
 
         <hr class="section-line" aria-hidden="true" />
 
         <p class="ranking-methodology mono-label">
-          amostra de 274 vagas coletadas via Gupy · não é um censo do mercado
-          brasileiro de dados, é um recorte de um único agregador de vagas
+          amostra de vagas coletadas via Gupy (scraping) + Greenhouse Jobs
+          API (11 empresas curadas manualmente) · não é um censo do mercado
+          brasileiro de dados, é um recorte de dois agregadores de vagas —
+          <span id="jobs-fonte-badge" aria-live="polite">carregando fontes…</span>
         </p>
 
         <div class="radar-jobs-grid">
@@ -313,16 +318,18 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
               <span class="arch-card__badge mono-label arch-card__badge--bronze">Bronze</span>
               <span class="arch-card__layer" aria-hidden="true">[ L1 ]</span>
             </header>
-            <h3 id="radar-bronze-title" class="arch-card__title">Gupy + GitHub + PyPI → Parquet</h3>
+            <h3 id="radar-bronze-title" class="arch-card__title">Gupy + Greenhouse + GitHub + PyPI → Parquet</h3>
             <p class="arch-card__desc">
-              Scraping de vagas na Gupy (API do portal de empregos), busca de
-              repositórios via GitHub Search API e estatísticas de download
-              via PyPI Stats — cada fonte preservada em Parquet, particionada
-              por data de coleta.
+              Scraping de vagas na Gupy (API do portal de empregos) e
+              coleta via Greenhouse Jobs API (11 empresas curadas
+              manualmente), busca de repositórios via GitHub Search API e
+              estatísticas de download via PyPI Stats — cada fonte
+              preservada em Parquet, particionada por data de coleta.
             </p>
             <div class="arch-card__tags">
               <span class="tag">Python</span>
               <span class="tag">Gupy API</span>
+              <span class="tag">Greenhouse Jobs API</span>
               <span class="tag">GitHub Search API</span>
               <span class="tag">PyPI Stats</span>
             </div>
@@ -385,6 +392,7 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
               <pre class="arch-automation__code">radar-jobs-pipeline.yml
   cron: seg 02h UTC
   ├── collect_gupy.py
+  ├── collect_jobs_greenhouse.py
   │     └── Bronze Parquet
   └── gold_jobs_analysis.py
         └── Gold JSON
@@ -427,6 +435,10 @@ radar-signals-pipeline.yml
           <div class="card radar-meta-item" role="listitem">
             <span class="mono-label radar-meta-item__name">Gupy API</span>
             <p class="radar-meta-item__role">employability-portal.gupy.io — scraping de vagas por termo de busca</p>
+          </div>
+          <div class="card radar-meta-item" role="listitem">
+            <span class="mono-label radar-meta-item__name">Greenhouse Jobs API</span>
+            <p class="radar-meta-item__role">boards-api.greenhouse.io — vagas de 11 empresas curadas manualmente (Stone, Nubank, Banco Inter, QuintoAndar, Gympass/Wellhub, Ebanx, VTEX, Wildlife Studios, Arco Educação, Vitta, Zenvia)</p>
           </div>
           <div class="card radar-meta-item" role="listitem">
             <span class="mono-label radar-meta-item__name">GitHub Search API</span>
@@ -492,12 +504,18 @@ radar-signals-pipeline.yml
           </li>
 
           <li class="radar-methodology-item">
-            <h3 class="radar-methodology-item__title"><code>job_score</code> vem de uma única fonte (Gupy)</h3>
+            <h3 class="radar-methodology-item__title"><code>job_score</code> ainda é uma amostra, não um censo</h3>
             <p class="radar-methodology-item__body">
-              274 vagas coletadas via scraping do portal Gupy — não é um
-              censo do mercado, é uma amostra de um único agregador. Empresas
-              que recrutam fora da Gupy (LinkedIn, sites próprios, outros
-              portais) não entram na amostra.
+              O <code>job_mentions</code> agora soma duas fontes — scraping do
+              portal Gupy e a Greenhouse Jobs API de 11 empresas curadas
+              manualmente (Stone, Nubank, Banco Inter, QuintoAndar,
+              Gympass/Wellhub, Ebanx, VTEX, Wildlife Studios, Arco Educação,
+              Vitta, Zenvia). É uma amostra maior, mas ainda uma amostra:
+              não cobre LinkedIn, Catho, InfoJobs, Vagas.com nem outras
+              empresas que também usam Greenhouse mas ficaram fora da lista
+              curada. A curadoria manual das 11 empresas é, ela mesma, uma
+              limitação — quem não está na lista não aparece no radar, mesmo
+              usando Greenhouse.
             </p>
           </li>
 
@@ -515,8 +533,9 @@ radar-signals-pipeline.yml
         </ul>
 
         <p class="ranking-footnote mono-label">
-          fontes: Gupy (scraping) · GitHub Search API · PyPI Stats API ·
-          coleta semanal (vagas) + mensal (GitHub/PyPI) via GitHub Actions
+          fontes: Gupy (scraping) · Greenhouse Jobs API (11 empresas
+          curadas) · GitHub Search API · PyPI Stats API · coleta semanal
+          (vagas) + mensal (GitHub/PyPI) via GitHub Actions
         </p>
       </div>
     </section>
@@ -1794,9 +1813,11 @@ radar-signals-pipeline.yml
 
 <script>
   /**
-   * radar_jobs_analysis.json — 274 vagas coletadas via Gupy (proxy semanal).
+   * radar_jobs_analysis.json — 1075 vagas coletadas via 2 fontes: Gupy
+   * (scraping) + Greenhouse Jobs API (11 empresas curadas manualmente).
    * Alimenta os 4 sub-blocos da seção [04]: remoto, senioridade, cidade,
-   * skills. Contador de vagas (count-up) dispara após o fetch resolver.
+   * skills — e o badge de por_fonte. Contador de vagas (count-up) dispara
+   * após o fetch resolver.
    */
   import { revealUp } from '../scripts/motion/reveal-up';
   import { countUp } from '../scripts/motion/count-up';
@@ -1805,10 +1826,12 @@ radar-signals-pipeline.yml
   interface SeniorityItem { seniority: string; n: number; pct: number; }
   interface CityItem { city: string; state: string; n: number; }
   interface SkillItem { skill: string; n_jobs: number; pct_of_jobs: number; }
+  interface FonteItem { fonte: string; n: number; pct: number; }
 
   interface JobsAnalysisPayload {
     total_vagas?: number;
     remoto_pct?: number;
+    por_fonte?: FonteItem[];
     por_senioridade?: SeniorityItem[];
     por_cidade?: CityItem[];
     skills_mais_mencionadas?: SkillItem[];
@@ -1826,6 +1849,22 @@ radar-signals-pipeline.yml
     const div = document.createElement('div');
     div.textContent = s;
     return div.innerHTML;
+  }
+
+  function capitalize(s: string): string {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function renderFontes(items: FonteItem[]): void {
+    const el = document.getElementById('jobs-fonte-badge');
+    if (!el) return;
+    if (!items.length) {
+      el.textContent = 'fontes indisponíveis';
+      return;
+    }
+    el.textContent = items
+      .map((item) => `${capitalize(item.fonte)} ${fmtPct(item.pct)}%`)
+      .join(' · ');
   }
 
   function renderRemoto(remotoPct: number): void {
@@ -1896,6 +1935,7 @@ radar-signals-pipeline.yml
       const data: JobsAnalysisPayload = await res.json();
 
       renderRemoto(data.remoto_pct ?? 0);
+      renderFontes(data.por_fonte ?? []);
       renderSenioridade(data.por_senioridade ?? []);
       renderCidades(data.por_cidade ?? []);
       renderSkills(data.skills_mais_mencionadas ?? []);
@@ -1916,6 +1956,8 @@ radar-signals-pipeline.yml
         const el = document.getElementById(id);
         if (el) el.innerHTML = '<li class="ranking-error mono-label">dados indisponíveis</li>';
       });
+      const fonteEl = document.getElementById('jobs-fonte-badge');
+      if (fonteEl) fonteEl.textContent = 'fontes indisponíveis';
     }
   }
 
