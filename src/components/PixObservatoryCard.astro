@@ -148,6 +148,13 @@ const base = import.meta.env.BASE_URL;
       </div>
     </div>
 
+    <!-- ── Slot: outros projetos ao vivo (ex: DataStackRadarCard) ──
+         Renderizado entre o card em destaque e o placeholder "em
+         construção" — mantém a seção #portfolio dona de um único
+         componente enquanto permite empilhar novos projetos reais
+         sem duplicar section-head/section-line. ────────────────── -->
+    <slot />
+
     <!-- ── Próximos projetos (placeholder extensível) ────────── -->
     <div class="portfolio-upcoming" aria-label="Próximos projetos">
       <div class="portfolio-upcoming__card crop">
@@ -519,12 +526,14 @@ const base = import.meta.env.BASE_URL;
   if (section) {
     const line    = section.querySelector('.section-line') as Element;
     const head    = section.querySelector('.section-head') as Element;
-    const card    = section.querySelector('.pix-oc__card') as Element;
+    const card     = section.querySelector('.pix-oc__card') as Element;
+    const radarCard = section.querySelector('.radar-card') as Element | null;
     const upcoming = section.querySelector('.portfolio-upcoming__card') as Element;
 
     if (line) hairlineDraw(line, section);
     if (motionOk && head) revealUp([head], section, 0);
     if (motionOk && card) revealUp([card], section, 0.08);
+    if (motionOk && radarCard) revealUp([radarCard], section, 0.14);
     if (motionOk && upcoming) revealUp([upcoming], section, 0.2);
 
     section.querySelectorAll<HTMLElement>('[data-count-to]').forEach((el) => {

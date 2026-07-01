@@ -115,4 +115,30 @@
   --medallion-gold-ink:    #947010;  /* 4.50:1 — texto/badges */
   --medallion-gold-dim:    rgba(212, 160, 23, 0.06);
   --medallion-gold-line:   rgba(212, 160, 23, 0.3);
+
+  /* ─── Radar (scoped, Data Stack Radar BR) ─────────────────── */
+  /* Cores decorativas (bordas, fundos, dots) — mesma regra do --pix-green:
+     NUNCA usar as bases (*-adopt/-trial/-assess/-hold) como cor de texto
+     pequeno. Usar as variantes *-ink (contraste ≥4.5:1 sobre --paper) para
+     texto/badges. O quadrant de cada ferramenta SEMPRE aparece também como
+     texto (nunca só como cor) — WCAG 1.4.1. */
+  --radar-adopt:      #14916B;
+  --radar-adopt-ink:  #0C6B4E;  /* 6.39:1 sobre --paper */
+  --radar-adopt-dim:  rgba(20, 145, 107, 0.08);
+  --radar-adopt-line: rgba(20, 145, 107, 0.3);
+
+  --radar-trial:      #0EA5C4;
+  --radar-trial-ink:  #0A6E85;  /* 5.76:1 sobre --paper */
+  --radar-trial-dim:  rgba(14, 165, 196, 0.08);
+  --radar-trial-line: rgba(14, 165, 196, 0.3);
+
+  --radar-assess:      #D99B0A;
+  --radar-assess-ink:  #8A6206;  /* 5.39:1 sobre --paper */
+  --radar-assess-dim:  rgba(217, 155, 10, 0.08);
+  --radar-assess-line: rgba(217, 155, 10, 0.3);
+
+  --radar-hold:      #E4572E;
+  --radar-hold-ink:  #B23A18;  /* 5.88:1 sobre --paper */
+  --radar-hold-dim:  rgba(228, 87, 46, 0.08);
+  --radar-hold-line: rgba(228, 87, 46, 0.3);
 }

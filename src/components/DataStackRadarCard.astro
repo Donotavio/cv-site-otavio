@@ -1,0 +1,258 @@
+---
+/**
+ * DataStackRadarCard.astro — Seção Portfólio (card irmão do PIX Observatory)
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Card "real" (border sólida, sem opacity reduzida — diferente do placeholder
+ * .portfolio-upcoming) para o segundo projeto ao vivo do portfólio: o Data
+ * Stack Radar BR. Renderizado via <slot /> dentro de PixObservatoryCard.astro,
+ * entre o card em destaque do PIX e o placeholder "em construção".
+ *
+ * A mini-legenda de tiers (Adopt/Trial/Assess/Hold + contagem) é hidratada em
+ * runtime via fetch de assets/data/radar_scores.json — mesmo padrão de dado
+ * real usado no resto do site (não é dado estático/mockado).
+ *
+ * Motion: revealUp (mesmo grupo de stagger da seção #portfolio).
+ */
+
+const base = import.meta.env.BASE_URL;
+---
+
+<div class="radar-card card crop" aria-labelledby="radar-card-title">
+  <span class="crop-mark-bl" aria-hidden="true"></span>
+  <span class="crop-mark-br" aria-hidden="true"></span>
+
+  <div class="radar-card__label-row">
+    <span class="mono-label">projeto ao vivo</span>
+    <span class="mono-label radar-card__badge">atualizado semanalmente</span>
+  </div>
+
+  <h3 id="radar-card-title" class="radar-card__title">Data Stack Radar BR</h3>
+
+  <p class="radar-card__desc">
+    Radar semanal de adoção de ferramentas de dados no mercado brasileiro —
+    vagas × GitHub × PyPI, cruzados num score único.
+  </p>
+
+  <div class="radar-card__tags">
+    <span class="tag tag--radar">Engenharia de Dados</span>
+    <span class="tag tag--radar">Mercado de Trabalho</span>
+    <span class="tag">Open Source</span>
+  </div>
+
+  <ul
+    class="radar-card__tiers"
+    id="radar-card-tiers"
+    role="list"
+    aria-label="Ferramentas por tier de adoção — Data Stack Radar BR"
+  >
+    <li class="radar-card__tier" data-tier="adopt">
+      <span class="radar-card__tier-dot" aria-hidden="true"></span>
+      <span class="radar-card__tier-label mono-label">Adopt</span>
+      <span class="radar-card__tier-count" data-tier-count="adopt">···</span>
+    </li>
+    <li class="radar-card__tier" data-tier="trial">
+      <span class="radar-card__tier-dot" aria-hidden="true"></span>
+      <span class="radar-card__tier-label mono-label">Trial</span>
+      <span class="radar-card__tier-count" data-tier-count="trial">···</span>
+    </li>
+    <li class="radar-card__tier" data-tier="assess">
+      <span class="radar-card__tier-dot" aria-hidden="true"></span>
+      <span class="radar-card__tier-label mono-label">Assess</span>
+      <span class="radar-card__tier-count" data-tier-count="assess">···</span>
+    </li>
+    <li class="radar-card__tier" data-tier="hold">
+      <span class="radar-card__tier-dot" aria-hidden="true"></span>
+      <span class="radar-card__tier-label mono-label">Hold</span>
+      <span class="radar-card__tier-count" data-tier-count="hold">···</span>
+    </li>
+  </ul>
+
+  <div class="radar-card__actions">
+    <a
+      href={`${base}data-stack-radar-br/`}
+      class="btn-primary radar-card__cta"
+      aria-label="Abrir Data Stack Radar BR — radar de adoção de ferramentas de dados"
+    >Ver Radar →</a>
+    <a
+      href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion_radar"
+      class="btn-secondary"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Ver código fonte do pipeline no GitHub"
+    >GitHub</a>
+  </div>
+</div>
+
+<style>
+  .radar-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-block-end: var(--space-6);
+  }
+
+  .radar-card:hover {
+    border-color: var(--radar-adopt-line);
+  }
+
+  .radar-card__label-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .radar-card__badge {
+    color: var(--ink-faint);
+  }
+
+  .radar-card__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .radar-card__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+    max-width: 68ch;
+  }
+
+  .radar-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tag--radar {
+    color: var(--radar-adopt-ink);
+    border-color: var(--radar-adopt-line);
+    background: var(--radar-adopt-dim);
+  }
+
+  /* ── Mini-legenda de tiers ────────────────────────────────── */
+  .radar-card__tiers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    margin: 0;
+    padding: var(--space-4) 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .radar-card__tier {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .radar-card__tier-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+  }
+
+  .radar-card__tier[data-tier='adopt']  .radar-card__tier-dot { background: var(--radar-adopt); }
+  .radar-card__tier[data-tier='trial']  .radar-card__tier-dot { background: var(--radar-trial); }
+  .radar-card__tier[data-tier='assess'] .radar-card__tier-dot { background: var(--radar-assess); }
+  .radar-card__tier[data-tier='hold']   .radar-card__tier-dot { background: var(--radar-hold); }
+
+  .radar-card__tier-label {
+    color: var(--ink-soft);
+  }
+
+  .radar-card__tier-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  /* ── CTAs ─────────────────────────────────────────────────── */
+  .radar-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .radar-card__cta {
+    background: var(--radar-adopt);
+    border-color: var(--radar-adopt);
+  }
+
+  .radar-card__cta:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  .radar-card__actions .btn-secondary:hover {
+    border-color: var(--radar-adopt-ink);
+    color: var(--radar-adopt-ink);
+  }
+</style>
+
+<script>
+  /**
+   * Mini-legenda de tiers — contagem real vinda de radar_scores.json
+   * (16 ferramentas, campo `quadrant`). Falha silenciosa: mantém "···"
+   * se o fetch não completar (sem quebrar o card).
+   */
+  interface RadarTool {
+    quadrant: 'Adopt' | 'Trial' | 'Assess' | 'Hold' | string;
+  }
+  interface RadarScoresPayload {
+    tools?: RadarTool[];
+  }
+
+  async function loadRadarCardTiers(): Promise<void> {
+    const card = document.getElementById('radar-card-tiers');
+    if (!card) return;
+
+    const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    try {
+      const res = await fetch(`${base}assets/data/radar_scores.json`, {
+        cache: 'no-cache',
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('fetch failed');
+      const data: RadarScoresPayload = await res.json();
+      const tools = data.tools ?? [];
+
+      const counts: Record<string, number> = { adopt: 0, trial: 0, assess: 0, hold: 0 };
+      tools.forEach((tool) => {
+        const key = String(tool.quadrant ?? '').toLowerCase();
+        if (key in counts) counts[key] += 1;
+      });
+
+      Object.entries(counts).forEach(([tier, n]) => {
+        const el = card.querySelector(`[data-tier-count="${tier}"]`);
+        if (el) el.textContent = String(n);
+      });
+    } catch {
+      clearTimeout(timeoutId);
+      // Mantém "···" — falha silenciosa, card continua funcional.
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadRadarCardTiers);
+</script>
