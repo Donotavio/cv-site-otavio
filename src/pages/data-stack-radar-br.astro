@@ -542,27 +542,52 @@ radar-signals-pipeline.yml
         </div>
 
         <!-- D) Transparência salarial -->
-        <div class="radar-salary-callout card crop" id="radar-salary-callout" aria-labelledby="radar-salary-title">
-          <span class="crop-mark-bl" aria-hidden="true"></span>
-          <span class="crop-mark-br" aria-hidden="true"></span>
-          <span class="mono-label" id="radar-salary-title">transparência salarial</span>
-          <span
-            class="radar-salary-callout__value"
-            id="radar-salary-value"
-            data-count-to="0"
-            data-count-suffix="%"
-            data-count-decimals="1"
-            role="meter"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="0"
-            aria-label="percentual de vagas que informam faixa salarial"
-          >0%</span>
-          <p class="radar-salary-callout__text">
-            A maioria das empresas ainda não divulga remuneração na vaga —
-            o que dificulta negociação e comparação de mercado para quem
-            está do outro lado da entrevista.
-          </p>
+        <div class="radar-salary-grid">
+
+          <div class="radar-salary-callout card crop" id="radar-salary-callout" aria-labelledby="radar-salary-title" aria-live="polite">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <span class="mono-label" id="radar-salary-title">transparência salarial</span>
+            <span
+              class="radar-salary-callout__value"
+              id="radar-salary-value"
+              data-count-to="0"
+              data-count-suffix="%"
+              data-count-decimals="1"
+              role="meter"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+              aria-label="percentual de vagas com valor real de remuneração informado"
+            >0%</span>
+            <p class="radar-salary-callout__text" id="radar-salary-text">
+              carregando…
+            </p>
+
+            <div class="radar-salary-sample">
+              <span class="mono-label radar-salary-sample__label">[ os únicos 2 valores reais que encontramos ]</span>
+              <ol
+                class="radar-salary-sample__list"
+                id="radar-salary-sample-list"
+                aria-label="Vagas com valor real de remuneração informado — pontos individuais, não uma média de mercado"
+              >
+                <li class="ranking-loading mono-label">carregando…</li>
+              </ol>
+            </div>
+          </div>
+
+          <aside
+            class="radar-benchmark-card"
+            id="radar-benchmark-card"
+            aria-labelledby="radar-benchmark-title"
+            aria-live="polite"
+          >
+            <span class="mono-label radar-benchmark-card__badge" id="radar-benchmark-title">[ fonte externa ]</span>
+            <div class="radar-benchmark-card__body" id="radar-benchmark-body">
+              <p class="ranking-loading mono-label">carregando…</p>
+            </div>
+          </aside>
+
         </div>
       </div>
     </section>
@@ -1181,13 +1206,25 @@ radar-signals-pipeline.yml
     margin: 0;
   }
 
+  .radar-salary-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 1024px) {
+    .radar-salary-grid {
+      grid-template-columns: 1.4fr 1fr;
+      align-items: start;
+    }
+  }
+
   .radar-salary-callout {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--space-3);
-    max-width: 60ch;
+    gap: var(--space-4);
   }
 
   /* Governança de cor: reusa --radar-hold-ink (já existente, sem novo
@@ -1208,6 +1245,41 @@ radar-signals-pipeline.yml
     color: var(--ink-soft);
     line-height: var(--leading-loose);
     margin: 0;
+    max-width: 60ch;
+  }
+
+  .radar-salary-sample {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: 100%;
+    padding-block-start: var(--space-4);
+    border-top: 1px solid var(--line);
+  }
+
+  .radar-salary-sample__label {
+    color: var(--ink-faint);
+  }
+
+  /* ── Benchmark externo — card visualmente distinto: borda esquerda
+     grossa + fundo levemente tintado, reusando o token de tier "trial"
+     (sinal contextual/em avaliação — sem introduzir cor nova) para
+     deixar claro que este número NÃO vem do pipeline de vagas, é uma
+     citação de pesquisa externa (Data Hackers + Bain & Company). */
+  .radar-benchmark-card {
+    position: relative;
+    background: var(--radar-trial-dim);
+    border: 1px solid var(--radar-trial-line);
+    border-left: 4px solid var(--radar-trial-ink);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .radar-benchmark-card__badge {
+    color: var(--radar-trial-ink);
   }
 
   /* ── Metodologia & limitações ─────────────────────────────── */
@@ -1854,6 +1926,119 @@ radar-signals-pipeline.yml
     color: var(--ink-faint);
   }
 
+  /* ── Amostra de salários reais — N=2, itens via JS ───────── */
+  .radar-salary-sample__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .radar-salary-sample__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .radar-salary-sample__item:last-child { border-bottom: none; }
+
+  .radar-salary-sample__item-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .radar-salary-sample__item-title {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: var(--text-sm);
+    color: var(--ink);
+  }
+
+  .radar-salary-sample__item-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--radar-adopt-ink);
+    white-space: nowrap;
+  }
+
+  .radar-salary-sample__item-meta {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    text-transform: capitalize;
+    margin: 0;
+  }
+
+  .radar-salary-sample__item-link {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+
+  /* ── Corpo do card de benchmark externo — via JS ─────────── */
+  .radar-benchmark-card__source {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  .radar-benchmark-card__sample {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    margin: var(--space-1) 0 0;
+  }
+
+  .radar-benchmark-card__stats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .radar-benchmark-card__stat {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  .radar-benchmark-card__stat strong {
+    font-family: var(--font-mono);
+    color: var(--radar-trial-ink);
+    font-weight: 500;
+  }
+
+  .radar-benchmark-card__note {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    line-height: var(--leading-normal);
+    margin: var(--space-3) 0 0;
+  }
+
+  .radar-benchmark-card__link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--radar-trial-ink);
+    margin-block-start: var(--space-1);
+  }
+
   /* ── Estados de erro/loading (compartilhado) ─────────────── */
   .ranking-loading,
   .ranking-error {
@@ -1942,7 +2127,7 @@ radar-signals-pipeline.yml
       const head = jobsHighlightsSection.querySelector('.section-head');
       const line = jobsHighlightsSection.querySelector('.section-line');
       const blocks = jobsHighlightsSection.querySelectorAll(
-        '.radar-jobs-table-block, .radar-highlights-block, .radar-salary-callout',
+        '.radar-jobs-table-block, .radar-highlights-block, .radar-salary-callout, .radar-benchmark-card',
       );
       if (line) hairlineDraw(line, jobsHighlightsSection);
       if (motionOk && head) revealUp([head], jobsHighlightsSection, 0);
@@ -2426,6 +2611,25 @@ radar-signals-pipeline.yml
   }
   interface EmpresaItem { company: string; n_vagas: number; n_remoto: number; source: string; }
   interface SkillCombo { skill_a: string; skill_b: string; n_vagas: number; pct_of_jobs: number; }
+  interface VagaSalarioReal {
+    title: string;
+    company: string;
+    seniority: string;
+    salary_min: number;
+    salary_max: number;
+    url: string;
+    source: string;
+  }
+  interface BenchmarkExterno {
+    fonte: string;
+    amostra: string;
+    salario_crescimento_2023_2024_pct: number;
+    inflacao_2024_pct: number;
+    pct_preferem_100_remoto: number;
+    pct_preferem_hibrido_flexivel: number;
+    url: string;
+    nota: string;
+  }
 
   interface InsightsPayload {
     gerado_em?: string;
@@ -2433,6 +2637,10 @@ radar-signals-pipeline.yml
     por_empresa?: EmpresaItem[];
     skill_combos?: SkillCombo[];
     salario_transparencia_pct?: number;
+    n_vagas_com_salario_real?: number;
+    n_vagas_total?: number;
+    vagas_com_salario_real?: VagaSalarioReal[];
+    benchmark_externo?: BenchmarkExterno;
     notas?: Record<string, string>;
   }
 
@@ -2454,6 +2662,19 @@ radar-signals-pipeline.yml
   }
   function fmtPct(n: number): string {
     return n.toFixed(1).replace('.', ',');
+  }
+  /** Preserva a precisão exata do JSON (sem arredondar) — só troca '.' por ','. */
+  function fmtDecimal(n: number): string {
+    return String(n).replace('.', ',');
+  }
+  const currencyFmt = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+  });
+  function formatSalary(min: number, max: number): string {
+    if (min === max) return currencyFmt.format(min);
+    return `${currencyFmt.format(min)} – ${currencyFmt.format(max)}`;
   }
   function escapeHtml(s: string): string {
     const div = document.createElement('div');
@@ -2632,12 +2853,102 @@ radar-signals-pipeline.yml
     }
   }
 
-  function renderSalary(pct: number): void {
+  /** A) Número principal + framing honesto (N real é baixíssimo — 2 de 301). */
+  function renderSalary(pct: number, nReal: number, nTotal: number): void {
     const el = document.getElementById('radar-salary-value');
-    if (!el) return;
-    el.dataset.countTo = String(pct);
-    el.setAttribute('aria-valuenow', String(pct));
-    countUp(el, document.getElementById('radar-salary-callout') ?? el);
+    if (el) {
+      el.dataset.countTo = String(pct);
+      el.setAttribute('aria-valuenow', String(pct));
+      countUp(el, document.getElementById('radar-salary-callout') ?? el);
+    }
+
+    const textEl = document.getElementById('radar-salary-text');
+    if (textEl) {
+      textEl.textContent = `Praticamente nenhuma vaga coletada informa quanto paga. De `
+        + `${nTotal} vagas, só ${nReal} trazem um valor real de remuneração — o resto, `
+        + `quando menciona "R$", é benefício (vale-refeição, auxílio home office), não salário.`;
+    }
+  }
+
+  /** B) As 2 vagas com salário real — amostra individual, não estatística. */
+  function renderSalarySample(vagas: VagaSalarioReal[]): void {
+    const list = document.getElementById('radar-salary-sample-list');
+    if (!list) return;
+
+    if (!vagas.length) {
+      list.innerHTML = '<li class="ranking-error mono-label">nenhuma vaga com valor real informado</li>';
+      return;
+    }
+
+    list.innerHTML = vagas.map((v) => {
+      const title = (v.title ?? '').trim() || 'sem título';
+      const company = (v.company ?? '').trim() || 'confidencial';
+      const seniority = (v.seniority ?? '').trim() || 'não especificado';
+      const value = formatSalary(v.salary_min, v.salary_max);
+
+      return `
+        <li class="radar-salary-sample__item">
+          <div class="radar-salary-sample__item-head">
+            <span class="radar-salary-sample__item-title">${escapeHtml(title)}</span>
+            <span class="radar-salary-sample__item-value">${escapeHtml(value)}</span>
+          </div>
+          <p class="radar-salary-sample__item-meta">${escapeHtml(company)} · ${escapeHtml(seniority)}</p>
+          <a
+            class="link-underline radar-salary-sample__item-link"
+            href="${escapeHtml(v.url ?? '#')}"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ver vaga original: ${escapeHtml(title)} — ${escapeHtml(company)} (abre em nova aba)"
+          >Ver vaga original ↗</a>
+        </li>`;
+    }).join('');
+
+    if (motionOk) {
+      const rows = list.querySelectorAll('.radar-salary-sample__item');
+      if (rows.length) revealUp(rows, list, STAGGER.tight);
+    }
+  }
+
+  /** C) Benchmark externo — citação de pesquisa de mercado, não dado do pipeline. */
+  function renderBenchmark(benchmark: BenchmarkExterno | undefined): void {
+    const body = document.getElementById('radar-benchmark-body');
+    if (!body) return;
+
+    if (!benchmark) {
+      body.innerHTML = '<p class="ranking-error mono-label">dados indisponíveis</p>';
+      return;
+    }
+
+    const growth = fmtDecimal(benchmark.salario_crescimento_2023_2024_pct);
+    const inflation = fmtDecimal(benchmark.inflacao_2024_pct);
+    const remote = fmtDecimal(benchmark.pct_preferem_100_remoto);
+    const hybrid = fmtDecimal(benchmark.pct_preferem_hibrido_flexivel);
+
+    body.innerHTML = `
+      <p class="radar-benchmark-card__source">
+        ${escapeHtml(benchmark.fonte ?? '')}
+        <span class="radar-benchmark-card__sample">${escapeHtml(benchmark.amostra ?? '')}</span>
+      </p>
+      <ul class="radar-benchmark-card__stats">
+        <li class="radar-benchmark-card__stat">
+          <strong>+${growth}%</strong> de crescimento salarial entre 2023 e 2024 —
+          acima da inflação do período (<strong>${inflation}%</strong>)
+        </li>
+        <li class="radar-benchmark-card__stat">
+          <strong>${remote}%</strong> preferem trabalho 100% remoto
+        </li>
+        <li class="radar-benchmark-card__stat">
+          <strong>${hybrid}%</strong> preferem híbrido flexível
+        </li>
+      </ul>
+      <p class="radar-benchmark-card__note">${escapeHtml(benchmark.nota ?? '')}</p>
+      <a
+        class="radar-benchmark-card__link"
+        href="${escapeHtml(benchmark.url ?? '#')}"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Ver pesquisa completa: ${escapeHtml(benchmark.fonte ?? 'fonte externa')} (abre em nova aba)"
+      >Ver pesquisa completa ↗</a>`;
   }
 
   async function loadInsights(): Promise<void> {
@@ -2657,7 +2968,13 @@ radar-signals-pipeline.yml
       renderJobsTable(data.vagas_recentes ?? []);
       renderCompanies(data.por_empresa ?? []);
       renderCombos(data.skill_combos ?? []);
-      renderSalary(data.salario_transparencia_pct ?? 0);
+      renderSalary(
+        data.salario_transparencia_pct ?? 0,
+        data.n_vagas_com_salario_real ?? 0,
+        data.n_vagas_total ?? 0,
+      );
+      renderSalarySample(data.vagas_com_salario_real ?? []);
+      renderBenchmark(data.benchmark_externo);
     } catch {
       clearTimeout(timeoutId);
       const tbody = document.getElementById('radar-jobs-table-body');
@@ -2674,6 +2991,16 @@ radar-signals-pipeline.yml
       }
       const salaryEl = document.getElementById('radar-salary-value');
       if (salaryEl) salaryEl.textContent = '—';
+      const salaryText = document.getElementById('radar-salary-text');
+      if (salaryText) salaryText.textContent = 'dados indisponíveis — tente recarregar';
+      const sampleList = document.getElementById('radar-salary-sample-list');
+      if (sampleList) {
+        sampleList.innerHTML = '<li class="ranking-error mono-label">dados indisponíveis</li>';
+      }
+      const benchmarkBody = document.getElementById('radar-benchmark-body');
+      if (benchmarkBody) {
+        benchmarkBody.innerHTML = '<p class="ranking-error mono-label">dados indisponíveis</p>';
+      }
     }
   }
 

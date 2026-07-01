@@ -176,7 +176,7 @@ def main() -> int:
     payload_scores = {
         "gerado_em": datetime.now(timezone.utc).isoformat(),
         "metodologia": {
-            "job_score": "PERCENT_RANK() sobre menções de skill na semana mais recente de vagas coletadas (Gupy)",
+            "job_score": "PERCENT_RANK() sobre menções de skill na semana mais recente de vagas coletadas (Gupy + Greenhouse Jobs API)",
             "github_score": "PERCENT_RANK() sobre repositórios novos (topic search) desde 1º de janeiro do ano vigente",
             "pypi_score": "PERCENT_RANK() sobre downloads/mês (PyPI Stats)",
             "total_score": "job_score*0.5 + github_score*0.25 + pypi_score*0.25",

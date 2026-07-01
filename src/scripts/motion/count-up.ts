@@ -20,8 +20,13 @@ export function countUp(el: HTMLElement, trigger?: Element) {
   const suffix = el.dataset.countSuffix ?? '';
   const decimals = parseInt(el.dataset.countDecimals ?? '0', 10);
 
-  const format = (v: number) =>
-    `${prefix}${v.toFixed(decimals)}${suffix}`;
+  // pt-BR usa vírgula como separador decimal (única localidade do site —
+  // ver AGENTS.md/i18n). toFixed() sempre usa ponto; troca só quando há
+  // casas decimais para não afetar contadores inteiros já existentes.
+  const format = (v: number) => {
+    const num = v.toFixed(decimals);
+    return `${prefix}${decimals > 0 ? num.replace('.', ',') : num}${suffix}`;
+  };
 
   // Sem motion: mostra valor final direto
   if (!motionOk) {

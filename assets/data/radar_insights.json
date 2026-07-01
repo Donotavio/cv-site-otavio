@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-07-01T15:41:26.628381+00:00",
+  "gerado_em": "2026-07-01T16:08:34.355008+00:00",
   "vagas_recentes": [
     {
       "title": "Engenheiro(a) de Dados | Av. Paulista",
@@ -419,15 +419,15 @@
       "source": "greenhouse"
     },
     {
-      "company": "Stefanini Group",
-      "n_vagas": 10,
-      "n_remoto": 5,
-      "source": "gupy"
-    },
-    {
       "company": "Minsait an Indra Company",
       "n_vagas": 10,
       "n_remoto": 7,
+      "source": "gupy"
+    },
+    {
+      "company": "Stefanini Group",
+      "n_vagas": 10,
+      "n_remoto": 5,
       "source": "gupy"
     },
     {
@@ -443,15 +443,15 @@
       "source": "gupy"
     },
     {
-      "company": "Extractta",
-      "n_vagas": 7,
-      "n_remoto": 5,
-      "source": "gupy"
-    },
-    {
       "company": "Grupo SysMap",
       "n_vagas": 7,
       "n_remoto": 6,
+      "source": "gupy"
+    },
+    {
+      "company": "Extractta",
+      "n_vagas": 7,
+      "n_remoto": 5,
       "source": "gupy"
     },
     {
@@ -461,15 +461,15 @@
       "source": "gupy"
     },
     {
-      "company": "Compass UOL",
+      "company": "Globo",
       "n_vagas": 5,
-      "n_remoto": 5,
+      "n_remoto": 0,
       "source": "gupy"
     },
     {
-      "company": "Sicredi",
+      "company": "Compass UOL",
       "n_vagas": 5,
-      "n_remoto": 0,
+      "n_remoto": 5,
       "source": "gupy"
     },
     {
@@ -479,22 +479,22 @@
       "source": "gupy"
     },
     {
-      "company": "Globo",
+      "company": "Sicredi",
       "n_vagas": 5,
       "n_remoto": 0,
       "source": "gupy"
+    },
+    {
+      "company": "Nubank",
+      "n_vagas": 4,
+      "n_remoto": 0,
+      "source": "greenhouse"
     },
     {
       "company": "VENHA SER #SANGUELARANJA 🧡🚀",
       "n_vagas": 4,
       "n_remoto": 2,
       "source": "gupy"
-    },
-    {
-      "company": "QuintoAndar",
-      "n_vagas": 4,
-      "n_remoto": 0,
-      "source": "greenhouse"
     }
   ],
   "skill_combos": [
@@ -589,11 +589,43 @@
       "pct_of_jobs": 16.6
     }
   ],
-  "salario_transparencia_pct": 8.6,
+  "salario_transparencia_pct": 0.7,
+  "n_vagas_com_salario_real": 2,
+  "n_vagas_total": 301,
+  "vagas_com_salario_real": [
+    {
+      "title": "Engenheiro(a) de Dados | Av. Paulista",
+      "company": "confidencioso",
+      "seniority": "não especificado",
+      "salary_min": 20000.0,
+      "salary_max": 20000.0,
+      "url": "https://confidencioso.gupy.io/job/eyJqb2JJZCI6MTE1Njc2MzQsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+      "source": "gupy"
+    },
+    {
+      "title": " Analista de Dados Jr - SP, RJ, BH e Goiânia - Híbrido  ",
+      "company": "Atento TI",
+      "seniority": "júnior",
+      "salary_min": 4037.0,
+      "salary_max": 4037.0,
+      "url": "https://atentoti.gupy.io/job/eyJqb2JJZCI6MTE1NDY0ODIsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+      "source": "gupy"
+    }
+  ],
+  "benchmark_externo": {
+    "fonte": "State of Data Brazil 2024-2025 (Data Hackers + Bain & Company)",
+    "amostra": "5.217 respondentes, pesquisa realizada entre 14/10/2024 e 18/12/2024",
+    "salario_crescimento_2023_2024_pct": 11.8,
+    "inflacao_2024_pct": 4.83,
+    "pct_preferem_100_remoto": 46.0,
+    "pct_preferem_hibrido_flexivel": 43.3,
+    "url": "https://www.bain.com/pt-br/insights/state-of-data-2024/",
+    "nota": "Fonte externa, independente deste pipeline — não coletamos esses dados via API, é uma citação de contexto para quem quer uma referência de mercado com amostra estatisticamente relevante (nosso dado direto de vagas tem N=2, insuficiente para qualquer média ou série temporal confiável)."
+  },
   "notas": {
     "vagas_recentes": "ordenado por data de publicação — inclui link direto para a vaga original (Gupy ou Greenhouse).",
     "por_empresa": "só empresas com nome de careerPage/company disponível nos dados coletados.",
     "skill_combos": "pares de skill que aparecem juntos na mesma vaga — não é o score do radar, é 'o que estudar junto'.",
-    "salario_transparencia_pct": "% de vagas que mencionam alguma faixa/valor de remuneração no texto — não agregamos valores (formato muito heterogêneo entre vagas para uma média ser confiável)."
+    "salario_transparencia_pct": "% de vagas com um valor de remuneração REAL e inequívoco na descrição (não conta menção de benefício — vale-refeição, auxílio home office, plano de saúde etc., que não é salário). Com N tão baixo, não calculamos média por cargo nem evolução no tempo — os valores abaixo são mostrados individualmente, como amostra, não como estatística de mercado."
   }
 }
