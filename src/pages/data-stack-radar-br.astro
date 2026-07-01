@@ -15,7 +15,7 @@
  *         raio = pypi_score, cor = quadrant) + legenda de tiers
  *  2. [02] Ranking Adopt → Hold — as 16 ferramentas, segmentadas por tier
  *  3. [03] Breakdown de sinais — os 3 sinais brutos por ferramenta
- *  4. [04] Análise de vagas — remoto, senioridade, cidade, skills (1075
+ *  4. [04] Análise de vagas — remoto, senioridade, cidade, skills (301
  *         vagas, 2 fontes: Gupy scraping + Greenhouse Jobs API)
  *  5. [05] Pipeline Bronze → Silver → Gold
  *  6. [06] Stack do pipeline (meta — o que constrói o radar)
@@ -1813,8 +1813,11 @@ radar-signals-pipeline.yml
 
 <script>
   /**
-   * radar_jobs_analysis.json — 1075 vagas coletadas via 2 fontes: Gupy
-   * (scraping) + Greenhouse Jobs API (11 empresas curadas manualmente).
+   * radar_jobs_analysis.json — 301 vagas coletadas via 2 fontes: Gupy
+   * (scraping) + Greenhouse Jobs API (11 empresas curadas manualmente,
+   * filtradas por título de vaga de dados — a Greenhouse não tem busca
+   * por termo, então baixamos todas as vagas da empresa e filtramos
+   * client-side, ver ingestion_radar/collect_jobs_greenhouse.py).
    * Alimenta os 4 sub-blocos da seção [04]: remoto, senioridade, cidade,
    * skills — e o badge de por_fonte. Contador de vagas (count-up) dispara
    * após o fetch resolver.

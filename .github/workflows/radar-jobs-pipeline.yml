@@ -51,6 +51,9 @@ jobs:
       - name: Gold — recalcular scores do radar (job_score muda toda semana)
         run: python transform_radar/gold_radar.py
 
+      - name: Gold — insights extras (vagas recentes, empresas, combos, salário)
+        run: python transform_radar/gold_insights.py
+
       - name: Commit dados atualizados
         run: |
           git config user.name "radar-pipeline[bot]"
@@ -58,7 +61,7 @@ jobs:
 
           git add data/bronze/radar_jobs/ data/bronze/radar_jobs_greenhouse/ data/silver/ data/gold/ \
                   assets/data/radar_scores.json assets/data/radar_trending.json \
-                  assets/data/radar_jobs_analysis.json || true
+                  assets/data/radar_jobs_analysis.json assets/data/radar_insights.json || true
 
           if git diff --staged --quiet; then
             echo "ℹ Sem mudanças nos dados — nada a commitar."

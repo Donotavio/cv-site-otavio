@@ -49,12 +49,25 @@ SENIORITY_PATTERNS = [
     ("liderança", re.compile(r"lead|coordenador|gerente|head|manager", re.IGNORECASE)),
 ]
 
+# Detecta se a descrição divulga alguma faixa/valor de remuneração —
+# usado só para uma métrica de transparência salarial (% de vagas que
+# informam valor), nunca para extrair/agregar um valor de salário (a
+# variação de formato entre vagas tornaria qualquer média não confiável).
+SALARY_PATTERN = re.compile(
+    r"r\$\s?\d|faixa\s+salarial|remunera[çc][ãa]o\s+de\s+r\$|sal[áa]rio\s+de\s+r\$",
+    re.IGNORECASE,
+)
+
 
 def _infer_seniority(title: str) -> str:
     for label, pattern in SENIORITY_PATTERNS:
         if pattern.search(title or ""):
             return label
     return "não especificado"
+
+
+def _has_salary_info(description: str) -> bool:
+    return bool(SALARY_PATTERN.search(description or ""))
 
 
 def _week_label_from_filename(path: Path) -> str:
@@ -82,7 +95,10 @@ def _load_gupy() -> pd.DataFrame:
     out = raw[[
         "id", "name", "city", "state", "country", "is_remote",
         "publishedDate", "_matched_term", "_iso_week", "description",
-    ]].rename(columns={"name": "title"})
+        "careerPageName", "jobUrl",
+    ]].rename(columns={
+        "name": "title", "careerPageName": "company", "jobUrl": "url",
+    })
     out["id"] = "gupy_" + out["id"].astype(str)
     out["source"] = "gupy"
     return out
@@ -115,6 +131,8 @@ def _load_greenhouse() -> pd.DataFrame:
         "_matched_term": "greenhouse:" + raw["company"].astype(str),
         "_iso_week": raw["_iso_week"],
         "description": raw["description"],
+        "company": raw["company"],
+        "url": raw["absolute_url"],
         "source": "greenhouse",
     })
     return out
@@ -135,10 +153,12 @@ def build_jobs_clean() -> pd.DataFrame:
         lambda r: extract_skills_row(r.get("title", ""), r.get("description", "")), axis=1
     )
     raw["seniority"] = raw["title"].apply(_infer_seniority)
+    raw["has_salary_info"] = raw["description"].apply(_has_salary_info)
 
     clean = raw[[
-        "id", "title", "city", "state", "country", "is_remote",
+        "id", "title", "company", "url", "city", "state", "country", "is_remote",
         "seniority", "publishedDate", "_matched_term", "_iso_week", "skills", "source",
+        "has_salary_info",
     ]]
 
     return clean

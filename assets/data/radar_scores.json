@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-07-01T15:22:09.581235+00:00",
+  "gerado_em": "2026-07-01T15:39:27.468839+00:00",
   "metodologia": {
     "job_score": "PERCENT_RANK() sobre menções de skill na semana mais recente de vagas coletadas (Gupy)",
     "github_score": "PERCENT_RANK() sobre repositórios novos (topic search) desde 1º de janeiro do ano vigente",
@@ -19,9 +19,21 @@
   },
   "tools": [
     {
+      "tool": "dbt",
+      "category": "transformação",
+      "job_mentions": 28.0,
+      "new_repos_ytd": 1485,
+      "downloads_last_month": 99431091,
+      "job_score": 80.0,
+      "github_score": 86.7,
+      "pypi_score": 100.0,
+      "total_score": 86.7,
+      "quadrant": "Adopt"
+    },
+    {
       "tool": "apache-spark",
       "category": "processamento",
-      "job_mentions": 103.0,
+      "job_mentions": 95.0,
       "new_repos_ytd": 614,
       "downloads_last_month": 47210313,
       "job_score": 100.0,
@@ -31,21 +43,9 @@
       "quadrant": "Adopt"
     },
     {
-      "tool": "dbt",
-      "category": "transformação",
-      "job_mentions": 29.0,
-      "new_repos_ytd": 1485,
-      "downloads_last_month": 99431091,
-      "job_score": 73.3,
-      "github_score": 86.7,
-      "pypi_score": 100.0,
-      "total_score": 83.3,
-      "quadrant": "Adopt"
-    },
-    {
       "tool": "apache-airflow",
       "category": "orquestração",
-      "job_mentions": 64.0,
+      "job_mentions": 59.0,
       "new_repos_ytd": 1134,
       "downloads_last_month": 20403431,
       "job_score": 86.7,
@@ -57,7 +57,7 @@
     {
       "tool": "mlflow",
       "category": "mlops",
-      "job_mentions": 12.0,
+      "job_mentions": 11.0,
       "new_repos_ytd": 1203,
       "downloads_last_month": 37336281,
       "job_score": 60.0,
@@ -67,27 +67,27 @@
       "quadrant": "Trial"
     },
     {
-      "tool": "apache-kafka",
-      "category": "streaming",
-      "job_mentions": 51.0,
-      "new_repos_ytd": 2638,
-      "downloads_last_month": 0,
-      "job_score": 80.0,
-      "github_score": 100.0,
-      "pypi_score": 0.0,
-      "total_score": 65.0,
-      "quadrant": "Trial"
-    },
-    {
       "tool": "databricks",
       "category": "plataforma",
-      "job_mentions": 88.0,
+      "job_mentions": 80.0,
       "new_repos_ytd": 1051,
       "downloads_last_month": 0,
       "job_score": 93.3,
       "github_score": 66.7,
       "pypi_score": 0.0,
       "total_score": 63.3,
+      "quadrant": "Trial"
+    },
+    {
+      "tool": "apache-kafka",
+      "category": "streaming",
+      "job_mentions": 25.0,
+      "new_repos_ytd": 2638,
+      "downloads_last_month": 0,
+      "job_score": 73.3,
+      "github_score": 100.0,
+      "pypi_score": 0.0,
+      "total_score": 61.7,
       "quadrant": "Trial"
     },
     {
@@ -108,16 +108,16 @@
       "job_mentions": 12.0,
       "new_repos_ytd": 599,
       "downloads_last_month": 0,
-      "job_score": 60.0,
+      "job_score": 66.7,
       "github_score": 53.3,
       "pypi_score": 0.0,
-      "total_score": 43.3,
+      "total_score": 46.7,
       "quadrant": "Assess"
     },
     {
       "tool": "dagster",
       "category": "orquestração",
-      "job_mentions": 3.0,
+      "job_mentions": 2.0,
       "new_repos_ytd": 99,
       "downloads_last_month": 7750816,
       "job_score": 40.0,
@@ -136,6 +136,18 @@
       "github_score": 40.0,
       "pypi_score": 0.0,
       "total_score": 36.7,
+      "quadrant": "Assess"
+    },
+    {
+      "tool": "airbyte",
+      "category": "ingestão",
+      "job_mentions": 3.0,
+      "new_repos_ytd": 25,
+      "downloads_last_month": 5067692,
+      "job_score": 46.7,
+      "github_score": 13.3,
+      "pypi_score": 33.3,
+      "total_score": 35.0,
       "quadrant": "Assess"
     },
     {
@@ -160,18 +172,6 @@
       "github_score": 26.7,
       "pypi_score": 53.3,
       "total_score": 33.3,
-      "quadrant": "Assess"
-    },
-    {
-      "tool": "airbyte",
-      "category": "ingestão",
-      "job_mentions": 3.0,
-      "new_repos_ytd": 25,
-      "downloads_last_month": 5067692,
-      "job_score": 40.0,
-      "github_score": 13.3,
-      "pypi_score": 33.3,
-      "total_score": 31.7,
       "quadrant": "Assess"
     },
     {
