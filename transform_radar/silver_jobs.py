@@ -182,6 +182,12 @@ def build_jobs_clean() -> pd.DataFrame:
 
     raw = pd.concat([gupy, greenhouse], ignore_index=True)
 
+    # Vários títulos/nomes de empresa vêm com espaços sobrando na fonte
+    # original (Gupy e Greenhouse) — cosmético, mas afeta a exibição
+    # (ex.: "Analista de Dados " em vez de "Analista de Dados").
+    raw["title"] = raw["title"].str.strip()
+    raw["company"] = raw["company"].str.strip()
+
     raw["skills"] = raw.apply(
         lambda r: extract_skills_row(r.get("title", ""), r.get("description", "")), axis=1
     )

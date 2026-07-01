@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: write   # Necessário para o createWorkflowDispatch (disparar build-and-deploy.yml)
 
 jobs:
   collect-signals:

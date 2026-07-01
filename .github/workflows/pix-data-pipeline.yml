@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: write   # Para commitar os Parquets atualizados
+  actions: write    # Necessário para o createWorkflowDispatch (disparar build-and-deploy.yml)
 
 jobs:
   ingest-and-transform:

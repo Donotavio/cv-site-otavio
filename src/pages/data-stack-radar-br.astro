@@ -91,6 +91,7 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
               class="btn-secondary"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Ver código-fonte do pipeline no GitHub (abre em nova aba)"
             >GitHub</a>
           </div>
         </div>
@@ -113,7 +114,7 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
 
         <hr class="section-line" aria-hidden="true" />
 
-        <div class="radar-chart-block card crop" id="radar-chart-block" aria-labelledby="radar-chart-title">
+        <div class="radar-chart-block card crop" id="radar-chart-block" role="group" aria-labelledby="radar-chart-title">
           <span class="crop-mark-bl" aria-hidden="true"></span>
           <span class="crop-mark-br" aria-hidden="true"></span>
 
@@ -239,11 +240,17 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
           <span class="mono-label">04</span>
           <h2 id="jobs-analysis-title" class="radar-display">Análise de vagas</h2>
           <p class="radar-lead">
+            <!-- Sem aria-label estático aqui de propósito: o valor é
+                 preenchido em runtime via fetch (loadJobsAnalysis) e o
+                 count-up só atualiza o textContent — um aria-label fixo
+                 tipo "vagas coletadas" (sem o número) sobrescreveria o
+                 nome acessível do elemento e o leitor de tela nunca
+                 anunciaria o número real. Mesmo padrão sem aria-label
+                 usado em GitHubStats.astro para contadores hidratados. -->
             <span
               class="radar-jobs-total"
               id="jobs-total-vagas"
               data-count-to="0"
-              aria-label="vagas coletadas"
             >0</span> vagas coletadas via Gupy + Greenhouse — remoto, senioridade, cidade e skills.
           </p>
         </div>
@@ -259,7 +266,7 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
 
         <div class="radar-jobs-grid">
 
-          <div class="card radar-jobs-block jobs-block" aria-labelledby="jobs-remoto-title">
+          <div class="card radar-jobs-block jobs-block" role="group" aria-labelledby="jobs-remoto-title">
             <header class="radar-jobs-block__head">
               <span class="mono-label" id="jobs-remoto-title">remoto vs. presencial</span>
             </header>
@@ -268,7 +275,7 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
             </ul>
           </div>
 
-          <div class="card radar-jobs-block jobs-block" aria-labelledby="jobs-senioridade-title">
+          <div class="card radar-jobs-block jobs-block" role="group" aria-labelledby="jobs-senioridade-title">
             <header class="radar-jobs-block__head">
               <span class="mono-label" id="jobs-senioridade-title">por senioridade</span>
             </header>
@@ -277,7 +284,7 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
             </ul>
           </div>
 
-          <div class="card radar-jobs-block jobs-block" aria-labelledby="jobs-cidades-title">
+          <div class="card radar-jobs-block jobs-block" role="group" aria-labelledby="jobs-cidades-title">
             <header class="radar-jobs-block__head">
               <span class="mono-label" id="jobs-cidades-title">por cidade</span>
             </header>
@@ -286,7 +293,7 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
             </ol>
           </div>
 
-          <div class="card radar-jobs-block jobs-block" aria-labelledby="jobs-skills-title">
+          <div class="card radar-jobs-block jobs-block" role="group" aria-labelledby="jobs-skills-title">
             <header class="radar-jobs-block__head">
               <span class="mono-label" id="jobs-skills-title">skills mais mencionadas</span>
             </header>
@@ -377,7 +384,7 @@ const gridY = GRID_FRACTIONS.map((f) => PLOT.y1 - (f / 100) * (PLOT.y1 - PLOT.y0
 
         </div>
 
-        <div class="arch-automation card crop" aria-labelledby="radar-automation-title">
+        <div class="arch-automation card crop" role="group" aria-labelledby="radar-automation-title">
           <span class="crop-mark-bl" aria-hidden="true"></span>
           <span class="crop-mark-br" aria-hidden="true"></span>
           <div class="arch-automation__inner">
@@ -482,7 +489,7 @@ radar-signals-pipeline.yml
         <hr class="section-line" aria-hidden="true" />
 
         <!-- A) Tabela: vagas mais recentes -->
-        <div class="radar-jobs-table-block card crop" id="radar-jobs-table-block" aria-labelledby="radar-jobs-table-title">
+        <div class="radar-jobs-table-block card crop" id="radar-jobs-table-block" role="group" aria-labelledby="radar-jobs-table-title">
           <span class="crop-mark-bl" aria-hidden="true"></span>
           <span class="crop-mark-br" aria-hidden="true"></span>
 
@@ -517,16 +524,23 @@ radar-signals-pipeline.yml
         <!-- B) Quem mais contrata + C) Combinações de skills -->
         <div class="radar-highlights-grid">
 
-          <div class="card radar-highlights-block" aria-labelledby="radar-companies-title">
+          <div class="card radar-highlights-block" role="group" aria-labelledby="radar-companies-title">
             <header class="radar-highlights-block__head">
               <span class="mono-label" id="radar-companies-title">quem mais contrata</span>
             </header>
+            <p class="radar-combos-note">
+              Várias das empresas no topo (Leega, Minsait, Stefanini, v(dev),
+              Extractta, SysMap, Compass UOL) são consultorias/bodyshops de TI
+              que recrutam para clientes muitas vezes não identificados na
+              vaga — comum no mercado brasileiro. Não significa que têm
+              times de dados próprios do tamanho que o ranking sugere.
+            </p>
             <ol class="radar-company-list" id="radar-company-list" aria-label="Ranking de empresas por número de vagas" aria-live="polite">
               <li class="ranking-loading mono-label">carregando ranking…</li>
             </ol>
           </div>
 
-          <div class="card radar-highlights-block" aria-labelledby="radar-combos-title">
+          <div class="card radar-highlights-block" role="group" aria-labelledby="radar-combos-title">
             <header class="radar-highlights-block__head">
               <span class="mono-label" id="radar-combos-title">combinações mais pedidas</span>
             </header>
@@ -544,7 +558,7 @@ radar-signals-pipeline.yml
         <!-- D) Transparência salarial -->
         <div class="radar-salary-grid">
 
-          <div class="radar-salary-callout card crop" id="radar-salary-callout" aria-labelledby="radar-salary-title" aria-live="polite">
+          <div class="radar-salary-callout card crop" id="radar-salary-callout" role="group" aria-labelledby="radar-salary-title" aria-live="polite">
             <span class="crop-mark-bl" aria-hidden="true"></span>
             <span class="crop-mark-br" aria-hidden="true"></span>
             <span class="mono-label" id="radar-salary-title">transparência salarial</span>
@@ -565,7 +579,7 @@ radar-signals-pipeline.yml
             </p>
 
             <div class="radar-salary-sample">
-              <span class="mono-label radar-salary-sample__label">[ os únicos 2 valores reais que encontramos ]</span>
+              <span class="mono-label radar-salary-sample__label">os únicos 2 valores reais que encontramos</span>
               <ol
                 class="radar-salary-sample__list"
                 id="radar-salary-sample-list"
@@ -576,17 +590,24 @@ radar-signals-pipeline.yml
             </div>
           </div>
 
-          <aside
+          <!-- div + role="group" (não <aside>): um <aside> aqui seria um
+               landmark "complementary" aninhado dentro da <section> desta
+               página (que já é landmark "region" via aria-labelledby) —
+               axe-core reprova isso (landmark-complementary-is-top-level).
+               role="group" mantém o agrupamento semântico + aria-labelledby
+               sem introduzir um landmark aninhado. -->
+          <div
             class="radar-benchmark-card"
             id="radar-benchmark-card"
+            role="group"
             aria-labelledby="radar-benchmark-title"
             aria-live="polite"
           >
-            <span class="mono-label radar-benchmark-card__badge" id="radar-benchmark-title">[ fonte externa ]</span>
+            <span class="mono-label radar-benchmark-card__badge" id="radar-benchmark-title">fonte externa</span>
             <div class="radar-benchmark-card__body" id="radar-benchmark-body">
               <p class="ranking-loading mono-label">carregando…</p>
             </div>
-          </aside>
+          </div>
 
         </div>
       </div>
@@ -1992,10 +2013,14 @@ radar-signals-pipeline.yml
     margin: 0;
   }
 
+  /* ink-faint (#6F6F6F) sobre este fundo tintado (radar-trial-dim
+     composto sobre paper-soft) rende só 4.23:1 — reprova WCAG AA
+     (4.5:1) para texto normal. ink-soft rende 6.38:1 no mesmo fundo:
+     trocado para não reprovar contraste nesta seção específica. */
   .radar-benchmark-card__sample {
     font-family: var(--font-sans);
     font-size: var(--text-xs);
-    color: var(--ink-faint);
+    color: var(--ink-soft);
     margin: var(--space-1) 0 0;
   }
 
@@ -2022,10 +2047,12 @@ radar-signals-pipeline.yml
     font-weight: 500;
   }
 
+  /* Mesmo ajuste de contraste do .radar-benchmark-card__sample acima —
+     ink-faint reprova (4.23:1) sobre o fundo tintado deste card. */
   .radar-benchmark-card__note {
     font-family: var(--font-sans);
     font-size: var(--text-xs);
-    color: var(--ink-faint);
+    color: var(--ink-soft);
     line-height: var(--leading-normal);
     margin: var(--space-3) 0 0;
   }
@@ -2056,7 +2083,7 @@ radar-signals-pipeline.yml
 <script>
   import { revealUp }     from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
-  import { motionOk }     from '../scripts/motion/constants';
+  import { motionOk, STAGGER } from '../scripts/motion/constants';
 
   // ── Reveal animations para o conteúdo estático (mesmo padrão de
   // pix-observatory.astro) — conteúdo hidratado via fetch recebe seu
@@ -2073,7 +2100,7 @@ radar-signals-pipeline.yml
       const block = radarSection.querySelector('.radar-chart-block');
       if (line) hairlineDraw(line, radarSection);
       if (motionOk && head) revealUp([head], radarSection, 0);
-      if (motionOk && block) revealUp([block], radarSection, 0.08);
+      if (motionOk && block) revealUp([block], radarSection, STAGGER.tight);
     }
 
     const rankingSection = document.getElementById('ranking-tools');
@@ -2099,7 +2126,7 @@ radar-signals-pipeline.yml
       const blocks = jobsSection.querySelectorAll('.radar-jobs-block');
       if (line) hairlineDraw(line, jobsSection);
       if (motionOk && head) revealUp([head], jobsSection, 0);
-      if (motionOk && blocks.length) revealUp(blocks, jobsSection, 0.1);
+      if (motionOk && blocks.length) revealUp(blocks, jobsSection, STAGGER.tight);
     }
 
     const pipelineSection = document.getElementById('pipeline');
@@ -2109,7 +2136,7 @@ radar-signals-pipeline.yml
       const cards = pipelineSection.querySelectorAll('.arch-card, .arch-automation');
       if (line) hairlineDraw(line, pipelineSection);
       if (motionOk && head) revealUp([head], pipelineSection, 0);
-      if (motionOk && cards.length) revealUp(cards, pipelineSection, 0.1);
+      if (motionOk && cards.length) revealUp(cards, pipelineSection, STAGGER.tight);
     }
 
     const metaSection = document.getElementById('meta-stack');
@@ -2119,7 +2146,7 @@ radar-signals-pipeline.yml
       const items = metaSection.querySelectorAll('.radar-meta-item');
       if (line) hairlineDraw(line, metaSection);
       if (motionOk && head) revealUp([head], metaSection, 0);
-      if (motionOk && items.length) revealUp(items, metaSection, 0.08);
+      if (motionOk && items.length) revealUp(items, metaSection, STAGGER.tight);
     }
 
     const jobsHighlightsSection = document.getElementById('jobs-highlights');
@@ -2131,7 +2158,7 @@ radar-signals-pipeline.yml
       );
       if (line) hairlineDraw(line, jobsHighlightsSection);
       if (motionOk && head) revealUp([head], jobsHighlightsSection, 0);
-      if (motionOk && blocks.length) revealUp(blocks, jobsHighlightsSection, 0.1);
+      if (motionOk && blocks.length) revealUp(blocks, jobsHighlightsSection, STAGGER.tight);
     }
 
     const methodologySection = document.getElementById('metodologia');
@@ -2141,7 +2168,7 @@ radar-signals-pipeline.yml
       const items = methodologySection.querySelectorAll('.radar-methodology-item');
       if (line) hairlineDraw(line, methodologySection);
       if (motionOk && head) revealUp([head], methodologySection, 0);
-      if (motionOk && items.length) revealUp(items, methodologySection, 0.08);
+      if (motionOk && items.length) revealUp(items, methodologySection, STAGGER.tight);
     }
   });
 </script>

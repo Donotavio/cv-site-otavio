@@ -331,9 +331,14 @@ const base = import.meta.env.BASE_URL;
     margin-top: var(--space-2);
   }
 
+  /* --pix-green-ink (não a base) — texto branco (--paper) em cima exige
+     ≥4.5:1 (WCAG AA). A base (#00A651) só rende 3.14:1 aqui; a variante
+     -ink rende 5.23:1. Mesma regra de contraste documentada em tokens.css
+     (achado na revisão completa do Data Stack Radar BR — mesmo padrão de
+     erro corrigido em DataStackRadarCard.astro). */
   .pix-oc__cta {
-    background: var(--pix-green);
-    border-color: var(--pix-green);
+    background: var(--pix-green-ink);
+    border-color: var(--pix-green-ink);
   }
 
   .pix-oc__cta:hover {
