@@ -22,10 +22,23 @@ const navLinks = [
   { href: '#skills',          key: 'nav.skills'          },
   { href: '#recommendations', key: 'nav.recommendations' },
   { href: '#tech-stack',      key: 'nav.tech_stack'      },
+  { href: '#portfolio',       key: 'nav.portfolio'       },
   { href: '#projects',        key: 'nav.projects'        },
   { href: '#blog',            key: 'nav.blog'            },
   { href: '#contact',         key: 'nav.contact'         },
 ];
+
+const base = import.meta.env.BASE_URL;
+
+/**
+ * Estes links são âncoras que só existem na home (#hero, #about, etc).
+ * Em páginas irmãs (ex: /pix-observatory/) eles seriam links mortos —
+ * por isso, fora da home, prefixamos com a base para navegar de volta
+ * à home e então rolar até a âncora (comportamento nativo do browser).
+ */
+const normalize = (p: string) => (p.endsWith('/') ? p : `${p}/`);
+const isHome = normalize(Astro.url.pathname) === normalize(base);
+const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
 ---
 
 <nav
@@ -53,7 +66,7 @@ const navLinks = [
   <ul class="nav-list" id="nav-list" role="list">
     {navLinks.map(({ href, key }) => (
       <li class="nav-item">
-        <a href={href} class="nav-link mono-label" data-i18n-key={key}>{t(key)}</a>
+        <a href={resolveHref(href)} class="nav-link mono-label" data-i18n-key={key}>{t(key)}</a>
       </li>
     ))}
   </ul>
@@ -297,4 +310,5 @@ const navLinks = [
       letter-spacing: var(--tracking-wider);
     }
   }
+
 </style>

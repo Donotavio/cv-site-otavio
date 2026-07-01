@@ -85,4 +85,34 @@
   --container-lg:  1024px;
   --container-xl:  1280px;
   --container-max: 1440px;
+
+  /* ─── PIX Observatory (scoped, não interfere no site principal) ─── */
+  /* --pix-green: uso decorativo apenas — dots, sparklines, bordas, fundos
+     (--pix-green-dim). NUNCA como cor de texto: 3.1:1 sobre --paper, reprova
+     WCAG AA (mesmo problema que --ink-faint teve com #999, ver acima). */
+  --pix-green:      #00A651;
+  --pix-green-dim:  rgba(0, 166, 81, 0.08);
+  --pix-green-line: rgba(0, 166, 81, 0.3);
+  /* --pix-green-ink: uso em TEXTO (labels, badges, valores, gráficos ASCII).
+     5.28:1 sobre --paper/--paper-soft/--paper-card — passa WCAG AA. */
+  --pix-green-ink:  #007C3C;
+
+  /* ─── Medallion (arquitetura Bronze/Silver/Gold — PIX Observatory) ── */
+  /* Cores decorativas (bordas, fundos, dots) — mesma regra do --pix-green:
+     NUNCA usar as bases (*-bronze/-silver/-gold) como cor de texto pequeno.
+     Usar as variantes *-ink (contraste ≥4.5:1 sobre --paper) para texto. */
+  --medallion-bronze:      #CD7F32;
+  --medallion-bronze-ink:  #A46528;  /* 4.62:1 — texto/badges */
+  --medallion-bronze-dim:  rgba(205, 127, 50, 0.06);
+  --medallion-bronze-line: rgba(205, 127, 50, 0.3);
+
+  --medallion-silver:      #8A9BB0;
+  --medallion-silver-ink:  #687585;  /* 4.62:1 — texto/badges */
+  --medallion-silver-dim:  rgba(138, 155, 176, 0.06);
+  --medallion-silver-line: rgba(138, 155, 176, 0.3);
+
+  --medallion-gold:        #D4A017;
+  --medallion-gold-ink:    #947010;  /* 4.50:1 — texto/badges */
+  --medallion-gold-dim:    rgba(212, 160, 23, 0.06);
+  --medallion-gold-line:   rgba(212, 160, 23, 0.3);
 }

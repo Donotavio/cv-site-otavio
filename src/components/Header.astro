@@ -16,12 +16,19 @@
 
 import Navigation from './Navigation.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
+
+// Fora da home (ex: /pix-observatory/) "#hero" seria um link morto —
+// mesma lógica de resolução usada em Navigation.astro.
+const base = import.meta.env.BASE_URL;
+const normalize = (p: string) => (p.endsWith('/') ? p : `${p}/`);
+const isHome = normalize(Astro.url.pathname) === normalize(base);
+const logoHref = isHome ? '#hero' : `${base}#hero`;
 ---
 
 <header class="site-header" id="site-header">
   <div class="header-inner container">
     <!-- Logo: marca mono + nome -->
-    <a href="#hero" class="logo" aria-label="OR — Otávio Ribeiro, início">
+    <a href={logoHref} class="logo" aria-label="OR — Otávio Ribeiro, início">
       <span class="logo-mark mono-label" aria-hidden="true">OR</span>
       <span class="logo-text">Otávio Ribeiro</span>
     </a>

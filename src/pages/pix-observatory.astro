@@ -1,0 +1,3422 @@
+---
+/**
+ * pix-observatory.astro — PIX Observatory
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Seções (numeração sequencial dos mono-labels [ 01 ]…[ 08 ]):
+ *  0. Header (reuse) + Hero — sem número, abertura da página
+ *  1. [01] KPI Bento — métricas do BACEN (Impact.astro pattern) + widget de
+ *         notícias + KPI de usuários atualizado em runtime (pix_usuarios.json)
+ *  2. [02] Pipeline Architecture — Bronze/Silver/Gold
+ *  3. [03] Data Insights — 3 insight cards
+ *  4. [04] Anatomia dos Dados — sazonalidade, chaves DICT, canal de pagamento
+ *  5. [05] Ranking de Instituições — top chaves DICT + crescimento recente
+ *         (dado real via ingest_ranking.py, fetch runtime de pix_ranking.json)
+ *  6. [06] Geografia do PIX — top cidades por valor pago (ingest_municipios.py,
+ *         fetch runtime de pix_municipios.json)
+ *  7. [07] Segurança & MED — estatísticas reais de fraude e devolução
+ *         (ingest_fraudes.py, fetch runtime de pix_fraudes.json — único
+ *         dataset do projeto sem risco de amostragem: 1 linha exata/mês)
+ *  8. [08] Tech Stack — logos ASCII com spotlight
+ *  9. Footer (reuse)
+ *
+ * O agente conversacional NÃO é uma seção — é o componente <PixAgent />,
+ * flutuante, renderizado fora do <main> (FAB + painel, acompanha o scroll).
+ *
+ * Tokens: src/styles/tokens.css (zero hex hardcoded fora de definições)
+ * Motion: GSAP revealUp + hairlineDraw + countUp
+ * i18n: data-i18n-key attributes em todo texto visível
+ */
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import PixAgent from '../components/PixAgent.astro';
+
+const base = import.meta.env.BASE_URL;
+
+// Notação mono blueprint [████████··] — mesmo padrão de Skills.astro,
+// usado na composição de chaves DICT (evita <div style="width:%"> frágil).
+const METER_CELLS = 10;
+const meter = (pct: number) => {
+  const filled = Math.round((pct / 100) * METER_CELLS);
+  return '█'.repeat(filled) + '·'.repeat(METER_CELLS - filled);
+};
+
+const dictKeyShare = [
+  { label: 'Celular', pct: 32 },
+  { label: 'CPF',     pct: 27 },
+  { label: 'E-mail',  pct: 18 },
+  { label: 'EVP',     pct: 16 },
+  { label: 'CNPJ',    pct: 7  },
+];
+---
+
+<BaseLayout
+  title="PIX Observatory — Otávio Ribeiro"
+  description="Observatório de dados do PIX: pipeline Bronze→Silver→Gold sobre dados do BACEN, métricas em tempo real e agente de chat demonstrativo."
+>
+  <Header />
+
+  <main id="main-content">
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 1: PIX HERO
+         ══════════════════════════════════════════════════════ -->
+    <section id="pix-hero" class="section pix-hero" aria-labelledby="pix-hero-title">
+      <div class="container">
+        <div class="hero-card crop">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+
+          <header class="hero-card__header">
+            <span class="mono-label" data-i18n-key="pix.hero.label">PIX Observatory</span>
+            <div class="hero-card__spark-wrap" aria-hidden="true">
+              <span class="hero-sparkline">▁▂▃▅▆▇▇▆▇█</span>
+              <span class="hero-spark-label mono-label">tx/s · live</span>
+            </div>
+          </header>
+
+          <h1
+            id="pix-hero-title"
+            class="hero-display"
+            data-i18n-key="pix.hero.title"
+          >O maior sistema de pagamentos do mundo, em tempo real.</h1>
+
+          <p class="hero-lead" data-i18n-key="pix.hero.lead">
+            Pipeline de dados sobre o sistema PIX do Banco Central do Brasil —
+            coleta, transforma e expõe métricas de 258 milhões de transações/dia
+            com arquitetura medallion Bronze → Silver → Gold.
+          </p>
+
+          <div class="hero-actions">
+            <a
+              href="#dashboard"
+              class="btn-primary"
+              data-i18n-key="pix.hero.cta_dashboard"
+            >Ver Dashboard</a>
+            <a
+              href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion"
+              class="btn-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-i18n-key="pix.hero.cta_code"
+            >Código Fonte</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 2: KPI BENTO
+         ══════════════════════════════════════════════════════ -->
+    <section id="dashboard" class="section pix-dashboard" aria-labelledby="pix-kpi-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">01</span>
+          <h2 id="pix-kpi-title" class="pix-display" data-i18n-key="pix.kpi.title">
+            Telemetria do PIX
+          </h2>
+          <p class="pix-lead" data-i18n-key="pix.kpi.subtitle">
+            Métricas extraídas da API do BACEN — python-bcb · DuckDB · Parquet.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <!-- Bento assimétrico — mirrors Impact.astro pattern -->
+        <div class="pix-bento" role="list" aria-label="Métricas do PIX">
+
+          <!-- Card 1: métrica DOMINANTE -->
+          <article
+            class="pix-metric pix-metric--hero crop"
+            role="listitem"
+            data-metric="1"
+            aria-label="258 milhões+ de transações por dia no pico de 2025"
+          >
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <header class="pix-metric__head">
+              <span class="pix-metric__index mono-label" aria-hidden="true">01</span>
+              <span class="pix-metric__spark" aria-hidden="true">▁▂▃▅▆▇▇▆▇█</span>
+            </header>
+            <span
+              class="pix-metric__value pix-metric__value--hero pix-metric__value--green"
+              data-count-to="258"
+              data-count-suffix="M+"
+              data-i18n-key="pix.kpi_1_value"
+              aria-label="258 milhões e mais"
+            >258M+</span>
+            <span class="pix-metric__label" data-i18n-key="pix.kpi_1_label">
+              Transações por dia (pico 2025)
+            </span>
+          </article>
+
+          <!-- Card 2 -->
+          <article
+            class="pix-metric pix-metric--sec"
+            role="listitem"
+            data-metric="2"
+            aria-label="R$ 4,4 trilhões movimentados em 2024"
+          >
+            <header class="pix-metric__head">
+              <span class="pix-metric__index mono-label" aria-hidden="true">02</span>
+            </header>
+            <span
+              class="pix-metric__value"
+              data-i18n-key="pix.kpi_2_value"
+            >R$ 4,4 tri</span>
+            <span class="pix-metric__label" data-i18n-key="pix.kpi_2_label">
+              Movimentado em 2024
+            </span>
+          </article>
+
+          <!-- Card 3 -->
+          <article
+            class="pix-metric pix-metric--sec crop"
+            role="listitem"
+            data-metric="3"
+            aria-label="106.000 vezes de crescimento desde novembro de 2020"
+          >
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <header class="pix-metric__head">
+              <span class="pix-metric__index mono-label" aria-hidden="true">03</span>
+            </header>
+            <span
+              class="pix-metric__value"
+              data-count-to="106000"
+              data-count-suffix="×"
+              data-i18n-key="pix.kpi_3_value"
+              aria-label="106 mil vezes"
+            >106.000×</span>
+            <span class="pix-metric__label" data-i18n-key="pix.kpi_3_label">
+              Crescimento desde nov/2020
+            </span>
+          </article>
+
+          <!-- Card 4 -->
+          <article
+            class="pix-metric pix-metric--wide"
+            role="listitem"
+            data-metric="4"
+            aria-label="R$ 17 de ticket médio por transação"
+          >
+            <header class="pix-metric__head">
+              <span class="pix-metric__index mono-label" aria-hidden="true">04</span>
+              <span class="pix-metric__spark pix-metric__spark--sm" aria-hidden="true">▂▅▇▅▂▅▇</span>
+            </header>
+            <span
+              class="pix-metric__value"
+              data-i18n-key="pix.kpi_4_value"
+            >R$ 17</span>
+            <span class="pix-metric__label" data-i18n-key="pix.kpi_4_label">
+              Ticket médio por transação
+            </span>
+          </article>
+
+          <!-- Card 5: Usuários cadastrados — dado real (PixUsuariosCadastradosDICT),
+               atualizado em runtime via fetch de pix_usuarios.json. Valor abaixo é
+               o fallback estático (snapshot no momento da build). -->
+          <article
+            class="pix-metric pix-metric--sm"
+            role="listitem"
+            data-metric="5"
+            id="kpi-usuarios-card"
+            aria-label="184 milhões de usuários cadastrados no DICT"
+          >
+            <header class="pix-metric__head">
+              <span class="pix-metric__index mono-label" aria-hidden="true">05</span>
+              <span class="pix-metric__spark pix-metric__spark--sm" aria-hidden="true">▁▃▅▆▇█</span>
+            </header>
+            <span
+              class="pix-metric__value"
+              id="kpi-usuarios-value"
+              data-count-to="184"
+              data-count-suffix="M+"
+              aria-label="184 milhões e mais usuários"
+            >184M+</span>
+            <span class="pix-metric__label" id="kpi-usuarios-label">Usuários cadastrados (DICT)</span>
+          </article>
+
+          <!-- Card 6: Participantes -->
+          <article
+            class="pix-metric pix-metric--sm"
+            role="listitem"
+            data-metric="6"
+            aria-label="800 instituições participantes"
+          >
+            <header class="pix-metric__head">
+              <span class="pix-metric__index mono-label" aria-hidden="true">06</span>
+            </header>
+            <span
+              class="pix-metric__value"
+              data-count-to="800"
+              data-count-suffix="+"
+              aria-label="800 e mais instituições"
+            >800+</span>
+            <span class="pix-metric__label">Instituições participantes</span>
+          </article>
+
+          <!-- Card 7: Chaves DICT -->
+          <article
+            class="pix-metric pix-metric--sm"
+            role="listitem"
+            data-metric="7"
+            aria-label="700 milhões de chaves cadastradas no DICT"
+          >
+            <header class="pix-metric__head">
+              <span class="pix-metric__index mono-label" aria-hidden="true">07</span>
+              <span class="pix-metric__spark pix-metric__spark--sm" aria-hidden="true">▂▄▆▇█</span>
+            </header>
+            <span
+              class="pix-metric__value"
+              data-count-to="700"
+              data-count-suffix="M+"
+              aria-label="700 milhões e mais chaves"
+            >700M+</span>
+            <span class="pix-metric__label">Chaves DICT cadastradas</span>
+          </article>
+
+          <!-- Card 8: Uptime SLA -->
+          <article
+            class="pix-metric pix-metric--sm"
+            role="listitem"
+            data-metric="8"
+            aria-label="99,9% de disponibilidade histórica"
+          >
+            <header class="pix-metric__head">
+              <span class="pix-metric__index mono-label" aria-hidden="true">08</span>
+            </header>
+            <span class="pix-metric__value">99,9%</span>
+            <span class="pix-metric__label">Disponibilidade SLA histórico</span>
+          </article>
+
+          <!-- Card 9: Pipeline strip (full width) -->
+          <div
+            class="pix-pipeline-strip crop"
+            role="listitem"
+            aria-label="Pipeline Bronze Silver Gold"
+          >
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <p class="pix-pipeline-strip__label mono-label" aria-hidden="true">pipeline</p>
+            <div class="pix-pipeline-strip__flow" role="list" aria-label="Etapas do pipeline">
+              <div class="pix-pipeline-strip__step" role="listitem">
+                <span class="pix-pipeline-strip__badge pix-pipeline-strip__badge--bronze mono-label">Bronze</span>
+                <span class="pix-pipeline-strip__desc">BACEN API → Parquet raw</span>
+              </div>
+              <span class="pix-pipeline-strip__arrow" aria-hidden="true">→</span>
+              <div class="pix-pipeline-strip__step" role="listitem">
+                <span class="pix-pipeline-strip__badge pix-pipeline-strip__badge--silver mono-label">Silver</span>
+                <span class="pix-pipeline-strip__desc">DuckDB clean + tipagem</span>
+              </div>
+              <span class="pix-pipeline-strip__arrow" aria-hidden="true">→</span>
+              <div class="pix-pipeline-strip__step" role="listitem">
+                <span class="pix-pipeline-strip__badge pix-pipeline-strip__badge--gold mono-label">Gold</span>
+                <span class="pix-pipeline-strip__desc">Agregações + KPIs JSON</span>
+              </div>
+              <span class="pix-pipeline-strip__arrow" aria-hidden="true">→</span>
+              <div class="pix-pipeline-strip__step" role="listitem">
+                <span class="pix-pipeline-strip__badge pix-pipeline-strip__badge--gh mono-label">AI</span>
+                <span class="pix-pipeline-strip__desc">Chat demo local</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Segunda linha: gráfico ASCII de crescimento mensal -->
+        <div class="pix-growth-chart card crop" aria-labelledby="growth-chart-title">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <header class="pix-growth-chart__head">
+            <span class="mono-label" id="growth-chart-title">crescimento mensal · nov/2020 → jun/2025</span>
+            <span class="pix-growth-chart__unit mono-label" aria-hidden="true">tx/dia · M</span>
+          </header>
+          <div class="pix-growth-chart__body" aria-hidden="true">
+            <pre class="pix-growth-chart__bars">2020 ▏█▌
+2021 ▏███████████████▌
+2022 ▏███████████████████████████▌
+2023 ▏████████████████████████████████████████▌
+2024 ▏████████████████████████████████████████████████████████▌
+2025 ▏███████████████████████████████████████████████████████████████▌ 258M/dia</pre>
+          </div>
+          <div class="pix-growth-chart__legend">
+            <span class="pix-growth-chart__note">
+              Cada bloco █ representa ~4M transações/dia · dados: BACEN/SPI
+            </span>
+            <div class="pix-growth-chart__milestones">
+              <span class="tag">Nov/2020: 2.345/dia</span>
+              <span class="tag">Dez/2021: 47M/dia</span>
+              <span class="tag">2023: PIX Parcelado</span>
+              <span class="tag">2025: 258M/dia pico</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Widget de notícias recentes do PIX -->
+        <div class="pix-news card crop" aria-labelledby="pix-news-title">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <header class="pix-news__head">
+            <div class="pix-news__title-wrap">
+              <span class="pix-news__live-dot" aria-hidden="true"></span>
+              <span class="mono-label" id="pix-news-title">PIX no noticiário</span>
+            </div>
+            <span class="pix-news__feed mono-label" aria-hidden="true" data-news-updated>
+              Google News · RSS
+            </span>
+          </header>
+
+          <ol class="pix-news__list" id="pix-news-list" role="list" aria-live="polite">
+            <!-- Preenchido em runtime via fetch de pix_news.json -->
+            <li class="pix-news__loading mono-label" data-news-loading>carregando feed…</li>
+          </ol>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 3: PIPELINE ARCHITECTURE
+         ══════════════════════════════════════════════════════ -->
+    <section id="pipeline" class="section pix-architecture" aria-labelledby="pix-arch-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">02</span>
+          <h2 id="pix-arch-title" class="pix-display" data-i18n-key="pix.arch.title">
+            Arquitetura do Pipeline
+          </h2>
+          <p class="pix-lead" data-i18n-key="pix.arch.subtitle">
+            Medallion architecture sobre dados abertos do Banco Central do Brasil.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="arch-grid">
+
+          <!-- Bronze layer -->
+          <article
+            class="card arch-card"
+            style="border-top: 3px solid var(--medallion-bronze);"
+            aria-labelledby="arch-bronze-title"
+          >
+            <header class="arch-card__header">
+              <span class="arch-card__badge mono-label arch-card__badge--bronze">Bronze</span>
+              <span class="arch-card__layer" aria-hidden="true">[ L1 ]</span>
+            </header>
+            <h3 id="arch-bronze-title" class="arch-card__title" data-i18n-key="pix.arch.bronze.title">
+              BACEN API → Parquet Raw
+            </h3>
+            <p class="arch-card__desc" data-i18n-key="pix.arch.bronze.desc">
+              Coleta diária via python-bcb. Dados brutos preservados em Parquet
+              particionado por data — imutável, auditável, versionado.
+            </p>
+            <div class="arch-card__tags">
+              <span class="tag">Python</span>
+              <span class="tag">python-bcb</span>
+              <span class="tag">Parquet</span>
+            </div>
+          </article>
+
+          <!-- Silver layer -->
+          <article
+            class="card arch-card"
+            style="border-top: 3px solid var(--medallion-silver);"
+            aria-labelledby="arch-silver-title"
+          >
+            <header class="arch-card__header">
+              <span class="arch-card__badge mono-label arch-card__badge--silver">Silver</span>
+              <span class="arch-card__layer" aria-hidden="true">[ L2 ]</span>
+            </header>
+            <h3 id="arch-silver-title" class="arch-card__title" data-i18n-key="pix.arch.silver.title">
+              Limpeza e Tipagem
+            </h3>
+            <p class="arch-card__desc" data-i18n-key="pix.arch.silver.desc">
+              Normalização de nomes, inferência de tipos, deduplicação e
+              enriquecimento de datas. Schema enforced via DuckDB.
+            </p>
+            <div class="arch-card__tags">
+              <span class="tag">DuckDB</span>
+              <span class="tag">Pandas</span>
+              <span class="tag">Parquet</span>
+            </div>
+          </article>
+
+          <!-- Gold layer -->
+          <article
+            class="card arch-card"
+            style="border-top: 3px solid var(--medallion-gold);"
+            aria-labelledby="arch-gold-title"
+          >
+            <header class="arch-card__header">
+              <span class="arch-card__badge mono-label arch-card__badge--gold">Gold</span>
+              <span class="arch-card__layer" aria-hidden="true">[ L3 ]</span>
+            </header>
+            <h3 id="arch-gold-title" class="arch-card__title" data-i18n-key="pix.arch.gold.title">
+              Agregações Analíticas
+            </h3>
+            <p class="arch-card__desc" data-i18n-key="pix.arch.gold.desc">
+              Visões pré-computadas para dashboards: série temporal diária,
+              crescimento acumulado, ticket médio por período.
+            </p>
+            <div class="arch-card__tags">
+              <span class="tag">DuckDB WASM</span>
+              <span class="tag">D3.js</span>
+              <span class="tag">Chat demo</span>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- GitHub Actions automation card -->
+        <div class="arch-automation card crop" aria-labelledby="arch-automation-title">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <div class="arch-automation__inner">
+            <div class="arch-automation__left">
+              <span class="mono-label arch-automation__badge" data-i18n-key="pix.arch.automation.label">
+                GitHub Actions
+              </span>
+              <h3 id="arch-automation-title" class="arch-automation__title" data-i18n-key="pix.arch.automation.title">
+                Orquestração automatizada
+              </h3>
+              <p class="arch-automation__desc" data-i18n-key="pix.arch.automation.desc">
+                Pipeline executado diariamente via GitHub Actions: coleta → transforma
+                → publica. Zero infraestrutura — serverless completo no GitHub.
+                Retry automático em falha, alertas por issue e histórico rastreável.
+              </p>
+            </div>
+            <div class="arch-automation__right" aria-hidden="true">
+              <pre class="arch-automation__code">schedule: cron
+  │
+  ├── fetch_bacen.py
+  │     └── Bronze Parquet
+  │
+  ├── transform.py
+  │     └── Silver DuckDB
+  │
+  └── aggregate.py
+        └── Gold JSON</pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 4: DATA INSIGHTS
+         ══════════════════════════════════════════════════════ -->
+    <section id="insights" class="section pix-insights" aria-labelledby="pix-insights-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">03</span>
+          <h2 id="pix-insights-title" class="pix-display" data-i18n-key="pix.insights.title">
+            Insights dos Dados
+          </h2>
+          <p class="pix-lead" data-i18n-key="pix.insights.subtitle">
+            Padrões descobertos ao analisar 4+ anos de histórico do PIX.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="insights-grid">
+
+          <article class="card insight-card" aria-labelledby="insight-1-title">
+            <header class="insight-card__header">
+              <span class="tag tag--accent" aria-label="Data de referência">Nov/2020</span>
+              <span class="insight-card__num mono-label" aria-hidden="true">01</span>
+            </header>
+            <h3 id="insight-1-title" class="insight-card__title" data-i18n-key="pix.insights.card1.title">
+              Crescimento histórico
+            </h3>
+            <p class="insight-card__body" data-i18n-key="pix.insights.card1.body">
+              Dia 1 do PIX: 2.345 transações. Hoje: 258M+/dia.
+              Um crescimento de 106.000× em menos de 5 anos — o mais rápido
+              da história dos sistemas de pagamento.
+            </p>
+            <div class="insight-card__stat" aria-hidden="true">
+              <span class="insight-card__stat-value">2.345</span>
+              <span class="insight-card__stat-arrow">→</span>
+              <span class="insight-card__stat-value insight-card__stat-value--accent">258M+</span>
+            </div>
+          </article>
+
+          <article class="card insight-card" aria-labelledby="insight-2-title">
+            <header class="insight-card__header">
+              <span class="tag tag--accent" aria-label="Categoria de insight">B2B</span>
+              <span class="insight-card__num mono-label" aria-hidden="true">02</span>
+            </header>
+            <h3 id="insight-2-title" class="insight-card__title" data-i18n-key="pix.insights.card2.title">
+              Evolução do ticket médio
+            </h3>
+            <p class="insight-card__body" data-i18n-key="pix.insights.card2.body">
+              Ticket médio saiu de R$90 para R$700+ nos picos.
+              O PIX virou instrumento B2B — empresas movem boladas fora
+              do horário bancário, algo impensável antes de novembro/2020.
+            </p>
+            <div class="insight-card__stat" aria-hidden="true">
+              <span class="insight-card__stat-value">R$ 90</span>
+              <span class="insight-card__stat-arrow">→</span>
+              <span class="insight-card__stat-value insight-card__stat-value--accent">R$ 700+</span>
+            </div>
+          </article>
+
+          <article class="card insight-card" aria-labelledby="insight-3-title">
+            <header class="insight-card__header">
+              <span class="tag tag--accent" aria-label="Categoria de insight">SLA</span>
+              <span class="insight-card__num mono-label" aria-hidden="true">03</span>
+            </header>
+            <h3 id="insight-3-title" class="insight-card__title" data-i18n-key="pix.insights.card3.title">
+              Resiliência do sistema
+            </h3>
+            <p class="insight-card__body" data-i18n-key="pix.insights.card3.body">
+              Disponibilidade SLA: 99,9%+ histórico.
+              Um dos sistemas de pagamento mais resilientes do mundo,
+              operando 24/7/365 com tempo de resposta médio &lt; 10s.
+            </p>
+            <div class="insight-card__stat" aria-hidden="true">
+              <span class="insight-card__stat-value insight-card__stat-value--accent">99,9%+</span>
+              <span class="insight-card__stat-label">uptime histórico</span>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 4b: ANÁLISE DE DADOS (sazonalidade + chaves DICT)
+         ══════════════════════════════════════════════════════ -->
+    <section id="analysis" class="section pix-analysis" aria-labelledby="pix-analysis-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">04</span>
+          <h2 id="pix-analysis-title" class="pix-display">Anatomia dos Dados</h2>
+          <p class="pix-lead">
+            O que emerge quando cruzamos SPI + DICT: sazonalidade, composição de chaves e concentração de mercado.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="analysis-grid">
+
+          <!-- Sazonalidade intradiária -->
+          <article class="card analysis-card" aria-labelledby="analysis-hour-title">
+            <header class="analysis-card__head">
+              <span class="mono-label analysis-card__label">PixLiquidadosIntradia</span>
+              <span class="analysis-card__num mono-label" aria-hidden="true">01</span>
+            </header>
+            <h3 id="analysis-hour-title" class="analysis-card__title">Ritmo do dia</h3>
+            <p class="analysis-card__desc">
+              Dois picos diários: início (08–09h) e fim (17–18h) do expediente.
+              A madrugada quase dorme — mas nunca zera.
+            </p>
+            <div class="analysis-chart" aria-hidden="true">
+              <pre class="analysis-chart__bars">00h ▏█
+03h ▏▌
+06h ▏███
+09h ▏███████████████ ◀ pico manhã
+12h ▏██████████
+15h ▏████████████
+18h ▏█████████████ ◀ pico tarde
+21h ▏██████</pre>
+            </div>
+            <span class="analysis-card__foot mono-label">volume relativo por faixa horária</span>
+          </article>
+
+          <!-- Composição de chaves DICT -->
+          <article class="card analysis-card" aria-labelledby="analysis-keys-title">
+            <header class="analysis-card__head">
+              <span class="mono-label analysis-card__label">EstoqueChavesPorTipo</span>
+              <span class="analysis-card__num mono-label" aria-hidden="true">02</span>
+            </header>
+            <h3 id="analysis-keys-title" class="analysis-card__title">Composição de chaves</h3>
+            <p class="analysis-card__desc">
+              O celular lidera o cadastro de chaves; a EVP (chave aleatória)
+              virou preferência das fintechs por preservar privacidade.
+            </p>
+            <ul class="analysis-meters" aria-label="Composição de chaves DICT por tipo">
+              {dictKeyShare.map(({ label, pct }) => (
+                <li class="analysis-meter-row">
+                  <span class="analysis-meter-row__label">{label}</span>
+                  <span
+                    class="analysis-meter-row__bar"
+                    aria-hidden="true"
+                  >{meter(pct)}</span>
+                  <span
+                    class="analysis-meter-row__val"
+                    role="meter"
+                    aria-valuenow={pct}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${label}: ${pct}%`}
+                  >{pct}%</span>
+                </li>
+              ))}
+            </ul>
+            <span class="analysis-card__foot mono-label">estoque de ~700M chaves · DICT</span>
+          </article>
+
+          <!-- Canal primário vs secundário -->
+          <article class="card analysis-card" aria-labelledby="analysis-channel-title">
+            <header class="analysis-card__head">
+              <span class="mono-label analysis-card__label">CanalPrimario</span>
+              <span class="analysis-card__num mono-label" aria-hidden="true">03</span>
+            </header>
+            <h3 id="analysis-channel-title" class="analysis-card__title">Chave vs. QR Code</h3>
+            <p class="analysis-card__desc">
+              O pagamento por QR Code (canal secundário) explodiu após 2022,
+              levando o PIX para o varejo físico — maquininhas e balcões.
+            </p>
+            <div class="analysis-donut" aria-hidden="true">
+              <pre class="analysis-donut__ascii">  ╭─────────╮
+ ╱  ███████  ╲   Chave
+│  ██████████ │  ────── 61%
+│  ██▒▒▒▒▒▒▒▒ │
+ ╲ ▒▒▒▒▒▒▒▒▒ ╱   QR Code
+  ╰─────────╯   ────── 39%</pre>
+            </div>
+            <span class="analysis-card__foot mono-label">split de canais · SPI 2024</span>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 5: RANKING DE INSTITUIÇÕES (chaves DICT — dado real)
+         Fetch runtime de assets/data/pix_ranking.json (gerado pelo
+         pipeline mensal via ingest_ranking.py — ver docstring do script
+         para as descobertas de integração com a API do BACEN).
+         ══════════════════════════════════════════════════════ -->
+    <section id="ranking" class="section pix-ranking" aria-labelledby="pix-ranking-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">05</span>
+          <h2 id="pix-ranking-title" class="pix-display">Ranking de Instituições</h2>
+          <p class="pix-lead">
+            Quem lidera o cadastro de chaves PIX no DICT — dado real do BACEN,
+            atualizado mensalmente pelo pipeline.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <!-- Nota de metodologia — transparência sobre o que o dado representa -->
+        <p class="ranking-methodology mono-label">
+          proxy: chaves cadastradas (DICT) · não é volume/valor transacionado —
+          o BACEN não publica esse dado por instituição na API aberta
+        </p>
+
+        <div class="ranking-grid">
+
+          <!-- Card A: ranking histórico (estoque atual = medida acumulada) -->
+          <div class="ranking-card card" aria-labelledby="ranking-historico-title">
+            <header class="ranking-card__head">
+              <span class="mono-label" id="ranking-historico-title">histórico</span>
+              <span class="ranking-card__hint" id="ranking-historico-hint">chaves cadastradas · snapshot mais recente</span>
+            </header>
+            <ol
+              class="ranking-list"
+              id="ranking-historico-list"
+              aria-labelledby="ranking-historico-title"
+              aria-describedby="ranking-historico-hint"
+            >
+              <li class="ranking-loading mono-label">carregando ranking…</li>
+            </ol>
+          </div>
+
+          <!-- Card B: ranking de crescimento recente -->
+          <div class="ranking-card card" aria-labelledby="ranking-recente-title">
+            <header class="ranking-card__head">
+              <span class="mono-label" id="ranking-recente-title">últimos meses</span>
+              <span class="ranking-card__hint" id="ranking-recente-hint">maior crescimento absoluto no período</span>
+            </header>
+            <ol
+              class="ranking-list"
+              id="ranking-recente-list"
+              aria-labelledby="ranking-recente-title"
+              aria-describedby="ranking-recente-hint"
+            >
+              <li class="ranking-loading mono-label">carregando ranking…</li>
+            </ol>
+          </div>
+
+        </div>
+
+        <p class="ranking-footnote mono-label" id="ranking-footnote" aria-live="polite">
+          fonte: BACEN Olinda API · Pix_DadosAbertos / ChavesPix
+        </p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 6: GEOGRAFIA DO PIX (top cidades por valor pago)
+         Fetch runtime de assets/data/pix_municipios.json (gerado por
+         ingest_municipios.py). Dado real do BACEN — ver metodologia
+         no próprio JSON e no docstring do script.
+         ══════════════════════════════════════════════════════ -->
+    <section id="geografia" class="section pix-geografia" aria-labelledby="pix-geografia-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">06</span>
+          <h2 id="pix-geografia-title" class="pix-display">Geografia do PIX</h2>
+          <p class="pix-lead">
+            Onde o dinheiro se move — ranking real de cidades brasileiras por
+            valor pago via PIX em um único mês.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <p class="ranking-methodology mono-label">
+          ordenado por valor pago (PF+PJ) · amostra das maiores cidades — API
+          não pagina o dataset completo de ~5.570 municípios
+        </p>
+
+        <!-- ── Mapa de calor por estado + drill-down ──────────────── -->
+        <div class="geo-map-block card crop" aria-labelledby="geo-map-title">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+
+          <div class="geo-map-block__layout">
+
+            <!-- Coluna do mapa -->
+            <div class="geo-map-block__map-col">
+              <header class="geo-map-block__head">
+                <span class="mono-label" id="geo-map-title">mapa de calor · por estado</span>
+                <span class="geo-map-block__hint">valor pago via PIX (amostra) — clique num estado</span>
+              </header>
+
+              <!-- Select acessível — funciona com teclado, leitor de tela e
+                   em mobile (tocar em UFs pequenas no SVG é difícil). É a
+                   interação primária; o clique no mapa é um atalho visual. -->
+              <label for="geo-state-select" class="sr-only">Escolher estado</label>
+              <select id="geo-state-select" class="geo-state-select" aria-describedby="geo-map-hint">
+                <option value="">Selecione um estado…</option>
+              </select>
+              <span id="geo-map-hint" class="sr-only">
+                Escolher um estado mostra o valor pago via PIX e as principais cidades dessa amostra.
+              </span>
+
+              <div
+                class="geo-map__svg-wrap"
+                id="geo-map-svg-wrap"
+                data-map-src={`${base}assets/img/maps/brazil-states.svg`}
+                role="group"
+                aria-label="Mapa do Brasil — clique em um estado para ver detalhes"
+              >
+                <p class="ranking-loading mono-label">carregando mapa…</p>
+              </div>
+
+              <div class="geo-map__legend" aria-hidden="true">
+                <span class="mono-label">menor</span>
+                <span class="geo-map__legend-cells">
+                  <i class="geo-map__legend-cell" data-lvl="0"></i>
+                  <i class="geo-map__legend-cell" data-lvl="1"></i>
+                  <i class="geo-map__legend-cell" data-lvl="2"></i>
+                  <i class="geo-map__legend-cell" data-lvl="3"></i>
+                  <i class="geo-map__legend-cell" data-lvl="4"></i>
+                </span>
+                <span class="mono-label">maior</span>
+              </div>
+            </div>
+
+            <!-- Coluna de detalhe do estado selecionado -->
+            <div class="geo-map-block__detail-col">
+              <div
+                class="geo-detail"
+                id="geo-detail"
+                role="region"
+                aria-live="polite"
+                aria-label="Detalhe do estado selecionado"
+              >
+                <p class="geo-detail__empty mono-label">
+                  nenhum estado selecionado
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Ranking nacional de cidades (já existente) ─────────── -->
+        <div class="ranking-card card" aria-labelledby="geografia-list-title">
+          <header class="ranking-card__head">
+            <span class="mono-label" id="geografia-list-title">top cidades</span>
+            <span class="ranking-card__hint" id="geografia-list-hint">valor pago via PIX (PF+PJ) · snapshot mensal</span>
+          </header>
+          <ol
+            class="ranking-list ranking-list--geo"
+            id="geografia-list"
+            aria-labelledby="geografia-list-title"
+            aria-describedby="geografia-list-hint"
+          >
+            <li class="ranking-loading mono-label">carregando ranking…</li>
+          </ol>
+        </div>
+
+        <p class="ranking-footnote mono-label" id="geografia-footnote" aria-live="polite">
+          fonte: BACEN Olinda API · Pix_DadosAbertos / TransacoesPixPorMunicipio
+        </p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 7: SEGURANÇA & MED (fraude e devolução — dado real)
+         Fetch runtime de assets/data/pix_fraudes.json (gerado por
+         ingest_fraudes.py). Único dataset deste projeto onde o BACEN
+         publica uma linha exata por mês — sem risco de amostragem.
+         ══════════════════════════════════════════════════════ -->
+    <section id="seguranca" class="section pix-seguranca" aria-labelledby="pix-seguranca-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">07</span>
+          <h2 id="pix-seguranca-title" class="pix-display">Segurança &amp; MED</h2>
+          <p class="pix-lead">
+            O Mecanismo Especial de Devolução em números reais — como o BACEN
+            protege vítimas de fraude no PIX, mês a mês.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="seguranca-grid" id="seguranca-grid" aria-live="polite">
+          <p class="ranking-loading mono-label">carregando estatísticas…</p>
+        </div>
+
+        <p class="ranking-footnote mono-label" id="seguranca-footnote" aria-live="polite">
+          fonte: BACEN Olinda API · Pix_DadosAbertos / EstatisticasFraudesPix
+        </p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 8: TECH STACK ASCII LOGOS
+         Hover sobre cada logo ASCII revela a logo original (spotlight)
+         ══════════════════════════════════════════════════════ -->
+    <section id="stack" class="section pix-techstack" aria-labelledby="pix-stack-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">08</span>
+          <h2 id="pix-stack-title" class="pix-display">Stack Técnico</h2>
+          <p class="pix-lead">Cada ferramenta escolhida por uma razão — hover para revelar.</p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="stack-grid" role="list" aria-label="Tecnologias do projeto">
+
+          <!-- Python -->
+          <div class="stack-item" role="listitem" data-stack-item>
+            <div class="stack-item__portrait crop" data-spotlight-stack>
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <div class="stack-item__photo" data-stack-photo
+                style={`background-image:url(${base}assets/img/logos/python.svg)`}
+              ></div>
+              <pre class="stack-item__ascii" aria-hidden="true">┌──────────┐
+│  ┌───┐   │
+│  │ ▓ │   │
+│  └───┘   │
+│   ╲ ╱    │
+│  ──●──   │
+│   ╱ ╲    │
+│  ┌───┐   │
+│  │ ░ │   │
+│  └───┘   │
+└──────────┘</pre>
+            </div>
+            <span class="stack-item__name mono-label">Python</span>
+            <span class="stack-item__role">Ingestão · Transformação</span>
+          </div>
+
+          <!-- DuckDB -->
+          <div class="stack-item" role="listitem" data-stack-item>
+            <div class="stack-item__portrait crop" data-spotlight-stack>
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <div class="stack-item__photo" data-stack-photo
+                style={`background-image:url(${base}assets/img/logos/databricks.svg)`}
+              ></div>
+              <pre class="stack-item__ascii" aria-hidden="true">┌──────────┐
+│  ╔════╗  │
+│  ║ DB ║  │
+│  ║    ║  │
+│  ║▓▓▓▓║  │
+│  ║░░░░║  │
+│  ║    ║  │
+│  ╚════╝  │
+│  ──────  │
+│  DUCKDB  │
+└──────────┘</pre>
+            </div>
+            <span class="stack-item__name mono-label">DuckDB</span>
+            <span class="stack-item__role">Motor analítico · WASM</span>
+          </div>
+
+          <!-- Parquet / Apache -->
+          <div class="stack-item" role="listitem" data-stack-item>
+            <div class="stack-item__portrait crop" data-spotlight-stack>
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <div class="stack-item__photo" data-stack-photo
+                style={`background-image:url(${base}assets/img/logos/apache-spark.svg)`}
+              ></div>
+              <pre class="stack-item__ascii" aria-hidden="true">┌──────────┐
+│  ┌────┐  │
+│  │▓▓▓▓│  │
+│  │▓▓▓▓│  │
+│  │░░░░│  │
+│  │░░░░│  │
+│  │▒▒▒▒│  │
+│  │▒▒▒▒│  │
+│  └────┘  │
+│  PARQUET │
+└──────────┘</pre>
+            </div>
+            <span class="stack-item__name mono-label">Parquet</span>
+            <span class="stack-item__role">Storage · Columnar</span>
+          </div>
+
+          <!-- GitHub Actions -->
+          <div class="stack-item" role="listitem" data-stack-item>
+            <div class="stack-item__portrait crop" data-spotlight-stack>
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <div class="stack-item__photo" data-stack-photo
+                style={`background-image:url(${base}assets/img/logos/delta-lake.svg)`}
+              ></div>
+              <pre class="stack-item__ascii" aria-hidden="true">┌──────────┐
+│    ◯─◯   │
+│    │ │   │
+│  ◯─◯─◯   │
+│    │     │
+│    ◯     │
+│   ╱│╲    │
+│  ◯ ◯ ◯   │
+│          │
+│  ACTIONS │
+└──────────┘</pre>
+            </div>
+            <span class="stack-item__name mono-label">GitHub Actions</span>
+            <span class="stack-item__role">Orquestração · CI/CD</span>
+          </div>
+
+          <!-- Chat demo (mock local, sem LLM real) -->
+          <div class="stack-item" role="listitem" data-stack-item>
+            <div class="stack-item__portrait crop" data-spotlight-stack>
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <div class="stack-item__photo" data-stack-photo
+                style={`background-image:url(${base}assets/img/logos/mlflow.svg)`}
+              ></div>
+              <pre class="stack-item__ascii" aria-hidden="true">┌──────────┐
+│   ╭───╮  │
+│   │ ▓ │  │
+│   ╰─┬─╯  │
+│     │    │
+│  ╭──┴──╮ │
+│  │░░░░░│ │
+│  │ BOT │ │
+│  ╰─────╯ │
+│   DEMO   │
+└──────────┘</pre>
+            </div>
+            <span class="stack-item__name mono-label">Chat demo</span>
+            <span class="stack-item__role">Respostas fixas · sem LLM</span>
+          </div>
+
+          <!-- BACEN API -->
+          <div class="stack-item" role="listitem" data-stack-item>
+            <div class="stack-item__portrait crop" data-spotlight-stack>
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <div class="stack-item__photo" data-stack-photo
+                style={`background-image:url(${base}assets/img/logos/gcp.svg)`}
+              ></div>
+              <pre class="stack-item__ascii" aria-hidden="true">┌──────────┐
+│  ╔═════╗ │
+│  ║ BCB ║ │
+│  ╠═════╣ │
+│  ║ SPI ║ │
+│  ║DICT ║ │
+│  ╠═════╣ │
+│  ║ API ║ │
+│  ╚═════╝ │
+│  BACEN   │
+└──────────┘</pre>
+            </div>
+            <span class="stack-item__name mono-label">BACEN API</span>
+            <span class="stack-item__role">Fonte · Open Data</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Agente flutuante — botão fixo + painel de chat (acompanha o scroll) -->
+  <PixAgent />
+
+  <Footer />
+</BaseLayout>
+
+<!-- ════════════════════════════════════════════════════════════
+     STYLES — scoped to this page
+     ════════════════════════════════════════════════════════════ -->
+<style>
+  /* Cores medallion (bronze/silver/gold) vêm de src/styles/tokens.css —
+     fonte única de verdade, sem hex duplicado nesta página. */
+
+  /* ── Hero ────────────────────────────────────────────────── */
+  .pix-hero {
+    background: var(--paper);
+  }
+
+  .hero-card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8) var(--space-8) var(--space-10);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .hero-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .hero-card__spark-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .hero-sparkline {
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+    color: var(--pix-green-ink);
+    letter-spacing: 0.1em;
+    line-height: 1;
+  }
+
+  .hero-spark-label {
+    color: var(--pix-green-ink);
+    opacity: 0.85;
+  }
+
+  .hero-display {
+    /* --display-1 (escala de cartaz, igual ao H1 real da home) — reserva
+       essa intensidade para a abertura da página, distinta dos H2 de
+       seção (--display-2, usados em .pix-display em todo o resto). */
+    font-family: var(--font-display);
+    font-size: var(--display-1);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+    max-width: 16ch;
+  }
+
+  .hero-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  /* Governança de cor da página: .btn-primary/.btn-secondary (globais)
+     hover em --accent azul por padrão — nesta página o único acento é
+     verde, então sobrescrevemos o hover aqui (escopo automático do Astro
+     restringe isso só a este arquivo, não afeta o site principal). */
+  .hero-actions .btn-primary:hover {
+    background: var(--pix-green-ink);
+    border-color: var(--pix-green-ink);
+  }
+  .hero-actions .btn-secondary:hover {
+    border-color: var(--pix-green-ink);
+    color: var(--pix-green-ink);
+  }
+
+  /* Tags "accent" (azul, global) usadas nos insight cards — mesma
+     governança: verde substitui azul dentro desta página. O escopo
+     automático do Astro restringe esta regra só aos elementos renderizados
+     por este arquivo (não afeta .tag--accent no site principal). */
+  .tag--accent {
+    color: var(--pix-green-ink);
+    border-color: var(--pix-green-line);
+    background: var(--pix-green-dim);
+  }
+
+  /* ── KPI Dashboard section ───────────────────────────────── */
+  .pix-dashboard {
+    background: var(--paper-soft);
+  }
+
+  .pix-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .pix-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  /* ── Bento ───────────────────────────────────────────────── */
+  .pix-bento {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-block-end: var(--space-12);
+  }
+
+  @media (min-width: 640px) {
+    .pix-bento {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-5);
+    }
+    .pix-metric--hero {
+      grid-column: span 2;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .pix-bento {
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: minmax(150px, auto);
+      gap: var(--space-5);
+    }
+    /* dominante: 7 col × 2 rows */
+    .pix-metric--hero {
+      grid-column: 1 / 8;
+      grid-row: 1 / 3;
+    }
+    /* sec cards stack right */
+    .pix-metric--sec:nth-child(2) {
+      grid-column: 8 / 13;
+      grid-row: 1 / 2;
+    }
+    .pix-metric--sec:nth-child(3) {
+      grid-column: 8 / 13;
+      grid-row: 2 / 3;
+    }
+    /* wide metric full row */
+    .pix-metric--wide {
+      grid-column: 1 / 13;
+      grid-row: 3 / 4;
+    }
+    /* pipeline strip full row */
+    .pix-pipeline-strip {
+      grid-column: 1 / 13;
+    }
+  }
+
+  /* ── Metric card ─────────────────────────────────────────── */
+  .pix-metric {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    transition: border-color var(--transition-normal);
+  }
+
+  .pix-metric:hover {
+    border-color: var(--line-strong);
+  }
+
+  .pix-metric--hero {
+    padding: var(--space-8);
+    justify-content: space-between;
+  }
+
+  .pix-metric--wide {
+    flex-direction: column;
+  }
+
+  @media (min-width: 640px) {
+    .pix-metric--wide {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+  }
+
+  .pix-metric__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .pix-metric__index {
+    color: var(--ink-faint);
+  }
+
+  .pix-metric__spark {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    color: var(--pix-green-ink);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    opacity: 0.85;
+  }
+
+  .pix-metric__spark--sm {
+    font-size: var(--text-sm);
+  }
+
+  .pix-metric__value {
+    /* pix-green (não --accent azul) — governança de cor da página: verde é
+       o único acento de dado/KPI aqui, azul fica reservado à navegação
+       global do site. --text-3xl é "large text" (≥24px) — 3.1:1 passa AA. */
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--pix-green);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .pix-metric__value--hero {
+    font-size: var(--display-1);
+    line-height: 0.9;
+  }
+
+  /* dominant KPI in pix-green */
+  .pix-metric__value--green {
+    color: var(--pix-green);
+  }
+
+  .pix-metric__label {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+  }
+
+  /* ── Métricas secundárias (sm) ──────────────────────────── */
+  .pix-metric--sm {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    transition: border-color var(--transition-normal);
+  }
+
+  .pix-metric--sm:hover {
+    border-color: var(--pix-green-line);
+  }
+
+  @media (min-width: 1024px) {
+    /* segunda linha de 4 cards pequenos após a linha principal */
+    .pix-metric--sm:nth-child(5) { grid-column: 1 / 4; }
+    .pix-metric--sm:nth-child(6) { grid-column: 4 / 7; }
+    .pix-metric--sm:nth-child(7) { grid-column: 7 / 10; }
+    .pix-metric--sm:nth-child(8) { grid-column: 10 / 13; }
+  }
+
+  /* ── Gráfico ASCII de crescimento ────────────────────────── */
+  .pix-growth-chart {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-block-start: var(--space-6);
+  }
+
+  .pix-growth-chart__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .pix-growth-chart__unit {
+    color: var(--pix-green-ink);
+  }
+
+  .pix-growth-chart__body {
+    overflow-x: auto;
+    padding-block: var(--space-2);
+  }
+
+  .pix-growth-chart__bars {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: var(--leading-loose);
+    color: var(--pix-green-ink);
+    margin: 0;
+    white-space: pre;
+  }
+
+  .pix-growth-chart__legend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-block-start: var(--space-4);
+    border-top: 1px solid var(--line);
+  }
+
+  .pix-growth-chart__note {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .pix-growth-chart__milestones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* ── Widget de notícias ──────────────────────────────────── */
+  .pix-news {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    margin-block-start: var(--space-6);
+  }
+
+  .pix-news__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding-block-end: var(--space-4);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .pix-news__title-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .pix-news__feed {
+    color: var(--ink-faint);
+  }
+
+  .pix-news__live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--pix-green);
+    flex-shrink: 0;
+    animation: news-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes news-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.35; transform: scale(0.85); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pix-news__live-dot { animation: none; }
+  }
+
+  /* Lista: grid de 2 colunas no desktop, 1 no mobile.
+     (Os itens/filhos desta lista são injetados via innerHTML em runtime —
+     ver bloco <style is:global> ao final do arquivo: CSS scoped do Astro
+     não se aplica a nós DOM criados no client, só aos renderizados no SSG.) */
+  .pix-news__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: news;
+  }
+
+  @media (min-width: 768px) {
+    .pix-news__list {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+    }
+  }
+
+  /* ── Pipeline strip card ─────────────────────────────────── */
+  .pix-pipeline-strip {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-6) var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .pix-pipeline-strip__label {
+    margin: 0;
+    color: var(--ink-faint);
+  }
+
+  .pix-pipeline-strip__flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .pix-pipeline-strip__step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .pix-pipeline-strip__badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    font-size: var(--text-xs);
+  }
+
+  .pix-pipeline-strip__badge--bronze {
+    color: var(--medallion-bronze-ink);
+    border-color: var(--medallion-bronze-line);
+    background: var(--medallion-bronze-dim);
+  }
+
+  .pix-pipeline-strip__badge--silver {
+    color: var(--medallion-silver-ink);
+    border-color: var(--medallion-silver-line);
+    background: var(--medallion-silver-dim);
+  }
+
+  .pix-pipeline-strip__badge--gold {
+    color: var(--medallion-gold-ink);
+    border-color: var(--medallion-gold-line);
+    background: var(--medallion-gold-dim);
+  }
+
+  .pix-pipeline-strip__badge--gh {
+    color: var(--pix-green-ink);
+    border-color: var(--pix-green-line);
+    background: var(--pix-green-dim);
+  }
+
+  .pix-pipeline-strip__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+  }
+
+  .pix-pipeline-strip__arrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  /* ── Architecture section ────────────────────────────────── */
+  .pix-architecture {
+    background: var(--paper);
+  }
+
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    margin-block-end: var(--space-8);
+  }
+
+  @media (min-width: 640px) {
+    .arch-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .arch-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .arch-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .arch-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .arch-card__badge {
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+
+  .arch-card__badge--bronze { color: var(--medallion-bronze-ink); }
+  .arch-card__badge--silver { color: var(--medallion-silver-ink); }
+  .arch-card__badge--gold   { color: var(--medallion-gold-ink);   }
+
+  .arch-card__layer {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wider);
+  }
+
+  .arch-card__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .arch-card__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    flex: 1;
+    margin: 0;
+  }
+
+  .arch-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* ── Automation card ─────────────────────────────────────── */
+  .arch-automation {
+    position: relative;
+  }
+
+  .arch-automation__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 1024px) {
+    .arch-automation__inner {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--space-12);
+    }
+    .arch-automation__left {
+      flex: 1;
+    }
+    .arch-automation__right {
+      flex-shrink: 0;
+      width: 280px;
+    }
+  }
+
+  .arch-automation__badge {
+    display: inline-block;
+    margin-block-end: var(--space-3);
+    color: var(--pix-green-ink);
+  }
+
+  .arch-automation__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0 0 var(--space-4);
+  }
+
+  .arch-automation__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+  }
+
+  .arch-automation__code {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    letter-spacing: var(--tracking-normal);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+    margin: 0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ── Insights section ────────────────────────────────────── */
+  .pix-insights {
+    background: var(--paper-soft);
+  }
+
+  .insights-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .insights-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .insights-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .insight-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .insight-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .insight-card__num {
+    color: var(--ink-faint);
+  }
+
+  .insight-card__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .insight-card__body {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    flex: 1;
+    margin: 0;
+  }
+
+  .insight-card__stat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block-start: var(--space-2);
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+
+  .insight-card__stat-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--ink-soft);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .insight-card__stat-value--accent {
+    color: var(--pix-green-ink);
+  }
+
+  .insight-card__stat-arrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-faint);
+  }
+
+  .insight-card__stat-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  /* ── Anatomia dos Dados (análise) ─────────────────────────── */
+  .pix-analysis {
+    background: var(--paper);
+  }
+
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .analysis-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 1024px) {
+    .analysis-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .analysis-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .analysis-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .analysis-card__label {
+    color: var(--ink-faint);
+  }
+
+  .analysis-card__num {
+    color: var(--ink-faint);
+  }
+
+  .analysis-card__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .analysis-card__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+    flex: 1;
+  }
+
+  .analysis-card__foot {
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+  }
+
+  /* Gráfico ASCII (sazonalidade / donut) — mesmo idioma visual do
+     growth-chart: mono, pix-green-ink (AA), overflow-x seguro. */
+  .analysis-chart,
+  .analysis-donut {
+    overflow-x: auto;
+    padding-block: var(--space-1);
+  }
+
+  .analysis-chart__bars,
+  .analysis-donut__ascii {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: var(--leading-loose);
+    color: var(--pix-green-ink);
+    margin: 0;
+    white-space: pre;
+  }
+
+  /* Composição de chaves — notação mono [████··] (padrão Skills.astro) */
+  .analysis-meters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .analysis-meter-row {
+    display: grid;
+    grid-template-columns: 4.5em 1fr auto;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+
+  .analysis-meter-row__label {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-soft);
+  }
+
+  .analysis-meter-row__bar {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--pix-green-ink);
+    letter-spacing: 0.02em;
+    line-height: 1;
+    overflow: hidden;
+  }
+
+  .analysis-meter-row__val {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: var(--tracking-wide);
+    text-align: right;
+  }
+
+  /* ── Ranking de Instituições ──────────────────────────────── */
+  .pix-ranking {
+    background: var(--paper-soft);
+  }
+
+  .ranking-methodology {
+    display: block;
+    color: var(--ink-faint);
+    margin: 0 0 var(--space-8);
+    max-width: 70ch;
+  }
+
+  .ranking-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 900px) {
+    .ranking-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .ranking-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .ranking-card__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ranking-card__hint {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+  }
+
+  /* .ranking-list é o container estático — seus <li> (.ranking-row) são
+     injetados via innerHTML em runtime, ver <style is:global> ao final. */
+  .ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: none; /* rank vem do dado, não de counter() */
+  }
+
+  .ranking-footnote {
+    display: block;
+    color: var(--ink-faint);
+    margin: var(--space-8) 0 0;
+  }
+
+  /* ── Geografia do PIX (top cidades) ───────────────────────── */
+  .pix-geografia {
+    background: var(--paper);
+  }
+
+  /* Lista de cidades: 1 coluna (nomes de município podem ser longos,
+     2 colunas comprimiriam demais o texto — ver .ranking-list padrão
+     de 2 colunas usado na seção de instituições). */
+  .ranking-list--geo {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── Mapa de calor por estado ─────────────────────────────── */
+  .geo-map-block {
+    position: relative;
+    margin-block-end: var(--space-6);
+  }
+
+  .geo-map-block__layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 900px) {
+    .geo-map-block__layout {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    .geo-map-block__map-col { flex: 0 0 340px; }
+    .geo-map-block__detail-col { flex: 1; min-width: 0; }
+  }
+
+  .geo-map-block__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-block-end: var(--space-4);
+  }
+
+  .geo-map-block__hint {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+  }
+
+  /* Select acessível — estilizado como um input Blueprint padrão */
+  .geo-state-select {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink);
+    background: var(--paper-card);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    margin-block-end: var(--space-4);
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+  }
+
+  .geo-state-select:hover,
+  .geo-state-select:focus {
+    border-color: var(--pix-green-line);
+  }
+
+  .geo-state-select:focus-visible {
+    outline: 2px solid var(--pix-green);
+    outline-offset: 2px;
+  }
+
+  /* SVG do mapa */
+  .geo-map__svg-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: var(--space-4);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+  }
+
+  .geo-map__svg-wrap :global(svg) {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+  }
+
+  /* Estados do mapa — mesmo idioma do heatmap de contribuições do GitHub
+     (5 níveis de opacidade de UM acento, sem gradiente contínuo), mas em
+     pix-green — coerente com a governança de cor desta página. */
+  .geo-map__svg-wrap :global(.br-state) {
+    stroke: var(--paper-soft);
+    stroke-width: 1.2;
+    fill: var(--line);
+    cursor: pointer;
+    transition: fill var(--transition-fast), opacity var(--transition-fast);
+  }
+
+  .geo-map__svg-wrap :global(.br-state[data-lvl='0']) { fill: rgba(0, 166, 81, 0.14); }
+  .geo-map__svg-wrap :global(.br-state[data-lvl='1']) { fill: rgba(0, 166, 81, 0.32); }
+  .geo-map__svg-wrap :global(.br-state[data-lvl='2']) { fill: rgba(0, 166, 81, 0.52); }
+  .geo-map__svg-wrap :global(.br-state[data-lvl='3']) { fill: rgba(0, 166, 81, 0.74); }
+  .geo-map__svg-wrap :global(.br-state[data-lvl='4']) { fill: var(--pix-green); }
+
+  .geo-map__svg-wrap :global(.br-state:hover),
+  .geo-map__svg-wrap :global(.br-state:focus) {
+    opacity: 0.75;
+  }
+
+  .geo-map__svg-wrap :global(.br-state.is-selected) {
+    stroke: var(--ink);
+    stroke-width: 2.5;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .geo-map__svg-wrap :global(.br-state) { transition: none; }
+  }
+
+  /* Legenda */
+  .geo-map__legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-block-start: var(--space-4);
+  }
+
+  .geo-map__legend-cells {
+    display: inline-flex;
+    gap: 3px;
+  }
+
+  .geo-map__legend-cell {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background: var(--line);
+  }
+
+  .geo-map__legend-cell[data-lvl='0'] { background: rgba(0, 166, 81, 0.14); }
+  .geo-map__legend-cell[data-lvl='1'] { background: rgba(0, 166, 81, 0.32); }
+  .geo-map__legend-cell[data-lvl='2'] { background: rgba(0, 166, 81, 0.52); }
+  .geo-map__legend-cell[data-lvl='3'] { background: rgba(0, 166, 81, 0.74); }
+  .geo-map__legend-cell[data-lvl='4'] { background: var(--pix-green); }
+
+  /* ── Painel de detalhe do estado ──────────────────────────── */
+  /* #geo-detail é o container estático — seu conteúdo interno
+     (.geo-detail__head, __name, __value, __cities etc.) é injetado via
+     innerHTML em runtime, ver <style is:global> ao final do arquivo. */
+  .geo-detail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-height: 220px;
+    padding: var(--space-6);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+  }
+
+  /* ── Segurança & MED ──────────────────────────────────────── */
+  .pix-seguranca {
+    background: var(--paper-soft);
+  }
+
+  /* .seguranca-grid é o container estático — os cards (.seguranca-card,
+     .seguranca-explainer) são injetados via innerHTML em runtime. */
+  .seguranca-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .seguranca-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 1024px) {
+    .seguranca-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  /* ── Tech Stack ASCII Logos ──────────────────────────────── */
+  .pix-techstack {
+    background: var(--paper);
+  }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .stack-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (min-width: 1024px) {
+    .stack-grid { grid-template-columns: repeat(6, 1fr); }
+  }
+
+  .stack-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    text-align: center;
+  }
+
+  /* Quadro ASCII com spotlight igual ao hero */
+  .stack-item__portrait {
+    position: relative;
+    width: 100%;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    cursor: crosshair;
+    transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+    overflow: hidden;
+  }
+
+  .stack-item__portrait:hover {
+    border-color: var(--pix-green-line);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Foto real — revelada pelo spotlight no hover */
+  .stack-item__photo {
+    position: absolute;
+    inset: 0;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0;
+    -webkit-mask: radial-gradient(circle var(--spot-r, 60px) at var(--mx, 50%) var(--my, 50%), #000 0%, #000 55%, transparent 100%);
+    mask: radial-gradient(circle var(--spot-r, 60px) at var(--mx, 50%) var(--my, 50%), #000 0%, #000 55%, transparent 100%);
+    transition: opacity var(--transition-normal);
+    pointer-events: none;
+    border-radius: var(--radius-md);
+    background-color: var(--paper-card);
+  }
+
+  .stack-item__portrait.is-spotting .stack-item__photo { opacity: 1; }
+  .stack-item__portrait.is-revealed .stack-item__photo {
+    opacity: 1;
+    -webkit-mask: none;
+    mask: none;
+  }
+  .stack-item__portrait.is-revealed .stack-item__ascii { opacity: 0.1; }
+
+  .stack-item__ascii {
+    font-family: var(--font-mono);
+    font-size: clamp(6px, 1.1vw, 9px);
+    line-height: 1.15;
+    color: var(--ink-soft);
+    margin: 0;
+    white-space: pre;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    transition: opacity var(--transition-normal);
+  }
+
+  .stack-item__name {
+    font-size: var(--text-xs);
+    color: var(--ink);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .stack-item__role {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    line-height: var(--leading-normal);
+  }
+
+</style>
+
+<!-- ════════════════════════════════════════════════════════════
+     ESTILOS GLOBAIS — elementos criados via innerHTML/createElement
+     ════════════════════════════════════════════════════════════
+     O CSS "scoped" do Astro só se aplica a elementos presentes no HTML
+     gerado em build/SSG — ele injeta um atributo data-astro-cid-* neles
+     e reescreve os seletores para exigir esse atributo. Elementos criados
+     no CLIENT (via JS, `.innerHTML = ...` ou `document.createElement`)
+     nunca recebem esse atributo, então regras "scoped" nunca os afetam.
+     Todas as classes abaixo pertencem a conteúdo montado em runtime pelos
+     widgets desta página (notícias, ranking de instituições, geografia,
+     detalhe de estado, segurança/MED) — por isso vivem num bloco global.
+     ════════════════════════════════════════════════════════════ -->
+<style is:global>
+  /* ── Widget de notícias — itens da lista (.pix-news__list é estático) ── */
+  .pix-news__item {
+    counter-increment: news;
+    position: relative;
+  }
+
+  .pix-news__link {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-4);
+    align-items: start;
+    padding: var(--space-5);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    height: 100%;
+    transition:
+      border-color var(--transition-fast),
+      background var(--transition-fast),
+      transform var(--transition-fast);
+  }
+
+  .pix-news__link:hover {
+    border-color: var(--pix-green-line);
+    background: var(--paper-card);
+    transform: translateY(-2px);
+  }
+
+  .pix-news__link:focus-visible {
+    outline: 2px solid var(--pix-green);
+    outline-offset: 2px;
+  }
+
+  .pix-news__index {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--pix-green-ink);
+    letter-spacing: var(--tracking-wide);
+    padding-top: 2px;
+  }
+  .pix-news__index::before {
+    content: counter(news, decimal-leading-zero);
+  }
+
+  .pix-news__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .pix-news__headline {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    transition: color var(--transition-fast);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .pix-news__link:hover .pix-news__headline { color: var(--pix-green-ink); }
+
+  .pix-news__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+  }
+
+  .pix-news__source {
+    display: inline-flex;
+    align-items: center;
+    max-width: 60%;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--pix-green-ink);
+    letter-spacing: var(--tracking-wide);
+    padding: var(--space-1) var(--space-2);
+    background: var(--pix-green-dim);
+    border: 1px solid var(--pix-green-line);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pix-news__time {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .pix-news__loading,
+  .pix-news__error {
+    grid-column: 1 / -1;
+    color: var(--ink-faint);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    padding: var(--space-6) 0;
+    text-align: center;
+  }
+
+  /* ── Linhas de ranking — usadas em Instituições E Geografia ────── */
+  .ranking-loading,
+  .ranking-error {
+    color: var(--ink-faint);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    padding: var(--space-4) 0;
+    text-align: center;
+  }
+
+  .ranking-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ranking-row:last-child {
+    border-bottom: none;
+  }
+
+  .ranking-row__rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75em;
+    height: 1.75em;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--ink-faint);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+  }
+
+  .ranking-row--podium .ranking-row__rank {
+    color: var(--pix-green-ink);
+    border-color: var(--pix-green-line);
+    background: var(--pix-green-dim);
+  }
+
+  .ranking-row__name {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ranking-row__value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .ranking-row__value-main {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: var(--tracking-wide);
+    white-space: nowrap;
+  }
+
+  .ranking-row__value-delta {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--pix-green-ink);
+    letter-spacing: var(--tracking-wide);
+    white-space: nowrap;
+  }
+
+  .ranking-row__value-delta--neg {
+    color: var(--ink-faint);
+  }
+
+  /* Geografia: linhas com uma coluna extra (tag de região) */
+  .ranking-list--geo .ranking-row {
+    grid-template-columns: auto 1fr auto auto;
+  }
+
+  .ranking-row__tag {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    padding: 2px var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+  }
+
+  /* ── Painel de detalhe do estado (#geo-detail é o container estático) ── */
+  .geo-detail__empty {
+    color: var(--ink-faint);
+    margin: auto;
+  }
+
+  .geo-detail__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .geo-detail__name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .geo-detail__uf {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .geo-detail__value {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--pix-green-ink);
+    line-height: 1;
+  }
+
+  .geo-detail__note {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  .geo-detail__cities-title {
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  .geo-detail__cities {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .geo-detail__city {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink);
+  }
+
+  .geo-detail__city:last-child { border-bottom: none; }
+
+  .geo-detail__city-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-soft);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* ── Segurança & MED — cards injetados (.seguranca-grid é o container) ── */
+  .seguranca-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .seguranca-card__label {
+    color: var(--ink-faint);
+  }
+
+  .seguranca-card__value {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .seguranca-card__value--protect {
+    color: var(--pix-green-ink);
+  }
+
+  .seguranca-card__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  /* Card explicativo do MED — mais largo, com texto corrido */
+  .seguranca-explainer {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+  }
+
+  .seguranca-explainer__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .seguranca-explainer__body {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+  }
+</style>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCRIPTS — motion + countUp + AI chat
+     ════════════════════════════════════════════════════════════ -->
+<script>
+  import { revealUp }     from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { countUp }      from '../scripts/motion/count-up';
+  import { motionOk }     from '../scripts/motion/constants';
+
+  // ── Reveal animations for all sections ───────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+
+    // Hero
+    const heroCard = document.querySelector('.hero-card') as Element;
+    if (heroCard && motionOk) revealUp([heroCard], heroCard, 0);
+
+    // KPI bento
+    const bentoSection = document.getElementById('dashboard');
+    if (bentoSection) {
+      const bentoHead = bentoSection.querySelector('.section-head') as Element;
+      const bentoLine = bentoSection.querySelector('.section-line') as Element;
+      const metricCards = bentoSection.querySelectorAll('.pix-metric, .pix-pipeline-strip');
+      if (bentoLine) hairlineDraw(bentoLine, bentoSection);
+      if (motionOk && bentoHead) revealUp([bentoHead], bentoSection, 0);
+      if (motionOk) revealUp(metricCards, bentoSection, 0.08);
+    }
+
+    // Architecture
+    const archSection = document.getElementById('pipeline');
+    if (archSection) {
+      const archHead = archSection.querySelector('.section-head') as Element;
+      const archLine = archSection.querySelector('.section-line') as Element;
+      const archCards = archSection.querySelectorAll('.arch-card, .arch-automation');
+      if (archLine) hairlineDraw(archLine, archSection);
+      if (motionOk && archHead) revealUp([archHead], archSection, 0);
+      if (motionOk) revealUp(archCards, archSection, 0.1);
+    }
+
+    // Insights
+    const insightsSection = document.getElementById('insights');
+    if (insightsSection) {
+      const insightsHead = insightsSection.querySelector('.section-head') as Element;
+      const insightsLine = insightsSection.querySelector('.section-line') as Element;
+      const insightCards = insightsSection.querySelectorAll('.insight-card');
+      if (insightsLine) hairlineDraw(insightsLine, insightsSection);
+      if (motionOk && insightsHead) revealUp([insightsHead], insightsSection, 0);
+      if (motionOk) revealUp(insightCards, insightsSection, 0.1);
+    }
+
+    // Anatomia dos Dados (analysis)
+    const analysisSection = document.getElementById('analysis');
+    if (analysisSection) {
+      const analysisHead = analysisSection.querySelector('.section-head') as Element;
+      const analysisLine = analysisSection.querySelector('.section-line') as Element;
+      const analysisCards = analysisSection.querySelectorAll('.analysis-card');
+      if (analysisLine) hairlineDraw(analysisLine, analysisSection);
+      if (motionOk && analysisHead) revealUp([analysisHead], analysisSection, 0);
+      if (motionOk) revealUp(analysisCards, analysisSection, 0.1);
+    }
+
+    // Ranking de Instituições
+    const rankingSection = document.getElementById('ranking');
+    if (rankingSection) {
+      const rankingHead = rankingSection.querySelector('.section-head') as Element;
+      const rankingLine = rankingSection.querySelector('.section-line') as Element;
+      const rankingCards = rankingSection.querySelectorAll('.ranking-card');
+      if (rankingLine) hairlineDraw(rankingLine, rankingSection);
+      if (motionOk && rankingHead) revealUp([rankingHead], rankingSection, 0);
+      if (motionOk) revealUp(rankingCards, rankingSection, 0.12);
+    }
+
+    // Geografia do PIX
+    const geografiaSection = document.getElementById('geografia');
+    if (geografiaSection) {
+      const geografiaHead = geografiaSection.querySelector('.section-head') as Element;
+      const geografiaLine = geografiaSection.querySelector('.section-line') as Element;
+      const geografiaMapBlock = geografiaSection.querySelector('.geo-map-block') as Element;
+      const geografiaCard = geografiaSection.querySelector('.ranking-card') as Element;
+      if (geografiaLine) hairlineDraw(geografiaLine, geografiaSection);
+      if (motionOk && geografiaHead) revealUp([geografiaHead], geografiaSection, 0);
+      if (motionOk && geografiaMapBlock) revealUp([geografiaMapBlock], geografiaSection, 0.08);
+      if (motionOk && geografiaCard) revealUp([geografiaCard], geografiaSection, 0.14);
+    }
+
+    // Segurança & MED
+    const segurancaSection = document.getElementById('seguranca');
+    if (segurancaSection) {
+      const segurancaHead = segurancaSection.querySelector('.section-head') as Element;
+      const segurancaLine = segurancaSection.querySelector('.section-line') as Element;
+      if (segurancaLine) hairlineDraw(segurancaLine, segurancaSection);
+      if (motionOk && segurancaHead) revealUp([segurancaHead], segurancaSection, 0);
+      // Cards do grid de segurança são injetados via fetch async — reveal
+      // aplicado depois que o conteúdo chega (ver renderSeguranca()).
+    }
+
+    // Count-up on KPI metrics
+    document.querySelectorAll<HTMLElement>('[data-count-to]').forEach((el) => {
+      const card = el.closest('.pix-metric') as Element | null;
+      countUp(el, card ?? el);
+    });
+
+  });
+</script>
+
+<script>
+  /**
+   * Widget de notícias — carrega assets/data/pix_news.json (gerado no pipeline
+   * pelo fetch_news.py via GitHub Actions). Feed do Google News RSS sobre PIX.
+   * Fallback gracioso: se o fetch falhar, mostra mensagem discreta.
+   */
+  interface NewsItem {
+    title: string;
+    source: string;
+    url: string;
+    published: string;
+  }
+
+  const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+
+  function timeAgo(iso: string): string {
+    if (!iso) return '';
+    const then = new Date(iso).getTime();
+    if (Number.isNaN(then)) return '';
+    const diffMs = Date.now() - then;
+    const days = Math.floor(diffMs / 86_400_000);
+    if (days <= 0) return 'hoje';
+    if (days === 1) return 'ontem';
+    if (days < 7) return `há ${days} dias`;
+    const weeks = Math.floor(days / 7);
+    if (weeks < 5) return `há ${weeks} sem`;
+    const months = Math.floor(days / 30);
+    return `há ${months} ${months === 1 ? 'mês' : 'meses'}`;
+  }
+
+  function escapeHtml(s: string): string {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  async function renderNews(): Promise<void> {
+    const list = document.getElementById('pix-news-list');
+    const updatedEl = document.querySelector<HTMLElement>('[data-news-updated]');
+    if (!list) return;
+
+    // Timeout defensivo — evita "carregando feed…" infinito se a rede travar.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    try {
+      const res = await fetch(`${baseUrl}assets/data/pix_news.json`, {
+        cache: 'no-cache',
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('fetch failed');
+      const data: { items?: NewsItem[]; updated_at?: string } = await res.json();
+      const items = data.items ?? [];
+
+      if (!items.length) {
+        list.innerHTML = '<li class="pix-news__error mono-label">sem notícias no momento</li>';
+        return;
+      }
+
+      list.innerHTML = items
+        .map((n) => {
+          const when = timeAgo(n.published);
+          const source = n.source ? escapeHtml(n.source) : 'Fonte';
+          const timeHtml = when
+            ? `<span class="pix-news__time"><span aria-hidden="true">◷</span>${when}</span>`
+            : '';
+          return `
+            <li class="pix-news__item" role="listitem">
+              <a class="pix-news__link" href="${escapeHtml(n.url)}"
+                 target="_blank" rel="noopener noreferrer"
+                 aria-label="${escapeHtml(n.title)} — ${source}${when ? ', ' + when : ''}">
+                <span class="pix-news__index mono-label" aria-hidden="true"></span>
+                <span class="pix-news__content">
+                  <span class="pix-news__headline">${escapeHtml(n.title)}</span>
+                  <span class="pix-news__meta">
+                    <span class="pix-news__source" title="${source}">${source}</span>
+                    ${timeHtml}
+                  </span>
+                </span>
+              </a>
+            </li>`;
+        })
+        .join('');
+
+      // Atualiza o rótulo do feed com a data de atualização
+      if (updatedEl && data.updated_at) {
+        const when = timeAgo(data.updated_at);
+        updatedEl.textContent = `Google News · ${when || 'atualizado'}`;
+      }
+    } catch {
+      clearTimeout(timeoutId);
+      list.innerHTML =
+        '<li class="pix-news__error mono-label">feed indisponível — tente recarregar</li>';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', renderNews);
+</script>
+
+<script>
+  /**
+   * Widget de ranking de instituições — carrega assets/data/pix_ranking.json
+   * (gerado pelo pipeline via ingestion/ingest_ranking.py). Dado real do
+   * BACEN (DICT/ChavesPix): estoque de chaves PIX por instituição.
+   */
+  interface RankingHistoricoItem {
+    rank: number;
+    ispb: string;
+    nome: string;
+    chaves: number;
+  }
+
+  interface RankingRecenteItem {
+    rank: number;
+    ispb: string;
+    nome: string;
+    chaves_atual: number;
+    chaves_anterior: number;
+    crescimento_absoluto: number;
+    crescimento_pct: number;
+  }
+
+  interface RankingPayload {
+    gerado_em?: string;
+    snapshot_recente?: string;
+    snapshot_comparacao?: string | null;
+    historico?: RankingHistoricoItem[];
+    recente?: RankingRecenteItem[];
+  }
+
+  const rankingBaseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+
+  /** Formata números grandes de forma compacta (183422436 → "183,4M"). */
+  function formatCompact(n: number): string {
+    const abs = Math.abs(n);
+    if (abs >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace('.', ',')}M`;
+    if (abs >= 1_000) return `${(n / 1_000).toFixed(1).replace('.', ',')}mil`;
+    return String(n);
+  }
+
+  function rankingEscapeHtml(s: string): string {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function monthLabel(iso: string | null | undefined): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+  }
+
+  function renderHistorico(items: RankingHistoricoItem[]): string {
+    return items
+      .map((item) => {
+        const podium = item.rank <= 3 ? ' ranking-row--podium' : '';
+        return `
+          <li class="ranking-row${podium}" role="listitem">
+            <span class="ranking-row__rank" aria-hidden="true">${item.rank}</span>
+            <span class="ranking-row__name" title="${rankingEscapeHtml(item.nome)}">${rankingEscapeHtml(item.nome)}</span>
+            <span class="ranking-row__value">
+              <span class="ranking-row__value-main">${formatCompact(item.chaves)}</span>
+            </span>
+          </li>`;
+      })
+      .join('');
+  }
+
+  function renderRecente(items: RankingRecenteItem[]): string {
+    return items
+      .map((item) => {
+        const podium = item.rank <= 3 ? ' ranking-row--podium' : '';
+        const isPositive = item.crescimento_absoluto >= 0;
+        const deltaClass = isPositive ? '' : ' ranking-row__value-delta--neg';
+        const sign = isPositive ? '+' : '';
+        return `
+          <li class="ranking-row${podium}" role="listitem">
+            <span class="ranking-row__rank" aria-hidden="true">${item.rank}</span>
+            <span class="ranking-row__name" title="${rankingEscapeHtml(item.nome)}">${rankingEscapeHtml(item.nome)}</span>
+            <span class="ranking-row__value">
+              <span class="ranking-row__value-main">${sign}${formatCompact(item.crescimento_absoluto)}</span>
+              <span class="ranking-row__value-delta${deltaClass}">${sign}${item.crescimento_pct.toFixed(1).replace('.', ',')}%</span>
+            </span>
+          </li>`;
+      })
+      .join('');
+  }
+
+  async function renderRanking(): Promise<void> {
+    const historicoList = document.getElementById('ranking-historico-list');
+    const recenteList = document.getElementById('ranking-recente-list');
+    const footnote = document.getElementById('ranking-footnote');
+    if (!historicoList || !recenteList) return;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    try {
+      const res = await fetch(`${rankingBaseUrl}assets/data/pix_ranking.json`, {
+        cache: 'no-cache',
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('fetch failed');
+      const data: RankingPayload = await res.json();
+
+      const historico = data.historico ?? [];
+      const recente = data.recente ?? [];
+
+      historicoList.innerHTML = historico.length
+        ? renderHistorico(historico)
+        : '<li class="ranking-error mono-label">sem dados no momento</li>';
+
+      recenteList.innerHTML = recente.length
+        ? renderRecente(recente)
+        : '<li class="ranking-error mono-label">sem dados de comparação disponíveis</li>';
+
+      if (footnote) {
+        const recentLabel = monthLabel(data.snapshot_recente);
+        const pastLabel = monthLabel(data.snapshot_comparacao);
+        const period = pastLabel && recentLabel ? ` · ${pastLabel} → ${recentLabel}` : '';
+        footnote.textContent = `fonte: BACEN Olinda API · Pix_DadosAbertos / ChavesPix${period}`;
+      }
+    } catch {
+      clearTimeout(timeoutId);
+      const errorMsg = '<li class="ranking-error mono-label">ranking indisponível — tente recarregar</li>';
+      historicoList.innerHTML = errorMsg;
+      recenteList.innerHTML = errorMsg;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', renderRanking);
+</script>
+
+<script>
+  /**
+   * KPI de usuários — atualiza o card "Usuários cadastrados (DICT)" com o
+   * número mais recente de assets/data/pix_usuarios.json (gerado por
+   * ingest_usuarios.py). O valor no HTML é apenas o fallback estático do
+   * momento da build; aqui buscamos o dado fresco em runtime.
+   */
+  interface UsuariosPayload {
+    usuarios_total_atual?: number;
+    fator_crescimento?: number;
+    ultimo_mes?: string;
+  }
+
+  function formatUsuariosCompact(n: number): string {
+    return `${Math.round(n / 1_000_000)}M+`;
+  }
+
+  async function refreshUsuariosKpi(): Promise<void> {
+    const valueEl = document.getElementById('kpi-usuarios-value');
+    const labelEl = document.getElementById('kpi-usuarios-label');
+    const cardEl = document.getElementById('kpi-usuarios-card');
+    if (!valueEl) return;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    try {
+      const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+      const res = await fetch(`${base}assets/data/pix_usuarios.json`, {
+        cache: 'no-cache',
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('fetch failed');
+      const data: UsuariosPayload = await res.json();
+
+      if (data.usuarios_total_atual) {
+        const compact = formatUsuariosCompact(data.usuarios_total_atual);
+        // Atualiza o data-count-to para o countUp já disparado recalcular
+        // corretamente caso ainda não tenha corrido (senão, ajusta o texto direto).
+        valueEl.dataset.countTo = String(Math.round(data.usuarios_total_atual / 1_000_000));
+        valueEl.textContent = compact;
+        valueEl.setAttribute(
+          'aria-label',
+          `${data.usuarios_total_atual.toLocaleString('pt-BR')} usuários cadastrados`
+        );
+      }
+
+      if (labelEl && data.fator_crescimento) {
+        labelEl.textContent = `Usuários cadastrados (DICT) · ${data.fator_crescimento.toFixed(2).replace('.', ',')}× desde nov/2020`;
+      }
+
+      if (cardEl && data.usuarios_total_atual) {
+        cardEl.setAttribute(
+          'aria-label',
+          `${data.usuarios_total_atual.toLocaleString('pt-BR')} usuários cadastrados no DICT`
+        );
+      }
+    } catch {
+      clearTimeout(timeoutId);
+      // Falha silenciosa — mantém o fallback estático já renderizado no HTML.
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', refreshUsuariosKpi);
+</script>
+
+<script>
+  /**
+   * Widgets "Geografia do PIX" — mapa de calor por estado + ranking de
+   * cidades. Ambos consomem o MESMO fetch de assets/data/pix_municipios.json
+   * (gerado por ingest_municipios.py) — busca única, compartilhada.
+   */
+  interface MunicipioItem {
+    rank: number;
+    municipio: string;
+    estado: string;
+    regiao: string;
+    valor_pago: number;
+    valor_recebido: number;
+  }
+
+  interface EstadoCidade {
+    municipio: string;
+    valor_pago: number;
+  }
+
+  interface EstadoItem {
+    uf: string;
+    nome: string;
+    valor_pago: number;
+    nivel: number; // -1 (sem amostra) a 4 (maior)
+    amostra_insuficiente: boolean;
+    cidades: EstadoCidade[];
+  }
+
+  interface MunicipiosPayload {
+    anomes?: string;
+    ranking?: MunicipioItem[];
+    estados?: EstadoItem[];
+  }
+
+  function formatReaisCompact(v: number): string {
+    if (Math.abs(v) >= 1_000_000_000) return `R$ ${(v / 1_000_000_000).toFixed(1).replace('.', ',')}bi`;
+    if (Math.abs(v) >= 1_000_000) return `R$ ${(v / 1_000_000).toFixed(1).replace('.', ',')}M`;
+    return `R$ ${v.toLocaleString('pt-BR')}`;
+  }
+
+  function anomesToLabel(anomes: string | undefined): string {
+    if (!anomes || anomes.length !== 6) return '';
+    const y = anomes.slice(0, 4);
+    const m = parseInt(anomes.slice(4, 6), 10);
+    const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    return `${meses[m - 1]}/${y}`;
+  }
+
+  function escapeHtmlGeo(s: string): string {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  // ── Fetch único, compartilhado entre ranking e mapa ──────────────
+  let municipiosDataPromise: Promise<MunicipiosPayload | null> | null = null;
+
+  function loadMunicipiosData(): Promise<MunicipiosPayload | null> {
+    if (municipiosDataPromise) return municipiosDataPromise;
+
+    municipiosDataPromise = (async () => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      try {
+        const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+        const res = await fetch(`${base}assets/data/pix_municipios.json`, {
+          cache: 'no-cache',
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('fetch failed');
+        return (await res.json()) as MunicipiosPayload;
+      } catch {
+        clearTimeout(timeoutId);
+        return null;
+      }
+    })();
+
+    return municipiosDataPromise;
+  }
+
+  // ── Ranking nacional de cidades ───────────────────────────────────
+  async function renderGeografiaRanking(): Promise<void> {
+    const list = document.getElementById('geografia-list');
+    const footnote = document.getElementById('geografia-footnote');
+    if (!list) return;
+
+    const data = await loadMunicipiosData();
+    if (!data) {
+      list.innerHTML = '<li class="ranking-error mono-label">ranking indisponível — tente recarregar</li>';
+      return;
+    }
+
+    const ranking = data.ranking ?? [];
+    if (!ranking.length) {
+      list.innerHTML = '<li class="ranking-error mono-label">sem dados no momento</li>';
+      return;
+    }
+
+    list.innerHTML = ranking
+      .map((item) => {
+        const podium = item.rank <= 3 ? ' ranking-row--podium' : '';
+        const nomeCompleto = `${item.municipio} / ${item.estado}`;
+        return `
+          <li class="ranking-row${podium}" role="listitem">
+            <span class="ranking-row__rank" aria-hidden="true">${item.rank}</span>
+            <span class="ranking-row__name" title="${nomeCompleto}">${nomeCompleto}</span>
+            <span class="ranking-row__tag" aria-hidden="true">${item.regiao}</span>
+            <span class="ranking-row__value">
+              <span class="ranking-row__value-main">${formatReaisCompact(item.valor_pago)}</span>
+            </span>
+          </li>`;
+      })
+      .join('');
+
+    if (footnote) {
+      const label = anomesToLabel(data.anomes);
+      footnote.textContent = `fonte: BACEN Olinda API · Pix_DadosAbertos / TransacoesPixPorMunicipio${label ? ' · ' + label : ''}`;
+    }
+  }
+
+  // ── Mapa de calor + drill-down por estado ─────────────────────────
+  function renderDetail(estado: EstadoItem | undefined): void {
+    const detail = document.getElementById('geo-detail');
+    if (!detail) return;
+
+    if (!estado) {
+      detail.innerHTML = '<p class="geo-detail__empty mono-label">nenhum estado selecionado</p>';
+      return;
+    }
+
+    const citiesHtml = estado.cidades.length
+      ? estado.cidades
+          .map(
+            (c) => `
+            <li class="geo-detail__city">
+              <span>${escapeHtmlGeo(c.municipio)}</span>
+              <span class="geo-detail__city-value">${formatReaisCompact(c.valor_pago)}</span>
+            </li>`
+          )
+          .join('')
+      : '<li class="geo-detail__city"><span class="mono-label">nenhuma cidade deste estado está na amostra</span></li>';
+
+    detail.innerHTML = `
+      <header class="geo-detail__head">
+        <div>
+          <h3 class="geo-detail__name">${escapeHtmlGeo(estado.nome)}</h3>
+          <span class="geo-detail__uf">${estado.uf}</span>
+        </div>
+        <span class="geo-detail__value">${estado.amostra_insuficiente ? '—' : formatReaisCompact(estado.valor_pago)}</span>
+      </header>
+      ${
+        estado.amostra_insuficiente
+          ? '<p class="geo-detail__note">Nenhuma cidade deste estado apareceu entre as ~1000 maiores do país nesta amostra — não significa volume zero, apenas que não há dados nesta amostra específica.</p>'
+          : `<p class="geo-detail__note">Soma das cidades deste estado presentes na amostra nacional das maiores — não é o total exato do estado.</p>`
+      }
+      <p class="mono-label geo-detail__cities-title">cidades na amostra</p>
+      <ul class="geo-detail__cities">${citiesHtml}</ul>
+    `;
+  }
+
+  async function renderMapa(): Promise<void> {
+    const wrap = document.getElementById('geo-map-svg-wrap');
+    const select = document.getElementById('geo-state-select') as HTMLSelectElement | null;
+    if (!wrap || !select) return;
+
+    const data = await loadMunicipiosData();
+    const estados = data?.estados ?? [];
+
+    if (!estados.length) {
+      wrap.innerHTML = '<p class="ranking-error mono-label">mapa indisponível — tente recarregar</p>';
+      return;
+    }
+
+    const estadoPorUf = new Map(estados.map((e) => [e.uf, e]));
+
+    // Popula o select (ordenado por nome, mais previsível para navegação por teclado)
+    const ordenados = [...estados].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    for (const e of ordenados) {
+      const opt = document.createElement('option');
+      opt.value = e.uf;
+      opt.textContent = e.amostra_insuficiente ? `${e.nome} (sem amostra)` : e.nome;
+      select.appendChild(opt);
+    }
+
+    // Carrega o SVG (mesmo padrão de fetch-de-texto usado no ASCII portrait do Hero)
+    const svgSrc = wrap.dataset.mapSrc;
+    if (!svgSrc) return;
+
+    try {
+      const res = await fetch(svgSrc);
+      if (!res.ok) throw new Error('svg fetch failed');
+      wrap.innerHTML = await res.text();
+    } catch {
+      wrap.innerHTML = '<p class="ranking-error mono-label">mapa indisponível — tente recarregar</p>';
+      return;
+    }
+
+    const svg = wrap.querySelector('svg');
+    if (!svg) return;
+
+    const paths = Array.from(svg.querySelectorAll<SVGPathElement>('.br-state'));
+    for (const path of paths) {
+      const uf = path.dataset.uf ?? path.id;
+      const estado = estadoPorUf.get(uf);
+      path.setAttribute('data-lvl', String(estado?.nivel ?? -1));
+      path.setAttribute('tabindex', '-1'); // navegação via <select>, mapa é atalho de mouse
+      path.setAttribute('role', 'button');
+      if (estado) {
+        path.setAttribute('aria-label', `${estado.nome}: ${estado.amostra_insuficiente ? 'sem amostra' : formatReaisCompact(estado.valor_pago)}`);
+      }
+    }
+
+    function selectUf(uf: string): void {
+      for (const path of paths) {
+        path.classList.toggle('is-selected', (path.dataset.uf ?? path.id) === uf);
+      }
+      if (select && select.value !== uf) select.value = uf;
+      renderDetail(estadoPorUf.get(uf));
+    }
+
+    svg.addEventListener('click', (e) => {
+      const target = (e.target as Element).closest<SVGPathElement>('.br-state');
+      if (!target) return;
+      const uf = target.dataset.uf ?? target.id;
+      selectUf(uf);
+    });
+
+    select.addEventListener('change', () => {
+      if (select.value) selectUf(select.value);
+      else {
+        for (const path of paths) path.classList.remove('is-selected');
+        renderDetail(undefined);
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderGeografiaRanking();
+    renderMapa();
+  });
+</script>
+
+<script>
+  /**
+   * Widget "Segurança & MED" — carrega assets/data/pix_fraudes.json
+   * (gerado por ingest_fraudes.py). Único dataset deste projeto onde o
+   * BACEN publica uma linha exata por mês — sem amostragem.
+   */
+  interface FraudesPayload {
+    anomes?: string;
+    contestacoes?: {
+      total: number;
+      aceitas: number;
+      valor_aceitas: number;
+    };
+    usuarios_marcados_fraude?: number;
+    med?: {
+      percentual_devolucao: number;
+      devolvido_integral_valor: number;
+      devolvido_parcial_valor: number;
+    };
+    bloqueios_cautelares?: {
+      liberados_valor: number;
+      devolvidos_valor: number;
+    };
+  }
+
+  function formatReaisFull(v: number): string {
+    if (Math.abs(v) >= 1_000_000_000) return `R$ ${(v / 1_000_000_000).toFixed(2).replace('.', ',')} bi`;
+    if (Math.abs(v) >= 1_000_000) return `R$ ${(v / 1_000_000).toFixed(1).replace('.', ',')} M`;
+    return `R$ ${v.toLocaleString('pt-BR')}`;
+  }
+
+  function formatIntCompact(n: number): string {
+    if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace('.', ',')}M`;
+    if (Math.abs(n) >= 1_000) return `${(n / 1_000).toFixed(1).replace('.', ',')}mil`;
+    return String(n);
+  }
+
+  function segAnomesToLabel(anomes: string | undefined): string {
+    if (!anomes || anomes.length !== 6) return '';
+    const y = anomes.slice(0, 4);
+    const m = parseInt(anomes.slice(4, 6), 10);
+    const meses = [
+      'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+    ];
+    return `${meses[m - 1]} de ${y}`;
+  }
+
+  async function renderSeguranca(): Promise<void> {
+    const grid = document.getElementById('seguranca-grid');
+    const footnote = document.getElementById('seguranca-footnote');
+    if (!grid) return;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    try {
+      const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+      const res = await fetch(`${base}assets/data/pix_fraudes.json`, {
+        cache: 'no-cache',
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('fetch failed');
+      const data: FraudesPayload = await res.json();
+
+      const contestacoes = data.contestacoes;
+      const med = data.med;
+      const bloqueios = data.bloqueios_cautelares;
+      const mesLabel = segAnomesToLabel(data.anomes);
+
+      if (!contestacoes || !med || !bloqueios) {
+        grid.innerHTML = '<p class="ranking-error mono-label">sem dados no momento</p>';
+        return;
+      }
+
+      grid.innerHTML = `
+        <div class="card seguranca-card" role="group" aria-label="Contestações de fraude no mês">
+          <span class="mono-label seguranca-card__label">contestações no mês</span>
+          <span class="seguranca-card__value">${formatIntCompact(contestacoes.total)}</span>
+          <p class="seguranca-card__desc">
+            ${formatIntCompact(contestacoes.aceitas)} aceitas como fraude confirmada
+            (${formatReaisFull(contestacoes.valor_aceitas)})
+          </p>
+        </div>
+
+        <div class="card seguranca-card" role="group" aria-label="Valor bloqueado cautelarmente">
+          <span class="mono-label seguranca-card__label">bloqueado cautelarmente</span>
+          <span class="seguranca-card__value seguranca-card__value--protect">${formatReaisFull(bloqueios.liberados_valor)}</span>
+          <p class="seguranca-card__desc">
+            valores suspeitos de fraude retidos pelo MED em um único mês
+          </p>
+        </div>
+
+        <div class="card seguranca-card" role="group" aria-label="Percentual de devolução às vítimas">
+          <span class="mono-label seguranca-card__label">devolução às vítimas</span>
+          <span class="seguranca-card__value seguranca-card__value--protect">${med.percentual_devolucao.toFixed(1).replace('.', ',')}%</span>
+          <p class="seguranca-card__desc">
+            dos valores contestados foram devolvidos (integral ou parcialmente)
+          </p>
+        </div>
+
+        <div class="card seguranca-card" role="group" aria-label="Usuários marcados por fraude">
+          <span class="mono-label seguranca-card__label">marcados por fraude</span>
+          <span class="seguranca-card__value">${formatIntCompact(data.usuarios_marcados_fraude ?? 0)}</span>
+          <p class="seguranca-card__desc">
+            usuários com registro de fraude no mês, banidos da rede DICT
+          </p>
+        </div>
+
+        <div class="seguranca-explainer">
+          <h3 class="seguranca-explainer__title">O que é o MED?</h3>
+          <p class="seguranca-explainer__body">
+            O Mecanismo Especial de Devolução (MED) é o protocolo do BACEN para bloquear
+            e devolver valores movidos por fraude no PIX. Quando uma vítima contesta uma
+            transação, a instituição recebedora pode bloquear cautelarmente o saldo antes
+            que o fraudador o retire — ${mesLabel ? `em ${mesLabel}, isso` : 'isso'} significou
+            ${formatReaisFull(bloqueios.liberados_valor)} retidos preventivamente,
+            com ${med.percentual_devolucao.toFixed(1).replace('.', ',')}% de devolução efetiva às vítimas.
+          </p>
+        </div>
+      `;
+
+      if (footnote && mesLabel) {
+        footnote.textContent = `fonte: BACEN Olinda API · Pix_DadosAbertos / EstatisticasFraudesPix · ${mesLabel}`;
+      }
+    } catch {
+      clearTimeout(timeoutId);
+      grid.innerHTML = '<p class="ranking-error mono-label">estatísticas indisponíveis — tente recarregar</p>';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', renderSeguranca);
+</script>
+

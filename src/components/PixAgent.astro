@@ -1,0 +1,707 @@
+---
+/**
+ * PixAgent.astro — Agente flutuante do PIX Observatory
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Botão flutuante fixo no canto inferior direito que acompanha o scroll.
+ * Ao clicar, abre um painel de chat com respostas pré-definidas sobre os
+ * dados do PIX Observatory.
+ *
+ * - Botão: FAB verde PIX com ícone de chat + rótulo pulsante "Pergunte ao PIX"
+ * - Painel: card com terminal bar, mensagens, input; abre/fecha com animação
+ * - Acessível: aria-expanded, aria-controls, foco no input ao abrir, Escape fecha
+ *
+ * LIMITAÇÃO CONHECIDA (por design, não por descuido): isto é um mock local
+ * por keyword-matching, SEM LLM real. O site é publicado no GitHub Pages
+ * (hospedagem 100% estática) — não há servidor para rodar Ollama ou chamar
+ * qualquer API de IA sem expor uma chave secreta no navegador. A UI declara
+ * essa limitação de forma explícita (ver nota no painel, abaixo do input).
+ */
+---
+
+<div class="pix-agent" data-pix-agent>
+
+  <!-- Painel de chat (oculto por padrão) -->
+  <div
+    class="pix-agent__panel"
+    id="pix-agent-panel"
+    role="dialog"
+    aria-modal="false"
+    aria-labelledby="pix-agent-title"
+    hidden
+  >
+    <!-- Terminal bar -->
+    <header class="pix-agent__bar">
+      <div class="pix-agent__bar-dots" aria-hidden="true">
+        <!-- .ql-dot herda --accent (azul) do global.css — sobrescrito aqui:
+             o painel é 100% verde PIX, sem motivo para misturar com azul. -->
+        <span class="ql-dot" style="background: var(--pix-green);"></span>
+        <span class="ql-dot" style="background: var(--pix-green-ink); opacity: 0.6;"></span>
+        <span class="ql-dot" style="background: var(--ink-faint);"></span>
+      </div>
+      <span class="pix-agent__bar-title" id="pix-agent-title">
+        <span class="pix-agent__bar-live" aria-hidden="true"></span>
+        pix-ai · demo local
+      </span>
+      <button
+        type="button"
+        class="pix-agent__close"
+        data-agent-close
+        aria-label="Fechar chat"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </header>
+
+    <!-- Mensagens -->
+    <div
+      class="pix-agent__messages"
+      id="pix-agent-messages"
+      role="log"
+      aria-label="Conversa com o agente PIX"
+      aria-live="polite"
+      aria-atomic="false"
+    >
+      <div class="pix-agent__msg pix-agent__msg--ai" role="article">
+        <span class="pix-agent__author mono-label pix-agent__author--ai" aria-hidden="true">pix-ai</span>
+        <p class="pix-agent__text">
+          Olá! Sou o agente do PIX Observatory. Pergunte qualquer coisa sobre os
+          dados do PIX — crescimento, ticket médio, disponibilidade, arquitetura.
+        </p>
+      </div>
+    </div>
+
+    <!-- Sugestões rápidas -->
+    <div class="pix-agent__suggestions" aria-label="Perguntas sugeridas">
+      <button type="button" class="pix-agent__chip" data-agent-suggest>Quantas transações no total?</button>
+      <button type="button" class="pix-agent__chip" data-agent-suggest>Como o PIX cresceu?</button>
+      <button type="button" class="pix-agent__chip" data-agent-suggest>Qual o ticket médio?</button>
+    </div>
+
+    <!-- Nota / disclaimer: sem LLM real (GitHub Pages é hospedagem 100%
+         estática, sem backend — ver comentário no topo do arquivo). -->
+    <p class="pix-agent__note mono-label">
+      Demo local · respostas fixas por palavra-chave, sem LLM real
+    </p>
+
+    <!-- Input -->
+    <form class="pix-agent__form" id="pix-agent-form" novalidate>
+      <label for="pix-agent-input" class="sr-only">Sua pergunta sobre o PIX</label>
+      <input
+        type="text"
+        id="pix-agent-input"
+        class="pix-agent__input"
+        placeholder="Pergunte sobre os dados do PIX…"
+        autocomplete="off"
+        maxlength="500"
+      />
+      <button type="submit" class="pix-agent__send" id="pix-agent-send" aria-label="Enviar pergunta">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" />
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- Botão flutuante (FAB) -->
+  <button
+    type="button"
+    class="pix-agent__fab"
+    data-agent-toggle
+    aria-expanded="false"
+    aria-controls="pix-agent-panel"
+    aria-label="Abrir chat com o agente do PIX"
+  >
+    <span class="pix-agent__fab-icon" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+        <path d="M8 12h.01M12 12h.01M16 12h.01" />
+      </svg>
+    </span>
+    <span class="pix-agent__fab-label">Pergunte ao PIX</span>
+    <span class="pix-agent__fab-close-icon" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12" />
+      </svg>
+    </span>
+  </button>
+
+</div>
+
+<style>
+  /* ── Container fixo (acompanha o scroll) ─────────────────── */
+  .pix-agent {
+    position: fixed;
+    inset-block-end: var(--space-6);
+    inset-inline-end: var(--space-6);
+    z-index: var(--z-toast);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-4);
+    pointer-events: none;
+  }
+
+  .pix-agent > * { pointer-events: auto; }
+
+  /* ── FAB ─────────────────────────────────────────────────── */
+  .pix-agent__fab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    /* pix-green-ink (não pix-green) — o rótulo "Pergunte ao PIX" é texto
+       normal, precisa de 4.5:1 com --paper; pix-green puro dá só 3.1:1. */
+    background: var(--pix-green-ink);
+    color: var(--paper);
+    border: 1px solid var(--pix-green-ink);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    transition:
+      transform var(--transition-fast),
+      background var(--transition-fast),
+      box-shadow var(--transition-normal);
+    animation: fab-attention 3.5s ease-in-out infinite;
+  }
+
+  .pix-agent__fab:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(0, 166, 81, 0.28);
+  }
+
+  .pix-agent__fab:focus-visible {
+    outline: 2px solid var(--pix-green);
+    outline-offset: 3px;
+  }
+
+  /* Chamada de atenção sutil — pulso periódico, calmo */
+  @keyframes fab-attention {
+    0%, 90%, 100% { transform: translateY(0) scale(1); }
+    93%           { transform: translateY(-3px) scale(1.03); }
+    96%           { transform: translateY(0) scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pix-agent__fab { animation: none; }
+    .pix-agent__fab:hover { transform: none; }
+  }
+
+  /* Depois da primeira interação, o pulso de "chamar atenção" para —
+     já cumpriu o papel de sinalizar a existência do agente. */
+  .pix-agent[data-agent-visited] .pix-agent__fab,
+  .pix-agent[data-agent-visited] .pix-agent__fab-icon {
+    animation: none;
+  }
+
+  .pix-agent__fab-icon {
+    display: inline-flex;
+    animation: fab-icon-bob 3.5s ease-in-out infinite;
+  }
+
+  @keyframes fab-icon-bob {
+    0%, 88%, 100% { transform: rotate(0); }
+    92%           { transform: rotate(-12deg); }
+    95%           { transform: rotate(8deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pix-agent__fab-icon { animation: none; }
+  }
+
+  .pix-agent__fab-close-icon { display: none; }
+
+  /* Estado aberto: FAB vira botão de fechar compacto */
+  .pix-agent[data-open] .pix-agent__fab {
+    animation: none;
+    padding: var(--space-3);
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .pix-agent[data-open] .pix-agent__fab-icon,
+  .pix-agent[data-open] .pix-agent__fab-label { display: none; }
+  .pix-agent[data-open] .pix-agent__fab-close-icon { display: inline-flex; }
+
+  @media (max-width: 480px) {
+    .pix-agent__fab-label { display: none; }
+    .pix-agent__fab { padding: var(--space-4); }
+  }
+
+  /* ── Painel ──────────────────────────────────────────────── */
+  .pix-agent__panel {
+    display: flex;
+    flex-direction: column;
+    width: min(400px, calc(100vw - var(--space-8)));
+    height: min(560px, calc(100dvh - var(--space-24)));
+    background: var(--paper-card);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transform-origin: bottom right;
+  }
+
+  .pix-agent__panel[hidden] { display: none; }
+
+  /* Animação de abertura */
+  .pix-agent__panel.is-opening {
+    animation: panel-in var(--transition-normal) both;
+  }
+  .pix-agent__panel.is-closing {
+    animation: panel-out var(--transition-fast) both;
+  }
+
+  @keyframes panel-in {
+    from { opacity: 0; transform: translateY(16px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes panel-out {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 0; transform: translateY(16px) scale(0.96); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pix-agent__panel.is-opening,
+    .pix-agent__panel.is-closing { animation: none; }
+  }
+
+  /* Terminal bar */
+  .pix-agent__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--paper-soft);
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+
+  .pix-agent__bar-dots {
+    display: inline-flex;
+    gap: var(--space-2);
+  }
+
+  .pix-agent__bar-title {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .pix-agent__bar-live {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--pix-green);
+    flex-shrink: 0;
+    animation: bar-live-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes bar-live-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pix-agent__bar-live { animation: none; }
+  }
+
+  .pix-agent__close {
+    display: inline-flex;
+    padding: var(--space-1);
+    background: transparent;
+    border: none;
+    color: var(--ink-faint);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast), background var(--transition-fast);
+  }
+  .pix-agent__close:hover { color: var(--ink); background: var(--line); }
+  .pix-agent__close:focus-visible { outline: 2px solid var(--pix-green); outline-offset: 2px; }
+
+  /* Mensagens */
+  .pix-agent__messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+  }
+
+  /* .pix-agent__msg e filhos (author/text) ficam em <style is:global>
+     ao final do arquivo — são criados via document.createElement() em
+     appendMessage() (script abaixo), e o CSS "scoped" do Astro nunca se
+     aplica a nós DOM criados no client (só aos renderizados no SSG). A
+     PRIMEIRA mensagem (boas-vindas, estática no template) funcionaria
+     mesmo sem isso, mas todas as seguintes (pergunta do usuário, resposta
+     da IA) ficariam sem estilo se essas regras continuassem aqui. */
+
+  /* Sugestões */
+  .pix-agent__suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: 0 var(--space-5) var(--space-3);
+    flex-shrink: 0;
+  }
+
+  .pix-agent__chip {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-soft);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    padding: var(--space-1) var(--space-3);
+    cursor: pointer;
+    letter-spacing: var(--tracking-wide);
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+  }
+  .pix-agent__chip:hover {
+    color: var(--pix-green-ink);
+    border-color: var(--pix-green-line);
+  }
+  .pix-agent__chip:focus-visible { outline: 2px solid var(--pix-green); outline-offset: 2px; }
+
+  /* Nota */
+  .pix-agent__note {
+    margin: 0;
+    padding: var(--space-2) var(--space-5);
+    color: var(--ink-faint);
+    font-size: var(--text-xs);
+    border-top: 1px solid var(--line);
+    background: var(--paper-soft);
+    flex-shrink: 0;
+  }
+
+  /* Input */
+  .pix-agent__form {
+    display: flex;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+
+  .pix-agent__input {
+    flex: 1;
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    outline: none;
+    min-width: 0;
+    transition: border-color var(--transition-fast);
+  }
+  .pix-agent__input:focus { border-color: var(--pix-green); }
+  .pix-agent__input::placeholder { color: var(--ink-faint); }
+
+  .pix-agent__send {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    flex-shrink: 0;
+    background: var(--pix-green);
+    color: var(--paper);
+    border: 1px solid var(--pix-green);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+  }
+  .pix-agent__send:hover { background: var(--ink); border-color: var(--ink); }
+  .pix-agent__send:focus-visible { outline: 2px solid var(--pix-green); outline-offset: 2px; }
+  .pix-agent__send:disabled { opacity: 0.5; cursor: not-allowed; }
+  .pix-agent__send:disabled:hover { background: var(--pix-green); border-color: var(--pix-green); }
+</style>
+
+<!-- ════════════════════════════════════════════════════════════
+     ESTILOS GLOBAIS — mensagens de chat criadas via createElement()
+     ════════════════════════════════════════════════════════════
+     Ver explicação completa em pix-observatory.astro (mesmo padrão).
+     appendMessage() no script abaixo cria cada balão de mensagem via
+     document.createElement — CSS scoped do Astro não alcança esses nós.
+     ════════════════════════════════════════════════════════════ -->
+<style is:global>
+  .pix-agent__msg {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    max-width: 92%;
+    animation: msg-in 0.3s ease both;
+  }
+
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pix-agent__msg { animation: none; }
+  }
+
+  .pix-agent__msg--user {
+    align-self: flex-end;
+    background: var(--accent-dim);
+    border: 1px solid var(--line-accent);
+  }
+
+  .pix-agent__msg--ai {
+    align-self: flex-start;
+    background: var(--pix-green-dim);
+    border: 1px solid var(--pix-green-line);
+  }
+
+  .pix-agent__msg--typing {
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+  }
+
+  .pix-agent__author {
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wider);
+  }
+  .pix-agent__author--ai { color: var(--pix-green-ink); }
+
+  .pix-agent__text {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+  .pix-agent__msg--typing .pix-agent__text {
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+
+  .pix-agent__typing-dots::after {
+    content: '...';
+    display: inline-block;
+    animation: agent-typing 1.4s steps(4, end) infinite;
+  }
+  @keyframes agent-typing {
+    0% { content: '.'; } 25% { content: '..'; }
+    50% { content: '...'; } 75% { content: ''; } 100% { content: '.'; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pix-agent__typing-dots::after { animation: none; content: '...'; }
+  }
+</style>
+
+<script>
+  /**
+   * Agente PIX flutuante — abre/fecha painel + chat mock local.
+   * Demo: respostas fixas recuperadas por keyword (RESPONSES abaixo).
+   *
+   * Sem LLM real por limitação de hospedagem: GitHub Pages é 100% estático
+   * e não roda backend. Chamar um LLM de verdade exigiria ou (a) expor uma
+   * API key de um provedor no navegador — inseguro — ou (b) um proxy
+   * server-side externo ao GitHub Pages para guardar essa key, o que foi
+   * descartado por trazer dependência de serviço externo. Ver disclaimer
+   * visível no painel ("Demo local · respostas fixas por palavra-chave,
+   * sem LLM real").
+   */
+
+  // ── RAG context (dados reais do BACEN) ─────────────────────
+  const RAG_CONTEXT = {
+    total_transacoes_historico: '45+ bilhões desde novembro/2020',
+    transacoes_por_dia_pico_2025: '258 milhões',
+    movimentado_2024: 'R$ 4,4 trilhões',
+    crescimento_fator: '106.000× desde o dia 1 (2.345 transações em 03/11/2020)',
+    ticket_medio_atual: 'R$ 17',
+    ticket_medio_picos: 'R$ 700+',
+    disponibilidade_sla: '99,9%+ histórico',
+    tempo_resposta_medio: '< 10 segundos',
+    lancamento: '16 de novembro de 2020',
+    participantes: '800+ instituições',
+    usuarios: '160+ milhões',
+    chaves_dict: '700M+ chaves cadastradas',
+  };
+
+  const RESPONSES: Array<{ keywords: string[]; response: string }> = [
+    {
+      keywords: ['total', 'transaç', 'histór', 'quantas', 'processou'],
+      response: `Com base nos dados do BACEN, o PIX já processou **mais de 45 bilhões de transações** desde novembro de 2020. Em 2024 foram movimentados R$ 4,4 trilhões — 106.000× o volume do primeiro dia.`,
+    },
+    {
+      keywords: ['ticket', 'médio', 'valor', 'medio'],
+      response: `O ticket médio do PIX é de **R$ 17** no dia a dia, mas sobe para **R$ 700+** nos picos. Reflete a adoção B2B: empresas movem pagamentos fora do horário bancário.`,
+    },
+    {
+      keywords: ['crescimento', 'cresceu', 'aumentou', 'evolução', 'evolucao'],
+      response: `Crescimento histórico: **106.000×** desde o dia 1. Em 03/11/2020 foram 2.345 transações. Em 2025 os picos chegam a **258 milhões/dia**. Nenhum sistema de pagamento no mundo cresceu tão rápido.`,
+    },
+    {
+      keywords: ['sla', 'disponibil', 'uptime', 'resiliên', 'resilien'],
+      response: `O PIX mantém **99,9%+ de disponibilidade** histórica, com resposta média < 10s. Opera 24/7/365 — incluindo feriados e madrugadas.`,
+    },
+    {
+      keywords: ['arquitetura', 'pipeline', 'bronze', 'silver', 'gold', 'stack', 'como funciona'],
+      response: `Arquitetura medallion:\n**Bronze**: python-bcb → Parquet raw\n**Silver**: DuckDB + Pandas → limpeza e tipagem\n**Gold**: agregações + KPIs\n\nOrquestração via GitHub Actions (cron). Este chat é uma demo local por palavra-chave, sem LLM real — GitHub Pages não roda backend.`,
+    },
+    {
+      keywords: ['usuário', 'usuario', 'pessoa', 'quem', 'participante', 'banco', 'chave'],
+      response: `O PIX tem **160M+ usuários** cadastrados, **800+ instituições** participantes e **700M+ chaves** no DICT — mais de 75% da população adulta brasileira.`,
+    },
+  ];
+
+  function generateResponse(msg: string): string {
+    const lower = msg.toLowerCase();
+    for (const entry of RESPONSES) {
+      if (entry.keywords.some((kw) => lower.includes(kw))) return entry.response;
+    }
+    return `Com base nos dados do BACEN: o PIX processa 258M+ transações/dia e movimentou R$ 4,4 tri em 2024. Para "${msg.slice(0, 40)}…", consulte a API direta do BACEN via python-bcb.`;
+  }
+
+  // ── DOM refs ───────────────────────────────────────────────
+  const agent    = document.querySelector<HTMLElement>('[data-pix-agent]');
+  const fab       = document.querySelector<HTMLButtonElement>('[data-agent-toggle]');
+  const panel     = document.getElementById('pix-agent-panel');
+  const closeBtn  = document.querySelector<HTMLButtonElement>('[data-agent-close]');
+  const form      = document.getElementById('pix-agent-form') as HTMLFormElement | null;
+  const input     = document.getElementById('pix-agent-input') as HTMLInputElement | null;
+  const messages  = document.getElementById('pix-agent-messages');
+  const sendBtn    = document.getElementById('pix-agent-send') as HTMLButtonElement | null;
+
+  let isOpen = false;
+  let isProcessing = false;
+
+  // ── Memória de interação — para o pulso de "chamar atenção" depois que
+  // o usuário já abriu o chat uma vez, para não incomodar em sessões longas.
+  const VISITED_KEY = 'pix-agent-visited';
+  try {
+    if (localStorage.getItem(VISITED_KEY) && agent) {
+      agent.setAttribute('data-agent-visited', '');
+    }
+  } catch {
+    // localStorage indisponível (modo privado etc) — pulso permanece ativo, ok.
+  }
+
+  function markVisited() {
+    if (agent) agent.setAttribute('data-agent-visited', '');
+    try { localStorage.setItem(VISITED_KEY, '1'); } catch { /* ignore */ }
+  }
+
+  function openPanel() {
+    if (!agent || !panel || !fab) return;
+    isOpen = true;
+    panel.hidden = false;
+    panel.classList.remove('is-closing');
+    panel.classList.add('is-opening');
+    agent.setAttribute('data-open', '');
+    fab.setAttribute('aria-expanded', 'true');
+    fab.setAttribute('aria-label', 'Fechar chat com o agente do PIX');
+    markVisited();
+    setTimeout(() => input?.focus(), 120);
+  }
+
+  function closePanel() {
+    if (!agent || !panel || !fab) return;
+    isOpen = false;
+    panel.classList.remove('is-opening');
+    panel.classList.add('is-closing');
+    agent.removeAttribute('data-open');
+    fab.setAttribute('aria-expanded', 'false');
+    fab.setAttribute('aria-label', 'Abrir chat com o agente do PIX');
+    const done = () => { panel.hidden = true; panel.classList.remove('is-closing'); };
+    // respeita reduced-motion (sem animationend)
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) done();
+    else panel.addEventListener('animationend', done, { once: true });
+    fab.focus();
+  }
+
+  function appendMessage(text: string, role: 'user' | 'ai', typing = false): HTMLElement {
+    const div = document.createElement('div');
+    div.className = `pix-agent__msg pix-agent__msg--${role}`;
+    if (typing) div.classList.add('pix-agent__msg--typing');
+    div.setAttribute('role', 'article');
+
+    const author = document.createElement('span');
+    author.className = 'pix-agent__author mono-label';
+    if (role === 'ai') author.classList.add('pix-agent__author--ai');
+    author.setAttribute('aria-hidden', 'true');
+    author.textContent = role === 'user' ? 'Você' : 'pix-ai';
+
+    const p = document.createElement('p');
+    p.className = 'pix-agent__text';
+    if (typing) {
+      p.innerHTML = '<span class="pix-agent__typing-dots" aria-label="Processando">Analisando dados</span>';
+    } else {
+      p.innerHTML = text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+    }
+
+    div.appendChild(author);
+    div.appendChild(p);
+    messages?.appendChild(div);
+    if (messages) messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
+
+  async function submitQuestion(text: string) {
+    if (!text || isProcessing || !input || !sendBtn) return;
+    isProcessing = true;
+    sendBtn.disabled = true;
+    input.disabled = true;
+
+    appendMessage(text, 'user');
+    input.value = '';
+
+    const typing = appendMessage('', 'ai', true);
+    await new Promise<void>((r) => setTimeout(r, 250 + Math.random() * 350));
+    typing.remove();
+    appendMessage(generateResponse(text), 'ai');
+
+    isProcessing = false;
+    sendBtn.disabled = false;
+    input.disabled = false;
+    input.focus();
+  }
+
+  // ── Wiring ─────────────────────────────────────────────────
+  fab?.addEventListener('click', () => (isOpen ? closePanel() : openPanel()));
+  closeBtn?.addEventListener('click', closePanel);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) closePanel();
+  });
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (input) submitQuestion(input.value.trim());
+  });
+
+  input?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      form?.requestSubmit();
+    }
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-agent-suggest]').forEach((chip) => {
+    chip.addEventListener('click', () => submitQuestion(chip.textContent?.trim() ?? ''));
+  });
+</script>

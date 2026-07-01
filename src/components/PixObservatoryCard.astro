@@ -1,0 +1,534 @@
+---
+/**
+ * PixObservatoryCard.astro — Seção Portfólio
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Seção de portfólio ao vivo na página principal.
+ * O PIX Observatory é o projeto em destaque — card assimétrico grande.
+ * Estrutura extensível: novos projetos entram como cards menores abaixo.
+ *
+ * Motion: revealUp + hairlineDraw + countUp nos números-chave.
+ */
+
+import { t } from '../lib/i18n';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<section id="portfolio" class="section portfolio-section" aria-labelledby="portfolio-title">
+  <div class="container">
+
+    <!-- Section head — padrão Blueprint com índice mono -->
+    <div class="section-head">
+      <span class="mono-label" data-i18n-key="nav.portfolio">Portfólio</span>
+      <h2 id="portfolio-title" class="portfolio-display" data-i18n-key="portfolio.title">
+        Projetos ao vivo
+      </h2>
+      <p class="portfolio-lead" data-i18n-key="portfolio.subtitle">
+        Produtos de dados construídos em público — pipeline real, dados reais, zero custo de infra.
+      </p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <!-- ── Projeto em destaque: PIX Observatory ────────────── -->
+    <div class="portfolio-featured" aria-label="Projeto em destaque">
+      <div class="pix-oc__card crop" aria-labelledby="pix-oc-card-title">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+
+        <!-- Label de destaque -->
+        <div class="pix-oc__featured-label" aria-hidden="true">
+          <span class="mono-label">projeto em destaque</span>
+          <span class="pix-oc__live-dot" title="Pipeline ativo"></span>
+        </div>
+
+        <div class="pix-oc__layout">
+
+          <!-- Coluna esquerda: descrição + stack + CTA -->
+          <div class="pix-oc__info">
+            <div class="pix-oc__tags">
+              <span class="tag tag--pix-oc">Engenharia de Dados</span>
+              <span class="tag tag--pix-oc">IA aplicada</span>
+              <span class="tag">Open Source</span>
+            </div>
+
+            <h3 id="pix-oc-card-title" class="pix-oc__title">PIX Observatory</h3>
+
+            <p class="pix-oc__desc">
+              Pipeline Bronze → Silver → Gold que ingere, transforma e visualiza
+              dados abertos do Banco Central do Brasil. Agente de chat
+              demonstrativo sobre dados reais — demonstrando que <em>"IA não é
+              modelo, é plataforma"</em>.
+            </p>
+
+            <!-- Stack técnico -->
+            <div class="pix-oc__stack" aria-label="Stack técnico do projeto">
+              <span class="pix-oc__stack-label mono-label" aria-hidden="true">stack</span>
+              <div class="pix-oc__stack-items">
+                <span class="tag">Python</span>
+                <span class="tag">DuckDB</span>
+                <span class="tag">Parquet</span>
+                <span class="tag">GitHub Actions</span>
+                <span class="tag">Chat demo</span>
+              </div>
+            </div>
+
+            <!-- CTAs -->
+            <div class="pix-oc__actions">
+              <a
+                href={`${base}pix-observatory/`}
+                class="btn-primary pix-oc__cta"
+                aria-label="Abrir PIX Observatory — dashboard de dados"
+              >Ver Observatory →</a>
+              <a
+                href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion"
+                class="btn-secondary"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ver código fonte no GitHub"
+              >GitHub</a>
+            </div>
+          </div>
+
+          <!-- Coluna direita: métricas vivas -->
+          <div class="pix-oc__metrics" aria-label="Métricas do PIX">
+
+            <div class="pix-oc__metric-hero crop">
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <span class="pix-oc__metric-spark" aria-hidden="true">▁▂▃▅▆▇▇▆▇█</span>
+              <span
+                class="pix-oc__metric-value"
+                data-count-to="258"
+                data-count-suffix="M+"
+                aria-label="258 milhões e mais transações por dia"
+              >258M+</span>
+              <span class="pix-oc__metric-label">transações/dia (pico)</span>
+            </div>
+
+            <div class="pix-oc__metric-grid">
+              <div class="pix-oc__metric-sm">
+                <span class="pix-oc__metric-value pix-oc__metric-value--sm">106k×</span>
+                <span class="pix-oc__metric-label">crescimento desde nov/2020</span>
+              </div>
+              <div class="pix-oc__metric-sm">
+                <span class="pix-oc__metric-value pix-oc__metric-value--sm">R$4,4tri</span>
+                <span class="pix-oc__metric-label">movimentado em 2024</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Pipeline strip na base do card -->
+        <div class="pix-oc__pipeline" aria-label="Arquitetura de dados do projeto" role="list">
+          <div class="pix-oc__pipeline-step" role="listitem">
+            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--bronze mono-label">Bronze</span>
+            <span class="pix-oc__pipeline-desc">BACEN API</span>
+          </div>
+          <span class="pix-oc__pipeline-arrow" aria-hidden="true">→</span>
+          <div class="pix-oc__pipeline-step" role="listitem">
+            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--silver mono-label">Silver</span>
+            <span class="pix-oc__pipeline-desc">DuckDB clean</span>
+          </div>
+          <span class="pix-oc__pipeline-arrow" aria-hidden="true">→</span>
+          <div class="pix-oc__pipeline-step" role="listitem">
+            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--gold mono-label">Gold</span>
+            <span class="pix-oc__pipeline-desc">Analytics + AI</span>
+          </div>
+          <span class="pix-oc__pipeline-arrow" aria-hidden="true">→</span>
+          <div class="pix-oc__pipeline-step" role="listitem">
+            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--gh mono-label">Deploy</span>
+            <span class="pix-oc__pipeline-desc">GitHub Pages</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Próximos projetos (placeholder extensível) ────────── -->
+    <div class="portfolio-upcoming" aria-label="Próximos projetos">
+      <div class="portfolio-upcoming__card crop">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <span class="mono-label portfolio-upcoming__label">em construção</span>
+        <p class="portfolio-upcoming__text">
+          Próximo projeto sendo definido. Dados abertos, zero custo de infra, impacto mensurável.
+        </p>
+        <span class="portfolio-upcoming__spark" aria-hidden="true">▁▁▁▂▂▃</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  /* ── Section ──────────────────────────────────────────────── */
+  .portfolio-section {
+    background: var(--paper-soft);
+  }
+
+  .portfolio-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .portfolio-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  /* ── Featured wrapper ──────────────────────────────────────── */
+  .portfolio-featured {
+    margin-block-end: var(--space-6);
+  }
+
+  /* ── Card principal ────────────────────────────────────────── */
+  .pix-oc__card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  }
+
+  .pix-oc__card:hover {
+    border-color: var(--pix-green-line);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Label de destaque + dot live */
+  .pix-oc__featured-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .pix-oc__live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--pix-green);
+    animation: live-pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes live-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pix-oc__live-dot { animation: none; }
+  }
+
+  /* ── Título do projeto ─────────────────────────────────────── */
+  .pix-oc__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  /* ── Layout interno ────────────────────────────────────────── */
+  .pix-oc__layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 1024px) {
+    .pix-oc__layout {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--space-12);
+    }
+
+    .pix-oc__info { flex: 1; }
+
+    .pix-oc__metrics {
+      flex-shrink: 0;
+      width: 300px;
+    }
+  }
+
+  /* ── Info ──────────────────────────────────────────────────── */
+  .pix-oc__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .pix-oc__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tag--pix-oc {
+    color: var(--pix-green-ink);
+    border-color: var(--pix-green-line);
+    background: var(--pix-green-dim);
+  }
+
+  .pix-oc__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+  }
+
+  .pix-oc__desc em {
+    color: var(--ink);
+    font-style: italic;
+  }
+
+  .pix-oc__stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .pix-oc__stack-label { color: var(--ink-faint); }
+
+  .pix-oc__stack-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .pix-oc__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+    margin-top: var(--space-2);
+  }
+
+  .pix-oc__cta {
+    background: var(--pix-green);
+    border-color: var(--pix-green);
+  }
+
+  .pix-oc__cta:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  /* ── Métricas ──────────────────────────────────────────────── */
+  .pix-oc__metrics {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .pix-oc__metric-hero {
+    position: relative;
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .pix-oc__metric-spark {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--pix-green-ink);
+    letter-spacing: 0.1em;
+    opacity: 0.85;
+  }
+
+  .pix-oc__metric-value {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--pix-green);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .pix-oc__metric-value--sm { font-size: var(--text-xl); }
+
+  .pix-oc__metric-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .pix-oc__metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  .pix-oc__metric-sm {
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  /* ── Pipeline strip ────────────────────────────────────────── */
+  .pix-oc__pipeline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    padding-block-start: var(--space-6);
+    border-top: 1px solid var(--line);
+  }
+
+  .pix-oc__pipeline-step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .pix-oc__pipeline-badge {
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    font-family: var(--font-mono);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .pix-oc__pipeline-badge--bronze {
+    color: var(--medallion-bronze-ink);
+    border-color: var(--medallion-bronze-line);
+    background: var(--medallion-bronze-dim);
+  }
+
+  .pix-oc__pipeline-badge--silver {
+    color: var(--medallion-silver-ink);
+    border-color: var(--medallion-silver-line);
+    background: var(--medallion-silver-dim);
+  }
+
+  .pix-oc__pipeline-badge--gold {
+    color: var(--medallion-gold-ink);
+    border-color: var(--medallion-gold-line);
+    background: var(--medallion-gold-dim);
+  }
+
+  .pix-oc__pipeline-badge--gh {
+    color: var(--pix-green-ink);
+    border-color: var(--pix-green-line);
+    background: var(--pix-green-dim);
+  }
+
+  .pix-oc__pipeline-desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+  }
+
+  .pix-oc__pipeline-arrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  /* ── Upcoming placeholder ──────────────────────────────────── */
+  .portfolio-upcoming {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .portfolio-upcoming { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 1024px) {
+    .portfolio-upcoming { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .portfolio-upcoming__card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-height: 160px;
+    justify-content: flex-end;
+    opacity: 0.6;
+  }
+
+  .portfolio-upcoming__label {
+    color: var(--ink-faint);
+  }
+
+  .portfolio-upcoming__text {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-faint);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  .portfolio-upcoming__spark {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    opacity: 0.5;
+  }
+</style>
+
+<script>
+  import { revealUp }     from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { countUp }      from '../scripts/motion/count-up';
+  import { motionOk }     from '../scripts/motion/constants';
+
+  const section = document.getElementById('portfolio');
+  if (section) {
+    const line    = section.querySelector('.section-line') as Element;
+    const head    = section.querySelector('.section-head') as Element;
+    const card    = section.querySelector('.pix-oc__card') as Element;
+    const upcoming = section.querySelector('.portfolio-upcoming__card') as Element;
+
+    if (line) hairlineDraw(line, section);
+    if (motionOk && head) revealUp([head], section, 0);
+    if (motionOk && card) revealUp([card], section, 0.08);
+    if (motionOk && upcoming) revealUp([upcoming], section, 0.2);
+
+    section.querySelectorAll<HTMLElement>('[data-count-to]').forEach((el) => {
+      countUp(el, section);
+    });
+  }
+</script>
