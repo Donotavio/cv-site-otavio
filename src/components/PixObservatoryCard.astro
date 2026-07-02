@@ -539,6 +539,8 @@ const base = import.meta.env.BASE_URL;
     if (motionOk && head) revealUp([head], section, 0);
     if (motionOk && card) revealUp([card], section, 0.08);
     if (motionOk && radarCard) revealUp([radarCard], section, 0.14);
+    const cockpitCard = section.querySelector('.cockpit-card') as Element | null;
+    if (motionOk && cockpitCard) revealUp([cockpitCard], section, 0.18);
     if (motionOk && upcoming) revealUp([upcoming], section, 0.2);
 
     section.querySelectorAll<HTMLElement>('[data-count-to]').forEach((el) => {

@@ -1,0 +1,2503 @@
+---
+/**
+ * brasil-cockpit.astro — Brasil Cockpit
+ * Direção: Blueprint (DESIGN.md) · The Architect
+ *
+ * Terceira página de projeto do portfólio (irmã de pix-observatory.astro e
+ * data-stack-radar-br.astro, mesmo padrão estrutural). Painel executivo de
+ * KPIs macro do Brasil — framing: "você é presidente e quer saber em 30
+ * segundos como o país está hoje". Cada KPI tem status semafórico
+ * (verde/amarelo/vermelho/neutro) vs metas, delta vs período anterior e
+ * tendência, com sparkline de 5 anos.
+ *
+ * Seções (mono-labels [ 00 ]…[ 06 ] + metodologia):
+ *  0. [00] Hero — display headline, lead, timestamp "gerado_em" ao vivo,
+ *         legenda de status (4 chips explicando cada cor) + resumo vivo
+ *  1. [01] Leitura de painel — SIGNATURE: (a) status strip com contagem
+ *         por status + (b) gráfico de banda de meta do IPCA-12m (vanilla
+ *         SVG inline: zonas de status + linhas tracejadas de meta/teto +
+ *         série histórica + marcador do valor atual). bandChart() é
+ *         reutilizável (reaparece em §3 para dívida bruta).
+ *  2. [02] Briefing executivo — bento: IPCA como banner dominante (wide,
+ *         display-2 mono) + Selic/Desocupação/Dólar como 3 leituras
+ *         secundárias em linha. Status sempre como chip (texto + cor).
+ *  3. [03] Detalhe por categoria — os 12 KPIs agrupados em 6 categorias;
+ *         Setor externo ganha trendChart (exportações × importações) e
+ *         Fiscal ganha bandChart (dívida bruta). As outras 4 ficam como
+ *         listas compactas de ck-card.
+ *  4. [04] Juro real & contas públicas — 2 callouts narrativos
+ *         (radar-benchmark-card anatomy: bg tintado + border-left 4px),
+ *         valores derivados client-side do cockpit.json.
+ *  5. [05] Pipeline Bronze → Silver → Gold — 3 arch-card (medalhas) +
+ *         arch-automation com os 3 crons do GitHub Actions.
+ *  6. [06] Stack do pipeline — radar-meta-grid (7 tecnologias).
+ *  7. Metodologia & limitações — as 4 limitações REAIS do pipeline
+ *         (catalog.py), uma delas como radar-unavailable-card.
+ *
+ * Dado real, sem mock: fetch runtime de assets/data/cockpit.json (12 KPIs
+ * com status/meta/delta/trend) e assets/data/historico.json (séries de 5
+ * anos para sparklines + charts). Mesmo padrão de data-stack-radar-br.astro:
+ * loading skeleton estático → hidratação via fetch. Falha graciosa: se o
+ * fetch cair, mostra estado "dados indisponíveis" sem quebrar a página.
+ *
+ * Gráficos: vanilla SVG inline (ZERO libs de chart). bandChart() desenha
+ * zonas de status + thresholds + série; trendChart() desenha 2 séries.
+ * Sparkline: <polyline> ~120×36, sem eixos. Downsample para ≤48 pontos
+ * (séries diárias têm 504 pts). Stroke = --ck-*-ink por status.
+ *
+ * Tokens: src/styles/tokens.css (--ck-verde/-amarelo/-vermelho/-neutro +
+ * variantes -ink para texto, -dim para fundo 8%, -line para borda 30%;
+ * --medallion-bronze/-silver/-gold-ink). Status aparece SEMPRE também como
+ * TEXTO (nunca só cor) — WCAG 1.4.1. Zero hex hardcoded.
+ *
+ * Motion: revealUp + hairlineDraw + countUp — os mesmos 5 padrões do site,
+ * respeitando prefers-reduced-motion via motionOk. Conteúdo estático recebe
+ * motion no bloco DOMContentLoaded; conteúdo hidratado recebe seu próprio
+ * revealUp/countUp dentro das funções de render (não há double-register — o
+ * query-loader do BaseLayout só age em elementos build-time genéricos).
+ * SIGNATURE device (one per page): o band chart de §1 "se desenha" ao entrar
+ * no viewport — zonas fade staggered + thresholds + polyline via dash-offset
+ * + marcador escala por último (revealBandChart, chamado de renderIpcaChart
+ * depois do innerHTML, coordenando motion com a hidratação).
+ *
+ * Vocabulário de irmãos: classes copiadas (scoped não atravessa arquivos) —
+ * radar-chart-block/__head/note, arch-grid/card/automation, radar-meta-grid/
+ * item, radar-benchmark-card, radar-methodology-list/item, radar-unavailable-
+ * card, ranking-footnote. Globais (layout.css/global.css) reusadas por
+ * referência: hero-card, section-head, section-line, crop, crop-mark, tag,
+ * btn-primary, btn-secondary, card, mono-label, container, section. Classe
+ * de runtime (ck-card, ck-status, ck-spark, charts) vão em <style is:global>
+ * — mesmo padrão do radar, pois o escopo do Astro não atinge innerHTML
+ * criado em runtime.
+ */
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+// ── KPIs em destaque no briefing executivo (IPCA dominante + 3 secundários)
+const BRIEFING_IDS = ['ipca_12m', 'selic', 'desocupacao', 'cambio_usd'] as const;
+const BRIEFING_PLACEHOLDER = BRIEFING_IDS.map((id) => ({ id }));
+---
+
+<BaseLayout
+  title="Brasil Cockpit — Otávio Ribeiro"
+  description="Painel executivo de KPIs macro do Brasil: status semafórico vs metas, delta e tendência — inflação, juros, emprego, câmbio, fiscal e financeiro, atualizado automaticamente."
+>
+  <Header />
+
+  <main id="main-content">
+
+    <!-- ══════════════════════════════════════════════════════
+         [00] HERO
+         ══════════════════════════════════════════════════════ -->
+    <section id="ck-hero" class="section ck-hero" aria-labelledby="ck-hero-title">
+      <div class="container">
+        <div class="hero-card crop">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+
+          <header class="hero-card__header">
+            <span class="mono-label">Brasil Cockpit</span>
+            <span class="mono-label ck-hero__badge">
+              atualizado · <span id="ck-hero-gerado">—</span>
+            </span>
+          </header>
+
+          <h1 id="ck-hero-title" class="hero-display">
+            Como o Brasil está hoje — em 30 segundos.
+          </h1>
+
+          <p class="hero-lead">
+            Painel executivo de KPIs macro: status semafórico vs metas, delta
+            e tendência. Inflação, juros, emprego, câmbio, fiscal e
+            financeiro — doze indicadores, uma leitura. Atualização
+            automática, dados oficiais.
+          </p>
+
+          <!-- Legenda de status — sempre texto + cor (WCAG 1.4.1) -->
+          <ul class="ck-legend" role="list" aria-label="Legenda de status semafórico">
+            <li class="ck-legend__item">
+              <span class="ck-legend__dot ck-legend__dot--verde" aria-hidden="true"></span>
+              <span class="ck-legend__text"><strong class="ck-legend__strong ck-legend__strong--verde">Verde</strong> — na banda / meta atingida</span>
+            </li>
+            <li class="ck-legend__item">
+              <span class="ck-legend__dot ck-legend__dot--amarelo" aria-hidden="true"></span>
+              <span class="ck-legend__text"><strong class="ck-legend__strong ck-legend__strong--amarelo">Amarelo</strong> — atenção</span>
+            </li>
+            <li class="ck-legend__item">
+              <span class="ck-legend__dot ck-legend__dot--vermelho" aria-hidden="true"></span>
+              <span class="ck-legend__text"><strong class="ck-legend__strong ck-legend__strong--vermelho">Vermelho</strong> — fora da banda</span>
+            </li>
+            <li class="ck-legend__item">
+              <span class="ck-legend__dot ck-legend__dot--neutro" aria-hidden="true"></span>
+              <span class="ck-legend__text"><strong class="ck-legend__strong ck-legend__strong--neutro">Neutro</strong> — sem meta definida</span>
+            </li>
+          </ul>
+
+          <!-- Resumo vivo: total de indicadores + contagem por status (hidratado) -->
+          <p class="ck-hero__summary" id="ck-hero-summary" aria-live="polite">
+            <span class="mono-label">carregando painel…</span>
+          </p>
+
+          <div class="hero-actions">
+            <a href="#painel" class="btn-primary">Ver Leitura de painel →</a>
+            <a href="#briefing" class="btn-secondary">Briefing executivo</a>
+            <a
+              href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion_macro"
+              class="btn-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Ver código-fonte do pipeline no GitHub (abre em nova aba)"
+            >GitHub</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [01] LEITURA DE PAINEL — status strip + IPCA band chart (SIGNATURE)
+         ══════════════════════════════════════════════════════ -->
+    <section id="painel" class="section ck-painel-section" aria-labelledby="painel-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">01</span>
+          <h2 id="painel-title" class="ck-display">Leitura de painel</h2>
+          <p class="ck-lead">
+            Quantos indicadores em cada status — e onde a inflação está,
+            contra a banda da meta. O scan antes do relatório.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="radar-chart-block card crop" id="ck-painel-block" role="group" aria-labelledby="ck-painel-label">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+
+          <header class="radar-chart-block__head">
+            <span class="mono-label" id="ck-painel-label">status geral · 12 indicadores</span>
+            <!-- (a) Status strip: contagem por status (hidratada) -->
+            <ul class="ck-strip-legend" id="ck-status-strip" role="list" aria-label="Contagem de indicadores por status" aria-live="polite">
+              <li class="ck-strip-chip" data-status="verde">Verde · ···</li>
+              <li class="ck-strip-chip" data-status="amarelo">Amarelo · ···</li>
+              <li class="ck-strip-chip" data-status="vermelho">Vermelho · ···</li>
+              <li class="ck-strip-chip" data-status="neutro">Neutro · ···</li>
+            </ul>
+          </header>
+
+          <!-- (b) IPCA 12m target-band chart (hidratado, vanilla SVG inline) -->
+          <div class="ck-chart-wrap" id="ck-ipca-chart" aria-live="polite">
+            <p class="ck-loading mono-label">carregando série IPCA…</p>
+          </div>
+
+          <p class="radar-chart-note mono-label">
+            posição = série IPCA-12m · fundo = zonas de status (meta ± banda)
+            · ponto = valor mais recente
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [02] BRIEFING EXECUTIVO — bento (IPCA dominante + 3 secundários)
+         ══════════════════════════════════════════════════════ -->
+    <section id="briefing" class="section ck-briefing-section" aria-labelledby="briefing-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">02</span>
+          <h2 id="briefing-title" class="ck-display">Briefing executivo</h2>
+          <p class="ck-lead">
+            Os quatro indicadores que cabem num encontro de trinta segundos —
+            leitura de painel, não de relatório.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <div
+          class="ck-bento"
+          id="ck-briefing-grid"
+          role="list"
+          aria-label="KPIs do briefing executivo"
+          aria-live="polite"
+        >
+          {BRIEFING_PLACEHOLDER.map(({ id }, i) => (
+            <article
+              class={i === 0 ? 'ck-banner ck-banner--ph' : 'ck-card ck-card--ph ck-card--lg'}
+              role="listitem"
+              aria-busy="true"
+              data-kpi-id={id}
+            >
+              <span class="ck-card__top">
+                <span class="mono-label ck-card__freq">···</span>
+                <span class="ck-card__label">carregando…</span>
+              </span>
+              <span class="ck-card__value">···</span>
+              <span class="ck-spark ck-spark--ph" aria-hidden="true">▁▁▂▃▁▂</span>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [03] DETALHE POR CATEGORIA — 12 KPIs em 6 grupos (2 com mini-chart)
+         ══════════════════════════════════════════════════════ -->
+    <section id="detalhe" class="section ck-detalhe-section" aria-labelledby="detalhe-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">03</span>
+          <h2 id="detalhe-title" class="ck-display">Detalhe por categoria</h2>
+          <p class="ck-lead">
+            Os doze indicadores agrupados por categoria — cada um com valor,
+            delta, tendência e histórico de cinco anos. Setor externo e
+            fiscal ganham mini-gráficos; as demais, leitura compacta.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <p class="sr-only" id="ck-detalhe-status" aria-live="polite">carregando categorias…</p>
+        <div id="ck-detalhe">
+          <p class="ck-loading mono-label" aria-hidden="true">carregando categorias…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [04] JURO REAL & CONTAS PÚBLICAS — 2 callouts narrativos
+         ══════════════════════════════════════════════════════ -->
+    <section id="leitura" class="section ck-callout-section" aria-labelledby="leitura-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">04</span>
+          <h2 id="leitura-title" class="ck-display">Juro real &amp; contas públicas</h2>
+          <p class="ck-lead">
+            O que os números dizem quando cruzados — derivado do painel, não
+            de nenhuma fonte externa.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="ck-callouts" aria-live="polite">
+          <!-- Callout 1: leitura / juro real -->
+          <div class="ck-callout ck-callout--amarelo" role="group" aria-labelledby="ck-callout-leitura-label">
+            <span class="mono-label ck-callout__badge" id="ck-callout-leitura-label">leitura</span>
+            <p class="ck-callout__body">
+              Selic <strong class="ck-callout__strong" data-ck-kpi="selic">14,25%</strong>
+              − IPCA <strong class="ck-callout__strong" data-ck-kpi="ipca_12m">4,72%</strong>
+              = <strong class="ck-callout__strong">juro real de ~<span data-ck-real>9,5%</span> a.a.</strong>
+              — entre os mais altos do mundo real. É o preço de conter uma
+              inflação que ainda não voltou à banda de 3,0% ± 1,5%.
+            </p>
+            <p class="ck-callout__stat mono-label">
+              Selic <span data-ck-kpi="selic">14,25%</span>
+              · IPCA <span data-ck-kpi="ipca_12m">4,72%</span>
+              · Real ~<span data-ck-real>9,5%</span>
+            </p>
+          </div>
+
+          <!-- Callout 2: fiscal -->
+          <div class="ck-callout ck-callout--neutro" role="group" aria-labelledby="ck-callout-fiscal-label">
+            <span class="mono-label ck-callout__badge" id="ck-callout-fiscal-label">fiscal</span>
+            <p class="ck-callout__body">
+              Resultado primário em
+              <strong class="ck-callout__strong" data-ck-kpi="resultado_primario">0,06% do PIB</strong>
+              — equilíbrio apurado. Mesmo assim, dívida bruta subiu para
+              <strong class="ck-callout__strong" data-ck-kpi="divida_bruta">67,9% do PIB</strong>
+              (banda amarela). O problema é o nominal — juros compostos sobre
+              o estoque.
+            </p>
+            <p class="ck-callout__stat mono-label">
+              Primário <span data-ck-kpi="resultado_primario">0,06%</span> PIB
+              · Dívida <span data-ck-kpi="divida_bruta">67,9%</span> PIB
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [05] PIPELINE BRONZE → SILVER → GOLD
+         ══════════════════════════════════════════════════════ -->
+    <section id="pipeline" class="section ck-pipeline-section" aria-labelledby="pipeline-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">05</span>
+          <h2 id="pipeline-title" class="ck-display">Pipeline do Cockpit</h2>
+          <p class="ck-lead">
+            Medallion architecture sobre 4 fontes independentes — SGS, PTAX,
+            SIDRA e mercado — reconciliadas num painel de status.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="arch-grid">
+
+          <article class="card arch-card" style="border-top: 3px solid var(--medallion-bronze);" aria-labelledby="ck-bronze-title">
+            <header class="arch-card__header">
+              <span class="arch-card__badge mono-label arch-card__badge--bronze">Bronze</span>
+              <span class="arch-card__layer" aria-hidden="true">[ L1 ]</span>
+            </header>
+            <h3 id="ck-bronze-title" class="arch-card__title">SGS + PTAX + SIDRA + yfinance → Parquet</h3>
+            <p class="arch-card__desc">
+              SGS (Banco Central) para séries mensais/diárias, PTAX via OData
+              para câmbio (USD/EUR), SIDRA/IBGE para a PNAD Contínua
+              (desocupação) e yfinance para o Ibovespa — cada fonte
+              preservada em Parquet particionado por data de coleta.
+            </p>
+            <div class="arch-card__tags">
+              <span class="tag">Python</span>
+              <span class="tag">BACEN SGS</span>
+              <span class="tag">PTAX</span>
+              <span class="tag">IBGE SIDRA</span>
+              <span class="tag">yfinance</span>
+            </div>
+          </article>
+
+          <article class="card arch-card" style="border-top: 3px solid var(--medallion-silver);" aria-labelledby="ck-silver-title">
+            <header class="arch-card__header">
+              <span class="arch-card__badge mono-label arch-card__badge--silver">Silver</span>
+              <span class="arch-card__layer" aria-hidden="true">[ L2 ]</span>
+            </header>
+            <h3 id="ck-silver-title" class="arch-card__title">DuckDB normaliza séries → schema unificado</h3>
+            <p class="arch-card__desc">
+              DuckDB alinha todas as séries num schema único
+              (<code>kpi_id, data_referencia, valor</code>), com conversão de
+              unidade onde preciso (US$ mi → bi para a balança). Rebuild
+              completo a cada execução — sem estado incremental.
+            </p>
+            <div class="arch-card__tags">
+              <span class="tag">DuckDB</span>
+              <span class="tag">Parquet</span>
+            </div>
+          </article>
+
+          <article class="card arch-card" style="border-top: 3px solid var(--medallion-gold);" aria-labelledby="ck-gold-title">
+            <header class="arch-card__header">
+              <span class="arch-card__badge mono-label arch-card__badge--gold">Gold</span>
+              <span class="arch-card__layer" aria-hidden="true">[ L3 ]</span>
+            </header>
+            <h3 id="ck-gold-title" class="arch-card__title">Status + delta + trend → cockpit.json</h3>
+            <p class="arch-card__desc">
+              <code>compute_status</code> / <code>compute_trend</code>
+              avaliam cada KPI contra <code>catalog.TARGETS</code> (meta ±
+              banda + direction), produzem status/delta/trend e exportam
+              <code>cockpit.json</code> + <code>historico.json</code>,
+              consumidos direto pelo site em runtime.
+            </p>
+            <div class="arch-card__tags">
+              <span class="tag">DuckDB</span>
+              <span class="tag">JSON</span>
+              <span class="tag">GitHub Pages</span>
+            </div>
+          </article>
+
+        </div>
+
+        <div class="arch-automation card crop" role="group" aria-labelledby="ck-automation-title">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <div class="arch-automation__inner">
+            <div class="arch-automation__left">
+              <span class="mono-label arch-automation__badge">GitHub Actions</span>
+              <h3 id="ck-automation-title" class="arch-automation__title">Coleta diária, mensal e trimestral</h3>
+              <p class="arch-automation__desc">
+                PTAX + mercado disparam todo dia às 13h UTC; séries mensais do
+                SGS rodam no fechamento do mês; IBGE (PNAD) roda trimestral.
+                Fail-soft: se uma série dá erro, ela é pulada e o painel
+                segue — um KPI a menos, nunca uma página quebrada.
+              </p>
+            </div>
+            <div class="arch-automation__right" aria-hidden="true">
+              <pre class="arch-automation__code">update-profile.yml
+  cron: diário · 13h UTC
+  ├── collect_ptax.py
+  ├── collect_market.py
+  │     └── Bronze Parquet
+  └── silver_macro.py → gold_cockpit.py
+        └── cockpit.json + historico.json
+
+collect_sgs.py     cron: mensal
+collect_ibge.py    cron: trimestral (PNAD)</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [06] STACK DO PIPELINE (meta)
+         ══════════════════════════════════════════════════════ -->
+    <section id="meta-stack" class="section ck-meta-section" aria-labelledby="meta-stack-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">06</span>
+          <h2 id="meta-stack-title" class="ck-display">Stack do Pipeline</h2>
+          <p class="ck-lead">
+            O que constrói o painel — não o que o painel mede.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="radar-meta-grid" role="list" aria-label="Tecnologias do pipeline do cockpit">
+          <div class="card radar-meta-item" role="listitem">
+            <span class="mono-label radar-meta-item__name">Python</span>
+            <p class="radar-meta-item__role">Scripts de coleta e transformação (ingestion_macro/, transform_macro/)</p>
+          </div>
+          <div class="card radar-meta-item" role="listitem">
+            <span class="mono-label radar-meta-item__name">BACEN SGS</span>
+            <p class="radar-meta-item__role">Sistema Gerenciador de Séries — inflação, juros, fiscal, externo</p>
+          </div>
+          <div class="card radar-meta-item" role="listitem">
+            <span class="mono-label radar-meta-item__name">PTAX OData</span>
+            <p class="radar-meta-item__role">Cotações oficiais de fechamento (USD/BRL, EUR/BRL) — taxa PTAX</p>
+          </div>
+          <div class="card radar-meta-item" role="listitem">
+            <span class="mono-label radar-meta-item__name">IBGE SIDRA</span>
+            <p class="radar-meta-item__role">sidrapy — PNAD Contínua trimestral (tabela 4099, desocupação)</p>
+          </div>
+          <div class="card radar-meta-item" role="listitem">
+            <span class="mono-label radar-meta-item__name">yfinance</span>
+            <p class="radar-meta-item__role">Cotação do Ibovespa (^BVSP) — índice Bovespa de fechamento</p>
+          </div>
+          <div class="card radar-meta-item" role="listitem">
+            <span class="mono-label radar-meta-item__name">DuckDB</span>
+            <p class="radar-meta-item__role">Normalização silver → gold (compute_status / compute_trend)</p>
+          </div>
+          <div class="card radar-meta-item" role="listitem">
+            <span class="mono-label radar-meta-item__name">GitHub Actions</span>
+            <p class="radar-meta-item__role">Orquestração serverless — cron diário (PTAX/mercado) + mensal + trimestral</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         METODOLOGIA & LIMITAÇÕES (sem número — transparência final)
+         ══════════════════════════════════════════════════════ -->
+    <section id="metodologia" class="section ck-method-section" aria-labelledby="metodologia-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">metodologia</span>
+          <h2 id="metodologia-title" class="ck-display">Metodologia &amp; limitações</h2>
+          <p class="ck-lead">
+            Transparência total sobre o que esse painel mede — e o que ele
+            ainda não consegue medir.
+          </p>
+        </div>
+
+        <hr class="section-line" aria-hidden="true" />
+
+        <ul class="radar-methodology-list">
+          <li class="radar-methodology-item">
+            <h3 class="radar-methodology-item__title">CAGED não entra</h3>
+            <p class="radar-methodology-item__body">
+              Os códigos SGS 28763/4/5 (admitidos/desligados/saldo) são
+              cumulativos — estoque/YTD, não fluxo mensal. Um rolling 12m
+              sobre eles seria inválido. O emprego no cockpit vem da PNAD
+              Contínua (trimestral, tabela 4099 do SIDRA), que é a série
+              oficial de desocupação.
+            </p>
+          </li>
+
+          <li class="radar-methodology-item">
+            <h3 class="radar-methodology-item__title">PIB, PIM, PMC e PMS ficaram de fora</h3>
+            <div class="radar-unavailable-card crop">
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <span class="mono-label radar-unavailable-card__label">dado indisponível</span>
+              <p class="radar-unavailable-card__text">
+                As tabelas SIDRA de atividade (PIB, produção industrial, comércio
+                e serviços) estão encerradas ou vazias no endpoint atual — só a
+                PNAD (4099) está estável. Serão reativadas quando os códigos das
+                tabelas-base atuais do SIDRA forem identificados.
+              </p>
+            </div>
+          </li>
+
+          <li class="radar-methodology-item">
+            <h3 class="radar-methodology-item__title">Status é composto, não faixa fixa</h3>
+            <p class="radar-methodology-item__body">
+              Verde / amarelo / vermelho vêm de <code>meta ± banda + direction</code>
+              por KPI — calculado em <code>catalog.compute_status</code>. Não é
+              uma faixa fixa igual para todos: cada indicador tem sua própria
+              meta, banda e direção (alto_melhor ou baixo_melhor).
+            </p>
+          </li>
+
+          <li class="radar-methodology-item">
+            <h3 class="radar-methodology-item__title"><code>reservas</code>: endpoint SGS intermitente</h3>
+            <p class="radar-methodology-item__body">
+              O endpoint de reservas internacionais no SGS às vezes times out.
+              Fail-soft: se a coleta falha, o KPI fica ausente sem quebrar o
+              painel — ele simplesmente não aparece na categoria externo até a
+              próxima execução bem-sucedida.
+            </p>
+          </li>
+        </ul>
+
+        <p class="ranking-footnote mono-label">
+          fontes: BACEN SGS · PTAX OData · IBGE SIDRA · yfinance · coleta
+          diária/mensal/trimestral via GitHub Actions
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<!-- ════════════════════════════════════════════════════════════
+     STYLES — conteúdo estático (build-time). Mesmo split do radar:
+     aqui fica o que é renderizado no template; o <style is:global>
+     abaixo cuida do conteúdo montado em runtime via innerHTML.
+     ════════════════════════════════════════════════════════════ -->
+<style>
+  /* Cores de status vêm de src/styles/tokens.css — fonte única de verdade,
+     sem hex duplicado nesta página. Governança de cor: --ck-verde funciona
+     como o "acento único" desta página (mesmo papel que --radar-adopt tem
+     em data-stack-radar-br.astro e --pix-green em pix-observatory.astro).
+     Os 4 tokens de status aparecem sempre pareados com texto (badges/
+     legendas/labels) — nunca cor isolada (WCAG 1.4.1). */
+
+  /* ── Hero ────────────────────────────────────────────────── */
+  .ck-hero {
+    background: var(--paper);
+  }
+
+  .hero-card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8) var(--space-8) var(--space-10);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .hero-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .ck-hero__badge {
+    color: var(--ink-faint);
+    font-variant-numeric: var(--num-tabular);
+  }
+
+  .hero-display {
+    font-family: var(--font-display);
+    font-size: var(--display-1);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+    max-width: 18ch;
+  }
+
+  .hero-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 62ch;
+  }
+
+  /* Governança de cor: hover dos botões usa --ck-verde-ink (acento único
+     desta página), substituindo o --accent azul global. */
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+  }
+  .hero-actions .btn-primary {
+    background: var(--ck-verde-ink);
+    border-color: var(--ck-verde-ink);
+  }
+  .hero-actions .btn-primary:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .hero-actions .btn-secondary:hover {
+    border-color: var(--ck-verde-ink);
+    color: var(--ck-verde-ink);
+  }
+
+  /* ── Legenda de status ───────────────────────────────────── */
+  .ck-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-6);
+    margin: 0;
+    padding: var(--space-4) 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ck-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .ck-legend__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+  }
+  .ck-legend__dot--verde    { background: var(--ck-verde); }
+  .ck-legend__dot--amarelo  { background: var(--ck-amarelo); }
+  .ck-legend__dot--vermelho { background: var(--ck-vermelho); }
+  .ck-legend__dot--neutro   { background: var(--ck-neutro); }
+
+  .ck-legend__text {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+  }
+
+  /* O nome do status vai em --ck-*-ink (contraste ≥4.5:1 sobre --paper-card) */
+  .ck-legend__strong { font-weight: 600; }
+  .ck-legend__strong--verde    { color: var(--ck-verde-ink); }
+  .ck-legend__strong--amarelo  { color: var(--ck-amarelo-ink); }
+  .ck-legend__strong--vermelho { color: var(--ck-vermelho-ink); }
+  .ck-legend__strong--neutro   { color: var(--ck-neutro-ink); }
+
+  /* ── Resumo vivo do hero (container; conteúdo hidratado via inline styles) ── */
+  .ck-hero__summary {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    margin: 0;
+    letter-spacing: var(--tracking-wide);
+    font-variant-numeric: var(--num-tabular);
+  }
+
+  /* ── Section head genérico ────────────────────────────────── */
+  .ck-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .ck-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  /* ── Backgrounds das seções (alternância paper / paper-soft) ── */
+  .ck-painel-section    { background: var(--paper-soft); }
+  .ck-briefing-section  { background: var(--paper); }
+  .ck-detalhe-section   { background: var(--paper-soft); }
+  .ck-callout-section   { background: var(--paper); }
+  .ck-pipeline-section  { background: var(--paper-soft); }
+  .ck-meta-section      { background: var(--paper); }
+  .ck-method-section    { background: var(--paper-soft); }
+
+  /* ── Chart block (container estático; SVG interno é runtime → global) ──
+     Copiado de data-stack-radar-br.astro (scoped não atravessa arquivos). */
+  .radar-chart-block {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .radar-chart-block__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .radar-chart-note {
+    display: block;
+    color: var(--ink-faint);
+    max-width: 90ch;
+  }
+
+  /* ── Callouts narrativos (radar-benchmark-card anatomy, copiado) ── */
+  .ck-callouts {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  @media (min-width: 1024px) {
+    .ck-callouts { grid-template-columns: repeat(2, 1fr); align-items: start; }
+  }
+
+  .ck-callout {
+    position: relative;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--ck-neutro-ink);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    background: var(--ck-neutro-dim);
+  }
+  .ck-callout--amarelo {
+    background: var(--ck-amarelo-dim);
+    border-color: var(--ck-amarelo-line);
+    border-left-color: var(--ck-amarelo-ink);
+  }
+  .ck-callout--neutro {
+    background: var(--ck-neutro-dim);
+    border-color: var(--ck-neutro-line);
+    border-left-color: var(--ck-neutro-ink);
+  }
+
+  .ck-callout__badge {
+    color: var(--ck-neutro-ink);
+  }
+  .ck-callout--amarelo .ck-callout__badge { color: var(--ck-amarelo-ink); }
+
+  .ck-callout__body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink);
+    line-height: var(--leading-loose);
+    margin: 0;
+  }
+
+  .ck-callout__strong {
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: var(--num-tabular);
+  }
+
+  .ck-callout__stat {
+    color: var(--ink-soft);
+    font-variant-numeric: var(--num-tabular);
+    letter-spacing: var(--tracking-wide);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+    margin: 0;
+  }
+
+  /* ── Pipeline / arch (copiado de pix-observatory/radar) ───── */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    margin-block-end: var(--space-8);
+  }
+  @media (min-width: 640px) {
+    .arch-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .arch-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .arch-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .arch-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .arch-card__badge {
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+  .arch-card__badge--bronze { color: var(--medallion-bronze-ink); }
+  .arch-card__badge--silver { color: var(--medallion-silver-ink); }
+  .arch-card__badge--gold   { color: var(--medallion-gold-ink); }
+
+  .arch-card__layer {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wider);
+  }
+
+  .arch-card__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .arch-card__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    flex: 1;
+    margin: 0;
+  }
+  .arch-card__desc code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--ink);
+    background: var(--paper-soft);
+    padding: 1px 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  .arch-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .arch-automation {
+    position: relative;
+  }
+  .arch-automation__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+  @media (min-width: 1024px) {
+    .arch-automation__inner {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--space-12);
+    }
+    .arch-automation__left { flex: 1; }
+    .arch-automation__right { flex-shrink: 0; width: 340px; }
+  }
+
+  .arch-automation__badge {
+    display: inline-block;
+    margin-block-end: var(--space-3);
+    color: var(--ck-verde-ink);
+  }
+
+  .arch-automation__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0 0 var(--space-4);
+  }
+
+  .arch-automation__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+  }
+
+  .arch-automation__code {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    letter-spacing: var(--tracking-normal);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+    margin: 0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ── Meta stack (copiado de radar) ────────────────────────── */
+  .radar-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+  @media (min-width: 640px) {
+    .radar-meta-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .radar-meta-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .radar-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .radar-meta-item__name { color: var(--ink); }
+  .radar-meta-item__role {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  /* ── Metodologia & limitações (copiado de radar) ─────────── */
+  .radar-methodology-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    margin: 0 0 var(--space-8);
+    padding: 0;
+    list-style: none;
+  }
+
+  .radar-methodology-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-block-end: var(--space-6);
+    border-bottom: 1px solid var(--line);
+  }
+  .radar-methodology-item:last-child {
+    border-bottom: none;
+  }
+
+  .radar-methodology-item__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--ink);
+    margin: 0;
+  }
+  .radar-methodology-item__title code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--ink);
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    padding: 1px 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  .radar-methodology-item__body {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+    max-width: 80ch;
+  }
+  .radar-methodology-item__body code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--ink);
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    padding: 1px 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Card "dado indisponível" — dashed + opacity reduzida (copiado de radar). */
+  .radar-unavailable-card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    opacity: 0.7;
+    max-width: 80ch;
+  }
+  .radar-unavailable-card__label { color: var(--ink-faint); }
+  .radar-unavailable-card__text {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-faint);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  .ranking-footnote {
+    display: block;
+    color: var(--ink-faint);
+    margin: var(--space-4) 0 0;
+  }
+</style>
+
+<!-- ════════════════════════════════════════════════════════════
+     STYLES GLOBAIS — conteúdo criado via innerHTML em runtime
+     (status strip chips, briefing cards, detalhe cards, sparklines,
+     band/trend charts). Mesmo racional de pix-observatory.astro e
+     data-stack-radar-br.astro: CSS scoped do Astro só atinge
+     elementos do template gerado em build — tudo abaixo é montado
+     em runtime pelas funções de render. SEMPRE que adicionar uma
+     classe nova usada em innerHTML, ela vem para cá.
+     ════════════════════════════════════════════════════════════ -->
+<style is:global>
+  /* ── Status strip chips (§1 header) — dot + texto em --ck-*-ink ── */
+  .ck-strip-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ck-strip-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: var(--paper-card);
+    color: var(--ink-soft);
+    font-variant-numeric: var(--num-tabular);
+  }
+  .ck-strip-chip::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+    background: var(--ck-neutro);
+  }
+  .ck-strip-chip[data-status='verde'] {
+    color: var(--ck-verde-ink);
+    border-color: var(--ck-verde-line);
+    background: var(--ck-verde-dim);
+  }
+  .ck-strip-chip[data-status='verde']::before { background: var(--ck-verde); }
+  .ck-strip-chip[data-status='amarelo'] {
+    color: var(--ck-amarelo-ink);
+    border-color: var(--ck-amarelo-line);
+    background: var(--ck-amarelo-dim);
+  }
+  .ck-strip-chip[data-status='amarelo']::before { background: var(--ck-amarelo); }
+  .ck-strip-chip[data-status='vermelho'] {
+    color: var(--ck-vermelho-ink);
+    border-color: var(--ck-vermelho-line);
+    background: var(--ck-vermelho-dim);
+  }
+  .ck-strip-chip[data-status='vermelho']::before { background: var(--ck-vermelho); }
+  .ck-strip-chip[data-status='neutro'] {
+    color: var(--ck-neutro-ink);
+    border-color: var(--ck-neutro-line);
+    background: var(--ck-neutro-dim);
+  }
+  .ck-strip-chip[data-status='neutro']::before { background: var(--ck-neutro); }
+
+  /* ── Chart wrapper (band + trend) ─────────────────────────── */
+  .ck-chart-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .ck-chart-wrap svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-width: 480px;
+  }
+  .ck-chart-wrap--mini svg {
+    min-width: 280px;
+  }
+
+  /* Elementos SVG do bandChart / trendChart — uso de var() via style attr
+     não é confiável em todos os renderizadores; classes garantem. */
+  .ck-band-zone      { stroke: none; }
+  .ck-band-thr       { stroke-width: 1; stroke-dasharray: 4 4; fill: none; }
+  .ck-band-thrlabel,
+  .ck-band-yearlabel,
+  .ck-band-ticklabel {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--ink-faint);
+  }
+  .ck-band-thrlabel { fill: var(--ink-soft); }
+  .ck-band-yearline { stroke: var(--line); stroke-width: 1; }
+  .ck-band-tickline { stroke: var(--line-strong); stroke-width: 1; }
+  .ck-band-line {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .ck-band-marker      { stroke: var(--paper-card); stroke-width: 1.5; }
+  .ck-band-markerval   {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    font-variant-numeric: var(--num-tabular);
+  }
+
+  .ck-trend-line {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .ck-trend-zeroline { stroke: var(--line-strong); stroke-width: 1; }
+  .ck-trend-axislabel {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--ink-faint);
+  }
+
+  /* ── Bento (briefing) ─────────────────────────────────────── */
+  .ck-bento {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  @media (min-width: 640px) {
+    .ck-bento { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .ck-bento { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* ── StatusCard (briefing secundário + detalhe compacto) ──── */
+  .ck-card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--ck-neutro);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+  .ck-card[data-status='verde']    { border-left-color: var(--ck-verde); }
+  .ck-card[data-status='amarelo']  { border-left-color: var(--ck-amarelo); }
+  .ck-card[data-status='vermelho'] { border-left-color: var(--ck-vermelho); }
+  .ck-card[data-status='neutro']   { border-left-color: var(--ck-neutro); }
+  .ck-card:hover { box-shadow: var(--shadow-sm); }
+
+  .ck-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+  .ck-card__freq { color: var(--ink-faint); }
+  .ck-card__label {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    text-align: right;
+  }
+  .ck-card__value {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: var(--num-tabular);
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .ck-card--lg .ck-card__value { font-size: var(--text-3xl); }
+  .ck-card__cur {
+    font-size: 0.6em;
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+  .ck-card__num { color: var(--ink); }
+  .ck-card__unit {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: var(--ink-soft);
+    letter-spacing: var(--tracking-wide);
+  }
+  .ck-card__delta {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    letter-spacing: var(--tracking-wide);
+    font-variant-numeric: var(--num-tabular);
+  }
+  .ck-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    align-items: center;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--line);
+  }
+  .ck-card__meta-bit {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    font-variant-numeric: var(--num-tabular);
+  }
+
+  /* Badge de status — texto em --ck-*-ink sobre fundo *-dim (WCAG AA) */
+  .ck-status {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .ck-status--verde    { color: var(--ck-verde-ink);    border-color: var(--ck-verde-line);    background: var(--ck-verde-dim); }
+  .ck-status--amarelo  { color: var(--ck-amarelo-ink);  border-color: var(--ck-amarelo-line);  background: var(--ck-amarelo-dim); }
+  .ck-status--vermelho { color: var(--ck-vermelho-ink); border-color: var(--ck-vermelho-line); background: var(--ck-vermelho-dim); }
+  .ck-status--neutro   { color: var(--ck-neutro-ink);   border-color: var(--ck-neutro-line);   background: var(--ck-neutro-dim); }
+
+  /* ── Sparkline ───────────────────────────────────────────── */
+  .ck-spark {
+    display: block;
+    width: 100%;
+    height: 36px;
+    overflow: visible;
+  }
+  .ck-spark__line {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .ck-spark__line--verde    { stroke: var(--ck-verde-ink); }
+  .ck-spark__line--amarelo  { stroke: var(--ck-amarelo-ink); }
+  .ck-spark__line--vermelho { stroke: var(--ck-vermelho-ink); }
+  .ck-spark__line--neutro   { stroke: var(--ck-neutro-ink); }
+
+  /* Placeholder skeleton (pré-fetch) */
+  .ck-card--ph,
+  .ck-banner--ph {
+    min-height: 180px;
+    opacity: 0.7;
+  }
+  .ck-card--ph .ck-card__label,
+  .ck-card--ph .ck-card__value,
+  .ck-banner--ph .ck-banner__value {
+    color: var(--ink-faint);
+  }
+  .ck-spark--ph {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-faint);
+    letter-spacing: 0.15em;
+    opacity: 0.5;
+    margin-top: auto;
+  }
+
+  .ck-loading {
+    color: var(--ink-faint);
+    padding: var(--space-4) 0;
+  }
+  .ck-error {
+    color: var(--ck-vermelho-ink);
+    padding: var(--space-4) 0;
+  }
+
+  /* ── IPCA banner (briefing dominante) ────────────────────── */
+  .ck-banner {
+    grid-column: 1 / -1;
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--ck-neutro);
+    border-radius: var(--radius-md);
+    padding: var(--space-6) var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    transition: box-shadow var(--transition-fast);
+  }
+  .ck-banner[data-status='verde']    { border-left-color: var(--ck-verde); }
+  .ck-banner[data-status='amarelo']  { border-left-color: var(--ck-amarelo); }
+  .ck-banner[data-status='vermelho'] { border-left-color: var(--ck-vermelho); }
+  .ck-banner[data-status='neutro']   { border-left-color: var(--ck-neutro); }
+  .ck-banner:hover { box-shadow: var(--shadow-sm); }
+
+  .ck-banner__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+  .ck-banner__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+  @media (min-width: 640px) {
+    .ck-banner__body { flex-direction: row; align-items: center; gap: var(--space-8); }
+    .ck-banner__main { flex: 0 0 auto; min-width: 16rem; }
+    .ck-banner__spark { flex: 1; min-width: 0; }
+  }
+
+  .ck-banner__value {
+    font-family: var(--font-mono);
+    font-size: var(--display-2);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: var(--num-tabular);
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .ck-banner__unit {
+    font-size: 0.35em;
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+  .ck-banner__delta {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    letter-spacing: var(--tracking-wide);
+    font-variant-numeric: var(--num-tabular);
+    margin-top: var(--space-2);
+  }
+  .ck-banner__meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    font-variant-numeric: var(--num-tabular);
+    margin-top: var(--space-3);
+  }
+  .ck-banner__spark svg {
+    display: block;
+    width: 100%;
+    height: 72px;
+    overflow: visible;
+  }
+
+  /* ── Detalhe: grupos por categoria ───────────────────────── */
+  .ck-cat {
+    margin-block-end: var(--space-12);
+  }
+  .ck-cat:last-child { margin-block-end: 0; }
+
+  .ck-cat__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-block-end: var(--space-4);
+    padding-block-end: var(--space-3);
+    border-block-end: 1px solid var(--line);
+  }
+  .ck-cat__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+  .ck-cat__count {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    font-variant-numeric: var(--num-tabular);
+  }
+
+  /* Grid compacto (categorias sem chart).
+     Modificadores count-aware para não deixar cells vazias: 1 KPI →
+     1 coluna estreita; 2 KPIs → par centralizado; 3+ → 3 colunas default. */
+  .ck-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-inline: auto;
+  }
+  @media (min-width: 640px) {
+    .ck-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1024px) {
+    .ck-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  /* Single-KPI cats (juros, emprego, financeiro): 1 coluna, largura travada
+     para não esticar o card solitário em monitores largos. */
+  .ck-grid--single {
+    grid-template-columns: 1fr;
+    max-width: 32rem;
+  }
+  /* Pair cats (precos): 2 colunas centralizadas, sem a terceira cell vazia. */
+  .ck-grid--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 52rem;
+  }
+
+  /* Categoria com mini-chart: head full-width no topo, [chart | cards] em
+     baixo. .ck-cat--chart é um grid de 2 cols (≥1024px); se .ck-cat__head
+     ficar como item direto sem span, ela ocupa só col 1, chart vai p/ col 2
+     e as cards wrap p/ row 2 — alinhamento destruído (bug original).
+     Gap = space-4 (não space-5): a head agora tem border-block-end, e o
+     row-gap soma com a padding-block-end da head — space-4 mantém o ritmo
+     "rule → 16px → content" igual às cats sem chart. */
+  .ck-cat--chart {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  @media (min-width: 1024px) {
+    .ck-cat--chart { grid-template-columns: 1.25fr 1fr; }
+  }
+  /* Head atravessa todas as cols: row 1 = head cheio,
+     row 2 = [chart | cards] lado a lado. Auto-placement põe chart em
+     (2,1) e cards em (2,2). margin-block-end: 0 porque o row-gap do grid
+     (var(--space-4)) já separa head do conteúdo — sem isso, somava
+     space-3 (padding da head) + space-4 (margin) + space-4 (gap) vs
+     space-3 (padding) + space-4 (gap) nas cats sem chart. */
+  .ck-cat--chart > .ck-cat__head {
+    grid-column: 1 / -1;
+    margin-block-end: 0;
+  }
+  .ck-cat__chart {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    align-self: center; /* chart ~240px contra rail de cards ~660px: centraliza
+                            o chart na row para dividir o void acima/abaixo em
+                            vez de deixá-lo top-pinned ("montado" vs "flutuando").
+                            Parent mantém align-items: start. */
+  }
+  .ck-cat__chart-label {
+    color: var(--ink-faint);
+  }
+  .ck-cat__cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    align-content: start; /* companion cards bunch no topo do rail direito,
+                              sem esticar mesmo se o chart for alto */
+  }
+  /* Readout mono de uma linha (companion card "órfão", ex.: resultado
+     primário ao lado do chart de dívida). Mesma anatomia do .ck-callout__stat
+     (§4): texto ink-soft, num tabular, divisor --line em cima. Sem hex.
+     grid-column: 1 / -1 garante que ele sempre caia abaixo do companion,
+     nunca ao lado (em tablet .ck-cat__cards vira 2 cols). */
+  .ck-cat__readout {
+    grid-column: 1 / -1;
+    color: var(--ink-soft);
+    font-variant-numeric: var(--num-tabular);
+    letter-spacing: var(--tracking-wide);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+    margin: 0;
+  }
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .ck-cat--chart .ck-cat__cards { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCRIPT 1 — motion do conteúdo estático (mesmo padrão do radar)
+     ════════════════════════════════════════════════════════════ -->
+<script>
+  import { revealUp }     from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk, STAGGER } from '../scripts/motion/constants';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const heroCard = document.querySelector('.hero-card');
+    if (heroCard && motionOk) revealUp([heroCard], heroCard, 0);
+
+    // Para cada seção: head + line + items estáticos
+    const sections = ['painel', 'briefing', 'detalhe', 'leitura', 'pipeline', 'meta-stack', 'metodologia'];
+    sections.forEach((id) => {
+      const sec = document.getElementById(id);
+      if (!sec) return;
+      const head = sec.querySelector('.section-head');
+      const line = sec.querySelector('.section-line');
+      if (line) hairlineDraw(line, sec);
+      if (motionOk && head) revealUp([head], sec, 0);
+    });
+
+    // Itens estáticos por seção (não hidratados — recebem stagger)
+    const leitura = document.getElementById('leitura');
+    if (leitura && motionOk) {
+      const callouts = leitura.querySelectorAll('.ck-callout');
+      if (callouts.length) revealUp(callouts, leitura, STAGGER.normal);
+    }
+
+    const pipeline = document.getElementById('pipeline');
+    if (pipeline && motionOk) {
+      const cards = pipeline.querySelectorAll('.arch-card');
+      const auto = pipeline.querySelector('.arch-automation');
+      if (cards.length) revealUp(cards, pipeline, STAGGER.tight);
+      if (auto) revealUp([auto], pipeline, 0);
+    }
+
+    const meta = document.getElementById('meta-stack');
+    if (meta && motionOk) {
+      const items = meta.querySelectorAll('.radar-meta-item');
+      if (items.length) revealUp(items, meta, STAGGER.tight);
+    }
+
+    const method = document.getElementById('metodologia');
+    if (method && motionOk) {
+      const items = method.querySelectorAll('.radar-methodology-item');
+      if (items.length) revealUp(items, method, STAGGER.normal);
+    }
+  });
+</script>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCRIPT 2 — fetch runtime dos dados + render (charts vanilla SVG)
+     ════════════════════════════════════════════════════════════ -->
+<script>
+  /**
+   * cockpit.json + historico.json → hero, status strip, IPCA band chart,
+   * briefing (bento), detalhe por categoria (com mini-charts) e callouts.
+   * Um par de fetches (AbortController + 8s timeout), reaproveitado por
+   * todas as renderizações — mesmo padrão de data-stack-radar-br.astro.
+   * Falha graciosa: estado "dados indisponíveis", nunca crash.
+   */
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { countUp } from '../scripts/motion/count-up';
+  import { DURATIONS, EASINGS, STAGGER, motionOk } from '../scripts/motion/constants';
+
+  // ScrollTrigger já é registrado pelos módulos de motion, mas registrar aqui
+  // também torna este script autônomo e autodocumentado (idempotente).
+  gsap.registerPlugin(ScrollTrigger);
+
+  type CkStatus = 'verde' | 'amarelo' | 'vermelho' | 'neutro';
+  type CkTrend  = 'alta' | 'baixa' | 'estavel';
+
+  interface CkKpi {
+    kpi_id: string;
+    label: string;
+    unit: string;
+    category: string;
+    frequency: string;
+    description: string;
+    data_referencia: string;
+    valor_atual: number;
+    valor_anterior: number;
+    delta_abs: number;
+    delta_pct: number;
+    status: CkStatus | string;
+    trend: CkTrend | string;
+    meta: number | null;
+    banda: number | null;
+    direction: string | null;
+    threshold_trend: number | null;
+  }
+  interface CkPayload {
+    gerado_em: string;
+    categorias: Record<string, string>;
+    category_order: string[];
+    kpis: CkKpi[];
+  }
+  interface HistPoint { data_referencia: string; valor: number; }
+  interface HistPayload {
+    gerado_em: string;
+    janela_anos: number;
+    series: Record<string, HistPoint[]>;
+  }
+
+  const STATUS_LABELS: Record<string, string> = {
+    verde: 'Verde', amarelo: 'Amarelo', vermelho: 'Vermelho', neutro: 'Neutro',
+  };
+  const STATUS_ORDER: CkStatus[] = ['verde', 'amarelo', 'vermelho', 'neutro'];
+
+  // ── Formatação pt-BR ───────────────────────────────────────
+  function numFmt(opts: Intl.NumberFormatOptions, v: number): string {
+    return new Intl.NumberFormat('pt-BR', opts).format(v);
+  }
+
+  /** Formata o número conforme a unidade (PTAX usa 4 casas; pts, 0). */
+  function formatValue(valor: number, unit: string): string {
+    if (unit === 'pts') return numFmt({ maximumFractionDigits: 0 }, valor);
+    if (unit === 'R$')  return numFmt({ minimumFractionDigits: 4, maximumFractionDigits: 4 }, valor);
+    if (unit.startsWith('US$')) return numFmt({ minimumFractionDigits: 2, maximumFractionDigits: 2 }, valor);
+    return numFmt({ minimumFractionDigits: 2, maximumFractionDigits: 2 }, valor);
+  }
+
+  /** Decompõe valor+unidade em (símbolo pré, número, sufixo) para layout. */
+  function decomposeValueUnit(valor: number, unit: string): { pre: string; num: string; post: string } {
+    const n = formatValue(valor, unit);
+    if (unit === 'R$') return { pre: 'R$', num: n, post: '' };
+    if (unit === 'US$ bi') return { pre: 'US$', num: n, post: 'bi' };
+    if (unit.startsWith('US$')) return { pre: 'US$', num: n, post: unit.slice(3).trim() };
+    return { pre: '', num: n, post: unit };
+  }
+
+  /** Delta: seta da tendência + valor percentual assinado. */
+  function formatDelta(deltaPct: number, trend: string): string {
+    const arrow = trend === 'alta' ? '▲' : trend === 'baixa' ? '▼' : '→';
+    const sign = deltaPct > 0 ? '+' : '';
+    const val = numFmt({ minimumFractionDigits: 2, maximumFractionDigits: 2 }, deltaPct);
+    return `${arrow} ${sign}${val}%`;
+  }
+
+  /** Formata mês/ano curto pt-BR (ago/2021). */
+  function formatMonthShort(iso: string): string {
+    const d = new Date(iso + '-01');
+    if (Number.isNaN(d.getTime())) return iso;
+    return new Intl.DateTimeFormat('pt-BR', { month: 'short', year: 'numeric' })
+      .format(d).replace('.', '');
+  }
+
+  function formatGeradoEm(iso: string): string {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    const date = new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit', month: 'short', year: 'numeric',
+    }).format(d);
+    const time = new Intl.DateTimeFormat('pt-BR', {
+      hour: '2-digit', minute: '2-digit', hour12: false,
+      timeZone: 'America/Sao_Paulo',
+    }).format(d);
+    return `${date} · ${time} BRT`;
+  }
+
+  function escapeHtml(s: string): string {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  /** Sufixo de unidade legível para labels de gráfico (% → %, % PIB → % PIB). */
+  function unitSuffix(unit: string): string {
+    if (unit === '%') return '%';
+    if (unit === '% PIB') return '% PIB';
+    if (unit === '% a.a.') return '%';
+    return '';
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // SPARKLINE — SVG vanilla, sem eixos. ~120×36 (default) ou wide (banner).
+  // ══════════════════════════════════════════════════════════
+  const SPARK_W = 120, SPARK_H = 36, SPARK_PAD = 4;
+
+  /** Reduz a série a ≤maxN pontos (stride) — séries diárias têm 504 pts. */
+  function downsample(pts: number[], maxN = 48): number[] {
+    if (pts.length <= maxN) return pts;
+    const stride = pts.length / maxN;
+    const out: number[] = [];
+    for (let i = 0; i < maxN; i++) out.push(pts[Math.floor(i * stride)]);
+    out.push(pts[pts.length - 1]);
+    return out;
+  }
+
+  /** SVG markup de um sparkline, sem eixos. Stroke = --ck-*-ink por status. */
+  function sparkline(points: number[], status: string, wide = false): string {
+    const W = wide ? 480 : SPARK_W;
+    const H = wide ? 72 : SPARK_H;
+    const PAD = wide ? 6 : SPARK_PAD;
+    const pts = downsample(points.filter((p) => Number.isFinite(p)), wide ? 96 : 48);
+    if (pts.length < 2) {
+      return `<span class="ck-spark ck-spark--ph" aria-hidden="true">—</span>`;
+    }
+    const min = Math.min(...pts);
+    const max = Math.max(...pts);
+    const range = max - min || 1;
+    const n = pts.length;
+    const stepX = (W - PAD * 2) / (n - 1);
+    const usableH = H - PAD * 2;
+    const coords = pts.map((v, i) => {
+      const x = PAD + i * stepX;
+      const y = PAD + (1 - (v - min) / range) * usableH;
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    });
+    return `<svg class="ck-spark" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="none" role="img" aria-hidden="true">
+      <polyline class="ck-spark__line ck-spark__line--${escapeHtml(status)}" points="${coords.join(' ')}" />
+    </svg>`;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // NICE TICKS — algoritmo de "nice numbers" para eixos limpos.
+  // ══════════════════════════════════════════════════════════
+  function niceNum(range: number, round: boolean): number {
+    const exp = Math.floor(Math.log10(range));
+    const frac = range / Math.pow(10, exp);
+    let nf: number;
+    if (round) {
+      if (frac < 1.5) nf = 1; else if (frac < 3) nf = 2; else if (frac < 7) nf = 5; else nf = 10;
+    } else {
+      if (frac <= 1) nf = 1; else if (frac <= 2) nf = 2; else if (frac <= 5) nf = 5; else nf = 10;
+    }
+    return nf * Math.pow(10, exp);
+  }
+
+  /** Retorna { ticks[], niceMax } com ~n intervalos arredondados (Heckbert). */
+  function niceTicks(min: number, max: number, n = 5): { ticks: number[]; niceMax: number } {
+    if (max <= min) max = min + 1;
+    const rawRange = max - min;
+    // step direto do range bruto (não arredonda o range antes) → ticks mais
+    // justos: IPCA vira 0-12 (step 2) em vez de 0-15 (step 5).
+    const step = niceNum(rawRange / (n - 1), true);
+    const niceMax = Math.ceil(max / step) * step;
+    const ticks: number[] = [];
+    for (let v = 0; v <= niceMax + step * 0.5; v += step) ticks.push(Math.round(v * 100) / 100);
+    return { ticks, niceMax };
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // bandChart — GRÁFICO DE BANDA DE META (vanilla SVG inline).
+  // Reutilizado por §1 (IPCA, ~720×280) e §3 (dívida bruta, ~360×140).
+  //
+  // Zonas de status empilhadas no eixo Y:
+  //   baixo_melhor: verde [0,meta] · amarelo [meta,teto] · vermelho [teto,ymax]
+  //   alto_melhor: vermelho [0,teto] · amarelo [teto,meta] · verde [meta,ymax]
+  // onde teto = meta ± banda (limite onde começa o vermelho).
+  //
+  // Linhas tracejadas de meta + teto com label mono à direita.
+  // Grade temporal: linhas verticais de ano. Série como <polyline> stroke --ink.
+  // Marcador do valor atual = <circle> fill --ck-{status}-ink + label tabular.
+  // ══════════════════════════════════════════════════════════
+  interface BandChartOpts {
+    series: HistPoint[];
+    meta: number;
+    banda: number;
+    direction: string;
+    status: string;
+    unit: string;
+    size?: 'lg' | 'mini';
+    ariaLabel: string;
+  }
+
+  function bandChart(opts: BandChartOpts): string {
+    const { series, meta, banda, direction, status, unit, ariaLabel } = opts;
+    const mini = opts.size === 'mini';
+    if (!series || series.length < 2) {
+      return `<p class="ck-error mono-label">série indisponível</p>`;
+    }
+
+    const isLow = direction === 'baixo_melhor';
+    const teto = isLow ? meta + banda : meta - banda; // limite vermelho
+    const suf = unitSuffix(unit);
+
+    // Geometria
+    const W = mini ? 360 : 720;
+    const H = mini ? 160 : 300;
+    const PAD = mini
+      ? { l: 38, r: 14, t: 12, b: 26 }
+      : { l: 52, r: 44, t: 20, b: 40 };
+    const plotW = W - PAD.l - PAD.r;
+    const plotH = H - PAD.t - PAD.b;
+
+    // Escala Y com nice ticks
+    const vals = series.map((p) => p.valor).filter((v) => Number.isFinite(v));
+    const seriesMax = Math.max(...vals);
+    const thrHi = isLow ? teto : meta;
+    const rawMax = Math.max(seriesMax, thrHi) * 1.1;
+    const { ticks, niceMax } = niceTicks(0, rawMax, mini ? 4 : 5);
+    const yMax = niceMax;
+    const yMin = 0;
+    const yRange = yMax - yMin || 1;
+
+    const xAt = (i: number) => PAD.l + (i / (series.length - 1)) * plotW;
+    const yAt = (v: number) => PAD.t + (1 - (v - yMin) / yRange) * plotH;
+
+    const fmtTick = (v: number) => {
+      const dec = yMax > 20 ? 0 : (v % 1 === 0 ? 0 : 1);
+      return numFmt({ minimumFractionDigits: dec, maximumFractionDigits: dec }, v) + suf;
+    };
+
+    // Zonas de status (rects preenchidos)
+    const zoneRect = (lo: number, hi: number, fill: string) =>
+      `<rect class="ck-band-zone" x="${PAD.l}" y="${yAt(hi).toFixed(2)}" width="${plotW}" height="${(yAt(lo) - yAt(hi)).toFixed(2)}" fill="${fill}" />`;
+
+    let zones: string;
+    if (isLow) {
+      zones =
+        zoneRect(0, meta, 'var(--ck-verde-dim)') +
+        zoneRect(meta, teto, 'var(--ck-amarelo-dim)') +
+        zoneRect(teto, yMax, 'var(--ck-vermelho-dim)');
+    } else {
+      zones =
+        zoneRect(0, teto, 'var(--ck-vermelho-dim)') +
+        zoneRect(teto, meta, 'var(--ck-amarelo-dim)') +
+        zoneRect(meta, yMax, 'var(--ck-verde-dim)');
+    }
+
+    // Thresholds tracejados + labels à direita
+    const thr = (val: number, label: string, lineVar: string) => {
+      const yy = yAt(val);
+      return `<line class="ck-band-thr" x1="${PAD.l}" y1="${yy.toFixed(2)}" x2="${W - PAD.r}" y2="${yy.toFixed(2)}" stroke="var(${lineVar})" />` +
+        `<text class="ck-band-thrlabel" x="${W - PAD.r + 4}" y="${(yy + 3).toFixed(2)}" text-anchor="start">${label}</text>`;
+    };
+    const metaLabel = `meta ${numFmt({ minimumFractionDigits: 1, maximumFractionDigits: 1 }, meta)}${suf}`;
+    const tetoLabel = `teto ${numFmt({ minimumFractionDigits: 1, maximumFractionDigits: 1 }, teto)}${suf}`;
+    const thresholds =
+      thr(meta, metaLabel, '--ck-amarelo-line') +
+      thr(teto, tetoLabel, '--ck-vermelho-line');
+
+    // Grade temporal: linhas de ano + labels
+    const yearMarks: { i: number; yr: string }[] = [];
+    let lastYear = '';
+    series.forEach((p, i) => {
+      const yr = (p.data_referencia || '').slice(0, 4);
+      if (yr && yr !== lastYear) {
+        yearMarks.push({ i, yr });
+        lastYear = yr;
+      }
+    });
+    // Evita label duplicado no extremo direito se o ano muda no último ponto
+    const yearLines = yearMarks.map(({ i, yr }) => {
+      const xx = xAt(i);
+      return `<line class="ck-band-yearline" x1="${xx.toFixed(2)}" y1="${PAD.t}" x2="${xx.toFixed(2)}" y2="${H - PAD.b}" />` +
+        `<text class="ck-band-yearlabel" x="${xx.toFixed(2)}" y="${H - PAD.b + 14}" text-anchor="middle">${escapeHtml(yr)}</text>`;
+    }).join('');
+
+    // Ticks Y
+    const tickEls = ticks.map((v) => {
+      const yy = yAt(v);
+      return `<line class="ck-band-tickline" x1="${PAD.l - 4}" y1="${yy.toFixed(2)}" x2="${PAD.l}" y2="${yy.toFixed(2)}" />` +
+        `<text class="ck-band-ticklabel" x="${PAD.l - 6}" y="${(yy + 3).toFixed(2)}" text-anchor="end">${fmtTick(v)}</text>`;
+    }).join('');
+
+    // Série histórica
+    const ptsStr = series.map((p, i) => `${xAt(i).toFixed(2)},${yAt(p.valor).toFixed(2)}`).join(' ');
+    const line = `<polyline class="ck-band-line" points="${ptsStr}" />`;
+
+    // Marcador do valor atual
+    const last = series[series.length - 1];
+    const cx = xAt(series.length - 1);
+    const cy = yAt(last.valor);
+    const valStr = numFmt({ minimumFractionDigits: 2, maximumFractionDigits: 2 }, last.valor) + suf;
+    const marker =
+      `<circle class="ck-band-marker" cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="4" fill="var(--ck-${escapeHtml(status)}-ink)" />` +
+      `<text class="ck-band-markerval" x="${(cx - 8).toFixed(2)}" y="${(cy - 10).toFixed(2)}" text-anchor="end" fill="var(--ck-${escapeHtml(status)}-ink)">${valStr}</text>`;
+
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${escapeHtml(ariaLabel)}">
+      ${zones}${thresholds}${yearLines}${tickEls}${line}${marker}
+    </svg>`;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // trendChart — 2 séries sobrepostas + linha de zero (vanilla SVG).
+  // Usado em §3 (Setor externo: exportações × importações).
+  // ══════════════════════════════════════════════════════════
+  interface TrendChartOpts {
+    a: HistPoint[];        // série primária (exportações) — stroke --ink
+    b: HistPoint[];        // série secundária (importações) — stroke --ink-soft
+    aLabel: string;
+    bLabel: string;
+    unit: string;
+    ariaLabel: string;
+  }
+
+  function trendChart(opts: TrendChartOpts): string {
+    const { a, b, aLabel, bLabel, ariaLabel } = opts;
+    if (!a || !b || a.length < 2 || b.length < 2) {
+      return `<p class="ck-error mono-label">série indisponível</p>`;
+    }
+    const W = 360, H = 160;
+    const PAD = { l: 38, r: 14, t: 24, b: 26 };
+    const plotW = W - PAD.l - PAD.r;
+    const plotH = H - PAD.t - PAD.b;
+
+    // Alinha séries pelo mesmo comprimento (mesma janela temporal)
+    const n = Math.min(a.length, b.length);
+    const aS = a.slice(a.length - n);
+    const bS = b.slice(b.length - n);
+
+    const allVals = [...aS.map((p) => p.valor), ...bS.map((p) => p.valor)].filter(Number.isFinite);
+    const seriesMax = Math.max(...allVals, 0);
+    const { ticks, niceMax } = niceTicks(0, seriesMax * 1.1, 4);
+    const yMax = niceMax;
+    const suf = unitSuffix(opts.unit);
+
+    const xAt = (i: number) => PAD.l + (i / (n - 1)) * plotW;
+    const yAt = (v: number) => PAD.t + (1 - v / yMax) * plotH;
+    const fmtTick = (v: number) => numFmt({ maximumFractionDigits: 0 }, v) + suf;
+
+    // Grade temporal (anos)
+    const yearMarks: { i: number; yr: string }[] = [];
+    let lastYear = '';
+    aS.forEach((p, i) => {
+      const yr = (p.data_referencia || '').slice(0, 4);
+      if (yr && yr !== lastYear) { yearMarks.push({ i, yr }); lastYear = yr; }
+    });
+    const yearLines = yearMarks.map(({ i, yr }) => {
+      const xx = xAt(i);
+      return `<line class="ck-band-yearline" x1="${xx.toFixed(2)}" y1="${PAD.t}" x2="${xx.toFixed(2)}" y2="${H - PAD.b}" />` +
+        `<text class="ck-band-yearlabel" x="${xx.toFixed(2)}" y="${H - PAD.b + 14}" text-anchor="middle">${escapeHtml(yr)}</text>`;
+    }).join('');
+
+    // Ticks Y
+    const tickEls = ticks.map((v) => {
+      const yy = yAt(v);
+      return `<line class="ck-band-tickline" x1="${PAD.l - 4}" y1="${yy.toFixed(2)}" x2="${PAD.l}" y2="${yy.toFixed(2)}" />` +
+        `<text class="ck-band-ticklabel" x="${PAD.l - 6}" y="${(yy + 3).toFixed(2)}" text-anchor="end">${fmtTick(v)}</text>`;
+    }).join('');
+
+    // Linha de zero (baseline de referência)
+    const zeroLine = `<line class="ck-trend-zeroline" x1="${PAD.l}" y1="${yAt(0).toFixed(2)}" x2="${W - PAD.r}" y2="${yAt(0).toFixed(2)}" />`;
+
+    // Séries
+    const aPts = aS.map((p, i) => `${xAt(i).toFixed(2)},${yAt(p.valor).toFixed(2)}`).join(' ');
+    const bPts = bS.map((p, i) => `${xAt(i).toFixed(2)},${yAt(p.valor).toFixed(2)}`).join(' ');
+    const aLine = `<polyline class="ck-trend-line" points="${aPts}" stroke="var(--ink)" />`;
+    const bLine = `<polyline class="ck-trend-line" points="${bPts}" stroke="var(--ink-soft)" stroke-dasharray="3 3" />`;
+
+    // Legenda inline (topo)
+    const legend =
+      `<text class="ck-trend-axislabel" x="${PAD.l}" y="12"><tspan fill="var(--ink)">━</tspan> ${escapeHtml(aLabel)}</text>` +
+      `<text class="ck-trend-axislabel" x="${W / 2}" y="12"><tspan fill="var(--ink-soft)">┄</tspan> ${escapeHtml(bLabel)}</text>`;
+
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${escapeHtml(ariaLabel)}">
+      ${yearLines}${tickEls}${zeroLine}${bLine}${aLine}${legend}
+    </svg>`;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // SIGNATURE — o band chart "se desenha" ao entrar no viewport.
+  // O único momento coreografado da página (web-motion.md: one
+  // signature device). Sequência (≤ DURATIONS.entrance / 1.4s):
+  //   1. zonas de status fade in staggered — DOM order já é
+  //      verde→amarelo→vermelho (= bottom→top no baixo_melhor)
+  //   2. thresholds tracejados + labels fade
+  //   3. <polyline> IPCA desenha via stroke-dashoffset (sem DrawSVG)
+  //   4. <circle> do valor atual escala por último (scale 0→1)
+  //
+  // Coordenação com hidratação: o SVG é montado por bandChart() via
+  // innerHTML em renderIpcaChart(); revealBandChart() é chamado logo
+  // após, então todos os alvos já existem no DOM.
+  //
+  // Acessibilidade: reduced-motion → retorna antes de esconder nada;
+  // o chart segue totalmente visível como renderizado por bandChart().
+  // Apenas transform/opacity animados (web-motion.md guardrails).
+  // ══════════════════════════════════════════════════════════
+  function revealBandChart(svg: SVGSVGElement): void {
+    if (!motionOk) return;
+
+    const zones = svg.querySelectorAll<SVGElement>('.ck-band-zone');
+    const thresholds = svg.querySelectorAll<SVGElement>('.ck-band-thr, .ck-band-thrlabel');
+    const polyline = svg.querySelector<SVGGeometryElement>('.ck-band-line');
+    const marker = svg.querySelector<SVGCircleElement>('.ck-band-marker');
+    const markerVal = svg.querySelector<SVGTextElement>('.ck-band-markerval');
+
+    // Estados iniciais escondidos — só quando motion está on. Reduced-motion
+    // mantém o SVG inteiro visível (já renderizado por bandChart).
+    gsap.set(zones, { opacity: 0 });
+    gsap.set(thresholds, { opacity: 0 });
+    if (polyline) {
+      const len = polyline.getTotalLength();
+      gsap.set(polyline, { strokeDasharray: len, strokeDashoffset: len });
+    }
+    if (marker) gsap.set(marker, { scale: 0, transformOrigin: 'center' });
+    if (markerVal) gsap.set(markerVal, { opacity: 0 });
+
+    const run = () => {
+      const tl = gsap.timeline();
+      // 1) zonas fade in staggered (DOM order = verde→amarelo→vermelho)
+      tl.to(zones, {
+        opacity: 1,
+        duration: DURATIONS.fast,
+        ease: EASINGS.out,
+        stagger: STAGGER.tight,
+      });
+      // 2) thresholds tracejados + labels fade
+      tl.to(thresholds, {
+        opacity: 1,
+        duration: DURATIONS.fast,
+        ease: EASINGS.out,
+      }, 0.2);
+      // 3) polyline IPCA desenha (dash trick); clearProps garante estado final limpo
+      if (polyline) tl.to(polyline, {
+        strokeDashoffset: 0,
+        duration: DURATIONS.slow,
+        ease: EASINGS.out,
+        onComplete: () => gsap.set(polyline, { clearProps: 'strokeDasharray,strokeDashoffset' }),
+      }, 0.15);
+      // 4) marcador do valor atual escala por último (back.out não está no
+      //    vocabulário → expo.out, mesmo easing premium do resto da página)
+      if (marker) tl.to(marker, {
+        scale: 1,
+        duration: DURATIONS.fast,
+        ease: EASINGS.out,
+      }, 0.9);
+      if (markerVal) tl.to(markerVal, {
+        opacity: 1,
+        duration: DURATIONS.fast,
+        ease: EASINGS.out,
+      }, 0.9);
+    };
+
+    // Já-visível no load → dispara já (mesma lógica de count-up.ts /
+    // meter-sweep.ts: ScrollTrigger não dispara confiavelmente para
+    // elementos que já passaram do start no carregamento).
+    const rect = svg.getBoundingClientRect();
+    const alreadyVisible = rect.top < window.innerHeight * 0.8 && rect.bottom > 0;
+
+    if (alreadyVisible) {
+      run();
+      return;
+    }
+
+    ScrollTrigger.create({
+      trigger: svg,
+      start: 'top 80%',
+      once: true,
+      onEnter: run,
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // CARD MARKUP
+  // ══════════════════════════════════════════════════════════
+
+  /** StatusCard compacto (detalhe por categoria + briefing secundário). */
+  function statusCard(kpi: CkKpi, hist: HistPayload | null, size: 'lg' | 'md'): string {
+    const status = String(kpi.status ?? 'neutro');
+    const statusLabel = STATUS_LABELS[status] ?? escapeHtml(status);
+    const series = hist?.series?.[kpi.kpi_id] ?? [];
+    const pts = series.map((p) => p.valor);
+    const spark = sparkline(pts, status);
+    const { pre, num, post } = decomposeValueUnit(kpi.valor_atual, kpi.unit);
+    const delta = formatDelta(kpi.delta_pct, String(kpi.trend ?? 'estavel'));
+    const sizeCls = size === 'lg' ? ' ck-card--lg' : '';
+
+    const metaBits: string[] = [];
+    if (kpi.meta != null && kpi.banda != null) {
+      const metaStr = formatValue(kpi.meta, kpi.unit);
+      metaBits.push(`<span class="ck-card__meta-bit">meta ${metaStr} ± ${formatValue(kpi.banda, kpi.unit)}</span>`);
+    }
+    metaBits.push(`<span class="ck-card__meta-bit">ref. ${escapeHtml(kpi.data_referencia)}</span>`);
+
+    return `<article class="ck-card${sizeCls}" role="listitem" data-status="${escapeHtml(status)}" data-kpi-id="${escapeHtml(kpi.kpi_id)}">
+      <div class="ck-card__top">
+        <span class="ck-status ck-status--${escapeHtml(status)}">${statusLabel}</span>
+        <span class="ck-card__label">${escapeHtml(kpi.label)}</span>
+      </div>
+      <div class="ck-card__value">
+        ${pre ? `<span class="ck-card__cur">${escapeHtml(pre)}</span>` : ''}
+        <span class="ck-card__num">${escapeHtml(num)}</span>
+        ${post ? `<span class="ck-card__unit">${escapeHtml(post)}</span>` : ''}
+      </div>
+      <span class="ck-card__delta">${escapeHtml(delta)}</span>
+      ${spark}
+      <div class="ck-card__meta">${metaBits.join('')}</div>
+    </article>`;
+  }
+
+  /** IPCA banner (briefing dominante): display-2 + status chip + wide sparkline. */
+  function briefingBanner(kpi: CkKpi, hist: HistPayload | null): string {
+    const status = String(kpi.status ?? 'neutro');
+    const statusLabel = STATUS_LABELS[status] ?? escapeHtml(status);
+    const series = hist?.series?.[kpi.kpi_id] ?? [];
+    const pts = series.map((p) => p.valor);
+    const spark = sparkline(pts, status, true);
+    const { pre, num, post } = decomposeValueUnit(kpi.valor_atual, kpi.unit);
+    const delta = formatDelta(kpi.delta_pct, String(kpi.trend ?? 'estavel'));
+
+    const metaBits: string[] = [];
+    if (kpi.meta != null && kpi.banda != null) {
+      metaBits.push(`meta ${formatValue(kpi.meta, kpi.unit)} ± ${formatValue(kpi.banda, kpi.unit)}`);
+    }
+    metaBits.push(`ref. ${escapeHtml(kpi.data_referencia)}`);
+
+    return `<article class="ck-banner" role="listitem" data-status="${escapeHtml(status)}" data-kpi-id="${escapeHtml(kpi.kpi_id)}">
+      <div class="ck-banner__top">
+        <span class="ck-status ck-status--${escapeHtml(status)}">${statusLabel}</span>
+        <span class="ck-card__label">${escapeHtml(kpi.label)}</span>
+      </div>
+      <div class="ck-banner__body">
+        <div class="ck-banner__main">
+          <span class="ck-banner__value">
+            ${pre ? `<span class="ck-banner__cur">${escapeHtml(pre)}</span>` : ''}
+            <span class="ck-banner__num">${escapeHtml(num)}</span>
+            ${post ? `<span class="ck-banner__unit">${escapeHtml(post)}</span>` : ''}
+          </span>
+          <span class="ck-banner__delta">${escapeHtml(delta)}</span>
+          <span class="ck-banner__meta">${metaBits.join(' · ')}</span>
+        </div>
+        <div class="ck-banner__spark">${spark}</div>
+      </div>
+    </article>`;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // RENDER — hero
+  // ══════════════════════════════════════════════════════════
+  function renderHero(data: CkPayload): void {
+    const geradoEl = document.getElementById('ck-hero-gerado');
+    if (geradoEl) geradoEl.textContent = formatGeradoEm(data.gerado_em);
+
+    const summaryEl = document.getElementById('ck-hero-summary');
+    if (!summaryEl) return;
+
+    const counts: Record<string, number> = { verde: 0, amarelo: 0, vermelho: 0, neutro: 0 };
+    data.kpis.forEach((k) => {
+      const s = String(k.status ?? 'neutro');
+      if (s in counts) counts[s] += 1;
+    });
+    const total = data.kpis.length;
+    const sumFmt = (n: number) => numFmt({ maximumFractionDigits: 0 }, n);
+
+    summaryEl.innerHTML = `
+      <span>${sumFmt(total)} indicadores</span>
+      <span aria-hidden="true">·</span>
+      <span style="color: var(--ck-verde-ink)">${sumFmt(counts.verde)} verde</span>
+      <span aria-hidden="true">·</span>
+      <span style="color: var(--ck-amarelo-ink)">${sumFmt(counts.amarelo)} amarelo</span>
+      <span aria-hidden="true">·</span>
+      <span style="color: var(--ck-vermelho-ink)">${sumFmt(counts.vermelho)} vermelho</span>
+      <span aria-hidden="true">·</span>
+      <span style="color: var(--ck-neutro-ink)">${sumFmt(counts.neutro)} neutro</span>`;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // RENDER — status strip (§1 header) + IPCA band chart
+  // ══════════════════════════════════════════════════════════
+  function renderStatusStrip(data: CkPayload): void {
+    const counts: Record<string, number> = { verde: 0, amarelo: 0, vermelho: 0, neutro: 0 };
+    data.kpis.forEach((k) => {
+      const s = String(k.status ?? 'neutro');
+      if (s in counts) counts[s] += 1;
+    });
+
+    const section = document.getElementById('painel');
+
+    STATUS_ORDER.forEach((st) => {
+      const chip = document.querySelector<HTMLLIElement>(`.ck-strip-chip[data-status="${st}"]`);
+      if (!chip) return;
+      // countUp só escreve o número; o prefixo "Verde · " fica como texto.
+      // countUp trata reduced-motion (escreve o valor final na hora).
+      chip.innerHTML = `${STATUS_LABELS[st]} · <span class="ck-strip-count" data-count-to="${counts[st]}" data-count-decimals="0">0</span>`;
+      const countEl = chip.querySelector<HTMLElement>('.ck-strip-count');
+      if (countEl) countUp(countEl, section ?? chip);
+    });
+  }
+
+  function renderIpcaChart(data: CkPayload, hist: HistPayload | null): void {
+    const wrap = document.getElementById('ck-ipca-chart');
+    if (!wrap) return;
+    const ipca = data.kpis.find((k) => k.kpi_id === 'ipca_12m');
+    const series = hist?.series?.['ipca_12m'] ?? [];
+    if (!ipca || !series.length || ipca.meta == null || ipca.banda == null) {
+      wrap.innerHTML = '<p class="ck-error mono-label">série IPCA indisponível</p>';
+      return;
+    }
+
+    const status = String(ipca.status ?? 'neutro');
+    const first = series[0];
+    const last = series[series.length - 1];
+    const aria = `IPCA acumulado em 12 meses de ${formatMonthShort(first.data_referencia)} a ${formatMonthShort(last.data_referencia)}; ${formatValue(last.valor, ipca.unit)} em ${formatMonthShort(last.data_referencia)}, acima do teto de ${numFmt({ minimumFractionDigits: 1, maximumFractionDigits: 1 }, (ipca.meta as number) + (ipca.banda as number))}% — status ${status}.`;
+
+    wrap.innerHTML = `<div class="ck-chart-wrap">${bandChart({
+      series,
+      meta: ipca.meta as number,
+      banda: ipca.banda as number,
+      direction: String(ipca.direction ?? 'baixo_melhor'),
+      status,
+      unit: ipca.unit,
+      size: 'lg',
+      ariaLabel: aria,
+    })}</div>`;
+
+    // SIGNATURE: o chart "se desenha" — chamado só após o SVG estar no DOM
+    // (innerHTML acima), coordenando motion com a hidratação.
+    const svg = wrap.querySelector<SVGSVGElement>('svg');
+    if (svg) revealBandChart(svg);
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // RENDER — briefing (bento: IPCA banner + 3 secundários)
+  // ══════════════════════════════════════════════════════════
+  const BRIEFING_SECONDARY = ['selic', 'desocupacao', 'cambio_usd'];
+
+  function renderBriefing(data: CkPayload, hist: HistPayload | null): void {
+    const grid = document.getElementById('ck-briefing-grid');
+    if (!grid) return;
+    const byId = new Map(data.kpis.map((k) => [k.kpi_id, k]));
+
+    const ipca = byId.get('ipca_12m');
+    if (!ipca) {
+      grid.innerHTML = '<p class="ck-error mono-label" style="grid-column: 1 / -1">dados do briefing indisponíveis</p>';
+      return;
+    }
+
+    const banner = briefingBanner(ipca, hist);
+    const secondaryKpis = BRIEFING_SECONDARY
+      .map((id) => byId.get(id))
+      .filter((k): k is CkKpi => Boolean(k));
+    const secondary = secondaryKpis.map((k) => statusCard(k, hist, 'lg'));
+
+    grid.innerHTML = banner + secondary.join('');
+
+    // Big values contam de 0 (banner + 3 secundários). Decimais casam com a
+    // formatação de unidade (R$ PTAX usa 4; pts, 0; demais, 2) para o valor
+    // final do countUp ser idêntico ao renderizado. countUp cuida do
+    // reduced-motion (escreve o valor final sem animar).
+    const section = document.getElementById('briefing');
+    const briefingKpis = [ipca, ...secondaryKpis];
+    const nums = grid.querySelectorAll<HTMLElement>('.ck-banner__num, .ck-card__num');
+    nums.forEach((numEl, i) => {
+      const kpi = briefingKpis[i];
+      if (!kpi) return;
+      numEl.dataset.countTo = String(kpi.valor_atual);
+      numEl.dataset.countDecimals =
+        kpi.unit === 'R$' ? '4' : kpi.unit === 'pts' ? '0' : '2';
+      countUp(numEl, section ?? numEl);
+    });
+
+    if (motionOk && section) {
+      revealUp(grid.querySelectorAll('.ck-banner, .ck-card'), section, STAGGER.normal);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // RENDER — detalhe por categoria (12 KPIs em 6 grupos; 2 com mini-chart)
+  // ══════════════════════════════════════════════════════════
+  /** KPIs que viram chart (não ganham card próprio — estão no gráfico). */
+  const CHARTED_KPIS = new Set(['exportacoes_fob', 'importacoes_fob', 'divida_bruta']);
+
+  function renderDetalhe(data: CkPayload, hist: HistPayload | null): void {
+    const root = document.getElementById('ck-detalhe');
+    if (!root) return;
+    const order = data.category_order ?? [];
+    const labels = data.categorias ?? {};
+
+    const groups = order.map((cat) => {
+      const kpis = data.kpis.filter((k) => k.category === cat);
+      if (!kpis.length) return '';
+      const label = labels[cat] ?? escapeHtml(cat);
+      const count = numFmt({ maximumFractionDigits: 0 }, kpis.length);
+
+      // Setor externo → trendChart (exportações × importações) + companion cards
+      if (cat === 'externo') {
+        const exp = hist?.series?.['exportacoes_fob'] ?? [];
+        const imp = hist?.series?.['importacoes_fob'] ?? [];
+        const chartable = exp.length > 1 && imp.length > 1;
+        const companionKpis = kpis.filter((k) => !CHARTED_KPIS.has(k.kpi_id));
+        const cards = companionKpis.map((k) => statusCard(k, hist, 'md')).join('');
+        const chartBlock = chartable
+          ? `<div class="ck-cat__chart">
+              <span class="mono-label ck-cat__chart-label">exportações × importações · US$ bi FOB</span>
+              <div class="ck-chart-wrap ck-chart-wrap--mini">${trendChart({
+                a: exp, b: imp,
+                aLabel: 'Exportações', bLabel: 'Importações',
+                unit: 'US$ bi',
+                ariaLabel: 'Exportações e importações mensais (US$ bi FOB) — exportações acima de importações indicam superávit comercial.',
+              })}</div>
+            </div>`
+          : '';
+        return `<div class="ck-cat ck-cat--chart" data-cat="${escapeHtml(cat)}">
+          <div class="ck-cat__head">
+            <h3 class="ck-cat__title">${escapeHtml(label)}</h3>
+            <span class="ck-cat__count">${count} ${kpis.length === 1 ? 'indicador' : 'indicadores'}</span>
+          </div>
+          ${chartBlock}
+          <div class="ck-cat__cards" role="list" aria-label="${escapeHtml(label)}">${cards}</div>
+        </div>`;
+      }
+
+      // Fiscal → bandChart (dívida bruta) + companion (resultado primário)
+      if (cat === 'fiscal') {
+        const divida = data.kpis.find((k) => k.kpi_id === 'divida_bruta');
+        const primario = data.kpis.find((k) => k.kpi_id === 'resultado_primario');
+        const dSeries = hist?.series?.['divida_bruta'] ?? [];
+        const chartable = divida && dSeries.length > 1 && divida.meta != null && divida.banda != null;
+        const companionKpis = kpis.filter((k) => !CHARTED_KPIS.has(k.kpi_id));
+        const cards = companionKpis.map((k) => statusCard(k, hist, 'md')).join('');
+        // Readout mono compacto: pequeno texto qualitativo derivado do
+        // valor (não do status, que é Só verde/amarelo) — preenche o void
+        // abaixo do companion card "órfão" (1 card só no rail direito).
+        const readout = primario
+          ? (() => {
+              const v = primario.valor_atual;
+              const qualit = Math.abs(v) < 0.5 ? 'equilíbrio'
+                : v >= 0 ? 'superávit primário'
+                : 'déficit primário';
+              return `<p class="ck-cat__readout mono-label">primário ${formatValue(v, primario.unit)} PIB · ${qualit}</p>`;
+            })()
+          : '';
+        const chartBlock = (chartable && divida)
+          ? `<div class="ck-cat__chart">
+              <span class="mono-label ck-cat__chart-label">dívida bruta do governo geral · % do PIB</span>
+              <div class="ck-chart-wrap ck-chart-wrap--mini">${bandChart({
+                series: dSeries,
+                meta: (divida as CkKpi).meta as number,
+                banda: (divida as CkKpi).banda as number,
+                direction: String((divida as CkKpi).direction ?? 'baixo_melhor'),
+                status: String((divida as CkKpi).status ?? 'neutro'),
+                unit: (divida as CkKpi).unit,
+                size: 'mini',
+                ariaLabel: `Dívida bruta do governo geral (% do PIB); ${formatValue((divida as CkKpi).valor_atual, (divida as CkKpi).unit)} no último ponto, meta ${formatValue((divida as CkKpi).meta as number, (divida as CkKpi).unit)} ± ${formatValue((divida as CkKpi).banda as number, (divida as CkKpi).unit)}.`,
+              })}</div>
+            </div>`
+          : '';
+        return `<div class="ck-cat ck-cat--chart" data-cat="${escapeHtml(cat)}">
+          <div class="ck-cat__head">
+            <h3 class="ck-cat__title">${escapeHtml(label)}</h3>
+            <span class="ck-cat__count">${count} ${kpis.length === 1 ? 'indicador' : 'indicadores'}</span>
+          </div>
+          ${chartBlock}
+          <div class="ck-cat__cards" role="list" aria-label="${escapeHtml(label)}">${cards}${readout}</div>
+        </div>`;
+      }
+
+      // Demais categorias → lista compacta de cards.
+      // count-aware: 1 KPI → single col (32rem); 2 → pair (52rem); 3+ → grid 3 col.
+      const cards = kpis.map((k) => statusCard(k, hist, 'md')).join('');
+      const gridMod = kpis.length === 1 ? ' ck-grid--single'
+        : kpis.length === 2 ? ' ck-grid--pair' : '';
+      return `<div class="ck-cat" data-cat="${escapeHtml(cat)}">
+        <div class="ck-cat__head">
+          <h3 class="ck-cat__title">${escapeHtml(label)}</h3>
+          <span class="ck-cat__count">${count} ${kpis.length === 1 ? 'indicador' : 'indicadores'}</span>
+        </div>
+        <div class="ck-grid${gridMod}" role="list" aria-label="${escapeHtml(label)}">${cards}</div>
+      </div>`;
+    }).filter(Boolean);
+
+    if (!groups.length) {
+      root.innerHTML = '<p class="ck-error mono-label">dados por categoria indisponíveis</p>';
+      const statusEl = document.getElementById('ck-detalhe-status');
+      if (statusEl) statusEl.textContent = 'Detalhe por categoria indisponível.';
+      return;
+    }
+    root.innerHTML = groups.join('');
+    // Live region dedicada (sr-only, sibling de #ck-detalhe): anuncia apenas
+    // um resumo curto, não a swap inteira do grid — SR não fica "narrando"
+    // todos os cards. Node externo sobrevive ao innerHTML acima.
+    const statusEl = document.getElementById('ck-detalhe-status');
+    if (statusEl) statusEl.textContent = `Detalhe carregado: ${groups.length} categorias, ${data.kpis.length} indicadores.`;
+
+    if (motionOk) {
+      const section = document.getElementById('detalhe');
+      const cats = root.querySelectorAll('.ck-cat');
+      if (section && cats.length) revealUp(cats, section, STAGGER.normal);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // RENDER — callouts (§4: juro real + contas públicas), valores derivados
+  // ══════════════════════════════════════════════════════════
+  function renderCallouts(data: CkPayload): void {
+    const byId = new Map(data.kpis.map((k) => [k.kpi_id, k]));
+    const selic = byId.get('selic');
+    const ipca = byId.get('ipca_12m');
+    const primario = byId.get('resultado_primario');
+    const divida = byId.get('divida_bruta');
+
+    const setText = (selector: string, text: string) => {
+      document.querySelectorAll(selector).forEach((el) => { el.textContent = text; });
+    };
+
+    if (selic) setText('[data-ck-kpi="selic"]', formatValue(selic.valor_atual, selic.unit) + (selic.unit === '% a.a.' ? '' : ''));
+    if (ipca)  setText('[data-ck-kpi="ipca_12m"]', formatValue(ipca.valor_atual, ipca.unit) + '%');
+
+    // Juro real ≈ Selic − IPCA (aproximação ex-ante simples)
+    if (selic && ipca) {
+      const real = selic.valor_atual - ipca.valor_atual;
+      const realStr = numFmt({ minimumFractionDigits: 1, maximumFractionDigits: 1 }, real) + '%';
+      setText('[data-ck-real]', realStr);
+    }
+
+    if (primario) setText('[data-ck-kpi="resultado_primario"]', formatValue(primario.valor_atual, primario.unit) + '%');
+    if (divida)   setText('[data-ck-kpi="divida_bruta"]', formatValue(divida.valor_atual, divida.unit));
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // ORQUESTRAÇÃO — fetch cockpit + historico
+  // ══════════════════════════════════════════════════════════
+  async function loadCockpit(): Promise<void> {
+    const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    const get = async (path: string): Promise<Response> =>
+      fetch(path, { cache: 'no-cache', signal: controller.signal });
+
+    try {
+      const [ckRes, histRes] = await Promise.all([
+        get(`${base}assets/data/cockpit.json`),
+        get(`${base}assets/data/historico.json`),
+      ]);
+      clearTimeout(timeoutId);
+      if (!ckRes.ok) throw new Error('cockpit fetch failed');
+
+      const data: CkPayload = await ckRes.json();
+      // historico é opcional — sparklines/charts só somem se ele falhar
+      let hist: HistPayload | null = null;
+      if (histRes.ok) {
+        try { hist = (await histRes.json()) as HistPayload; } catch { hist = null; }
+      }
+
+      renderHero(data);
+      renderStatusStrip(data);
+      renderIpcaChart(data, hist);
+      renderBriefing(data, hist);
+      renderDetalhe(data, hist);
+      renderCallouts(data);
+      // #detalhe ficou bem mais alto após o innerHTML (cards + charts);
+      // recalcula os ScrollTriggers das seções abaixo para dispararem na
+      // posição correta (leitura, etc.).
+      ScrollTrigger.refresh();
+    } catch {
+      clearTimeout(timeoutId);
+      // Estado gracioso: nunca crash
+      const geradoEl = document.getElementById('ck-hero-gerado');
+      if (geradoEl) geradoEl.textContent = 'indisponível';
+      const summaryEl = document.getElementById('ck-hero-summary');
+      if (summaryEl) summaryEl.innerHTML = '<span class="ck-error mono-label">dados indisponíveis — tente recarregar</span>';
+      const briefingGrid = document.getElementById('ck-briefing-grid');
+      if (briefingGrid) briefingGrid.innerHTML = '<p class="ck-error mono-label" style="grid-column: 1 / -1">dados do briefing indisponíveis</p>';
+      const detalhe = document.getElementById('ck-detalhe');
+      if (detalhe) detalhe.innerHTML = '<p class="ck-error mono-label">dados por categoria indisponíveis</p>';
+      const ipcaChart = document.getElementById('ck-ipca-chart');
+      if (ipcaChart) ipcaChart.innerHTML = '<p class="ck-error mono-label">série IPCA indisponível</p>';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadCockpit);
+</script>

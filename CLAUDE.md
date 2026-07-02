@@ -68,3 +68,27 @@ Translation dictionaries: `pt-BR.json`, `en-US.json`, `es-ES.json`. Referenced i
 ## CI/CD
 
 GitHub Actions workflow (`.github/workflows/update-profile.yml`) runs daily to fetch fresh GitHub/LinkedIn data, translate projects, build profile JSON, and auto-commit changes to `assets/data/` and `assets/i18n/`.
+
+---
+
+## Sub-projeto: Brasil Cockpit
+
+Executive dashboard of Brazil's main macro KPIs (traffic-light status vs targets,
+delta, trend). **Embedded Astro sub-project** (same pattern as PIX Observatory &
+Data Stack Radar BR) — see `docs/BRASIL_COCKPIT.md` for the full spec.
+
+```bash
+pip install -r ingestion_macro/requirements.txt
+python ingestion_macro/collect_sgs.py        # BACEN SGS
+python ingestion_macro/collect_caged.py      # Novo CAGED (start='2020-01-01')
+python ingestion_macro/collect_ptax.py       # BACEN PTAX (USD, EUR)
+python ingestion_macro/collect_ibge.py       # IBGE SIDRA (PIB, PNAD, PIM, PMC, PMS)
+python ingestion_macro/collect_market.py     # yfinance (^BVSP)
+python transform_macro/silver_macro.py       # Bronze → Silver (full rebuild)
+python transform_macro/gold_cockpit.py       # Silver → Gold + assets/data/cockpit.json + historico.json
+```
+
+- `ingestion_macro/catalog.py` — single source of truth (SGS/SIDRA/market series, `KPI_META`, `TARGETS`). Never hardcode series codes or targets elsewhere.
+- Gold writes **Parquet to `data/gold/` AND JSON to `assets/data/`** (Astro fetches the JSON at runtime; zero LLM in runtime).
+- Status tokens `--ck-verde/amarelo/vermelho/neutro` (+ `-ink` text variants) in `src/styles/tokens.css`.
+- CI: `.github/workflows/macro-cockpit-{daily,monthly,caged,quarterly}.yml` → collect → silver → gold → commit `data:` → dispatch `build-and-deploy.yml`.

@@ -1,0 +1,263 @@
+---
+/**
+ * BrasilCockpitCard.astro — Seção Portfólio (card irmão do PIX Observatory
+ * e do Data Stack Radar BR)
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Card "real" (border sólida, sem opacity reduzida — mesmo padrão do
+ * .radar-card) para o terceiro projeto ao vivo do portfólio: o Brasil
+ * Cockpit, um painel executivo de KPIs macro do Brasil com status
+ * semafórico (verde/amarelo/vermelho) vs metas, delta e tendência.
+ * Renderizado via <slot /> dentro de PixObservatoryCard.astro, ao lado
+ * do card do Data Stack Radar BR.
+ *
+ * A mini-legenda de status (Verde/Amarelo/Vermelho + contagem) é hidratada
+ * em runtime via fetch de assets/data/cockpit.json — mesmo padrão de dado
+ * real usado no .radar-card (radar_scores.json). Neutro fica de fora da
+ * tira (não é status semafórico, é "sem meta").
+ *
+ * Tokens: --ck-* (status semafórico), nunca hex hardcoded.
+ * Motion: revealUp (mesmo grupo de stagger da seção #portfolio, registrado
+ *         em PixObservatoryCard.astro — este card não registra motion).
+ */
+
+const base = import.meta.env.BASE_URL;
+---
+
+<div class="cockpit-card card crop" role="group" aria-labelledby="cockpit-card-title">
+  <span class="crop-mark-bl" aria-hidden="true"></span>
+  <span class="crop-mark-br" aria-hidden="true"></span>
+
+  <div class="cockpit-card__label-row">
+    <span class="mono-label">projeto ao vivo</span>
+    <span class="mono-label cockpit-card__badge">atualizado diariamente</span>
+  </div>
+
+  <h3 id="cockpit-card-title" class="cockpit-card__title">Brasil Cockpit</h3>
+
+  <p class="cockpit-card__desc">
+    Painel executivo de KPIs macro do Brasil — status semafórico vs metas,
+    delta e tendência, atualizado automaticamente.
+  </p>
+
+  <div class="cockpit-card__tags">
+    <span class="tag tag--ck">Macroeconomia</span>
+    <span class="tag tag--ck">Dashboard</span>
+    <span class="tag">Open Source</span>
+  </div>
+
+  <ul
+    class="cockpit-card__strip"
+    id="cockpit-card-strip"
+    role="list"
+    aria-label="Contagem de KPIs por status semafórico — Brasil Cockpit"
+  >
+    <li class="cockpit-card__status" data-status="verde">
+      <span class="cockpit-card__status-dot" aria-hidden="true"></span>
+      <span class="cockpit-card__status-label mono-label">Verde</span>
+      <span class="cockpit-card__status-count" data-status-count="verde">···</span>
+    </li>
+    <li class="cockpit-card__status" data-status="amarelo">
+      <span class="cockpit-card__status-dot" aria-hidden="true"></span>
+      <span class="cockpit-card__status-label mono-label">Amarelo</span>
+      <span class="cockpit-card__status-count" data-status-count="amarelo">···</span>
+    </li>
+    <li class="cockpit-card__status" data-status="vermelho">
+      <span class="cockpit-card__status-dot" aria-hidden="true"></span>
+      <span class="cockpit-card__status-label mono-label">Vermelho</span>
+      <span class="cockpit-card__status-count" data-status-count="vermelho">···</span>
+    </li>
+  </ul>
+
+  <div class="cockpit-card__actions">
+    <a
+      href={`${base}brasil-cockpit/`}
+      class="btn-primary cockpit-card__cta"
+      aria-label="Abrir Brasil Cockpit — painel de KPIs macro do Brasil"
+    >Ver Cockpit →</a>
+    <a
+      href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion_macro"
+      class="btn-secondary"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Ver código fonte do pipeline no GitHub (abre em nova aba)"
+    >GitHub</a>
+  </div>
+</div>
+
+<style>
+  .cockpit-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-block-end: var(--space-6);
+  }
+
+  .cockpit-card:hover {
+    border-color: var(--ck-verde-line);
+  }
+
+  .cockpit-card__label-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .cockpit-card__badge {
+    color: var(--ink-faint);
+  }
+
+  .cockpit-card__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .cockpit-card__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+    max-width: 68ch;
+  }
+
+  .cockpit-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tag--ck {
+    color: var(--ck-verde-ink);
+    border-color: var(--ck-verde-line);
+    background: var(--ck-verde-dim);
+  }
+
+  /* ── Mini-legenda de status semafórico ──────────────────── */
+  .cockpit-card__strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    margin: 0;
+    padding: var(--space-4) 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cockpit-card__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .cockpit-card__status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+  }
+
+  .cockpit-card__status[data-status='verde']    .cockpit-card__status-dot { background: var(--ck-verde); }
+  .cockpit-card__status[data-status='amarelo']  .cockpit-card__status-dot { background: var(--ck-amarelo); }
+  .cockpit-card__status[data-status='vermelho'] .cockpit-card__status-dot { background: var(--ck-vermelho); }
+
+  .cockpit-card__status-label {
+    color: var(--ink-soft);
+  }
+
+  .cockpit-card__status-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: var(--tracking-wide);
+    font-variant-numeric: var(--num-tabular);
+  }
+
+  /* ── CTAs ─────────────────────────────────────────────────── */
+  .cockpit-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  /* --ck-verde-ink (não a base) — texto branco (--paper) em cima exige
+     ≥4.5:1 (WCAG AA). A base decorativa só rende ~3.4:1 aqui; a variante
+     -ink rende 5.25:1. Mesma regra de contraste documentada em tokens.css
+     (idêntica à do .radar-card__cta com --radar-adopt-ink). */
+  .cockpit-card__cta {
+    background: var(--ck-verde-ink);
+    border-color: var(--ck-verde-ink);
+  }
+
+  .cockpit-card__cta:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  .cockpit-card__actions .btn-secondary:hover {
+    border-color: var(--ck-verde-ink);
+    color: var(--ck-verde-ink);
+  }
+</style>
+
+<script>
+  /**
+   * Mini-legenda de status — contagem real vinda de cockpit.json (campo
+   * `kpis[].status`). Neutro fica de fora da tira (não é semafórico).
+   * Falha silenciosa: mantém "···" se o fetch não completar (sem quebrar
+   * o card) — mesmo padrão do .radar-card (loadRadarCardTiers).
+   */
+  type CkStatus = 'verde' | 'amarelo' | 'vermelho' | 'neutro' | string;
+  interface CkKpi { status?: CkStatus; }
+  interface CkPayload { kpis?: CkKpi[]; }
+
+  async function loadCockpitCardStrip(): Promise<void> {
+    const strip = document.getElementById('cockpit-card-strip');
+    if (!strip) return;
+
+    const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    try {
+      const res = await fetch(`${base}assets/data/cockpit.json`, {
+        cache: 'no-cache',
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('fetch failed');
+      const data: CkPayload = await res.json();
+      const kpis = data.kpis ?? [];
+
+      const counts: Record<'verde' | 'amarelo' | 'vermelho', number> = {
+        verde: 0, amarelo: 0, vermelho: 0,
+      };
+      kpis.forEach((kpi) => {
+        const key = String(kpi.status ?? '') as keyof typeof counts;
+        if (key in counts) counts[key] += 1;
+      });
+
+      (Object.keys(counts) as Array<keyof typeof counts>).forEach((status) => {
+        const el = strip.querySelector(`[data-status-count="${status}"]`);
+        if (el) el.textContent = String(counts[status]);
+      });
+    } catch {
+      clearTimeout(timeoutId);
+      // Mantém "···" — falha silenciosa, card continua funcional.
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadCockpitCardStrip);
+</script>

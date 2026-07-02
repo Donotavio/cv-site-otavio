@@ -53,3 +53,20 @@ Deploy: push para `main` dispara `.github/workflows/build-and-deploy.yml`
 
 - Store tokens and cookies in environment variables or GitHub Actions secrets.
 - Never commit `GITHUB_TOKEN` or LinkedIn session cookies.
+
+## Sub-projeto: Brasil Cockpit
+
+Painel executivo de KPIs macro do Brasil (status verde/amarelo/vermelho vs metas,
+delta, tendência). Sub-projeto Astro embutido — spec completo em
+`docs/BRASIL_COCKPIT.md`.
+
+- `ingestion_macro/catalog.py` — fonte única de verdade: séries SGS/SIDRA/market,
+  `KPI_META`, `TARGETS`. Nunca hardcodar códigos de série ou targets fora daqui.
+- `ingestion_macro/collect_*.py` — 5 scripts independentes → `data/bronze/macro_*/`.
+- `transform_macro/silver_macro.py` — Bronze → Silver (full rebuild).
+- `transform_macro/gold_cockpit.py` — Silver → `data/gold/cockpit.parquet` +
+  `historico.parquet` **e** `assets/data/cockpit.json` + `historico.json`.
+- `src/pages/brasil-cockpit.astro` + `src/components/BrasilCockpitCard.astro`.
+- Convenções: CAGED `start='2020-01-01'` fixo; SGS `start` ≥ 10 anos;
+  `ibge_territorial_code='1'` (nunca `'all'`); silver/gold always full rebuild;
+  tokens `--ck-*` (variante `-ink` para texto).
