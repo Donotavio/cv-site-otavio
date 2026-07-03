@@ -41,13 +41,33 @@
   <script src="js/main.js" defer></script>
 
   <!-- Fallback sem JS: garante que [data-reveal] não fique invisível
-       permanentemente se o IntersectionObserver nunca rodar. -->
+       permanentemente se o IntersectionObserver nunca rodar, e mostra
+       uma mensagem amigável no lugar dos skeletons (que dependem de JS
+       para serem substituídos por conteúdo real). -->
   <noscript>
     <style>
       [data-reveal] { opacity: 1 !important; transform: none !important; }
       .wc-prob-row__bar { transition: none !important; }
+      /* Esconde skeletons — JS é necessário para populá-los */
+      .wc-skeleton-card,
+      .wc-skeleton-row { display: none !important; }
+      .wc-nojs-msg {
+        display: block !important;
+        padding: var(--space-8);
+        text-align: center;
+        font-family: var(--font-mono);
+        color: var(--ink-soft);
+        background: var(--paper-soft);
+        border-radius: var(--radius-md);
+      }
     </style>
   </noscript>
+  <script>
+    // Mark JS as available BEFORE first paint so [data-reveal] can hide
+    // itself for the reveal animation. Without this, content briefly
+    // renders with insufficient opacity (Lighthouse a11y false-fail).
+    document.documentElement.classList.add('has-js');
+  </script>
 </head>
 <body>
   <!-- Skip link (a11y) -->
@@ -82,7 +102,7 @@
     <section class="section wc-hero" aria-labelledby="wc-hero-title">
       <div class="container">
 
-        <div class="wc-hero__card crop" data-reveal>
+        <div class="wc-hero__card crop">
           <span class="crop-mark-bl" aria-hidden="true"></span>
           <span class="crop-mark-br" aria-hidden="true"></span>
 
@@ -108,7 +128,7 @@
 
         <!-- KPI Bento -->
         <div class="wc-kpi-bento" role="list" aria-label="Métricas gerais da Copa">
-          <div class="wc-kpi wc-kpi--hero crop" role="listitem" data-reveal
+          <div class="wc-kpi wc-kpi--hero crop" role="listitem"
                     aria-label="Total de jogos">
             <span class="crop-mark-bl" aria-hidden="true"></span>
             <span class="crop-mark-br" aria-hidden="true"></span>
@@ -124,7 +144,7 @@
             <span class="wc-kpi__label">Jogos disputados</span>
           </div>
 
-          <div class="wc-kpi crop" role="listitem" data-reveal
+          <div class="wc-kpi crop" role="listitem"
                     aria-label="Total de gols">
             <span class="crop-mark-bl" aria-hidden="true"></span>
             <span class="crop-mark-br" aria-hidden="true"></span>
@@ -138,7 +158,7 @@
             <span class="wc-kpi__label">Gols marcados</span>
           </div>
 
-          <div class="wc-kpi crop" role="listitem" data-reveal
+          <div class="wc-kpi crop" role="listitem"
                     aria-label="Média de gols por partida">
             <span class="crop-mark-bl" aria-hidden="true"></span>
             <span class="crop-mark-br" aria-hidden="true"></span>
@@ -153,7 +173,7 @@
             <span class="wc-kpi__label">Média de gols / jogo</span>
           </div>
 
-          <div class="wc-kpi wc-kpi--gold crop" role="listitem" data-reveal
+          <div class="wc-kpi wc-kpi--gold crop" role="listitem"
                     aria-label="Artilheiro atual">
             <span class="crop-mark-bl" aria-hidden="true"></span>
             <span class="crop-mark-br" aria-hidden="true"></span>
@@ -438,7 +458,7 @@
         </div>
         <hr class="section-line" aria-hidden="true" data-reveal>
 
-        <div class="wc-insights-grid" id="wc-insights-grid" role="list" aria-label="Insights editoriais">
+        <div class="wc-insights-grid" id="wc-insights-grid" aria-label="Insights editoriais">
           <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:160px"></span></div>
           <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:160px"></span></div>
           <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:160px"></span></div>

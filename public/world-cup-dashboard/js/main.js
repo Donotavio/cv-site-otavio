@@ -568,22 +568,22 @@
               <span class="wc-prob-row__elo">Elo ${elo.toFixed(1)}</span>
             </div>
             <div class="wc-prob-row__bar-wrap" aria-hidden="true">
-              <span class="wc-prob-row__bar" data-width="${widthPct}" style="width:0%"></span>
+              <span class="wc-prob-row__bar" data-width="${widthPct}"></span>
             </div>
           </div>
           <span class="wc-prob-row__pct" title="probabilidade de título (Monte Carlo)">${pct.toFixed(2)}%</span>
         </li>`;
     }).join('');
 
-    // Anima as barras (largura alvo) — respeitando reduced-motion
+    // Anima as barras via transform: scaleX (perf-friendly — sem layout thrash)
     const motion = !prefersReducedMotion();
     $$('.wc-prob-row__bar', list).forEach((bar, i) => {
-      const target = bar.dataset.width + '%';
+      const scale = (Number(bar.dataset.width) || 0) / 100;
       if (motion) {
-        setTimeout(() => { bar.style.width = target; }, 80 + i * 40);
+        setTimeout(() => { bar.style.transform = `scaleX(${scale})`; }, 80 + i * 40);
       } else {
         bar.style.transition = 'none';
-        bar.style.width = target;
+        bar.style.transform = `scaleX(${scale})`;
       }
     });
 
@@ -747,7 +747,7 @@
           <span class="mono-label">${escapeHtml(headLabel)}</span>
           <span class="mono-label" style="color:var(--ink-faint)">${rows.length} sel.</span>
         </header>
-        <div class="wc-group-rows">${rowsHtml}</div>
+        <div class="wc-group-rows" role="list">${rowsHtml}</div>
       </div>`;
   }
 
@@ -1072,7 +1072,7 @@
       const cls = ['wc-insight-card', `wc-insight-card--${cat}`, `wc-insight-card--${layout[i] || 'md'}`];
 
       return `
-        <article class="${cls.join(' ')}" role="listitem" data-reveal>
+        <article class="${cls.join(' ')}" data-reveal>
           <header class="wc-insight-card__head">
             <span class="mono-label">${num}</span>
           </header>
@@ -1631,7 +1631,10 @@
     // Só jogadores com ao menos 1 gol (duelos fazem sentido)
     GAME.players = jogadores.data.players.filter(p => p && p.id && p.name && (p.goals || 0) >= 1);
 
-    renderDuel(true);
+    // Initial render is instant (no fade-in) to avoid contrast failures
+    // during the brief animation window. Transitions between duels use
+    // the fade-in (entering=true) which is fine since those are user-triggered.
+    renderDuel(false);
 
     $('#wc-game-skip')?.addEventListener('click', () => renderDuel(true));
 

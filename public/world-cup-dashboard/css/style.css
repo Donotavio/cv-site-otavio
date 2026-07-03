@@ -474,12 +474,19 @@ ul, ol { list-style: none; }
  * MOTION — reveal + count-up (CSS-driven, IntersectionObserver no JS)
  * ════════════════════════════════════════════════════════════ */
 [data-reveal] {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity var(--transition-slow), transform var(--transition-slow);
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
   will-change: opacity, transform;
 }
-[data-reveal].is-visible {
+/* Only hide-and-reveal when JS is enabled. Prevents contrast failures
+   during the brief window before IntersectionObserver fires, and ensures
+   content is fully visible for users without JS (matches <noscript>). */
+html.has-js [data-reveal]:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(16px);
+}
+html.has-js [data-reveal].is-visible {
   opacity: 1;
   transform: none;
 }
@@ -687,7 +694,7 @@ ul, ol { list-style: none; }
   font-family: var(--font-display);
   font-size: var(--text-3xl);
   font-weight: 400;
-  color: var(--wc-field);
+  color: var(--wc-field-ink);
   line-height: 0.95;
   letter-spacing: var(--tracking-tight);
   font-variant-numeric: var(--num-tabular);
@@ -863,6 +870,7 @@ ul, ol { list-style: none; }
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   overflow-x: auto;
+  padding: var(--space-3) var(--space-4);
 }
 
 .wc-scorers-table {
@@ -1027,7 +1035,7 @@ ul, ol { list-style: none; }
   font-family: var(--font-display);
   font-size: var(--text-3xl);
   font-weight: 400;
-  color: var(--wc-field);
+  color: var(--wc-field-ink);
   line-height: 0.95;
   letter-spacing: var(--tracking-tight);
   font-variant-numeric: var(--num-tabular);
@@ -1139,10 +1147,12 @@ ul, ol { list-style: none; }
 .wc-prob-row__bar {
   position: absolute;
   inset: 0 auto 0 0;
-  width: 0;
+  width: 100%;
   background: var(--wc-field);
   border-radius: var(--radius-full);
-  transition: width var(--transition-slow);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--transition-slow);
 }
 .wc-prob-row.is-top .wc-prob-row__bar { background: var(--wc-gold); }
 
@@ -1248,7 +1258,7 @@ ul, ol { list-style: none; }
 .wc-player-card__goals {
   font-family: var(--font-display);
   font-size: var(--text-3xl);
-  color: var(--wc-field);
+  color: var(--wc-field-ink);
   line-height: 1;
   font-variant-numeric: var(--num-tabular);
 }
@@ -1505,7 +1515,10 @@ ul, ol { list-style: none; }
 .wc-match--today .wc-match__score--pending {
   color: var(--ink-soft);
 }
-.wc-match--placeholder { opacity: 0.78; }
+.wc-match--placeholder { background: var(--paper-soft); }
+.wc-match--placeholder .wc-match__name { color: var(--ink-soft); }
+.wc-match--placeholder .wc-match__score,
+.wc-match--placeholder .wc-match__meta { color: var(--ink-soft); }
 
 .wc-match__team {
   display: flex;
@@ -1665,10 +1678,18 @@ ul, ol { list-style: none; }
   border-radius: var(--radius-md);
   background: var(--paper-card);
   overflow: hidden;
+  min-height: 88px;
 }
 .wc-skeleton-card > .wc-skeleton {
   border-radius: 0;
 }
+/* Reserva espaço para placeholders de seções críticas (reduz CLS) */
+#wc-groups-grid { min-height: 200px; }
+#wc-bracket-host { min-height: 200px; }
+#wc-selection-host { min-height: 320px; }
+#wc-insights-grid { min-height: 160px; }
+#wc-bolao-list { min-height: 200px; }
+.wc-nojs-msg { display: none; }
 
 /* ════════════════════════════════════════════════════════════
  * FILTRO "MINHA SELEÇÃO"
@@ -1830,14 +1851,11 @@ ul, ol { list-style: none; }
 .wc-group-row__diff.is-positive { color: var(--wc-field-ink); }
 .wc-group-row__diff.is-negative { color: var(--wc-live-ink); }
 
-/* Linhas classificadas (top 2) */
+/* Linhas classificadas (top 2) — accent via inset shadow (sem shift de layout) */
 .wc-group-row.is-qualified {
   background: var(--wc-field-dim);
-  border-left: 3px solid var(--wc-field);
-  padding-left: var(--space-2);
-  margin-left: calc(var(--space-2) * -1);
-  /* compensa o padding-left para manter alinhamento de grade */
-  width: calc(100% + var(--space-2));
+  box-shadow: inset 3px 0 0 var(--wc-field);
+  border-radius: var(--radius-sm);
 }
 .wc-group-row__badge {
   display: inline-block;
@@ -1995,7 +2013,7 @@ ul, ol { list-style: none; }
 
 /* status today: borda + dot + badge */
 .wc-bracket-match.is-today {
-  border-left: 3px solid var(--wc-live);
+  box-shadow: inset 3px 0 0 var(--wc-live);
   background: var(--wc-live-dim);
 }
 .wc-bracket-match__today-tag {
@@ -2388,8 +2406,8 @@ ul, ol { list-style: none; }
   background: var(--wc-live-dim);
 }
 .wc-bolao-item.is-finished {
-  opacity: 0.78;
   background: var(--paper-soft);
+  border-color: var(--line);
 }
 .wc-bolao-team {
   display: flex;
@@ -2523,7 +2541,7 @@ ul, ol { list-style: none; }
   font-family: var(--font-display);
   font-size: var(--text-3xl);
   font-weight: 400;
-  color: var(--wc-field);
+  color: var(--wc-field-ink);
   line-height: 0.95;
   font-variant-numeric: var(--num-tabular);
 }
