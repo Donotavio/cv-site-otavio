@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard da Copa do Mundo 2026 — Otávio Ribeiro</title>
-  <meta name="description" content="A Copa do Mundo FIFA 2026 em dados, ao vivo: partidas, artilharia, estatísticas, probabilidades (Elo) e um jogo interativo de quem é o craque. Pipeline Python atualizado a cada hora.">
+  <meta name="description" content="A Copa do Mundo FIFA 2026 em dados, ao vivo: partidas, artilharia, fase de grupos, mata-mato, seleção da copa, Monte Carlo (10k simulações) e um jogo interativo de quem é o craque. Pipeline Python atualizado a cada hora.">
   <meta name="author" content="Otávio Ribeiro">
   <meta name="theme-color" content="#FDFDFD">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Dashboard da Copa do Mundo 2026">
-  <meta property="og:description" content="A Copa em dados, ao vivo — partidas, artilharia, estatísticas e probabilidades Elo.">
+  <meta property="og:description" content="A Copa em dados, ao vivo — partidas, grupos, mata-mato, artilharia e Monte Carlo.">
   <meta property="og:type" content="website">
 
   <!-- CSP: permite Chart.js via CDN (jsdelivr) + self + inline -->
@@ -67,6 +67,14 @@
   </header>
 
   <main id="main-content">
+
+    <!-- ══════════════════════════════════════════════════════
+         FILTRO "MINHA SELEÇÃO"
+         ══════════════════════════════════════════════════════ -->
+    <div class="wc-team-filter" id="wc-team-filter" hidden role="region" aria-label="Filtrar por seleção">
+      <span class="mono-label wc-team-filter__label">minha seleção</span>
+      <div class="wc-team-filter__chips" id="wc-team-filter-chips"></div>
+    </div>
 
     <!-- ══════════════════════════════════════════════════════
          HERO
@@ -183,7 +191,10 @@
         </div>
 
         <ol class="wc-news-list" id="wc-news-list" role="list" aria-live="polite" aria-label="Últimas notícias da Copa do Mundo">
-          <li class="wc-loading mono-label">carregando feed…</li>
+          <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></li>
+          <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></li>
+          <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></li>
+          <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></li>
         </ol>
       </div>
     </section>
@@ -217,7 +228,10 @@
               </tr>
             </thead>
             <tbody id="wc-scorers-body">
-              <tr><td colspan="5" class="wc-loading mono-label">carregando artilharia…</td></tr>
+              <tr><td colspan="5"><span class="wc-skeleton" style="height:32px;width:100%;display:block"></span></td></tr>
+              <tr><td colspan="5"><span class="wc-skeleton" style="height:32px;width:100%;display:block"></span></td></tr>
+              <tr><td colspan="5"><span class="wc-skeleton" style="height:32px;width:100%;display:block"></span></td></tr>
+              <tr><td colspan="5"><span class="wc-skeleton" style="height:32px;width:100%;display:block"></span></td></tr>
             </tbody>
           </table>
         </div>
@@ -315,39 +329,131 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════════
-         [04] PROBABILIDADES (ELO)
+         [04] MONTE CARLO (simulação 10k)
          ══════════════════════════════════════════════════════ -->
-    <section id="probabilidades" class="section wc-prob-section" aria-labelledby="wc-prob-title">
+    <section id="monte-carlo" class="section wc-prob-section" aria-labelledby="wc-prob-title">
       <div class="container">
         <div class="section-head" data-reveal>
           <span class="mono-label">04</span>
-          <h2 id="wc-prob-title" class="wc-display">Probabilidades (Elo)</h2>
+          <h2 id="wc-prob-title" class="wc-display">Monte Carlo</h2>
           <p class="wc-lead">
-            Ranking de força das 12 seleções líderes pelo Elo Rating local,
-            calculado a partir dos resultados do torneio. A barra representa
-            o Elo relativo ao líder; o percentual é a probabilidade de título
-            via softmax (48 seleções).
+            10.000 simulações do mata-mato restante. Cada jogo não-decidido
+            é sorteado via probabilidade Elo; resultados já jogados são fixos.
+            A barra reflete o Elo relativo ao líder; o percentual é a frequência
+            de títulos nas simulações.
           </p>
         </div>
         <hr class="section-line" aria-hidden="true" data-reveal>
 
         <p class="wc-methodology mono-label" id="wc-prob-method" aria-live="polite">
-          metodologia: Elo Rating local
+          metodologia: Monte Carlo · 10.000 simulações
         </p>
 
         <ol class="wc-prob-list" id="wc-prob-list" role="list" aria-labelledby="wc-prob-title">
-          <li class="wc-loading mono-label">carregando probabilidades…</li>
+          <li class="wc-skeleton-row"><span class="wc-skeleton" style="height:36px;width:100%"></span></li>
+          <li class="wc-skeleton-row"><span class="wc-skeleton" style="height:36px;width:100%"></span></li>
+          <li class="wc-skeleton-row"><span class="wc-skeleton" style="height:36px;width:100%"></span></li>
+          <li class="wc-skeleton-row"><span class="wc-skeleton" style="height:36px;width:100%"></span></li>
         </ol>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════════════════
-         [05] QUEM É O CRAQUE? (jogo interativo)
+         [05] GRUPOS
+         ══════════════════════════════════════════════════════ -->
+    <section id="grupos" class="section wc-groups-section" aria-labelledby="wc-groups-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="mono-label">05</span>
+          <h2 id="wc-groups-title" class="wc-display">Fase de grupos</h2>
+          <p class="wc-lead">
+            12 grupos de 4 seleções. Os dois primeiros de cada grupo avançam
+            ao mata-mato. PTS · J · V-E-D · GP:GC · SG.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" data-reveal>
+
+        <div class="wc-groups-grid" id="wc-groups-grid" role="list" aria-label="Tabela dos 12 grupos">
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></div>
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></div>
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></div>
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [06] BRACKET DO MATA-MATO
+         ══════════════════════════════════════════════════════ -->
+    <section id="mata-mato" class="section wc-bracket-section" aria-labelledby="wc-bracket-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="mono-label">06</span>
+          <h2 id="wc-bracket-title" class="wc-display">Mata-mato</h2>
+          <p class="wc-lead">
+            Doze oitavas até a final. Jogos ainda não definidos aparecem como
+            “A definir”; jogos de hoje têm destaque.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" data-reveal>
+
+        <div id="wc-bracket-host" aria-live="polite">
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:280px"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [07] SELEÇÃO DA COPA
+         ══════════════════════════════════════════════════════ -->
+    <section id="selecao-copa" class="section wc-selection-section" aria-labelledby="wc-selection-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="mono-label">07</span>
+          <h2 id="wc-selection-title" class="wc-display">Seleção da Copa</h2>
+          <p class="wc-lead">
+            O melhor XI em 4-3-3, inferido dos resultados do torneio. O artilheiro
+            entre os atacantes ganha o anel dourado.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" data-reveal>
+
+        <div class="wc-selection-wrap" id="wc-selection-host">
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:380px;max-width:480px"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [08] INSIGHTS
+         ══════════════════════════════════════════════════════ -->
+    <section id="insights" class="section wc-insights-section" aria-labelledby="wc-insights-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="mono-label">08</span>
+          <h2 id="wc-insights-title" class="wc-display">Insights</h2>
+          <p class="wc-lead">
+            Oito leituras editoriais sobre o torneio — números que contam a história.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" data-reveal>
+
+        <div class="wc-insights-grid" id="wc-insights-grid" role="list" aria-label="Insights editoriais">
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:160px"></span></div>
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:160px"></span></div>
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:160px"></span></div>
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:160px"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [09] QUEM É O CRAQUE? (jogo interativo)
          ══════════════════════════════════════════════════════ -->
     <section id="craque" class="section wc-game-section" aria-labelledby="wc-game-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">05</span>
+          <span class="mono-label">09</span>
           <h2 id="wc-game-title" class="wc-display">Quem é o craque?</h2>
           <p class="wc-lead">
             Dois jogadores aparecem lado a lado. Escolha quem você acha melhor.
@@ -358,7 +464,8 @@
         <hr class="section-line" aria-hidden="true" data-reveal>
 
         <div class="wc-game__duel" id="wc-game-duel" aria-live="polite" aria-label="Duelo de jogadores">
-          <p class="wc-loading mono-label">carregando jogadores…</p>
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:200px"></span></div>
+          <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:200px"></span></div>
         </div>
 
         <div class="wc-game__actions">
@@ -390,12 +497,12 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════════
-         [06] PARTIDAS
+         [10] PARTIDAS
          ══════════════════════════════════════════════════════ -->
     <section id="partidas" class="section wc-matches-section" aria-labelledby="wc-matches-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">06</span>
+          <span class="mono-label">10</span>
           <h2 id="wc-matches-title" class="wc-display">Partidas</h2>
           <p class="wc-lead">
             Resultados recentes e próximos jogos da Copa. Jogos de hoje
@@ -411,7 +518,9 @@
               <span class="mono-label wc-matches-col__hint">últimos finalizados</span>
             </header>
             <ol class="wc-matches-list" id="wc-matches-recent" role="list" aria-live="polite">
-              <li class="wc-loading mono-label">carregando partidas…</li>
+              <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:88px"></span></li>
+              <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:88px"></span></li>
+              <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:88px"></span></li>
             </ol>
           </div>
 
@@ -421,8 +530,58 @@
               <span class="mono-label wc-matches-col__hint">hoje e agendados</span>
             </header>
             <ol class="wc-matches-list" id="wc-matches-upcoming" role="list" aria-live="polite">
-              <li class="wc-loading mono-label">carregando partidas…</li>
+              <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:88px"></span></li>
+              <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:88px"></span></li>
+              <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:88px"></span></li>
             </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [11] BOLÃO LOCAL
+         ══════════════════════════════════════════════════════ -->
+    <section id="bolao" class="section wc-bolao-section" aria-labelledby="wc-bolao-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="mono-label">11</span>
+          <h2 id="wc-bolao-title" class="wc-display">Bolão local</h2>
+          <p class="wc-lead">
+            Palpites salvos só neste navegador. Acerto exato do placar vale
+            3 pontos; acerto só do vencedor vale 1. Pontuação computada quando
+            o jogo termina.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" data-reveal>
+
+        <div class="wc-bolao-grid">
+          <div class="wc-bolao-col" aria-labelledby="wc-bolao-palpites-title">
+            <header class="wc-matches-col__head">
+              <span class="mono-label" id="wc-bolao-palpites-title">próximos 5 jogos</span>
+              <span class="mono-label wc-matches-col__hint">palpite em aberto</span>
+            </header>
+            <ol class="wc-bolao-list" id="wc-bolao-list" role="list" aria-live="polite">
+              <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:120px"></span></li>
+              <li class="wc-skeleton-card"><span class="wc-skeleton" style="height:120px"></span></li>
+            </ol>
+          </div>
+
+          <div class="wc-bolao-col" aria-labelledby="wc-bolao-score-title">
+            <header class="wc-matches-col__head">
+              <span class="mono-label" id="wc-bolao-score-title">minha pontuação</span>
+              <span class="mono-label wc-matches-col__hint">localStorage</span>
+            </header>
+            <div class="wc-bolao-score crop" data-reveal>
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <div class="wc-bolao-score__value" id="wc-bolao-total">0</div>
+              <div class="wc-bolao-score__label">pontos acumulados</div>
+              <ol class="wc-bolao-score__list" id="wc-bolao-score-list" role="list">
+                <li class="wc-loading mono-label">sem palpites computados ainda</li>
+              </ol>
+              <button type="button" class="btn-secondary wc-bolao-reset" id="wc-bolao-reset">Limpar palpites</button>
+            </div>
           </div>
         </div>
       </div>

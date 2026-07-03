@@ -26,6 +26,12 @@
 
   const LS_KEY = 'wc-craque-votes';
 
+  /** Estado partilhado entre render functions (matches usado por bolão + filtro). */
+  const WC_STATE = {
+    matches: [],
+    groups: [],
+  };
+
   /** Escape HTML de strings externas (títulos de RSS, nomes). Previne XSS. */
   function escapeHtml(str) {
     if (str == null) return '';
@@ -513,7 +519,9 @@
   }
 
   /* ════════════════════════════════════════════════════════
-   * [04] Render — Probabilidades (Elo)
+   * [04] Render — Monte Carlo (simulação 10k)
+   * Substituiu Probabilidades (Elo). Mesma UI, schema diferente:
+   *   teams[] → { rank, name, code, flag, elo, titles, title_probability }
    * ════════════════════════════════════════════════════════ */
   function renderProbabilities(result) {
     const list = $('#wc-prob-list');
@@ -521,16 +529,20 @@
     if (!list) return;
 
     if (!result.ok || !result.data || !Array.isArray(result.data.teams) || !result.data.teams.length) {
-      list.innerHTML = `<li class="wc-error mono-label">probabilidades indisponíveis</li>`;
+      list.innerHTML = `<li class="wc-error mono-label">simulação indisponível</li>`;
       return;
     }
 
-    if (method && result.data.methodology) {
-      method.textContent = `metodologia: ${result.data.methodology}`;
+    // Badge no methodology: Monte Carlo · 10.000 simulações
+    if (method) {
+      const sims = result.data.simulations
+        ? result.data.simulations.toLocaleString('pt-BR')
+        : '10.000';
+      method.textContent = `metodologia: Monte Carlo · ${sims} simulações`;
     }
 
     const top = result.data.teams.slice(0, 12);
-    // Elo relativo ao líder (para largura da barra visual)
+    // Barra = Elo relativo ao líder (#1 = 100%)
     const maxElo = Math.max.apply(null, top.map(t => Number(t.elo) || 0));
     const minElo = Math.min.apply(null, top.map(t => Number(t.elo) || 0));
     const eloRange = Math.max(1, maxElo - minElo);
@@ -538,8 +550,7 @@
     list.innerHTML = top.map((t, i) => {
       const isTop = i === 0;
       const elo = Number(t.elo) || 0;
-      const pct = Number(t.win_probability) || 0;
-      // Largura relativa ao líder: garante que o #1 = 100% e os demais escalam.
+      const pct = Number(t.title_probability) || 0;
       const widthPct = Math.round(((elo - minElo) / eloRange) * 100);
       const flag = t.flag ? escapeHtml(t.flag) : '';
 
@@ -560,7 +571,7 @@
               <span class="wc-prob-row__bar" data-width="${widthPct}" style="width:0%"></span>
             </div>
           </div>
-          <span class="wc-prob-row__pct" title="probabilidade de título (softmax)">${pct.toFixed(2)}%</span>
+          <span class="wc-prob-row__pct" title="probabilidade de título (Monte Carlo)">${pct.toFixed(2)}%</span>
         </li>`;
     }).join('');
 
@@ -569,7 +580,6 @@
     $$('.wc-prob-row__bar', list).forEach((bar, i) => {
       const target = bar.dataset.width + '%';
       if (motion) {
-        // stagger leve
         setTimeout(() => { bar.style.width = target; }, 80 + i * 40);
       } else {
         bar.style.transition = 'none';
@@ -577,7 +587,6 @@
       }
     });
 
-    // Observa os novos [data-reveal] injetados
     observeReveals(list);
   }
 
@@ -597,6 +606,7 @@
     }
 
     const matches = result.data.matches;
+    WC_STATE.matches = matches;
 
     // Separa: finalizados (com placar) | hoje | agendados
     const finished = matches.filter(m => m.status === 'finished' || (m.score && m.score.ft));
@@ -660,7 +670,7 @@
     const groundTxt = m.ground ? escapeHtml(m.ground) : '';
 
     return `
-      <li class="${cls.join(' ')}">
+      <li class="${cls.join(' ')}" data-match-num="${m.num || ''}" data-team1="${escapeHtml(t1.name || '')}" data-team2="${escapeHtml(t2.name || '')}" data-team1-code="${escapeHtml(t1.code || '')}" data-team2-code="${escapeHtml(t2.code || '')}">
         <div class="wc-match__team">
           ${team1Flag}
           <span class="wc-match__name ${isPh1 ? 'wc-match__name--placeholder' : ''}">${team1Name}</span>
@@ -675,6 +685,738 @@
           <span class="wc-match__time">${dateTxt}${timeTxt ? ' · ' + timeTxt : ''}${groundTxt ? ' · ' + groundTxt : ''}</span>
         </div>
       </li>`;
+  }
+
+  /* ════════════════════════════════════════════════════════
+   * [05] Render — Grupos (fase de grupos, 12 × 4)
+   * ════════════════════════════════════════════════════════ */
+  function renderGroups(result) {
+    const host = $('#wc-groups-grid');
+    if (!host) return;
+
+    if (!result.ok || !result.data || !Array.isArray(result.data.groups) || !result.data.groups.length) {
+      host.innerHTML = `<div class="wc-error mono-label" style="grid-column:1/-1">tabela de grupos indisponível</div>`;
+      return;
+    }
+
+    host.innerHTML = result.data.groups.map(g => groupCardHtml(g)).join('');
+    observeReveals(host);
+  }
+
+  function groupCardHtml(g) {
+    // "Group A" → "GRUPO A"
+    const letter = (g.group || '').replace(/.*Group\s*/i, '').trim() || '?';
+    const headLabel = `GRUPO ${letter}`;
+
+    const rows = (g.teams || []).slice().sort((a, b) => (a.position || 99) - (b.position || 99));
+
+    const rowsHtml = rows.map(t => {
+      const isQ = t.qualified === true;
+      const diff = Number(t.diff) || 0;
+      const diffCls = diff > 0 ? 'is-positive' : (diff < 0 ? 'is-negative' : '');
+      const diffTxt = (diff > 0 ? '+' : '') + diff;
+      const ved = `${t.wins || 0}-${t.draws || 0}-${t.losses || 0}`;
+      const gpGc = `${t.goals_for || 0}:${t.goals_against || 0}`;
+      const flag = t.flag ? escapeHtml(t.flag) : '';
+      const flagCell = flag
+        ? `<span class="wc-group-row__flag" aria-hidden="true">${flag}</span>`
+        : `<span class="wc-group-row__flag" aria-hidden="true">·</span>`;
+      const badge = isQ ? `<span class="wc-group-row__badge">classificado</span>` : '';
+      const cls = ['wc-group-row'];
+      if (isQ) cls.push('is-qualified');
+
+      return `
+        <div class="${cls.join(' ')}" role="listitem">
+          ${flagCell}
+          <span class="wc-group-row__name-block">
+            <span class="wc-group-row__name">${escapeHtml(t.name || '—')}</span>
+            ${badge}
+          </span>
+          <span class="wc-group-row__pts" title="pontos">${t.pts || 0}</span>
+          <span class="wc-group-row__played" title="jogos">${t.played || 0}</span>
+          <span class="wc-group-row__gca" title="gols pró : gols contra">${gpGc}</span>
+          <span class="wc-group-row__diff ${diffCls}" title="saldo">${diffTxt}</span>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="card crop wc-group-card" role="listitem" data-reveal>
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="wc-group-card__head">
+          <span class="mono-label">${escapeHtml(headLabel)}</span>
+          <span class="mono-label" style="color:var(--ink-faint)">${rows.length} sel.</span>
+        </header>
+        <div class="wc-group-rows">${rowsHtml}</div>
+      </div>`;
+  }
+
+  /* ════════════════════════════════════════════════════════
+   * [06] Render — Bracket do mata-mato
+   * ════════════════════════════════════════════════════════ */
+  // Ordem canônica das fases + label curto.
+  const BRACKET_ROUNDS = [
+    { match: 'Round of 32',          short: 'OITAVAS',  full: 'Oitavas de final' },
+    { match: 'Round of 16',          short: 'R16',      full: 'Repescagem (R16)' },
+    { match: 'Quarter-final',        short: 'QUARTAS',  full: 'Quartas de final' },
+    { match: 'Semi-final',           short: 'SEMIS',    full: 'Semifinal' },
+    { match: 'Final',                short: 'FINAL',    full: 'Final' },
+    { match: 'Match for third place',short: '3º LUGAR', full: 'Disputa de 3º lugar' },
+  ];
+
+  function renderBracket(result) {
+    const host = $('#wc-bracket-host');
+    if (!host) return;
+
+    if (!result.ok || !result.data || !Array.isArray(result.data.matches)) {
+      host.innerHTML = `<p class="wc-error mono-label">bracket indisponível</p>`;
+      return;
+    }
+
+    // Filtra só mata-mato (round sem "Matchday"), ordena por num.
+    const ko = result.data.matches
+      .filter(m => m.round && !/matchday/i.test(m.round))
+      .sort((a, b) => (a.num || 0) - (b.num || 0));
+
+    // Indexa por round.
+    const byRound = {};
+    BRACKET_ROUNDS.forEach(r => { byRound[r.match] = []; });
+    ko.forEach(m => {
+      if (byRound[m.round]) byRound[m.round].push(m);
+    });
+
+    // Desktop: 6-col grid.
+    const desktopHtml = `
+      <div class="wc-bracket" role="region" aria-label="Chave do mata-mato (desktop)">
+        ${BRACKET_ROUNDS.map(r => {
+          const ms = byRound[r.match] || [];
+          return `
+            <div class="wc-bracket__col">
+              <div class="wc-bracket__col-head">
+                <span class="mono-label">${r.short}</span>
+              </div>
+              <div class="wc-bracket__matches">
+                ${ms.length
+                  ? ms.map(m => bracketMatchHtml(m)).join('')
+                  : `<div class="wc-bracket-match wc-bracket-match--empty" aria-hidden="true"></div>`}
+              </div>
+            </div>`;
+        }).join('')}
+      </div>`;
+
+    // Mobile: <details> por fase.
+    const mobileHtml = `
+      <div class="wc-bracket-mobile" role="region" aria-label="Chave do mata-mato">
+        ${BRACKET_ROUNDS.map((r, i) => {
+          const ms = byRound[r.match] || [];
+          if (!ms.length) return '';
+          return `
+            <details ${i < 2 ? 'open' : ''}>
+              <summary>
+                <span class="mono-label">${r.short}</span>
+                <span class="wc-bracket-mobile__count">${ms.length} jogo${ms.length > 1 ? 's' : ''}</span>
+              </summary>
+              <div class="wc-bracket-mobile__body">
+                ${ms.map(m => bracketMatchHtml(m)).join('')}
+              </div>
+            </details>`;
+        }).join('')}
+      </div>`;
+
+    host.innerHTML = desktopHtml + mobileHtml;
+    observeReveals(host);
+  }
+
+  function bracketMatchHtml(m) {
+    const isToday = m.status === 'today';
+    const isFinished = m.status === 'finished' || (m.score && m.score.ft);
+    const isPlaceholder = m.has_placeholder === true ||
+      (!m.team1 || !m.team1.name || m.team1.name === 'A definir') ||
+      (!m.team2 || !m.team2.name || m.team2.name === 'A definir');
+    const isFinalDone = isFinished && m.round === 'Final';
+
+    const cls = ['wc-bracket-match'];
+    if (isToday) cls.push('is-today');
+    if (isFinalDone) cls.push('is-final-done');
+
+    const t1 = m.team1 || {};
+    const t2 = m.team2 || {};
+    const ft = (m.score && Array.isArray(m.score.ft) && m.score.ft.length === 2) ? m.score.ft : null;
+
+    // Determina vencedor/perdedor quando finalizado
+    let w1 = null, w2 = null;
+    if (ft && isFinished) {
+      if (ft[0] > ft[1]) { w1 = true; }
+      else if (ft[1] > ft[0]) { w2 = true; }
+      // empate (raro sem pênaltis) — nenhum destacado
+    }
+
+    function teamRow(team, winner, score, isPending) {
+      const isPh = !team || !team.name || team.name === 'A definir';
+      const name = isPh ? 'A definir' : escapeHtml(team.name);
+      const nameCls = ['wc-bracket-match__name'];
+      if (isPh) nameCls.push('wc-bracket-match__name--placeholder');
+      else if (winner === true) nameCls.push('wc-bracket-match__name--winner');
+      else if (winner === false) nameCls.push('wc-bracket-match__name--loser');
+
+      const flag = (team && team.flag) ? escapeHtml(team.flag) : '';
+      const flagCell = flag && !isPh
+        ? `<span class="wc-bracket-match__flag" aria-hidden="true">${flag}</span>`
+        : '';
+
+      let scoreHtml = '';
+      if (isPending) {
+        scoreHtml = `<span class="wc-bracket-match__score wc-bracket-match__score--pending">—</span>`;
+      } else {
+        const sCls = ['wc-bracket-match__score'];
+        if (winner === true) sCls.push('wc-bracket-match__score--winner');
+        else if (winner === false) sCls.push('wc-bracket-match__score--loser');
+        scoreHtml = `<span class="${sCls.join(' ')}">${score}</span>`;
+      }
+
+      return `
+        <div class="wc-bracket-match__row">
+          <span class="wc-bracket-match__team">
+            ${flagCell}
+            <span class="${nameCls.join(' ')}">${name}</span>
+          </span>
+          ${scoreHtml}
+        </div>`;
+    }
+
+    const pending = !ft;
+    const html = teamRow(t1, w1 === true ? true : (w2 === true ? false : null), ft ? ft[0] : null, pending) +
+                 teamRow(t2, w2 === true ? true : (w1 === true ? false : null), ft ? ft[1] : null, pending);
+
+    const todayTag = isToday ? `<span class="wc-bracket-match__today-tag">HOJE</span>` : '';
+
+    return `
+      <div class="${cls.join(' ')}" data-match-num="${m.num || ''}">
+        ${html}
+        ${todayTag}
+      </div>`;
+  }
+
+  /* ════════════════════════════════════════════════════════
+   * [07] Render — Seleção da Copa (XI em campo 4-3-3)
+   * ════════════════════════════════════════════════════════ */
+  function renderSelection(result) {
+    const host = $('#wc-selection-host');
+    if (!host) return;
+
+    if (!result.ok || !result.data || !Array.isArray(result.data.xi) || !result.data.xi.length) {
+      host.innerHTML = `<p class="wc-error mono-label">seleção da copa indisponível</p>`;
+      return;
+    }
+
+    const d = result.data;
+    const formation = d.formation || '4-3-3';
+
+    // Agrupa por posição
+    const byPos = { GK: [], DF: [], MF: [], FW: [] };
+    d.xi.forEach(p => {
+      const pos = (p.position || '').toUpperCase();
+      if (byPos[pos]) byPos[pos].push(p);
+    });
+
+    // Artilheiro entre FW = max gols parseado de stat ("6 gols")
+    function parseGoals(p) {
+      if (typeof p.goals === 'number') return p.goals;
+      const s = String(p.stat || '');
+      const m = s.match(/(\d+)\s*gol/i);
+      return m ? parseInt(m[1], 10) : 0;
+    }
+    let topScorerId = null;
+    let topScorerGoals = -1;
+    byPos.FW.forEach(p => {
+      const g = parseGoals(p);
+      if (g > topScorerGoals) { topScorerGoals = g; topScorerId = playerKey(p); }
+    });
+
+    function playerKey(p) {
+      return (p.name || '') + '|' + ((p.team && p.team.code) || '');
+    }
+    // Resolves after we know topScorerId
+    function isTopScorer(p) {
+      return topScorerId !== null && playerKey(p) === topScorerId;
+    }
+
+    function tokenHtml(p, isGK) {
+      const isTop = !isGK && isTopScorer(p);
+      const team = p.team || {};
+      const initials = (p.name || '?')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(w => w.charAt(0).toUpperCase())
+        .join('') || '?';
+      const flag = team.flag ? escapeHtml(team.flag) : '';
+      const stat = escapeHtml(p.stat || '');
+      const cls = ['wc-player-token'];
+      if (isGK) cls.push('wc-player-token--gk');
+      if (isTop) cls.push('wc-player-token--topscorer');
+      const titleParts = [
+        p.name ? escapeHtml(p.name) : '',
+        team.name ? escapeHtml(team.name) : '',
+        team.code ? escapeHtml(team.code) : '',
+        p.position ? escapeHtml(p.position) : '',
+        stat,
+        isTop ? 'artilheiro da seleção' : '',
+      ].filter(Boolean);
+
+      return `
+        <div class="${cls.join(' ')}" title="${titleParts.join(' · ')}">
+          <div class="wc-player-token__circle">
+            <span class="wc-player-token__initials" aria-hidden="true">${escapeHtml(initials)}</span>
+          </div>
+          <span class="wc-player-token__name">${escapeHtml(shortName(p.name))}</span>
+          <span class="wc-player-token__stat">${flag} ${stat}</span>
+        </div>`;
+    }
+
+    function rowHtml(players, rowCls, isGK) {
+      const cells = players.map(p => tokenHtml(p, isGK)).join('');
+      return `<div class="wc-pitch__row ${rowCls}">${cells}</div>`;
+    }
+
+    const gkRow  = rowHtml(byPos.GK, 'wc-pitch__row--gk', true);
+    const dfRow  = rowHtml(byPos.DF, 'wc-pitch__row--df', false);
+    const mfRow  = rowHtml(byPos.MF, 'wc-pitch__row--mf', false);
+    const fwRow  = rowHtml(byPos.FW, 'wc-pitch__row--fw', false);
+
+    // Faixa de goleiros
+    const topGks = Array.isArray(d.top_goalkeepers) ? d.top_goalkeepers.slice(0, 5) : [];
+    const bestGkName = d.best_goalkeeper && d.best_goalkeeper.name;
+    const gksHtml = topGks.map(gk => {
+      const team = gk.team || {};
+      const initials = (gk.name || '?').split(/\s+/).slice(0, 2)
+        .map(w => w.charAt(0).toUpperCase()).join('') || '?';
+      const flag = team.flag ? escapeHtml(team.flag) : '';
+      const isBest = bestGkName && gk.name === bestGkName;
+      const stat = `${gk.clean_sheets || 0} CS · GA ${typeof gk.ga_per_game === 'number' ? gk.ga_per_game.toFixed(2) : '—'}`;
+      return `
+        <div class="wc-top-gk ${isBest ? 'wc-top-gk--best' : ''}" title="${escapeHtml(gk.name || '')} · ${escapeHtml(stat)}">
+          <div class="wc-top-gk__avatar">${escapeHtml(initials)}</div>
+          <span class="wc-top-gk__flag" aria-hidden="true">${flag}</span>
+          <span class="wc-top-gk__name">${escapeHtml(shortName(gk.name))}</span>
+          <span class="wc-top-gk__stat">${escapeHtml(stat)}</span>
+        </div>`;
+    }).join('');
+
+    host.innerHTML = `
+      <div class="wc-pitch crop" role="img" aria-label="Campo 4-3-3 com a seleção da Copa">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        ${gkRow}${dfRow}${mfRow}${fwRow}
+      </div>
+      ${topGks.length ? `
+        <div class="wc-top-gks">
+          <header class="wc-top-gks__head">
+            <span class="mono-label">goleiros</span>
+            <span class="mono-label" style="color:var(--ink-faint)">top ${topGks.length}</span>
+          </header>
+          <div class="wc-top-gks__list">${gksHtml}</div>
+        </div>` : ''}
+    `;
+    observeReveals(host);
+  }
+
+  /** Encurta "Kylian Mbappé" → "Mbappé" (último sobrenome). */
+  function shortName(full) {
+    if (!full) return '—';
+    const parts = String(full).trim().split(/\s+/);
+    if (parts.length <= 1) return parts[0];
+    // Mantém os 2 últimos tokens (e.g. "Raúl Rangel", "Lionel Messi")
+    return parts.slice(-2).join(' ');
+  }
+
+  /* ════════════════════════════════════════════════════════
+   * [08] Render — Insights editoriais (bento)
+   * ════════════════════════════════════════════════════════ */
+  function categorizeInsight(text) {
+    const t = String(text || '').toLowerCase();
+    // Defesa/solidão primeiro (antes de gold, pra não capturar "0 gols sofridos")
+    if (/(defesa|sólid|sofreu|clean sheet|goleiro|sem ceder|levou|gols contra)/.test(t)) return 'field';
+    // Tempo/penal/método → live
+    if (/(pênalti|penal|quando|tempo|minuto|marca penal)/.test(t)) return 'live';
+    // Ataque/artilharia/gols → gold
+    if (/(artilheiro|chuteira|ataque|letal|ofensiv|marcou|gols?|aproveitamento|goleada|ritmo)/.test(t)) return 'gold';
+    return 'ink';
+  }
+
+  function renderInsights(result) {
+    const host = $('#wc-insights-grid');
+    if (!host) return;
+
+    if (!result.ok || !result.data || !Array.isArray(result.data.insights) || !result.data.insights.length) {
+      host.innerHTML = `<div class="wc-error mono-label" style="grid-column:1/-1">insights indisponíveis</div>`;
+      return;
+    }
+
+    // Layout: 2 hero (idx 0,1) + 4 md (idx 2-5) + 2 hero (idx 6,7)
+    const layout = ['hero','hero','md','md','md','md','hero','hero'];
+
+    host.innerHTML = result.data.insights.slice(0, 8).map((ins, i) => {
+      const num = String(i + 1).padStart(2, '0');
+      const title = escapeHtml(ins.title || '');
+      // Descarta emoji do JSON — só corpo vira HTML (com key destacada)
+      const body = escapeHtml(ins.body || '');
+      const cat = categorizeInsight((ins.title || '') + ' ' + (ins.body || ''));
+
+      // Heurística: destaca o primeiro número forte no corpo (gols, jogos, %)
+      const bodyWithKey = body.replace(
+        /(\b\d+(?:[.,]\d+)?\b)/,
+        '<span class="wc-insight-card__key">$1</span>'
+      );
+
+      const cls = ['wc-insight-card', `wc-insight-card--${cat}`, `wc-insight-card--${layout[i] || 'md'}`];
+
+      return `
+        <article class="${cls.join(' ')}" role="listitem" data-reveal>
+          <header class="wc-insight-card__head">
+            <span class="mono-label">${num}</span>
+          </header>
+          <h3 class="wc-insight-card__title">${title}</h3>
+          <p class="wc-insight-card__body">${bodyWithKey}</p>
+        </article>`;
+    }).join('');
+
+    observeReveals(host);
+  }
+
+  /* ════════════════════════════════════════════════════════
+   * [11] Bolão Local (localStorage)
+   * ════════════════════════════════════════════════════════ */
+  const BOLAO_KEY = 'wc-bolao';
+
+  function readBolao() {
+    try {
+      const raw = localStorage.getItem(BOLAO_KEY);
+      if (!raw) return {};
+      const obj = JSON.parse(raw);
+      return (obj && typeof obj === 'object') ? obj : {};
+    } catch (e) { return {}; }
+  }
+  function writeBolao(data) {
+    try { localStorage.setItem(BOLAO_KEY, JSON.stringify(data)); }
+    catch (e) { console.warn('[WC] bolão: não foi possível salvar:', e); }
+  }
+
+  function renderBolao(result) {
+    const list = $('#wc-bolao-list');
+    const resetBtn = $('#wc-bolao-reset');
+    if (!list) return;
+
+    if (!result.ok || !result.data || !Array.isArray(result.data.matches)) {
+      list.innerHTML = `<li class="wc-error mono-label">bolão indisponível</li>`;
+      return;
+    }
+
+    const matches = result.data.matches;
+    const todayIso = new Date().toISOString().slice(0, 10);
+
+    // Próximos 5: today OU scheduled com data >= hoje, ordenados por data asc.
+    const upcoming = matches
+      .filter(m => (m.status === 'today' || m.status === 'scheduled') && (m.date || '') >= todayIso)
+      .sort((a, b) => {
+        const ka = (a.date || '') + ' ' + (a.time || '');
+        const kb = (b.date || '') + ' ' + (b.time || '');
+        return ka.localeCompare(kb);
+      })
+      .slice(0, 5);
+
+    // Adiciona também finalizados que tenham palpite do usuário (para mostrar resultado)
+    const picks = readBolao();
+    const finishedWithPick = matches.filter(m =>
+      (m.status === 'finished' || (m.score && m.score.ft)) &&
+      picks[String(m.num)]
+    );
+
+    const allToShow = upcoming.concat(finishedWithPick.filter(m => !upcoming.find(u => u.num === m.num)));
+
+    if (!allToShow.length) {
+      list.innerHTML = `<li class="wc-loading mono-label">nenhum jogo disponível para palpite</li>`;
+      renderBolaoScore(result);
+      return;
+    }
+
+    list.innerHTML = allToShow.map(m => bolaoItemHtml(m, picks)).join('');
+
+    // Wiring: inputs + submit
+    $$('.wc-bolao-submit', list).forEach(btn => {
+      btn.addEventListener('click', onBolaoSubmit);
+    });
+
+    // Reset
+    if (resetBtn) {
+      resetBtn.onclick = () => {
+        if (Object.keys(picks).length === 0) return;
+        if (!window.confirm('Apagar todos os seus palpites?')) return;
+        writeBolao({});
+        renderBolao(result);
+      };
+    }
+
+    renderBolaoScore(result);
+  }
+
+  function bolaoItemHtml(m, picks) {
+    const isToday = m.status === 'today';
+    const isFinished = m.status === 'finished' || (m.score && m.score.ft);
+    const cls = ['wc-bolao-item'];
+    if (isToday) cls.push('is-today');
+    if (isFinished) cls.push('is-finished');
+
+    const t1 = m.team1 || {};
+    const t2 = m.team2 || {};
+    const ft = (m.score && Array.isArray(m.score.ft) && m.score.ft.length === 2) ? m.score.ft : null;
+
+    const isPh1 = !t1.name || t1.name === 'A definir';
+    const isPh2 = !t2.name || t2.name === 'A definir';
+
+    const pick = picks[String(m.num)] || {};
+    const hasPick = typeof pick.golsA === 'number' || typeof pick.golsB === 'number';
+
+    let resultHtml = '';
+    let resultCls = '';
+    if (isFinished && hasPick) {
+      const pts = computeBolaoPoints(pick, ft);
+      if (pts === 3) { resultHtml = `acerto exato · +3 pts`; resultCls = 'wc-bolao-result--exact'; }
+      else if (pts === 1) { resultHtml = `vencedor certo · +1 pt`; resultCls = 'wc-bolao-result--winner'; }
+      else { resultHtml = `errou · 0 pts`; }
+    } else if (isFinished && !hasPick) {
+      resultHtml = `sem palpite`;
+    }
+
+    const inputs = isFinished
+      ? `<div class="wc-bolao-result ${resultCls}">${resultHtml}</div>`
+      : `
+        <div class="wc-bolao-inputs">
+          <input type="number" min="0" max="30" class="wc-bolao-input" data-side="a" data-match="${m.num}"
+                 value="${pick.golsA != null ? pick.golsA : ''}" aria-label="Gols ${escapeHtml(t1.name || 'time A')}">
+          <span class="wc-bolao-input-sep">×</span>
+          <input type="number" min="0" max="30" class="wc-bolao-input" data-side="b" data-match="${m.num}"
+                 value="${pick.golsB != null ? pick.golsB : ''}" aria-label="Gols ${escapeHtml(t2.name || 'time B')}">
+        </div>
+        <button type="button" class="wc-bolao-submit" data-match="${m.num}">Palpitar</button>`;
+
+    const dateTxt = shortDate(m.date);
+    const timeTxt = m.time ? escapeHtml(m.time) : '';
+    const roundTxt = m.round ? escapeHtml(m.round) : '';
+
+    return `
+      <li class="${cls.join(' ')}" data-match-num="${m.num}">
+        <div class="wc-bolao-team">
+          ${flagHtml(t1.flag, '—')}
+          <span class="wc-bolao-team__name ${isPh1 ? 'wc-bolao-team__name--placeholder' : ''}">${escapeHtml(t1.name || 'A definir')}</span>
+        </div>
+        <div class="wc-bolao-mid">
+          ${inputs}
+        </div>
+        <div class="wc-bolao-team wc-bolao-team--right">
+          ${flagHtml(t2.flag, '—')}
+          <span class="wc-bolao-team__name ${isPh2 ? 'wc-bolao-team__name--placeholder' : ''}">${escapeHtml(t2.name || 'A definir')}</span>
+        </div>
+        <div class="wc-bolao-meta">
+          <span>${roundTxt}</span>
+          <span>${dateTxt}${timeTxt ? ' · ' + timeTxt : ''}</span>
+        </div>
+      </li>`;
+  }
+
+  function onBolaoSubmit(e) {
+    const btn = e.currentTarget;
+    const matchNum = btn.dataset.match;
+    const item = btn.closest('.wc-bolao-item');
+    if (!item || !matchNum) return;
+
+    const inputA = item.querySelector('.wc-bolao-input[data-side="a"]');
+    const inputB = item.querySelector('.wc-bolao-input[data-side="b"]');
+    if (!inputA || !inputB) return;
+
+    const ga = parseInt(inputA.value, 10);
+    const gb = parseInt(inputB.value, 10);
+    if (isNaN(ga) || isNaN(gb) || ga < 0 || gb < 0) {
+      inputA.focus();
+      inputA.style.borderColor = 'var(--wc-live)';
+      return;
+    }
+
+    const picks = readBolao();
+    picks[matchNum] = { golsA: ga, golsB: gb, points: null };
+    writeBolao(picks);
+
+    // Feedback no botão
+    const original = btn.textContent;
+    btn.textContent = '✓ salvo';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = 'atualizar';
+      btn.disabled = false;
+    }, 1200);
+
+    renderBolaoScore({ ok: true, data: { matches: WC_STATE.matches } });
+  }
+
+  /** Acerto exato = 3pts; acerto só do vencedor (ou empate) = 1pt; senão 0. */
+  function computeBolaoPoints(pick, ft) {
+    if (!ft || !pick) return 0;
+    const ga = Number(pick.golsA);
+    const gb = Number(pick.golsB);
+    if (isNaN(ga) || isNaN(gb)) return 0;
+    if (ga === ft[0] && gb === ft[1]) return 3;
+    const pickWinner = ga > gb ? 1 : (gb > ga ? 2 : 0);
+    const realWinner = ft[0] > ft[1] ? 1 : (ft[1] > ft[0] ? 2 : 0);
+    return pickWinner === realWinner ? 1 : 0;
+  }
+
+  function renderBolaoScore(result) {
+    const totalEl = $('#wc-bolao-total');
+    const listEl = $('#wc-bolao-score-list');
+    if (!totalEl || !listEl) return;
+
+    const picks = readBolao();
+    const matches = (result.ok && result.data && Array.isArray(result.data.matches)) ? result.data.matches : [];
+
+    // Computa apenas picks de partidas finalizadas
+    const computed = Object.keys(picks).map(numStr => {
+      const m = matches.find(mm => String(mm.num) === String(numStr));
+      const pick = picks[numStr];
+      if (!m) return null;
+      const ft = (m.score && Array.isArray(m.score.ft) && m.score.ft.length === 2) ? m.score.ft : null;
+      const isFinished = m.status === 'finished' || ft;
+      if (!isFinished) return null;
+      const pts = computeBolaoPoints(pick, ft);
+      return { num: Number(numStr), match: m, pick, pts, ft };
+    }).filter(Boolean);
+
+    const total = computed.reduce((acc, r) => acc + r.pts, 0);
+    totalEl.textContent = String(total);
+
+    if (!computed.length) {
+      listEl.innerHTML = `<li class="wc-loading mono-label">sem palpites computados ainda</li>`;
+      return;
+    }
+
+    listEl.innerHTML = computed
+      .sort((a, b) => b.pts - a.pts)
+      .map(r => {
+        const ptsCls = r.pts === 3 ? 'wc-bolao-score__pts--exact'
+                     : r.pts === 1 ? 'wc-bolao-score__pts--winner' : '';
+        const t1 = r.match.team1 || {};
+        const t2 = r.match.team2 || {};
+        const name = `${t1.code || t1.name || '?'} v ${t2.code || t2.name || '?'}`;
+        const pick = `${r.pick.golsA}×${r.pick.golsB}`;
+        const real = r.ft ? `${r.ft[0]}×${r.ft[1]}` : '—';
+        return `
+          <li class="wc-bolao-score__row">
+            <span>${escapeHtml(name)}</span>
+            <span title="seu palpite / placar real">${escapeHtml(pick)} / ${real}</span>
+            <span class="wc-bolao-score__pts ${ptsCls}">+${r.pts}</span>
+          </li>`;
+      }).join('');
+  }
+
+  /* ════════════════════════════════════════════════════════
+   * [Filtro] Minha Seleção — chips + highlight/dim
+   * ════════════════════════════════════════════════════════ */
+  const FILTER_KEY = 'wc-filter';
+  // Lista de seleções candidatas (códigos ISO/OF). Suficiente para destaque.
+  // Populada dinamicamente a partir de partidas + grupos ao render.
+  function setupTeamFilter() {
+    const host = $('#wc-team-filter');
+    const chips = $('#wc-team-filter-chips');
+    if (!host || !chips) return;
+
+    // Coleta seleções únicas (nome + flag + code) das partidas.
+    const teams = {};
+    (WC_STATE.matches || []).forEach(m => {
+      [m.team1, m.team2].forEach(t => {
+        if (!t || !t.name || t.name === 'A definir') return;
+        const key = t.code || t.name;
+        if (!teams[key]) teams[key] = { name: t.name, code: t.code || '', flag: t.flag || '' };
+      });
+    });
+    const arr = Object.values(teams).sort((a, b) => a.name.localeCompare(b.name));
+    if (!arr.length) { host.hidden = true; return; }
+
+    host.hidden = false;
+    renderTeamChips(chips, arr);
+    wireTeamChips(chips, arr);
+
+    // Estado inicial: aplica filtro salvo
+    let saved = '';
+    try { saved = localStorage.getItem(FILTER_KEY) || ''; } catch (e) {}
+    if (saved) applyTeamFilter(saved, arr);
+  }
+
+  function renderTeamChips(container, arr) {
+    let saved = '';
+    try { saved = localStorage.getItem(FILTER_KEY) || ''; } catch (e) {}
+
+    container.innerHTML = arr.map(t => {
+      const pressed = !!(saved && saved === (t.code || t.name));
+      const flag = t.flag ? `<span class="wc-team-chip__flag" aria-hidden="true">${escapeHtml(t.flag)}</span>` : '';
+      return `<button type="button" class="wc-team-chip" data-team="${escapeHtml(t.code || t.name)}" aria-pressed="${pressed}">${flag}<span>${escapeHtml(t.name)}</span></button>`;
+    }).join('') + (saved ? `<button type="button" class="wc-team-chip__clear" id="wc-team-filter-clear">limpar filtro ✕</button>` : '');
+  }
+
+  function wireTeamChips(container, arr) {
+    $$('.wc-team-chip', container).forEach(chip => {
+      chip.addEventListener('click', () => {
+        const team = chip.dataset.team;
+        const isPressed = chip.getAttribute('aria-pressed') === 'true';
+        try {
+          if (isPressed) localStorage.removeItem(FILTER_KEY);
+          else localStorage.setItem(FILTER_KEY, team);
+        } catch (e) {}
+        renderTeamChips(container, arr);
+        applyTeamFilter(isPressed ? '' : team, arr);
+        wireTeamChips(container, arr);
+      });
+    });
+    const clear = $('#wc-team-filter-clear', container);
+    if (clear) {
+      clear.addEventListener('click', () => {
+        try { localStorage.removeItem(FILTER_KEY); } catch (e) {}
+        renderTeamChips(container, arr);
+        applyTeamFilter('', arr);
+        wireTeamChips(container, arr);
+      });
+    }
+  }
+
+  function applyTeamFilter(name, arr) {
+    const team = arr ? arr.find(t => (t.code || t.name) === name) : null;
+    const keyword = team ? team.name.toLowerCase() : '';
+    const code = (team && team.code) ? team.code.toLowerCase() : '';
+
+    // Partidas
+    $$('.wc-match').forEach(el => {
+      if (!name) {
+        el.classList.remove('is-highlighted', 'is-dimmed');
+        return;
+      }
+      const t1 = (el.dataset.team1 || '').toLowerCase();
+      const t2 = (el.dataset.team2 || '').toLowerCase();
+      const t1c = (el.dataset.team1Code || '').toLowerCase();
+      const t2c = (el.dataset.team2Code || '').toLowerCase();
+      const hit = t1 === keyword || t2 === keyword || t1c === code || t2c === code;
+      el.classList.toggle('is-highlighted', hit);
+      el.classList.toggle('is-dimmed', !hit);
+    });
+
+    // Notícias (highlight por keyword no título)
+    $$('.wc-news-link').forEach(el => {
+      if (!name) {
+        el.classList.remove('is-highlighted', 'is-dimmed');
+        return;
+      }
+      const txt = (el.textContent || '').toLowerCase();
+      const hit = keyword && txt.includes(keyword);
+      el.classList.toggle('is-highlighted', hit);
+      el.classList.toggle('is-dimmed', !hit);
+    });
   }
 
   /* ════════════════════════════════════════════════════════
@@ -1069,8 +1811,11 @@
     observeReveals(document);
     setupCountUp();
 
-    // 6 fetches em paralelo
-    const names = ['partidas', 'artilheiros', 'estatisticas', 'probabilidades', 'jogadores', 'noticias'];
+    // 9 fetches em paralelo (6 originais, probabilidades→simulacao; +3 novos)
+    const names = [
+      'partidas', 'artilheiros', 'estatisticas', 'simulacao', 'jogadores', 'noticias',
+      'grupos', 'selecao_copa', 'insights'
+    ];
     const settled = await Promise.allSettled(
       names.map(n => loadJSON(n))
     );
@@ -1078,7 +1823,8 @@
     const results = settled.map(r =>
       r.status === 'fulfilled' ? r.value : { ok: false, error: r.reason, data: null }
     );
-    const [partidas, artilheiros, estatisticas, probabilidades, jogadores, noticias] = results;
+    const [partidas, artilheiros, estatisticas, simulacao, jogadores, noticias,
+           grupos, selecaoCopa, insights] = results;
 
     // Freshness usa updated_at de todos
     renderFreshness(results);
@@ -1089,12 +1835,19 @@
     // Seções (cada uma é resiliente — fallback gracioso)
     renderNews(noticias);
     renderScorers(artilheiros);
-    renderStats(estatisticas);   // inicializa os 3 charts
-    renderProbabilities(probabilidades);
-    renderMatches(partidas);
-
+    renderStats(estatisticas);        // inicializa os 3 charts
+    renderProbabilities(simulacao);   // [04] agora Monte Carlo
+    renderGroups(grupos);             // [05]
+    renderBracket(partidas);          // [06]
+    renderSelection(selecaoCopa);     // [07]
+    renderInsights(insights);         // [08]
     // Jogo (independente)
-    setupGame(jogadores);
+    setupGame(jogadores);             // [09]
+    renderMatches(partidas);          // [10]
+    renderBolao(partidas);            // [11]
+
+    // Filtro "Minha Seleção" (depois das partidas renderizadas)
+    setupTeamFilter();
 
     // Reobserva reveals injetados via innerHTML
     observeReveals(document);
