@@ -1035,8 +1035,11 @@ ul, ol { list-style: none; }
 }
 .wc-stat-card__chart {
   position: relative;
-  flex: 1;
-  min-height: 200px;
+  /* Altura FIXA (não flex:1) — com maintainAspectRatio:false, o Chart.js
+     preenche o container. flex:1 + height:100% no canvas sem altura de
+     referência cria loop de crescimento ("derretendo a página para baixo"). */
+  height: clamp(200px, 32vw, 280px);
+  max-height: 45vh;
 }
 .wc-stat-card__chart canvas {
   width: 100% !important;
