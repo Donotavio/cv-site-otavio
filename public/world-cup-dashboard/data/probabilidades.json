@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-07-03T02:18:48.735617+00:00",
-  "methodology": "Elo Rating local (K=40, init=1500). Pênaltis contam como empate. Bônus de margem de gols no K. Probabilidade de título via softmax (temp=180).",
+  "updated_at": "2026-07-03T11:32:06.686254+00:00",
+  "methodology": "Elo Rating local (K=40, init=1500). Pênaltis contam como empate. Bônus de margem de gols no K. Probabilidade de título via softmax (temp=180). NOTA: Elo pondera a FORÇA dos adversários — uma seleção invicta contra times fracos pode ter Elo menor que uma com derrotas vs favoritos (ex: México 0 sofridos vs times fracos < França 13 gols vs times fortes).",
   "total_teams": 48,
   "teams": [
     {
@@ -44,7 +44,7 @@
       "code": "BRA",
       "flag": "🇧🇷",
       "elo": 1574.0,
-      "win_probability": 3.04,
+      "win_probability": 3.03,
       "matches_played": 4,
       "wins": 3,
       "draws": 1,
@@ -64,6 +64,18 @@
       "rank": 5
     },
     {
+      "name": "Switzerland",
+      "code": "SUI",
+      "flag": "🇨🇭",
+      "elo": 1570.8,
+      "win_probability": 2.98,
+      "matches_played": 4,
+      "wins": 3,
+      "draws": 1,
+      "losses": 0,
+      "rank": 6
+    },
+    {
       "name": "England",
       "code": "ENG",
       "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
@@ -73,7 +85,7 @@
       "wins": 3,
       "draws": 1,
       "losses": 0,
-      "rank": 6
+      "rank": 7
     },
     {
       "name": "USA",
@@ -85,7 +97,7 @@
       "wins": 3,
       "draws": 0,
       "losses": 1,
-      "rank": 7
+      "rank": 8
     },
     {
       "name": "Netherlands",
@@ -96,18 +108,6 @@
       "matches_played": 4,
       "wins": 2,
       "draws": 2,
-      "losses": 0,
-      "rank": 8
-    },
-    {
-      "name": "Switzerland",
-      "code": "SUI",
-      "flag": "🇨🇭",
-      "elo": 1550.0,
-      "win_probability": 2.66,
-      "matches_played": 3,
-      "wins": 2,
-      "draws": 1,
       "losses": 0,
       "rank": 9
     },
@@ -188,7 +188,7 @@
       "code": "EGY",
       "flag": "🇪🇬",
       "elo": 1523.6,
-      "win_probability": 2.3,
+      "win_probability": 2.29,
       "matches_played": 3,
       "wins": 1,
       "draws": 2,
@@ -284,7 +284,7 @@
       "code": "CRO",
       "flag": "🇭🇷",
       "elo": 1497.4,
-      "win_probability": 1.99,
+      "win_probability": 1.98,
       "matches_played": 4,
       "wins": 2,
       "draws": 0,
@@ -296,24 +296,12 @@
       "code": "PAR",
       "flag": "🇵🇾",
       "elo": 1492.9,
-      "win_probability": 1.94,
+      "win_probability": 1.93,
       "matches_played": 4,
       "wins": 1,
       "draws": 2,
       "losses": 1,
       "rank": 25
-    },
-    {
-      "name": "Algeria",
-      "code": "ALG",
-      "flag": "🇩🇿",
-      "elo": 1490.9,
-      "win_probability": 1.91,
-      "matches_played": 3,
-      "wins": 1,
-      "draws": 1,
-      "losses": 1,
-      "rank": 26
     },
     {
       "name": "Senegal",
@@ -325,19 +313,19 @@
       "wins": 1,
       "draws": 1,
       "losses": 2,
-      "rank": 27
+      "rank": 26
     },
     {
       "name": "DR Congo",
       "code": "COD",
       "flag": "🇨🇩",
       "elo": 1486.3,
-      "win_probability": 1.87,
+      "win_probability": 1.86,
       "matches_played": 4,
       "wins": 1,
       "draws": 1,
       "losses": 2,
-      "rank": 28
+      "rank": 27
     },
     {
       "name": "Ecuador",
@@ -349,7 +337,7 @@
       "wins": 1,
       "draws": 1,
       "losses": 2,
-      "rank": 29
+      "rank": 28
     },
     {
       "name": "Uruguay",
@@ -361,19 +349,19 @@
       "wins": 0,
       "draws": 2,
       "losses": 1,
-      "rank": 30
+      "rank": 29
     },
     {
       "name": "Turkey",
       "code": "TUR",
       "flag": "🇹🇷",
       "elo": 1480.3,
-      "win_probability": 1.81,
+      "win_probability": 1.8,
       "matches_played": 3,
       "wins": 1,
       "draws": 0,
       "losses": 2,
-      "rank": 31
+      "rank": 30
     },
     {
       "name": "South Korea",
@@ -385,19 +373,19 @@
       "wins": 1,
       "draws": 0,
       "losses": 2,
-      "rank": 32
+      "rank": 31
     },
     {
       "name": "South Africa",
       "code": "RSA",
       "flag": "🇿🇦",
       "elo": 1477.5,
-      "win_probability": 1.78,
+      "win_probability": 1.77,
       "matches_played": 4,
       "wins": 1,
       "draws": 1,
       "losses": 2,
-      "rank": 33
+      "rank": 32
     },
     {
       "name": "Sweden",
@@ -409,7 +397,7 @@
       "wins": 1,
       "draws": 1,
       "losses": 2,
-      "rank": 34
+      "rank": 33
     },
     {
       "name": "Austria",
@@ -421,7 +409,7 @@
       "wins": 1,
       "draws": 1,
       "losses": 2,
-      "rank": 35
+      "rank": 34
     },
     {
       "name": "Bosnia & Herzegovina",
@@ -433,7 +421,7 @@
       "wins": 1,
       "draws": 1,
       "losses": 2,
-      "rank": 36
+      "rank": 35
     },
     {
       "name": "Saudi Arabia",
@@ -445,7 +433,7 @@
       "wins": 0,
       "draws": 2,
       "losses": 1,
-      "rank": 37
+      "rank": 36
     },
     {
       "name": "Scotland",
@@ -456,6 +444,18 @@
       "matches_played": 3,
       "wins": 1,
       "draws": 0,
+      "losses": 2,
+      "rank": 37
+    },
+    {
+      "name": "Algeria",
+      "code": "ALG",
+      "flag": "🇩🇿",
+      "elo": 1470.1,
+      "win_probability": 1.7,
+      "matches_played": 4,
+      "wins": 1,
+      "draws": 1,
       "losses": 2,
       "rank": 38
     },
@@ -476,7 +476,7 @@
       "code": "CUW",
       "flag": "🇨🇼",
       "elo": 1447.7,
-      "win_probability": 1.51,
+      "win_probability": 1.5,
       "matches_played": 3,
       "wins": 0,
       "draws": 1,
