@@ -60,6 +60,83 @@
   }
 
   /* ════════════════════════════════════════════════════════
+   * ModalController — helper único para modais acessíveis
+   * Pilha de modais abertos; um único listener de teclado global.
+   * Reaproveita o padrão de focus-trap validado (WCAG 2.4.3/2.1.2).
+   * ════════════════════════════════════════════════════════ */
+  const ModalController = (() => {
+    const stack = []; // topo = modal ativo
+
+    function focusables(modalEl) {
+      if (!modalEl) return [];
+      return $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', modalEl)
+        .filter(el => !el.disabled && !el.hidden
+                   && el.offsetParent !== null
+                   && el.getAttribute('aria-hidden') !== 'true');
+    }
+
+    function top() { return stack[stack.length - 1] || null; }
+
+    function _lockScroll(on) {
+      // Lock só quando o 1º modal abre; libera quando a pilha esvazia.
+      document.body.style.overflow = on ? 'hidden' : '';
+    }
+
+    function open(modalEl, trigger) {
+      if (!modalEl || !modalEl.hidden) return;
+      stack.push({ modal: modalEl, trigger: trigger || document.activeElement });
+      modalEl.hidden = false;
+      if (trigger && trigger.tagName === 'BUTTON') trigger.setAttribute('aria-expanded', 'true');
+      if (stack.length === 1) _lockScroll(true);
+      // Delay de 1 tick para o elemento aceitar foco após hidden→visible.
+      setTimeout(() => {
+        const f = focusables(modalEl);
+        if (f.length) f[0].focus({ preventScroll: true });
+      }, 30);
+    }
+
+    function close(modalEl) {
+      const idx = stack.findIndex(e => e.modal === modalEl);
+      if (idx === -1) return;
+      const entry = stack.splice(idx, 1)[0];
+      entry.modal.hidden = true;
+      const t = entry.trigger;
+      if (t && t.tagName === 'BUTTON') t.setAttribute('aria-expanded', 'false');
+      if (typeof t?.focus === 'function') t.focus({ preventScroll: true });
+      if (stack.length === 0) _lockScroll(false);
+    }
+
+    function isOpen(modalEl) {
+      return stack.some(e => e.modal === modalEl);
+    }
+
+    // ÚNICO listener de teclado — despacha só p/ o modal ativo (topo da pilha).
+    document.addEventListener('keydown', (e) => {
+      const active = top();
+      if (!active) return;
+      const modalEl = active.modal;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close(modalEl);
+        return;
+      }
+      if (e.key === 'Tab') {
+        const f = focusables(modalEl);
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1], a = document.activeElement;
+        if (e.shiftKey) {
+          if (a === first || !modalEl.contains(a)) { e.preventDefault(); last.focus({ preventScroll: true }); }
+        } else if (a === last) {
+          e.preventDefault();
+          first.focus({ preventScroll: true });
+        }
+      }
+    });
+
+    return { open, close, isOpen, focusables };
+  })();
+
+  /* ════════════════════════════════════════════════════════
    * Fetch resiliente
    * ════════════════════════════════════════════════════════ */
   async function loadJSON(name) {
@@ -539,6 +616,21 @@
         ? result.data.simulations.toLocaleString('pt-BR')
         : '10.000';
       method.textContent = `metodologia: Monte Carlo · ${sims} simulações`;
+    }
+
+    // Linha de fonte dentro do modal de metodologia (mesmo fetch, sem custo extra)
+    const mcSource = $('#wc-mc-modal-source');
+    if (mcSource) {
+      const methodology = result.data.methodology || '';
+      const updated = result.data.updated_at
+        ? new Date(result.data.updated_at).toLocaleString('pt-BR', { timeZone: 'UTC' })
+        : '';
+      if (methodology) {
+        mcSource.textContent = (updated ? `${updated} UTC · ` : '') + methodology;
+        mcSource.hidden = false;
+      } else {
+        mcSource.hidden = true;
+      }
     }
 
     const top = result.data.teams.slice(0, 12);
@@ -1638,79 +1730,15 @@
 
     $('#wc-game-skip')?.addEventListener('click', () => renderDuel(true));
 
-    const rankingBtn = $('#wc-game-ranking');
-    const modal = $('#wc-ranking-modal');
+    const rankingBtn   = $('#wc-game-ranking');
+    const rankingModal = $('#wc-ranking-modal');
 
-    /* ── Foco preso dentro do modal (WCAG 2.4.3 + aria-modal) ── */
-    // Memoriza quem abriu o modal para devolver o foco ao fechar.
-    let lastFocusedBeforeOpen = null;
-
-    function getModalFocusables() {
-      if (!modal) return [];
-      // Seletores de elementos focáveis visíveis dentro do modal
-      return $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', modal)
-        .filter(el => !el.hasAttribute('disabled')
-                   && !el.hidden
-                   && el.offsetParent !== null
-                   && el.getAttribute('aria-hidden') !== 'true');
-    }
-
-    function openModal(trigger) {
-      lastFocusedBeforeOpen = trigger || document.activeElement;
+    rankingBtn?.addEventListener('click', () => {
       renderLocalRanking();
-      modal.hidden = false;
-      // Move o foco para o primeiro focável (botão Fechar) — a11y
-      setTimeout(() => {
-        const focusables = getModalFocusables();
-        if (focusables.length) focusables[0].focus({ preventScroll: true });
-      }, 30);
-    }
-
-    function closeModal() {
-      modal.hidden = true;
-      if (lastFocusedBeforeOpen && typeof lastFocusedBeforeOpen.focus === 'function') {
-        lastFocusedBeforeOpen.focus({ preventScroll: true });
-      } else {
-        rankingBtn?.focus({ preventScroll: true });
-      }
-      lastFocusedBeforeOpen = null;
-    }
-
-    rankingBtn?.addEventListener('click', () => openModal(rankingBtn));
-
-    // Fecha o modal: backdrop, botão X
-    $$('[data-close-modal]', modal).forEach(el =>
-      el.addEventListener('click', closeModal));
-
-    // Escape fecha + Tab preso dentro do modal (focus trap)
-    document.addEventListener('keydown', (e) => {
-      if (modal.hidden) return;
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        closeModal();
-        return;
-      }
-      if (e.key === 'Tab') {
-        const focusables = getModalFocusables();
-        if (!focusables.length) return;
-        const first = focusables[0];
-        const last  = focusables[focusables.length - 1];
-        const active = document.activeElement;
-        if (e.shiftKey) {
-          // Shift+Tab no primeiro → vai para o último (wrap)
-          if (active === first || !modal.contains(active)) {
-            e.preventDefault();
-            last.focus({ preventScroll: true });
-          }
-        } else {
-          // Tab no último → volta para o primeiro (wrap)
-          if (active === last) {
-            e.preventDefault();
-            first.focus({ preventScroll: true });
-          }
-        }
-      }
+      ModalController.open(rankingModal, rankingBtn);
     });
+    $$('[data-close-modal]', rankingModal).forEach(el =>
+      el.addEventListener('click', () => ModalController.close(rankingModal)));
 
     // Reset
     $('#wc-ranking-reset')?.addEventListener('click', () => {
@@ -1848,6 +1876,33 @@
     setupGame(jogadores);             // [09]
     renderMatches(partidas);          // [10]
     renderBolao(partidas);            // [11]
+
+    /* ── Modal Monte Carlo: metodologia ── */
+    const mcBtn   = $('#wc-mc-info-btn');
+    const mcModal = $('#wc-mc-modal');
+    mcBtn?.addEventListener('click', () => {
+      // Evita empilhar dois modais com backdrop-filter (custo GPU + foco ambíguo)
+      const rankingModal = $('#wc-ranking-modal');
+      if (ModalController.isOpen(rankingModal)) ModalController.close(rankingModal);
+      ModalController.open(mcModal, mcBtn);
+    });
+    $$('[data-close-modal]', mcModal).forEach(el =>
+      el.addEventListener('click', () => ModalController.close(mcModal)));
+
+    /* ── Nudge único do ícone de info ao entrar na viewport (uma vez) ── */
+    if (mcBtn && !prefersReducedMotion() && 'IntersectionObserver' in window) {
+      const nudge = new IntersectionObserver((entries, obs) => {
+        entries.forEach(en => {
+          if (en.isIntersecting) {
+            mcBtn.classList.add('is-nudged');
+            mcBtn.addEventListener('animationend',
+              () => mcBtn.classList.remove('is-nudged'), { once: true });
+            obs.unobserve(mcBtn);
+          }
+        });
+      }, { threshold: 0.6 });
+      nudge.observe(mcBtn);
+    }
 
     // Filtro "Minha Seleção" (depois das partidas renderizadas)
     setupTeamFilter();

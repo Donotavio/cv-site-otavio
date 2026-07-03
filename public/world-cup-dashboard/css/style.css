@@ -2584,3 +2584,236 @@ html.has-js [data-reveal].is-visible {
   align-self: flex-start;
   margin-top: var(--space-2);
 }
+
+/* ─── Modal Monte Carlo: botão de info + conteúdo ─── */
+
+/* Linha do título + botão de info (irmão do h2) */
+.wc-mc-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* Botão de info — circular, neutro em repouso, verde no hover/foco */
+.wc-mc-info-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color var(--transition-fast),
+              background var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+.wc-mc-info-btn svg { display: block; }
+.wc-mc-info-btn:hover {
+  color: var(--wc-field-ink);
+  border-color: var(--wc-field-line);
+  background: var(--wc-field-dim);
+}
+.wc-mc-info-btn:focus-visible {
+  outline: 2px solid var(--wc-field-ink);
+  outline-offset: 2px;
+  color: var(--wc-field-ink);
+  border-color: var(--wc-field-line);
+  background: var(--wc-field-dim);
+}
+.wc-mc-info-btn:active { transform: scale(0.96); }
+
+/* Painel levemente mais largo p/ a fórmula respirar */
+.wc-mc-modal__panel { width: min(600px, 100%); }
+.wc-mc-modal .wc-modal__foot { justify-content: flex-start; }
+
+/* Corpo do modal */
+.wc-mc-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.wc-mc-modal__lead {
+  margin: 0;
+  max-width: 60ch;
+  line-height: var(--leading-normal);
+  color: var(--ink-soft);
+}
+.wc-mc-modal__lead strong { color: var(--ink); }
+.wc-mc-modal__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.wc-mc-modal__eyebrow { margin: 0; }
+
+/* Etapas numeradas */
+.wc-mc-modal__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.wc-mc-modal__steps li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3);
+  align-items: baseline;
+}
+.wc-mc-modal__step-n {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--wc-field-ink);
+  font-variant-numeric: var(--num-tabular);
+  letter-spacing: var(--tracking-wide);
+}
+.wc-mc-modal__steps li p {
+  margin: 0;
+  font-size: var(--text-base);
+  color: var(--ink);
+  line-height: var(--leading-normal);
+}
+.wc-mc-modal__steps code,
+.wc-mc-modal__note code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink);
+  background: var(--paper-soft);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+}
+
+/* Bloco da fórmula */
+.wc-mc-modal__formula {
+  margin: 0;
+  background: var(--wc-field-dim);
+  border: 1px solid var(--wc-field-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  overflow-x: auto;
+}
+.wc-mc-modal__formula code {
+  display: block;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--wc-field-ink);
+  font-variant-numeric: var(--num-tabular);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Listas de definição (termos Elo + legenda) */
+.wc-mc-modal__terms,
+.wc-mc-modal__legend {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+.wc-mc-modal__terms dt,
+.wc-mc-modal__legend dt {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-faint);
+}
+.wc-mc-modal__terms dd,
+.wc-mc-modal__legend dd {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+.wc-mc-modal__terms dt code {
+  color: var(--wc-field-ink);
+  font-weight: 500;
+}
+
+/* Notas + limitações */
+.wc-mc-modal__note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+  line-height: var(--leading-normal);
+}
+.wc-mc-modal__caveats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.wc-mc-modal__caveats li {
+  position: relative;
+  padding-left: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+  line-height: var(--leading-normal);
+}
+.wc-mc-modal__caveats li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 8px;
+  height: 1px;
+  background: var(--wc-field-line);
+}
+
+/* Linha de fonte (rodapé) */
+.wc-mc-modal__source {
+  margin: 0;
+  color: var(--ink-faint);
+  line-height: var(--leading-normal);
+}
+
+/* ─── Motion polish: stagger do conteúdo + nudge do ícone ─── */
+
+/* Stagger de entrada do corpo do modal.
+   Como o modal alterna [hidden] (display:none → flex), as animações nos
+   descendentes reiniciam a cada abertura — não exige JS. 0.3s × 5 filhos. */
+@keyframes wc-mc-body-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.wc-mc-modal__body > * {
+  animation: wc-mc-body-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Stagger: lead primeiro, blocos em sequência. 5 filhos diretos no máximo. */
+.wc-mc-modal__body > *:nth-child(1) { animation-delay: 0.06s; }
+.wc-mc-modal__body > *:nth-child(2) { animation-delay: 0.12s; }
+.wc-mc-modal__body > *:nth-child(3) { animation-delay: 0.18s; }
+.wc-mc-modal__body > *:nth-child(4) { animation-delay: 0.24s; }
+.wc-mc-modal__body > *:nth-child(5) { animation-delay: 0.30s; }
+
+/* Nudge único do ícone de info ao entrar na viewport: um pulso sutil de
+   cor que aponta a mesma affordance verde do hover/focus (sem mudar a
+   silhueta do botão — mantém o caráter editorial). One-shot, sem fill-mode. */
+@keyframes wc-mc-nudge {
+  0%   { color: var(--ink-soft);    border-color: var(--line);        background: transparent; }
+  35%  { color: var(--wc-field-ink); border-color: var(--wc-field-line); background: var(--wc-field-dim); }
+  100% { color: var(--ink-soft);    border-color: var(--line);        background: transparent; }
+}
+.wc-mc-info-btn.is-nudged {
+  animation: wc-mc-nudge 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Movimento reduzido — desativa transition do botão, nudge e stagger */
+@media (prefers-reduced-motion: reduce) {
+  .wc-mc-info-btn { transition: none; }
+  .wc-mc-info-btn:active { transform: none; }
+  .wc-mc-info-btn.is-nudged { animation: none; }
+  .wc-mc-modal__body > * { animation: none; }
+}
