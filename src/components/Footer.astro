@@ -38,6 +38,24 @@ import { t } from '../lib/i18n';
         >GitHub</a>
       </nav>
 
+      <!-- Telemetria de navegação (global via API + cliques locais) -->
+      <div class="footer__stats" data-counter-root role="group" aria-labelledby="footer-stats-label">
+        <span id="footer-stats-label" class="sr-only" data-i18n-key="footer.stats.label">{t('footer.stats.label')}</span>
+        <div class="footer__stat">
+          <span class="footer__stat-value" data-counter="global">0</span>
+          <span class="footer__stat-label" data-i18n-key="footer.stats.total_views">Visitas</span>
+        </div>
+        <div class="footer__stat">
+          <span class="footer__stat-value" data-counter="page">0</span>
+          <span class="footer__stat-label" data-i18n-key="footer.stats.page_views">Nesta página</span>
+        </div>
+        <div class="footer__stat">
+          <span class="footer__stat-value" data-counter="clicks" aria-hidden="true">0</span>
+          <span class="footer__stat-label" data-i18n-key="footer.stats.clicks">Meus cliques</span>
+          <span class="sr-only" data-clicks-live aria-live="polite"></span>
+        </div>
+      </div>
+
       <!-- Copyright -->
       <p class="footer__rights" data-i18n-key="footer.rights">{t('footer.rights')}</p>
     </div>
@@ -128,4 +146,125 @@ import { t } from '../lib/i18n';
     line-height: var(--leading-normal);
     margin: 0;
   }
+
+  /* ── Stats (telemetria de navegação) ──────────────────────── */
+  .footer__stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .footer__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    line-height: var(--leading-tight);
+  }
+
+  .footer__stat-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--ink);
+    font-variant-numeric: var(--num-tabular);
+    transition: color var(--transition-fast);
+  }
+
+  .footer__stat-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .footer__stat-value.is-pulse {
+    color: var(--accent);
+  }
+
+  @media (min-width: 640px) {
+    .footer__stats { gap: var(--space-4); }
+    .footer__stat { padding-inline: var(--space-5); }
+    .footer__stat + .footer__stat { border-inline-start: 1px solid var(--line); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer__stat-value { transition: none; }
+  }
 </style>
+
+<script>
+  import { syncViews, getCachedClicks, trackClick } from '../lib/visit-tracker';
+  import { countUp } from '../scripts/motion/count-up';
+  import { STAGGER, motionOk } from '../scripts/motion/constants';
+
+  function initCounters(): void {
+    const root = document.querySelector<HTMLElement>('[data-counter-root]');
+    if (!root) return;
+
+    const animateCell = (el: HTMLElement, value: number, index: number): void => {
+      el.dataset.countTo = String(value);
+      el.dataset.countDecimals = '0';
+      el.textContent = '0';
+      const trigger = el.closest('.footer__stat') ?? el;
+      const run = () => countUp(el, trigger);
+      if (motionOk) {
+        window.setTimeout(run, index * STAGGER.normal * 1000);
+      } else {
+        run();
+      }
+    };
+
+    // Cliques — local (localStorage), imediato
+    const clicksCell = root.querySelector<HTMLElement>('[data-counter="clicks"]');
+    if (clicksCell) animateCell(clicksCell, getCachedClicks(), 2);
+
+    // Visitas — global real entre visitantes (API), com fallback no cache local
+    const globalCell = root.querySelector<HTMLElement>('[data-counter="global"]');
+    const pageCell = root.querySelector<HTMLElement>('[data-counter="page"]');
+    syncViews().then((views) => {
+      if (globalCell) animateCell(globalCell, views.global, 0);
+      if (pageCell) animateCell(pageCell, views.page, 1);
+    });
+
+    // Contagem de cliques ao vivo
+    const clicksLive = root.querySelector<HTMLElement>('[data-clicks-live]');
+    const clicksLabelEl = root.querySelector<HTMLElement>('[data-i18n-key="footer.stats.clicks"]');
+    document.addEventListener(
+      'click',
+      (event) => {
+        const target = event.target as Element | null;
+        if (target && typeof target.closest === 'function' && target.closest('[data-counter-root]')) {
+          return;
+        }
+        const next = trackClick();
+        if (clicksCell) clicksCell.textContent = String(next);
+        if (clicksLive) {
+          const liveNode = clicksLive as HTMLElement & { _liveTimer?: number };
+          window.clearTimeout(liveNode._liveTimer);
+          liveNode._liveTimer = window.setTimeout(() => {
+            const label = clicksLabelEl?.textContent?.trim() ?? '';
+            clicksLive.textContent = label ? `${label}: ${next}` : String(next);
+          }, 1500);
+        }
+        if (!clicksCell || !motionOk) return;
+        clicksCell.classList.remove('is-pulse');
+        void clicksCell.offsetWidth;
+        clicksCell.classList.add('is-pulse');
+        const node = clicksCell as HTMLElement & { _pulseTimer?: number };
+        window.clearTimeout(node._pulseTimer);
+        node._pulseTimer = window.setTimeout(() => clicksCell.classList.remove('is-pulse'), 350);
+      },
+      { passive: true },
+    );
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCounters, { once: true });
+  } else {
+    initCounters();
+  }
+</script>
