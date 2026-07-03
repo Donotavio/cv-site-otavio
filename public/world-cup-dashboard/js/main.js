@@ -756,8 +756,8 @@
    * ════════════════════════════════════════════════════════ */
   // Ordem canônica das fases + label curto.
   const BRACKET_ROUNDS = [
-    { match: 'Round of 32',          short: 'OITAVAS',  full: 'Oitavas de final' },
-    { match: 'Round of 16',          short: 'R16',      full: 'Repescagem (R16)' },
+    { match: 'Round of 32',          short: '16 AVOS',  full: '16 avos de final' },
+    { match: 'Round of 16',          short: 'OITAVAS',  full: 'Oitavas de final' },
     { match: 'Quarter-final',        short: 'QUARTAS',  full: 'Quartas de final' },
     { match: 'Semi-final',           short: 'SEMIS',    full: 'Semifinal' },
     { match: 'Final',                short: 'FINAL',    full: 'Final' },
