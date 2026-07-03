@@ -533,13 +533,15 @@ const base = import.meta.env.BASE_URL;
     const head    = section.querySelector('.section-head') as Element;
     const card     = section.querySelector('.pix-oc__card') as Element;
     const radarCard = section.querySelector('.radar-card') as Element | null;
+    const wcCard    = section.querySelector('.wc-card') as Element | null;
     const upcoming = section.querySelector('.portfolio-upcoming__card') as Element;
 
     if (line) hairlineDraw(line, section);
     if (motionOk && head) revealUp([head], section, 0);
     if (motionOk && card) revealUp([card], section, 0.08);
     if (motionOk && radarCard) revealUp([radarCard], section, 0.14);
-    if (motionOk && upcoming) revealUp([upcoming], section, 0.2);
+    if (motionOk && wcCard) revealUp([wcCard], section, 0.2);
+    if (motionOk && upcoming) revealUp([upcoming], section, 0.26);
 
     section.querySelectorAll<HTMLElement>('[data-count-to]').forEach((el) => {
       countUp(el, section);
