@@ -142,6 +142,33 @@
   --radar-hold-dim:  rgba(228, 87, 46, 0.08);
   --radar-hold-line: rgba(228, 87, 46, 0.3);
 
+  /* ─── Brasil Cockpit (status semafórico — macro KPIs) ──────────────── */
+  /* Mesma regra das famílias --pix/--radar/--medallion: as BASES
+     (--ck-verde/-amarelo/-vermelho/-neutro) são DECORATIVAS (dots, bordas,
+     sparklines, fundos *-dim) — NUNCA como texto pequeno. Para texto,
+     badges, valores e rótulos usar SEMPRE as variantes *-ink (contraste
+     ≥4.5:1 sobre --paper/--paper-soft/--paper-card). Status aparece sempre
+     também como TEXTO (nunca só cor) — WCAG 1.4.1. */
+  --ck-verde:      #15A03A;
+  --ck-verde-ink:  #0B7A2E;  /* 5.25:1 sobre --paper */
+  --ck-verde-dim:  rgba(21, 160, 58, 0.08);
+  --ck-verde-line: rgba(21, 160, 58, 0.3);
+
+  --ck-amarelo:      #D99700;
+  --ck-amarelo-ink:  #8A6206;  /* 5.39:1 sobre --paper */
+  --ck-amarelo-dim:  rgba(217, 151, 0, 0.10);
+  --ck-amarelo-line: rgba(217, 151, 0, 0.32);
+
+  --ck-vermelho:      #DC3B2A;
+  --ck-vermelho-ink:  #B23A18;  /* 5.88:1 sobre --paper */
+  --ck-vermelho-dim:  rgba(220, 59, 42, 0.08);
+  --ck-vermelho-line: rgba(220, 59, 42, 0.3);
+
+  --ck-neutro:      #8A9BB0;
+  --ck-neutro-ink:  #687585;  /* 4.62:1 sobre --paper */
+  --ck-neutro-dim:  rgba(138, 155, 176, 0.08);
+  --ck-neutro-line: rgba(138, 155, 176, 0.3);
+
   /* ─── World Cup Dashboard (scoped) ──────────────────────────────── */
   /* Mesma regra das famílias --pix/--radar/--ck/--medallion: as BASES
      (--wc-field/-gold/-live) são DECORATIVAS (dots, bordas, fundos *-dim,
@@ -165,4 +192,7 @@
   --wc-live-ink:  #A82A26;   /* texto · 6.81:1 — passa AA */
   --wc-live-dim:  rgba(230, 57, 70, 0.08);
   --wc-live-line: rgba(230, 57, 70, 0.30);
+
+  /* Números tabulares para valores de KPI (alinhamento de colunas) */
+  --num-tabular: tabular-nums;
 }
