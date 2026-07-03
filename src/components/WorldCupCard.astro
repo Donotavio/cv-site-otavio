@@ -1,0 +1,348 @@
+---
+/**
+ * WorldCupCard.astro — Seção Portfólio (card irmão do PIX/Radar)
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Card "real" para o terceiro projeto ao vivo do portfólio: o Dashboard da
+ * Copa do Mundo 2026. Renderizado via <slot /> dentro de PixObservatoryCard.astro,
+ * entre o card do Radar e o placeholder "em construção".
+ *
+ * O subprojeto é uma página HTML/CSS/JS vanilla isolada em
+ * public/world-cup-dashboard/ (servida direta pelo GitHub Pages, sem passar
+ * pelo build Astro) — por isso o link aponta para ${base}world-cup-dashboard/.
+ *
+ * A linha de "telemetria" (artilheiro + jogos + fase atual) é hidratada em
+ * runtime via fetch dos JSONs gerados pelo scraper (ingestion_worldcup/) —
+ * mesmo padrão de dado real do DataStackRadarCard. Falha silenciosa: mantém
+ * placeholders "···" se o fetch não completar.
+ *
+ * Motion: revealUp (mesmo grupo de stagger da seção #portfolio).
+ */
+
+const base = import.meta.env.BASE_URL;
+---
+
+<div class="wc-card card crop" role="group" aria-labelledby="wc-card-title">
+  <span class="crop-mark-bl" aria-hidden="true"></span>
+  <span class="crop-mark-br" aria-hidden="true"></span>
+
+  <div class="wc-card__label-row">
+    <span class="mono-label">projeto ao vivo</span>
+    <span class="mono-label wc-card__badge">
+      <span class="wc-card__live-dot" aria-hidden="true"></span>
+      atualização horária
+    </span>
+  </div>
+
+  <h3 id="wc-card-title" class="wc-card__title">Dashboard da Copa do Mundo 2026</h3>
+
+  <p class="wc-card__desc">
+    Telemetria ao vivo da Copa 2026 em dados: partidas, artilharia, estatísticas
+    deep, probabilidades (Elo Rating local) e um duelo interativo de craques.
+    Tudo custo zero — Openfootball + RSS, sem APIs pagas nem backend.
+  </p>
+
+  <div class="wc-card__tags">
+    <span class="tag tag--wc">Engenharia de Dados</span>
+    <span class="tag tag--wc">Web Scraping</span>
+    <span class="tag tag--wc">Elo Rating</span>
+    <span class="tag">Custo Zero</span>
+  </div>
+
+  <!-- Telemetria hidratada via fetch em runtime (artilheiro + jogos + fase) -->
+  <dl
+    class="wc-card__telemetry"
+    id="wc-card-telemetry"
+    aria-label="Telemetria ao vivo da Copa 2026 — artilheiro, jogos e fase atual"
+  >
+    <div class="wc-card__stat">
+      <dt class="wc-card__stat-label mono-label">artilheiro</dt>
+      <dd class="wc-card__stat-value" data-wc-stat="scorer">
+        <span class="wc-card__flag" aria-hidden="true">·</span>···
+      </dd>
+    </div>
+    <div class="wc-card__stat">
+      <dt class="wc-card__stat-label mono-label">jogos</dt>
+      <dd class="wc-card__stat-value" data-wc-stat="matches">···</dd>
+    </div>
+    <div class="wc-card__stat">
+      <dt class="wc-card__stat-label mono-label">fase</dt>
+      <dd class="wc-card__stat-value" data-wc-stat="stage">···</dd>
+    </div>
+  </dl>
+
+  <div class="wc-card__actions">
+    <a
+      href={`${base}world-cup-dashboard/`}
+      class="btn-primary wc-card__cta"
+      aria-label="Abrir Dashboard da Copa do Mundo 2026 — partidas, artilharia e probabilidades ao vivo"
+    >Ver Dashboard →</a>
+    <a
+      href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion_worldcup"
+      class="btn-secondary"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Ver código fonte do scraper no GitHub (abre em nova aba)"
+    >GitHub</a>
+  </div>
+</div>
+
+<style>
+  .wc-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-block-end: var(--space-6);
+  }
+
+  .wc-card:hover {
+    border-color: var(--wc-field-line);
+  }
+
+  .wc-card__label-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .wc-card__badge {
+    color: var(--ink-faint);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* O badge "atualização horária" usa o ::before/::after do .mono-label
+     ([ ]), então o dot fica entre os colchetes. Pulse discreto. */
+  .wc-card__live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--wc-live);
+    flex-shrink: 0;
+    animation: wc-card-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes wc-card-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wc-card__live-dot { animation: none; }
+  }
+
+  .wc-card__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .wc-card__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+    max-width: 68ch;
+  }
+
+  .wc-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tag--wc {
+    color: var(--wc-field-ink);
+    border-color: var(--wc-field-line);
+    background: var(--wc-field-dim);
+  }
+
+  /* ── Telemetria (dl) ──────────────────────────────────────── */
+  .wc-card__telemetry {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin: 0;
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .wc-card__stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: 0;
+  }
+
+  .wc-card__stat-label {
+    color: var(--ink-faint);
+  }
+
+  .wc-card__stat-value {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    margin: 0;
+    /* Trunca nomes longos de artilheiro graciosamente */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .wc-card__flag {
+    font-family: var(--font-sans);
+    margin-inline-end: var(--space-1);
+  }
+
+  /* ── CTAs ─────────────────────────────────────────────────── */
+  .wc-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  /* --wc-field-ink (não a base) — texto branco (--paper) em cima exige
+     ≥4.5:1 (WCAG AA). A base (#2E8B2E) rende 4.24:1; a -ink rende 6.54:1.
+     Mesma regra de contraste documentada em tokens.css e aplicada no
+     PIX/Radar cards. */
+  .wc-card__cta {
+    background: var(--wc-field-ink);
+    border-color: var(--wc-field-ink);
+  }
+
+  .wc-card__cta:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  .wc-card__actions .btn-secondary:hover {
+    border-color: var(--wc-field-ink);
+    color: var(--wc-field-ink);
+  }
+</style>
+
+<script>
+  /**
+   * Telemetria do card — dado real dos JSONs gerados pelo scraper
+   * (ingestion_worldcup/scraper.py → public/world-cup-dashboard/data/).
+   * Falha silenciosa: mantém "···" se o fetch não completar (card continua
+   * funcional, igual ao DataStackRadarCard).
+   *
+   * Puxa 3 stats:
+   *   • artilheiro  → artilheiros.json → top_scorer + scorers[0].team.flag
+   *   • jogos       → partidas.json → total
+   *   • fase        → partidas.json → última partida jogada → round
+   */
+  interface Scorer {
+    name: string;
+    goals: number;
+    team?: { flag?: string; name?: string };
+  }
+  interface ArtilheirosPayload {
+    top_scorer?: string | null;
+    scorers?: Scorer[];
+  }
+  interface Match {
+    round?: string;
+    status?: string;
+  }
+  interface PartidasPayload {
+    total?: number;
+    matches?: Match[];
+  }
+
+  async function loadWorldCupTelemetry(): Promise<void> {
+    const root = document.getElementById('wc-card-telemetry');
+    if (!root) return;
+
+    const base: string =
+      (document.body as HTMLElement).dataset.baseurl ?? '';
+    const dataBase = `${base}world-cup-dashboard/data/`;
+
+    const withTimeout = (url: string) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      return fetch(url, { cache: 'no-cache', signal: controller.signal })
+        .finally(() => clearTimeout(timeoutId));
+    };
+
+    try {
+      const [artilheirosRes, partidasRes] = await Promise.allSettled([
+        withTimeout(`${dataBase}artilheiros.json`),
+        withTimeout(`${dataBase}partidas.json`),
+      ]);
+
+      // Artilheiro
+      if (artilheirosRes.status === 'fulfilled' && artilheirosRes.value.ok) {
+        const data: ArtilheirosPayload = await artilheirosRes.value.json();
+        const top = data.scorers?.[0];
+        const el = root.querySelector<HTMLElement>('[data-wc-stat="scorer"]');
+        if (el && top) {
+          const flag = top.team?.flag ?? '';
+          const flagSpan = el.querySelector('.wc-card__flag');
+          if (flagSpan) flagSpan.textContent = flag ? `${flag}` : '·';
+          // text node após o span da bandeira
+          el.lastChild && el.lastChild.nodeType === Node.TEXT_NODE
+            ? (el.lastChild.textContent = ` ${top.name}`)
+            : el.append(` ${top.name}`);
+        }
+      }
+
+      // Jogos + fase (do mesmo JSON de partidas)
+      if (partidasRes.status === 'fulfilled' && partidasRes.value.ok) {
+        const data: PartidasPayload = await partidasRes.value.json();
+
+        const matchesEl = root.querySelector<HTMLElement>(
+          '[data-wc-stat="matches"]'
+        );
+        if (matchesEl && typeof data.total === 'number') {
+          matchesEl.textContent = String(data.total);
+        }
+
+        const stageEl = root.querySelector<HTMLElement>(
+          '[data-wc-stat="stage"]'
+        );
+        if (stageEl && Array.isArray(data.matches) && data.matches.length) {
+          // Última partida decidida → round é a fase atual
+          const finished = data.matches.filter((m) => m.status === 'finished');
+          const last = finished.length
+            ? finished[finished.length - 1]
+            : data.matches[data.matches.length - 1];
+          if (last?.round) {
+            // Encurta "Round of 32" → "Oitavas", "Quarter-final" → "Quartas", etc.
+            const round = last.round;
+            const short: Record<string, string> = {
+              'Round of 32': 'Oitavas',
+              'Round of 16': 'Oitavas',
+              'Quarter-final': 'Quartas',
+              'Quarter-finals': 'Quartas',
+              'Semi-final': 'Semifinal',
+              'Semi-finals': 'Semifinal',
+              'Final': 'Final',
+              'Match for third place': '3º lugar',
+            };
+            stageEl.textContent = short[round] ?? round;
+          }
+        }
+      }
+    } catch {
+      // Mantém "···" — falha silenciosa.
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadWorldCupTelemetry);
+</script>

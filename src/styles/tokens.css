@@ -169,6 +169,30 @@
   --ck-neutro-dim:  rgba(138, 155, 176, 0.08);
   --ck-neutro-line: rgba(138, 155, 176, 0.3);
 
+  /* ─── World Cup Dashboard (scoped) ──────────────────────────────── */
+  /* Mesma regra das famílias --pix/--radar/--ck/--medallion: as BASES
+     (--wc-field/-gold/-live) são DECORATIVAS (dots, bordas, fundos *-dim,
+     barras, KPIs em --font-display ≥ --text-3xl). NUNCA como texto pequeno.
+     Para texto/badges/labels usar as variantes *-ink (contraste ≥4.5:1 sobre
+     --paper/--paper-soft/--paper-card). Quadro/status aparece SEMPRE também
+     como TEXTO (nunca só cor) — WCAG 1.4.1.
+     Replicados no style.css do dashboard (public/world-cup-dashboard/) por
+     ser página vanilla isolada; este é a fonte da verdade. */
+  --wc-field:      #2E8B2E;   /* decorativo · 4.24:1 large-only */
+  --wc-field-ink:  #0B6B2E;   /* texto · 6.54:1 — passa AA */
+  --wc-field-dim:  rgba(46, 139, 46, 0.08);
+  --wc-field-line: rgba(46, 139, 46, 0.30);
+
+  --wc-gold:      #B0820D;   /* decorativo · escurecido p/ 3.26:1 (AA large) */
+  --wc-gold-ink:  #8A5A06;   /* texto · 5.83:1 — passa AA */
+  --wc-gold-dim:  rgba(176, 130, 13, 0.08);
+  --wc-gold-line: rgba(176, 130, 13, 0.32);
+
+  --wc-live:      #E63946;   /* decorativo · 4.10:1 large-only */
+  --wc-live-ink:  #A82A26;   /* texto · 6.81:1 — passa AA */
+  --wc-live-dim:  rgba(230, 57, 70, 0.08);
+  --wc-live-line: rgba(230, 57, 70, 0.30);
+
   /* Números tabulares para valores de KPI (alinhamento de colunas) */
   --num-tabular: tabular-nums;
 }
