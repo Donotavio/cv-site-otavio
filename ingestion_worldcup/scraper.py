@@ -35,6 +35,7 @@ import hashlib
 import html
 import json
 import math
+import random
 import re
 import sys
 import unicodedata
@@ -548,10 +549,11 @@ def build_probabilidades(matches: list, teams_index: dict) -> dict:
 
 
 # ─── jogadores.json (para o duelo "Quem é o Craque?") ─────────────────
-def _build_squads_index() -> dict[str, str]:
+def _build_squads_index(data=None) -> dict[str, str]:
     """slug → posição. squads.json é opcional; se falhar, sem posição."""
-    print("  → squads.json (posição dos jogadores)...")
-    data = _http_get_json(URL_SQUADS)
+    if data is None:
+        print("  → squads.json (posição dos jogadores)...")
+        data = _http_get_json(URL_SQUADS)
     if not data:
         print("    ⚠ indisponível — jogadores sem posição.")
         return {}
@@ -678,6 +680,435 @@ def fetch_noticias() -> dict:
     }
 
 
+# ─── Builder: grupos.json (classificação da fase de grupos) ───────────
+def build_grupos(matches: list, teams_index: dict) -> dict:
+    """
+    Classificação completa dos grupos (A–L): pts/V/E/D/GP/GC/SG/jogos.
+    Ordenação: pts → SG → GP → nome. Top 2 marcados como classificados.
+    """
+    groups: dict[str, dict[str, dict]] = {}
+
+    def _stat(g, name):
+        if name not in g:
+            info = _team_info(name, teams_index)
+            g[name] = {
+                "name": name, "code": info["code"], "flag": info["flag"],
+                "pts": 0, "wins": 0, "draws": 0, "losses": 0,
+                "goals_for": 0, "goals_against": 0, "played": 0,
+            }
+        return g[name]
+
+    for m in matches:
+        round_name = m.get("round") or ""
+        if "Matchday" not in round_name:
+            continue
+        final = _final_score(m.get("score") or {})
+        if final is None:
+            continue
+        grp = m.get("group") or ""
+        if not grp:
+            continue
+        if grp not in groups:
+            groups[grp] = {}
+        g = groups[grp]
+        t1, t2 = m.get("team1") or "", m.get("team2") or ""
+        if _is_placeholder(t1) or _is_placeholder(t2):
+            continue
+        s1, s2 = final
+        st1, st2 = _stat(g, t1), _stat(g, t2)
+        st1["played"] += 1; st2["played"] += 1
+        st1["goals_for"] += s1; st1["goals_against"] += s2
+        st2["goals_for"] += s2; st2["goals_against"] += s1
+        if s1 > s2:
+            st1["pts"] += 3; st1["wins"] += 1; st2["losses"] += 1
+        elif s1 < s2:
+            st2["pts"] += 3; st2["wins"] += 1; st1["losses"] += 1
+        else:
+            st1["pts"] += 1; st2["pts"] += 1
+            st1["draws"] += 1; st2["draws"] += 1
+
+    out_groups = []
+    for grp_name in sorted(groups):
+        teams = list(groups[grp_name].values())
+        for t in teams:
+            t["diff"] = t["goals_for"] - t["goals_against"]
+        teams.sort(key=lambda x: (x["pts"], x["diff"], x["goals_for"], -ord(x["name"][0])), reverse=True)
+        for i, t in enumerate(teams):
+            t["position"] = i + 1
+            t["qualified"] = i < 2
+        out_groups.append({"group": grp_name, "teams": teams})
+
+    return {
+        "updated_at": _now_iso(),
+        "source": "openfootball/worldcup.json (cálculo local)",
+        "total_groups": len(out_groups),
+        "groups": out_groups,
+    }
+
+
+# ─── Builder: simulacao.json (Monte Carlo do mata-mata) ───────────────
+def _elo_ratings(matches: list) -> dict[str, float]:
+    """Ratings Elo atuais (pós todos os jogos decididos). Helper reusável."""
+    ratings: dict[str, float] = {}
+    chronological = sorted(
+        matches, key=lambda m: ((m.get("date") or "")[:10], m.get("time") or "")
+    )
+    for m in chronological:
+        t1, t2 = m.get("team1") or "", m.get("team2") or ""
+        if _is_placeholder(t1) or _is_placeholder(t2):
+            continue
+        final = _final_score(m.get("score") or {})
+        if final is None:
+            continue
+        s1, s2 = final
+        sa, sb = (1.0, 0.0) if s1 > s2 else (0.0, 1.0) if s1 < s2 else (0.5, 0.5)
+        ra = ratings.setdefault(t1, ELO_INIT)
+        rb = ratings.setdefault(t2, ELO_INIT)
+        ea = _elo_expected(ra, rb)
+        k = _elo_k(abs(s1 - s2))
+        ratings[t1] = ra + k * (sa - ea)
+        ratings[t2] = rb + k * (sb - (1 - ea))
+    return ratings
+
+
+def _resolve_slot(name: str, sim_results: dict) -> str | None:
+    """Resolve placeholder W83/L101 → nome real (ou None se dependência pendente)."""
+    if not name:
+        return None
+    m = re.match(r"^W(\d+)$", name)
+    if m:
+        n = int(m.group(1))
+        return sim_results.get(n, (None, None))[0]
+    m = re.match(r"^L(\d+)$", name)
+    if m:
+        n = int(m.group(1))
+        return sim_results.get(n, (None, None))[1]
+    return name
+
+
+def build_simulacao(matches: list, teams_index: dict) -> dict:
+    """
+    Monte Carlo: simula o mata-mata restante 10k× usando probabilidades Elo,
+    propagando vencedores pelos placeholders (W83/L101) até a final.
+    Retorna a distribuição REAL de probabilidade de título por seleção.
+    """
+    ratings = _elo_ratings(matches)
+    by_num = {m["num"]: m for m in matches if m.get("num") is not None}
+    ko_nums = sorted(
+        n for n, m in by_num.items()
+        if m.get("round") and "Matchday" not in m["round"]
+    )
+    if not ko_nums:
+        return {
+            "updated_at": _now_iso(),
+            "methodology": "Monte Carlo — mata-mata ainda não definido.",
+            "simulations": 0, "teams": [],
+        }
+
+    final_nums = [n for n in ko_nums if by_num[n]["round"] == "Final"]
+    final_num = final_nums[0] if final_nums else max(ko_nums)
+
+    SIMS = 10000
+    title_counts: dict[str, int] = {}
+
+    for _ in range(SIMS):
+        sim_results: dict[int, tuple[str, str]] = {}
+        for n in ko_nums:
+            m = by_num[n]
+            t1 = _resolve_slot(m.get("team1") or "", sim_results)
+            t2 = _resolve_slot(m.get("team2") or "", sim_results)
+            if not t1 or not t2:
+                continue
+            score = m.get("score") or {}
+            ft = score.get("ft") if isinstance(score, dict) else None
+            t1_raw, t2_raw = m.get("team1") or "", m.get("team2") or ""
+            if ft and not _is_placeholder(t1_raw) and not _is_placeholder(t2_raw):
+                s1, s2 = int(ft[0]), int(ft[1])
+                if s1 > s2:
+                    sim_results[n] = (t1, t2)
+                elif s2 > s1:
+                    sim_results[n] = (t2, t1)
+                else:
+                    pen = score.get("p") if isinstance(score, dict) else None
+                    if pen:
+                        sim_results[n] = (t1, t2) if int(pen[0]) > int(pen[1]) else (t2, t1)
+                    else:
+                        sim_results[n] = (t1, t2)
+            else:
+                ra = ratings.get(t1, ELO_INIT)
+                rb = ratings.get(t2, ELO_INIT)
+                p1 = _elo_expected(ra, rb)
+                sim_results[n] = (t1, t2) if random.random() < p1 else (t2, t1)
+        if final_num in sim_results:
+            champ = sim_results[final_num][0]
+            title_counts[champ] = title_counts.get(champ, 0) + 1
+
+    teams = []
+    for name, count in sorted(title_counts.items(), key=lambda x: -x[1]):
+        info = _team_info(name, teams_index)
+        teams.append({
+            "name": name, "code": info["code"], "flag": info["flag"],
+            "elo": round(ratings.get(name, ELO_INIT), 1),
+            "titles": count,
+            "title_probability": round(count / SIMS * 100, 2),
+        })
+    for i, t in enumerate(teams, 1):
+        t["rank"] = i
+
+    return {
+        "updated_at": _now_iso(),
+        "methodology": (
+            f"Monte Carlo com {SIMS} simulações do mata-mata restante. "
+            "Cada jogo não-decidido é sorteado via probabilidade Elo "
+            "(1/(1+10^((Rb-Ra)/400))). Placeholders W83/L101 resolvidos "
+            "sequencialmente. Resultados reais (já jogados) são fixos."
+        ),
+        "simulations": SIMS,
+        "total_teams": len(teams),
+        "teams": teams,
+    }
+
+
+# ─── Builder: insights.json (estatística editorial automática) ────────
+def build_insights(matches: list, teams_index: dict) -> dict:
+    """Gera fatos editoriais automáticos a partir dos dados do torneio."""
+    stats = build_estatisticas(matches, teams_index)
+    agg = _aggregate_goals(matches, teams_index)
+    grupos = build_grupos(matches, teams_index)
+    insights: list[dict] = []
+
+    def _add(icon: str, title: str, body: str):
+        insights.append({"icon": icon, "title": title, "body": body})
+
+    # Artilheiro
+    if stats.get("total_goals", 0) > 0 and agg:
+        top = max(agg.values(), key=lambda p: p["goals"])
+        if top["goals"] > 0:
+            _add("⚽", "Artilheiro isolado",
+                 f"{top['name']} ({top['team']['flag']} {top['team']['code']}) "
+                 f"lidera com {top['goals']} gols em {top['team']['name']}.")
+
+    # Média de gols
+    avg = stats.get("avg_goals_per_match", 0)
+    total = stats.get("total_matches", 0)
+    if total > 0:
+        verdict = "acima" if avg > 2.5 else "abaixo" if avg < 2.0 else "alinhada com"
+        _add("📊", "Ritmo ofensivo",
+             f"Média de {avg} gols por jogo em {total} partidas — "
+             f"{verdict} da histórica (~2.5).")
+
+    # Maior goleada
+    bw = stats.get("biggest_win")
+    if bw:
+        _add("🔥", "Maior goleada", f"{bw['match']} — diferença de {bw['diff']} gols.")
+
+    # Seleção com 100%
+    for g in grupos.get("groups", []):
+        for t in g["teams"]:
+            if t["played"] >= 3 and t["wins"] == t["played"] and t["played"] > 0:
+                _add("💯", "Aproveitamento perfeito",
+                     f"{t['flag']} {t['name']} venceu todos os {t['played']} jogos "
+                     f"do {g['group']} sem ceder pontos.")
+                break
+        else:
+            continue
+        break
+
+    # Melhor ataque
+    eff = stats.get("teams_efficiency", [])
+    if eff:
+        best_atk = max(eff, key=lambda x: x["goals_for"])
+        _add("🚀", "Ataque mais letal",
+             f"{best_atk['flag']} {best_atk['name']} marcou {best_atk['goals_for']} gols "
+             f"em {best_atk['matches']} jogos.")
+        best_def = min(eff, key=lambda x: x["goals_against"])
+        if best_def["goals_against"] < best_atk["goals_for"]:
+            _add("🛡️", "Defesa mais sólida",
+                 f"{best_def['flag']} {best_def['name']} sofreu apenas "
+                 f"{best_def['goals_against']} gols em {best_def['matches']} jogos.")
+
+    # Distribuição por tempo
+    fh = stats.get("goals_first_half", 0)
+    sh = stats.get("goals_second_half", 0)
+    if fh + sh > 0:
+        half = "segundo" if sh > fh else "primeiro" if fh > sh else "empate"
+        _add("⏱️", "Quando os gols caem",
+             f"{fh} no 1º tempo vs {sh} no 2º — maioria no {half} tempo.")
+
+    # Pênaltis
+    pens = stats.get("penalties_scored", 0)
+    if pens > 0:
+        _add("🎯", "Da marca penal", f"{pens} gols de pênalti marcados no torneio.")
+
+    return {
+        "updated_at": _now_iso(),
+        "source": "cálculo local sobre openfootball/worldcup.json",
+        "total": len(insights),
+        "insights": insights,
+    }
+
+
+# ─── Builder: selecao_copa.json (11 ideal + goleiro menos vazado) ─────
+def _build_squads_by_team(squads_data) -> dict[str, list[dict]]:
+    """Indexa elencos: {team_name: [{name, pos, number}]}."""
+    out: dict[str, list[dict]] = {}
+    if not isinstance(squads_data, list):
+        return out
+    for squad in squads_data:
+        if not isinstance(squad, dict):
+            continue
+        team = squad.get("name") or ""
+        players = squad.get("players") or []
+        out[team] = [
+            {"name": p.get("name", ""), "pos": (p.get("pos") or "")[:2].upper(), "number": p.get("number")}
+            for p in players if isinstance(p, dict) and p.get("name")
+        ]
+        # Alias de nome (USA/United States etc.)
+        for alt in ("name_normalised", "title"):
+            alt_name = squad.get(alt)
+            if alt_name and alt_name not in out:
+                out[alt_name] = out[team]
+    return out
+
+
+def build_selecao_copa(matches: list, teams_index: dict, squads_by_team: dict) -> dict:
+    """
+    Seleção da Copa até o momento — 11 ideal baseado em desempenho real:
+      • GK: goleiro da seleção com menos gols sofridos/jogo (clean sheets)
+      • DF: 4 defensores — das seleções com melhor defesa que marcaram,
+            completados com titulares das melhores defesas
+      • MF: 3 meio-campistas com mais gols
+      • FW: 3 artilheiros
+    Métricas derivadas das partidas (não há stats individuais defensivas
+    no Openfootball — goleiro é inferido pela defesa da seleção).
+    """
+    # 1. Defesa por seleção (gols sofridos, jogos, clean sheets)
+    defense: dict[str, dict] = {}
+    scorers = _aggregate_goals(matches, teams_index)
+
+    for m in matches:
+        final = _final_score(m.get("score") or {})
+        if final is None:
+            continue
+        t1, t2 = m.get("team1") or "", m.get("team2") or ""
+        if _is_placeholder(t1) or _is_placeholder(t2):
+            continue
+        s1, s2 = final
+        for name, conceded in ((t1, s2), (t2, s1)):
+            if name not in defense:
+                defense[name] = {"goals_against": 0, "played": 0, "clean_sheets": 0}
+            defense[name]["goals_against"] += conceded
+            defense[name]["played"] += 1
+            if conceded == 0:
+                defense[name]["clean_sheets"] += 1
+
+    for name, d in defense.items():
+        d["ga_per_game"] = round(d["goals_against"] / d["played"], 2) if d["played"] else 99
+
+    # 2. Ranking de goleiros (melhor defesa → goleiro titular = primeiro GK)
+    best_defense = sorted(
+        [(n, d) for n, d in defense.items() if d["played"] >= 2],
+        key=lambda x: (x[1]["ga_per_game"], -x[1]["clean_sheets"], x[1]["goals_against"]),
+    )
+
+    def _first_pos(team: str, pos: str) -> dict | None:
+        players = squads_by_team.get(team) or []
+        for p in players:
+            if p["pos"] == pos:
+                return {"name": p["name"], "team": _team_info(team, teams_index), "position": pos}
+        return None
+
+    xi: list[dict] = []
+    used_teams: set[str] = set()
+
+    # GK: melhor defesa
+    gk_entry = None
+    for team, d in best_defense:
+        gk = _first_pos(team, "GK")
+        if gk:
+            gk_entry = {**gk, "stat": f"{d['clean_sheets']} clean sheets · {d['ga_per_game']} GA/jogo"}
+            used_teams.add(team)
+            xi.append(gk_entry)
+            break
+
+    # FW: top 3 artilheiros
+    top_scorers = sorted(scorers.values(), key=lambda p: p["goals"], reverse=True)
+    fw_added = 0
+    for s in top_scorers:
+        if fw_added >= 3 or s["goals"] == 0:
+            break
+        xi.append({
+            "name": s["name"], "team": s["team"], "position": "FW",
+            "stat": f"{s['goals']} gols",
+        })
+        fw_added += 1
+
+    # MF: meio-campistas com mais gols
+    mf_pool = [
+        (slug, p) for slug, p in scorers.items()
+        if p["goals"] > 0
+        and squads_by_team
+        and any(
+            squads_by_team.get(p["team"]["name"], [{}])[0].get("pos") == "MF"
+            or any(pl["pos"] == "MF" and pl["name"] == p["name"]
+                   for pl in squads_by_team.get(p["team"]["name"], []))
+            for _ in [0]
+        )
+    ]
+    # Fallback: se não há dados de posição, pega artilheiros não-FW por eliminação
+    if not mf_pool:
+        mf_pool = [(slug, p) for slug, p in scorers.items() if p["goals"] > 0]
+    mf_pool.sort(key=lambda x: x[1]["goals"], reverse=True)
+    mf_added = 0
+    used_names = {p["name"] for p in xi}
+    for slug, p in mf_pool:
+        if mf_added >= 3 or p["name"] in used_names:
+            continue
+        # Confirma posição MF se possível
+        pos = "MF"
+        players = squads_by_team.get(p["team"]["name"]) or []
+        for pl in players:
+            if pl["name"] == p["name"]:
+                pos = pl["pos"] or "MF"
+                break
+        xi.append({
+            "name": p["name"], "team": p["team"], "position": pos,
+            "stat": f"{p['goals']} gols",
+        })
+        used_names.add(p["name"])
+        mf_added += 1
+
+    # DF: completar 4 — das melhores defesas restantes
+    df_added = 0
+    for team, d in best_defense:
+        if df_added >= 4:
+            break
+        df = _first_pos(team, "DF")
+        if df and df["name"] not in {p["name"] for p in xi}:
+            xi.append({**df, "stat": f"defesa {d['ga_per_game']} GA/jogo · {d['clean_sheets']} CS"})
+            df_added += 1
+
+    # Ordena por posição (GK, DF, MF, FW)
+    pos_order = {"GK": 0, "DF": 1, "MF": 2, "FW": 3}
+    xi.sort(key=lambda p: pos_order.get(p.get("position", "FW"), 4))
+
+    # Top goleiros (ranking completo para destaque)
+    top_gks = []
+    for team, d in best_defense[:5]:
+        gk = _first_pos(team, "GK")
+        if gk:
+            top_gks.append({**gk, "clean_sheets": d["clean_sheets"], "ga_per_game": d["ga_per_game"], "goals_against": d["goals_against"]})
+
+    return {
+        "updated_at": _now_iso(),
+        "source": "openfootball (partidas + squads) — inferência defensiva",
+        "formation": "4-3-3",
+        "best_goalkeeper": gk_entry,
+        "top_goalkeepers": top_gks,
+        "xi": xi,
+    }
+
+
 # ─── Orquestrador ─────────────────────────────────────────────────────
 def main() -> int:
     print("🏆 World Cup Dashboard — coleta iniciada")
@@ -688,16 +1119,22 @@ def main() -> int:
 
     matches, teams_index = fetch_openfootball()
     if not matches:
-        print("  ⚠ Sem partidas — 5 arquivos não atualizados.")
+        print("  ⚠ Sem partidas — 9 arquivos não atualizados.")
         exit_code = 1
     else:
-        squads_index = _build_squads_index()
+        squads_data = _http_get_json(URL_SQUADS) or []
+        squads_index = _build_squads_index(squads_data)
+        squads_by_team = _build_squads_by_team(squads_data)
         for name, builder, args in (
             ("partidas", build_partidas, (matches, teams_index)),
             ("artilheiros", build_artilheiros, (matches, teams_index)),
             ("estatisticas", build_estatisticas, (matches, teams_index)),
             ("probabilidades", build_probabilidades, (matches, teams_index)),
             ("jogadores", build_jogadores, (matches, teams_index, squads_index)),
+            ("grupos", build_grupos, (matches, teams_index)),
+            ("simulacao", build_simulacao, (matches, teams_index)),
+            ("selecao_copa", build_selecao_copa, (matches, teams_index, squads_by_team)),
+            ("insights", build_insights, (matches, teams_index)),
         ):
             print(f"  ▸ {name}.json...")
             try:
