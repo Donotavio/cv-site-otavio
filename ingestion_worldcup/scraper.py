@@ -340,9 +340,14 @@ def _aggregate_goals(matches: list, teams_index: dict) -> dict[str, dict]:
 
 def build_artilheiros(matches: list, teams_index: dict) -> dict:
     players = _aggregate_goals(matches, teams_index)
+    # Critério de desempate FIFA: 1) gols, 2) menos pênaltis, 3) menor último gol
     scorers = sorted(
         players.values(),
-        key=lambda p: (p["goals"], -max(p["minutes"]) if p["minutes"] else 0),
+        key=lambda p: (
+            p["goals"],
+            -p["penalties"],           # menos pênaltis = mais gols de jogo
+            -(max(p["minutes"]) if p["minutes"] else 999),  # chegou ao total mais cedo
+        ),
         reverse=True,
     )
     for s in scorers:
@@ -541,7 +546,11 @@ def build_probabilidades(matches: list, teams_index: dict) -> dict:
         "methodology": (
             f"Elo Rating local (K={ELO_K}, init={int(ELO_INIT)}). "
             "Pênaltis contam como empate. Bônus de margem de gols no K. "
-            "Probabilidade de título via softmax (temp=180)."
+            "Probabilidade de título via softmax (temp=180). "
+            "NOTA: Elo pondera a FORÇA dos adversários — uma seleção invicta "
+            "contra times fracos pode ter Elo menor que uma com derrotas vs "
+            "favoritos (ex: México 0 sofridos vs times fracos < França 13 gols "
+            "vs times fortes)."
         ),
         "total_teams": len(teams),
         "teams": teams,
@@ -902,17 +911,28 @@ def build_insights(matches: list, teams_index: dict) -> dict:
     if bw:
         _add("🔥", "Maior goleada", f"{bw['match']} — diferença de {bw['diff']} gols.")
 
-    # Seleção com 100%
-    for g in grupos.get("groups", []):
-        for t in g["teams"]:
-            if t["played"] >= 3 and t["wins"] == t["played"] and t["played"] > 0:
-                _add("💯", "Aproveitamento perfeito",
-                     f"{t['flag']} {t['name']} venceu todos os {t['played']} jogos "
-                     f"do {g['group']} sem ceder pontos.")
-                break
-        else:
+    # Seleção com 100% em TODOS os jogos (não só fase de grupos)
+    all_records: dict[str, dict] = {}
+    for m in matches:
+        final = _final_score(m.get("score") or {})
+        if final is None:
             continue
-        break
+        t1, t2 = m.get("team1") or "", m.get("team2") or ""
+        if _is_placeholder(t1) or _is_placeholder(t2):
+            continue
+        s1, s2 = final
+        for name, gf, ga in ((t1, s1, s2), (t2, s2, s1)):
+            if name not in all_records:
+                all_records[name] = {"wins": 0, "played": 0}
+            all_records[name]["played"] += 1
+            if gf > ga:
+                all_records[name]["wins"] += 1
+    for name, r in all_records.items():
+        if r["played"] >= 3 and r["wins"] == r["played"]:
+            info = _team_info(name, teams_index)
+            _add("💯", "Aproveitamento perfeito",
+                 f"{info['flag']} {name} venceu todos os {r['played']} jogos sem ceder pontos.")
+            break
 
     # Melhor ataque
     eff = stats.get("teams_efficiency", [])
