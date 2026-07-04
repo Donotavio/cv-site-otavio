@@ -2,9 +2,9 @@
  * World Cup Dashboard — deepstats.js
  * ---------------------------------------------------------------------------
  * Ball-level sections [04/05/06]:
- *   04 · Mapa de Finalizações  → renderShotMap(data.shot_map)
- *   05 · Rede de Passes        → renderPassNetwork(data.pass_network)
- *   06 · Trajetória da Bola    → renderMomentum(data.momentum)
+ *   04 · Finalizações       → renderShotStats(data.shot_stats.matches[id])
+ *   05 · Posse e Passes     → renderPassStats(data.pass_stats.matches[id])
+ *   06 · Trajetória da Bola → renderMomentum(data.momentum.matches[id])
  *
  * Módulo ISOLADO e autossuficiente (mesmo estilo do main.js: IIFE, sem
  * imports). Funciona mesmo se main.js falhar. Não toca em state de main.js.
@@ -18,33 +18,56 @@
  * SCHEMA esperado de data/deepstats.json:
  * ---------------------------------------------------------------------------
  * {
- *   "updated_at": "2026-07-04T04:34:06Z",
- *   "source": "FBref + StatsBomb Open Data 360",
- *   "shot_map": {
- *     "match": "Brasil 2–1 Argentina",
- *     "date": "2026-06-28",
- *     "shots": [
- *       { "x": 78, "y": 38, "xg": 0.41, "goal": true,
- *         "player": "Vinícius Jr", "minute": 23, "team": "BRA" }
- *     ]
+ *   "updated_at": "...",
+ *   "source": "openfootball (momentum) + ESPN (match stats)",
+ *   "featured_id": "ger-cuw-2026-06-14",
+ *   "match_list": [
+ *     { "id": "...", "label": "...", "date": "...", "goals": 8, "has_stats": true }
+ *   ],
+ *   "shot_stats": {
+ *     "available": true,
+ *     "source": "ESPN",
+ *     "matches": {
+ *       "<id>": {
+ *         "match": "Germany 7–1 Curaçao",
+ *         "source": "ESPN",
+ *         "home": { "code": "GER", "flag": "🇩🇪", "name": "Germany",
+ *                   "shots": 26, "on_target": 12, "blocked": 8, "goals": 7 },
+ *         "away": { ... }
+ *       }
+ *     }
  *   },
- *   "pass_network": {
- *     "available": false,
- *     // quando disponível:
- *     "match": "...",
- *     "teams": { "home": {...}, "away": {...} },
- *     "nodes": [{ "team": "home", "player": "...", "line": "GK|DF|MF|FW",
- *                 "x": 0..100, "y": 0..100, "passes": int }],
- *     "edges": [{ "from": idx, "to": idx, "passes": int }]
+ *   "pass_stats": {
+ *     "available": true,
+ *     "source": "ESPN",
+ *     "matches": {
+ *       "<id>": {
+ *         "match": "...",
+ *         "home": { "code": "GER", "flag": "🇩🇪", "name": "Germany",
+ *                   "passes": 620, "accurate_passes": 580, "pass_pct": 93.5,
+ *                   "crosses": 15, "accurate_crosses": 8, "long_balls": 40,
+ *                   "possession": 65.2 },
+ *         "away": { ... }
+ *       }
+ *     }
  *   },
  *   "momentum": {
- *     "match": "...",
- *     "labels": [0, 10, 20, ...],
- *     "home": { "code": "BRA", "flag": "🇧🇷", "xg_cum": [0, 0.08, ...] },
- *     "away": { "code": "ARG", "flag": "🇦🇷", "xg_cum": [0, 0, ...] },
- *     "goals": [
- *       { "minute": 23, "team": "home", "player": "...", "xg_cum": 0.41 }
- *     ]
+ *     "available": true,
+ *     "metric": "goals",
+ *     "metric_label": "Gols acumulados",
+ *     "matches": {
+ *       "<id>": {
+ *         "id": "...", "label": "...", "date": "...",
+ *         "total_goals": 8,
+ *         "metric": "goals", "metric_label": "Gols acumulados",
+ *         "labels": [0, 5, 10, ..., 90],
+ *         "home": { "code": "GER", "flag": "🇩🇪", "name": "Germany",
+ *                   "cum": [0, 0, 1, ...] },
+ *         "away": { "code": "CUW", "flag": "🇨🇼", "name": "Curaçao",
+ *                   "cum": [0, 0, 0, ...] },
+ *         "goals": [ { "minute": 6, "team": "home", "player": "...", "cum": 1 } ]
+ *       }
+ *     }
  *   }
  * }
  * ---------------------------------------------------------------------------
@@ -135,381 +158,246 @@
   };
 
   /* ════════════════════════════════════════════════════════
-   * SVG namespace helper
+   * Estado compartilhado entre as 3 seções
    * ════════════════════════════════════════════════════════ */
-  const SVG_NS = 'http://www.w3.org/2000/svg';
-
-  function svgEl(tag, attrs) {
-    const e = document.createElementNS(SVG_NS, tag);
-    if (attrs) {
-      for (const k in attrs) {
-        if (attrs[k] != null) e.setAttribute(k, attrs[k]);
-      }
-    }
-    return e;
-  }
-
-  /* ════════════════════════════════════════════════════════
-   * [04] renderShotMap(data)
-   * Pitch SVG (viewBox 0 0 60 80, portrait) + bubbles HTML overlay.
-   * Coords do JSON: x,y em % [0..100] do campo.
-   * ════════════════════════════════════════════════════════ */
-  const shotMapState = { all: [], filter: 'all', match: '' };
-
-  function drawShotMapPitch() {
-    const svg = $('#wc-shotmap-svg');
-    if (!svg) return;
-    // Limpa qualquer conteúdo anterior (mantém <title> se houver)
-    Array.from(svg.children).forEach(c => { if (c.tagName.toLowerCase() !== 'title') c.remove(); });
-
-    const sw = 0.4;        // stroke-width thin
-    const stroke = 'var(--wc-field-ink)';
-    const fill = 'none';
-
-    // viewBox 0 0 60 80 (portrait, atacando para cima/baixo)
-    const mkRect  = (x, y, w, h) => svgEl('rect',  { x, y, width: w, height: h, stroke, 'stroke-width': sw, fill });
-    const mkLine  = (x1, y1, x2, y2) => svgEl('line',  { x1, y1, x2, y2, stroke, 'stroke-width': sw });
-    const mkCirc  = (cx, cy, r) => svgEl('circle', { cx, cy, r, stroke, 'stroke-width': sw, fill });
-
-    // Outer boundary (1u margin)
-    svg.appendChild(mkRect(1, 1, 58, 78));
-    // Halfway line (horizontal, no meio do campo)
-    svg.appendChild(mkLine(1, 40, 59, 40));
-    // Center circle + spot
-    svg.appendChild(mkCirc(30, 40, 8));
-    svg.appendChild(svgEl('circle', { cx: 30, cy: 40, r: 0.5, fill: 'var(--wc-field-ink)' }));
-    // Penalty boxes (top + bottom) — 30u wide × 10u tall
-    svg.appendChild(mkRect(15, 1,  30, 10));
-    svg.appendChild(mkRect(15, 69, 30, 10));
-    // 6-yard boxes — 18u wide × 4u tall
-    svg.appendChild(mkRect(21, 1,  18, 4));
-    svg.appendChild(mkRect(21, 75, 18, 4));
-    // Penalty arcs (semicírculos nas bordas das áreas)
-    const arcR = 5;
-    svg.appendChild(svgEl('path', {
-      d: `M ${30 - arcR} 11 A ${arcR} ${arcR} 0 0 0 ${30 + arcR} 11`,
-      stroke, 'stroke-width': sw, fill
-    }));
-    svg.appendChild(svgEl('path', {
-      d: `M ${30 - arcR} 69 A ${arcR} ${arcR} 0 0 1 ${30 + arcR} 69`,
-      stroke, 'stroke-width': sw, fill
-    }));
-  }
-
-  function renderShotMap(data) {
-    if (!data || data.available === false || !Array.isArray(data.shots) || !data.shots.length) {
-      const empty = $('#wc-shotmap-empty');
-      if (empty) empty.hidden = false;
-      // available=false = FBref ainda não forneceu (esperado, não erro)
-      const isWaiting = data && data.available === false;
-      const err = $('#wc-shotmap-error');
-      if (err) err.hidden = isWaiting;
-      if (isWaiting) {
-        const m = $('#wc-shotmap-match');
-        if (m) m.textContent = 'aguardando FBref · pipeline CI';
-      }
-      return;
-    }
-
-    drawShotMapPitch();
-
-    shotMapState.all = data.shots;
-    shotMapState.match = data.match || '';
-
-    const matchEl = $('#wc-shotmap-match');
-    if (matchEl) matchEl.textContent = shotMapState.match;
-
-    renderShotMapFilters();
-    renderShotMapBubbles();
-  }
-
-  function renderShotMapFilters() {
-    const host = $('#wc-shotmap-filters');
-    if (!host) return;
-
-    const chips = [
-      { key: 'all',  label: 'Todas' },
-      { key: 'goal', label: 'Gols' },
-      { key: 'miss', label: 'Defendidas / fora' },
-    ];
-
-    host.innerHTML = chips.map(c => {
-      const pressed = shotMapState.filter === c.key;
-      return `<button type="button" class="wc-team-chip wc-shotmap-filter"
-              data-filter="${escapeHtml(c.key)}"
-              aria-pressed="${pressed}">${escapeHtml(c.label)}</button>`;
-    }).join('');
-
-    $$('.wc-shotmap-filter', host).forEach(btn => {
-      btn.addEventListener('click', () => {
-        const f = btn.dataset.filter;
-        if (f === shotMapState.filter) return;
-        shotMapState.filter = f;
-        $$('.wc-shotmap-filter', host).forEach(b =>
-          b.setAttribute('aria-pressed', String(b === btn)));
-
-        const bubbleHost = $('#wc-shotmap-bubbles');
-        if (!bubbleHost) return;
-        if (Motion && Motion.crossfadeSwap) {
-          Motion.crossfadeSwap(bubbleHost, renderShotMapBubbles,
-            { exitMs: 180, enterStep: 25 });
-        } else {
-            renderShotMapBubbles();
-        }
-      });
-    });
-  }
-
-  function renderShotMapBubbles() {
-    const host = $('#wc-shotmap-bubbles');
-    if (!host) return;
-
-    const filter = shotMapState.filter;
-    const shots = shotMapState.all.filter(s => {
-      if (filter === 'all')  return true;
-      if (filter === 'goal') return s.goal === true;
-      if (filter === 'miss') return s.goal !== true;
-      return true;
-    });
-
-    host.innerHTML = shots.map(s => {
-      const x = Math.max(0, Math.min(100, Number(s.x) || 0));
-      const y = Math.max(0, Math.min(100, Number(s.y) || 0));
-      const xg = Math.max(0, Math.min(1, Number(s.xg) || 0));
-      // R = 4 + sqrt(xg) * 8, clamp 4..18
-      const r = Math.max(4, Math.min(18, 4 + Math.sqrt(xg) * 8));
-      const kind = s.goal === true ? 'goal' : 'miss';
-
-      const player = escapeHtml(s.player || '—');
-      const minute = escapeHtml(String(s.minute ?? ''));
-      const team   = escapeHtml(s.team || '');
-      const outcome = s.goal === true ? 'gol' : 'defendeu/fora';
-      const tip = `${player}${team ? ' · ' + team : ''} · ${minute}' · xG ${xg.toFixed(2)} · ${outcome}`;
-
-      return `<div class="wc-shot-bubble wc-shot-bubble--${kind}"
-                   style="left:${x}%;top:${y}%;--r:${r}"
-                   data-xg="${xg.toFixed(3)}"
-                   data-minute="${minute}"
-                   tabindex="0"
-                   role="button"
-                   aria-label="${tip}">
-                <span class="wc-shot-bubble__tip" aria-hidden="true">${tip}</span>
-              </div>`;
-    }).join('');
-
-    const bubbles = $$('.wc-shot-bubble', host);
-
-    if (Motion && Motion.revealStagger) {
-      Motion.revealStagger(bubbles, {
-        step: 25,
-        sort: (a, b) => Number(b.dataset.xg) - Number(a.dataset.xg)
-      });
-    } else {
-      bubbles.forEach(b => b.classList.add('is-visible'));
-    }
-  }
-
-  /* ════════════════════════════════════════════════════════
-   * [05] renderPassNetwork(data)
-   * Pitch SVG (viewBox 0 0 100 64, landscape) + nós + edges.
-   * Se data.available === false, mostra #wc-passnet-empty e retorna.
-   * ════════════════════════════════════════════════════════ */
-  const passNetState = { data: null, currentTeam: 'home' };
-
-  function drawPassNetPitch() {
-    const svg = $('#wc-passnet-svg');
-    if (!svg) return;
-    Array.from(svg.children).forEach(c => { if (c.tagName.toLowerCase() !== 'title') c.remove(); });
-
-    const sw = 0.35;
-    const stroke = 'var(--wc-field-ink)';
-    const fill = 'none';
-
-    const mkRect = (x, y, w, h) => svgEl('rect',  { x, y, width: w, height: h, stroke, 'stroke-width': sw, fill });
-    const mkLine = (x1, y1, x2, y2) => svgEl('line', { x1, y1, x2, y2, stroke, 'stroke-width': sw });
-    const mkCirc = (cx, cy, r) => svgEl('circle', { cx, cy, r, stroke, 'stroke-width': sw, fill });
-
-    // viewBox 0 0 100 64 (landscape, atacando esquerda→direita)
-    svg.appendChild(mkRect(1, 1, 98, 62));
-    // Halfway line (vertical)
-    svg.appendChild(mkLine(50, 1, 50, 63));
-    // Center circle + spot
-    svg.appendChild(mkCirc(50, 32, 9));
-    svg.appendChild(svgEl('circle', { cx: 50, cy: 32, r: 0.5, fill: 'var(--wc-field-ink)' }));
-    // Penalty boxes (left + right) — 14u wide × 32u tall
-    svg.appendChild(mkRect(1, 16,  14, 32));
-    svg.appendChild(mkRect(85, 16, 14, 32));
-    // 6-yard boxes — 6u wide × 20u tall
-    svg.appendChild(mkRect(1, 22,  5, 20));
-    svg.appendChild(mkRect(94, 22, 5, 20));
-  }
-
-  function renderPassNetwork(data) {
-    drawPassNetPitch();
-
-    const empty = $('#wc-passnet-empty');
-    const toggle = $('#wc-passnet-toggle');
-
-    if (!data || data.available === false) {
-      if (empty) empty.hidden = false;
-      if (toggle) toggle.innerHTML = '';
-      // Limpa nós/edges desenhados
-      const svg = $('#wc-passnet-svg');
-      if (svg) {
-        Array.from(svg.children).forEach(c => {
-          const tag = c.tagName.toLowerCase();
-          if (tag !== 'title' && tag !== 'rect' && tag !== 'line' && tag !== 'circle' && tag !== 'path') c.remove();
-        });
-      }
-      return;
-    }
-
-    if (empty) empty.hidden = true;
-    passNetState.data = data;
-    passNetState.currentTeam = 'home';
-
-    // Team toggle
-    if (toggle) {
-      const teams = data.teams || {};
-      const chips = [
-        { key: 'home', label: teams.home ? `${teams.home.flag || ''} ${teams.home.code || teams.home.name || 'Casa'}`.trim() : 'Casa' },
-        { key: 'away', label: teams.away ? `${teams.away.flag || ''} ${teams.away.code || teams.away.name || 'Fora'}`.trim() : 'Fora' },
-      ];
-      toggle.innerHTML = chips.map(c => {
-        const pressed = passNetState.currentTeam === c.key;
-        return `<button type="button" class="wc-team-chip wc-passnet-team-btn"
-                data-team="${escapeHtml(c.key)}"
-                aria-pressed="${pressed}">${escapeHtml(c.label)}</button>`;
-      }).join('');
-
-      $$('.wc-passnet-team-btn', toggle).forEach(btn => {
-        btn.addEventListener('click', () => {
-          const t = btn.dataset.team;
-          if (t === passNetState.currentTeam) return;
-          passNetState.currentTeam = t;
-          $$('.wc-passnet-team-btn', toggle).forEach(b =>
-            b.setAttribute('aria-pressed', String(b === btn)));
-          renderPassNetNodes();
-        });
-      });
-    }
-
-    renderPassNetNodes();
-  }
-
-  function renderPassNetNodes() {
-    const svg = $('#wc-passnet-svg');
-    const data = passNetState.data;
-    if (!svg || !data || !Array.isArray(data.nodes)) return;
-
-    const team = passNetState.currentTeam;
-    const teamNodes = data.nodes.filter(n => n.team === team);
-
-    // Limpa nós/edges existentes (mantém linhas do campo)
-    Array.from(svg.children).forEach(c => {
-      const tag = c.tagName.toLowerCase();
-      if (tag === 'g' && c.classList.contains('wc-pass-node')) c.remove();
-      else if (tag === 'line' && c.classList.contains('wc-pass-edge')) c.remove();
-    });
-
-    // Mapa de índice global → nó (para resolver edges)
-    const nodeIndex = new Map();
-    data.nodes.forEach((n, i) => nodeIndex.set(i, n));
-
-    // Mapa player → índice no SVG (para o time selecionado)
-    const localIdx = new Map();
-    teamNodes.forEach((n, i) => localIdx.set(n, i));
-
-    // Identifica top-5 edges por passes (para --strong)
-    const teamEdges = (data.edges || []).filter(e => {
-      const a = nodeIndex.get(e.from);
-      const b = nodeIndex.get(e.to);
-      return a && b && a.team === team && b.team === team;
-    });
-    const top5 = new Set(
-      teamEdges.slice().sort((a, b) => (Number(b.passes) || 0) - (Number(a.passes) || 0))
-                .slice(0, 5)
-                .map(e => `${e.from}|${e.to}`)
-    );
-
-    // Edges primeiro (atrás dos nós)
-    const edgeEls = [];
-    teamEdges.forEach(e => {
-      const a = nodeIndex.get(e.from);
-      const b = nodeIndex.get(e.to);
-      if (!a || !b) return;
-      const x1 = Number(a.x) || 0;
-      const y1 = Number(a.y) || 0;
-      const x2 = Number(b.x) || 0;
-      const y2 = Number(b.y) || 0;
-      const isStrong = top5.has(`${e.from}|${e.to}`);
-      const line = svgEl('line', {
-        x1, y1, x2, y2,
-        class: 'wc-pass-edge' + (isStrong ? ' wc-pass-edge--strong' : ''),
-        'data-passes': Number(e.passes) || 0
-      });
-      svg.appendChild(line);
-      edgeEls.push(line);
-    });
-
-    // Nós (jogadores)
-    const nodeEls = [];
-    teamNodes.forEach(n => {
-      const cx = Number(n.x) || 0;
-      const cy = Number(n.y) || 0;
-      const line = (n.line || '').toUpperCase();
-      const g = svgEl('g', {
-        class: 'wc-pass-node',
-        'data-line': line,
-        'data-player': escapeHtml(n.player || ''),
-        transform: `translate(${cx} ${cy})`
-      });
-      const r = line === 'GK' ? 2.6 : 2.2;
-      g.appendChild(svgEl('circle', { cx: 0, cy: 0, r, fill: 'var(--wc-field)', stroke: 'var(--wc-field-ink)', 'stroke-width': 0.3 }));
-      // Label (iniciais)
-      const initials = String(n.player || '?')
-        .split(/\s+/).filter(Boolean).slice(0, 2)
-        .map(w => w.charAt(0).toUpperCase()).join('') || '?';
-      const label = svgEl('text', {
-        x: 0, y: r + 2.6,
-        class: 'wc-pass-node__label',
-        'text-anchor': 'middle'
-      });
-      label.textContent = initials;
-      g.appendChild(label);
-      // Nome completo no <title>
-      const title = svgEl('title');
-      title.textContent = `${n.player || ''} · ${line} · ${Number(n.passes) || 0} passes`;
-      g.appendChild(title);
-      svg.appendChild(g);
-      nodeEls.push(g);
-    });
-
-    // Motion stagger (GK → DF → MF → FW) + draw edges
-    const lineOrder = { GK: 0, DF: 1, MF: 2, FW: 3 };
-    if (Motion && Motion.revealStagger) {
-      Motion.revealStagger(nodeEls, {
-        step: 30,
-        sort: (a, b) => (lineOrder[a.dataset.line] ?? 9) - (lineOrder[b.dataset.line] ?? 9)
-      });
-    } else {
-      nodeEls.forEach(n => n.classList.add('is-visible'));
-    }
-    if (Motion && Motion.drawEdges) {
-      Motion.drawEdges(edgeEls, { step: 15, delay: 300 });
-    } else {
-      edgeEls.forEach(e => e.classList.add('is-visible'));
-    }
-  }
-
-  /* ════════════════════════════════════════════════════════
-   * [06] renderMomentum(data)
-   * Chart.js line chart (xG acumulado por minuto) + goal pulse markers.
-   * ════════════════════════════════════════════════════════ */
+  let _data = null;
+  let _selectedMatchId = null;
   let _momentumChart = null;
   let _momentumResizeTimer = null;
 
-  function renderMomentum(data) {
+  /* ════════════════════════════════════════════════════════
+   * Match selector (compartilhado por 04/05/06)
+   * ════════════════════════════════════════════════════════ */
+  function populateSelectors(matchList, featuredId) {
+    if (!Array.isArray(matchList) || !matchList.length) return;
+    const options = matchList.map(m =>
+      `<option value="${escapeHtml(m.id)}"${m.id === featuredId ? ' selected' : ''}>${escapeHtml(m.label)}</option>`
+    ).join('');
+    $$('.wc-match-select').forEach(sel => {
+      sel.innerHTML = options;
+      sel.value = featuredId;
+      // Evita duplo binding se init() rodar mais de uma vez.
+      sel.removeEventListener('change', sel._wcDeepStatsHandler);
+      const handler = () => onMatchChange(sel.value);
+      sel._wcDeepStatsHandler = handler;
+      sel.addEventListener('change', handler);
+    });
+  }
+
+  function onMatchChange(matchId) {
+    if (!matchId) return;
+    _selectedMatchId = matchId;
+    // Sincroniza todos os selects (um em cada seção).
+    $$('.wc-match-select').forEach(sel => { sel.value = matchId; });
+    // Re-renderiza as 3 seções — falha isolada por seção.
+    try { renderShotStats(); } catch(e) { console.error('[WCDeepStats] shotStats:', e); }
+    try { renderPassStats(); } catch(e) { console.error('[WCDeepStats] passStats:', e); }
+    try { renderMomentum(); } catch(e) { console.error('[WCDeepStats] momentum:', e); }
+  }
+
+  /* ════════════════════════════════════════════════════════
+   * Helpers de renderização de stat comparison
+   * ════════════════════════════════════════════════════════ */
+  function num(v) { return Number(v) || 0; }
+
+  function fmtInt(v) {
+    return num(v).toLocaleString('pt-BR');
+  }
+
+  function fmtPct(v, decimals) {
+    const d = (decimals == null) ? 1 : decimals;
+    return num(v).toFixed(d).replace('.', ',') + '%';
+  }
+
+  /** Escala as duas pontas de uma barra para um flex home/away proporcional.
+   *  Sempre retorna valores ≥ 0. Se ambos forem 0, retorna 1/1 para a barra
+   *  não colapsar. */
+  function flexPair(h, a) {
+    const hv = Math.max(0, num(h));
+    const av = Math.max(0, num(a));
+    if (hv === 0 && av === 0) return { h: 1, a: 1 };
+    return { h: hv, a: av };
+  }
+
+  /** Cabeçalho com flags + nomes das duas seleções. */
+  function statHeadHtml(home, away) {
+    const homeName = escapeHtml(home.name || home.code || 'Casa');
+    const awayName = escapeHtml(away.name || away.code || 'Fora');
+    return `
+      <div class="wc-stat-compare__head">
+        <span class="wc-stat-compare__team">
+          <span class="wc-flag" aria-hidden="true">${escapeHtml(home.flag || '🏳️')}</span>
+          <span class="wc-stat-compare__team-name">${homeName}</span>
+        </span>
+        <span class="wc-stat-compare__team wc-stat-compare__team--right">
+          <span class="wc-stat-compare__team-name">${awayName}</span>
+          <span class="wc-flag" aria-hidden="true">${escapeHtml(away.flag || '🏳️')}</span>
+        </span>
+      </div>`;
+  }
+
+  /** Linha de estatística: home-value | barra dupla | away-value + label. */
+  function statRowHtml(label, homeVal, awayVal, homeFlex, awayFlex) {
+    const hv = Math.max(0, num(homeFlex));
+    const av = Math.max(0, num(awayFlex));
+    const total = hv + av;
+    // Largura relativa em % — evita flex negativo/zero em layouts antigos.
+    const homePct = total > 0 ? (hv / total) * 100 : 50;
+    const awayPct = total > 0 ? (av / total) * 100 : 50;
+    return `
+      <div class="wc-stat-row">
+        <span class="wc-stat-row__home">${homeVal}</span>
+        <div class="wc-stat-row__bar" aria-hidden="true">
+          <span class="wc-stat-row__bar-home" style="width:${homePct.toFixed(2)}%"></span>
+          <span class="wc-stat-row__bar-away" style="width:${awayPct.toFixed(2)}%"></span>
+        </div>
+        <span class="wc-stat-row__away">${awayVal}</span>
+        <span class="wc-stat-row__label">${escapeHtml(label)}</span>
+      </div>`;
+  }
+
+  /** Estado vazio amigável (não é erro — apenas sem ESPN p/ esta partida). */
+  function unavailableHtml(host, errId, msg) {
+    const hostEl = host;
+    const errEl = document.getElementById(errId);
+    if (hostEl) {
+      hostEl.innerHTML = `<p class="wc-loading mono-label" style="padding:var(--space-5)">${escapeHtml(msg)}</p>`;
+    }
+    if (errEl) errEl.hidden = false;
+  }
+
+  /* ════════════════════════════════════════════════════════
+   * [04] renderShotStats()
+   * Lê _data.shot_stats.matches[_selectedMatchId]. Se não houver, exibe
+   * mensagem amigável (não é erro — apenas sem ESPN p/ a partida).
+   * ════════════════════════════════════════════════════════ */
+  function renderShotStats() {
+    const host = $('#wc-shotstats-host');
+    const err  = $('#wc-shotstats-error');
+    if (!host) return;
+    if (err) err.hidden = true;
+
+    if (!_data || !_data.shot_stats || !_data.shot_stats.matches) {
+      unavailableHtml(host, 'wc-shotstats-error',
+        'Estatísticas de finalização indisponíveis para esta partida.');
+      return;
+    }
+
+    const m = _data.shot_stats.matches[_selectedMatchId];
+    if (!m || !m.home || !m.away) {
+      unavailableHtml(host, 'wc-shotstats-error',
+        'Estatísticas de finalização indisponíveis para esta partida.');
+      return;
+    }
+
+    const home = m.home;
+    const away = m.away;
+
+    // Aproveitamento = gols / chutes * 100
+    const homeConv = (num(home.shots) > 0)
+      ? (num(home.goals) / num(home.shots)) * 100 : 0;
+    const awayConv = (num(away.shots) > 0)
+      ? (num(away.goals) / num(away.shots)) * 100 : 0;
+
+    const rows = [
+      statRowHtml('Chutes',
+        fmtInt(home.shots), fmtInt(away.shots),
+        home.shots, away.shots),
+      statRowHtml('No alvo',
+        fmtInt(home.on_target), fmtInt(away.on_target),
+        home.on_target, away.on_target),
+      statRowHtml('Bloqueados',
+        fmtInt(home.blocked), fmtInt(away.blocked),
+        home.blocked, away.blocked),
+      statRowHtml('Gols',
+        fmtInt(home.goals), fmtInt(away.goals),
+        home.goals, away.goals),
+      statRowHtml('Aproveitamento',
+        fmtPct(homeConv, 0), fmtPct(awayConv, 0),
+        homeConv, awayConv),
+    ].join('');
+
+    host.innerHTML =
+      statHeadHtml(home, away) +
+      `<div class="wc-stat-rows">${rows}</div>` +
+      `<span class="wc-stat-compare__source mono-label">fonte: ${escapeHtml(m.source || 'ESPN')}</span>`;
+
+    // Re-observa reveal + motion de barras (se WCMotion disponível).
+    observeReveals(host);
+    const bars = $$('.wc-stat-row__bar-home, .wc-stat-row__bar-away', host);
+    if (Motion && Motion.revealStagger && !prefersReducedMotion()) {
+      Motion.revealStagger(bars, { step: 25 });
+    } else {
+      bars.forEach(b => b.classList.add('is-visible'));
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════
+   * [05] renderPassStats()
+   * Lê _data.pass_stats.matches[_selectedMatchId]. Mesmo padrão do 04.
+   * ════════════════════════════════════════════════════════ */
+  function renderPassStats() {
+    const host = $('#wc-passstats-host');
+    const err  = $('#wc-passstats-error');
+    if (!host) return;
+    if (err) err.hidden = true;
+
+    if (!_data || !_data.pass_stats || !_data.pass_stats.matches) {
+      unavailableHtml(host, 'wc-passstats-error',
+        'Estatísticas de passes indisponíveis para esta partida.');
+      return;
+    }
+
+    const m = _data.pass_stats.matches[_selectedMatchId];
+    if (!m || !m.home || !m.away) {
+      unavailableHtml(host, 'wc-passstats-error',
+        'Estatísticas de passes indisponíveis para esta partida.');
+      return;
+    }
+
+    const home = m.home;
+    const away = m.away;
+
+    const rows = [
+      statRowHtml('Posse %',
+        fmtPct(home.possession, 1), fmtPct(away.possession, 1),
+        home.possession, away.possession),
+      statRowHtml('Passes',
+        fmtInt(home.passes), fmtInt(away.passes),
+        home.passes, away.passes),
+      statRowHtml('Precisão %',
+        fmtPct(home.pass_pct, 1), fmtPct(away.pass_pct, 1),
+        home.pass_pct, away.pass_pct),
+      statRowHtml('Cruzamentos',
+        fmtInt(home.crosses), fmtInt(away.crosses),
+        home.crosses, away.crosses),
+      statRowHtml('Bolas longas',
+        fmtInt(home.long_balls), fmtInt(away.long_balls),
+        home.long_balls, away.long_balls),
+    ].join('');
+
+    host.innerHTML =
+      statHeadHtml(home, away) +
+      `<div class="wc-stat-rows">${rows}</div>` +
+      `<span class="wc-stat-compare__source mono-label">fonte: ${escapeHtml(m.source || 'ESPN')}</span>`;
+
+    observeReveals(host);
+    const bars = $$('.wc-stat-row__bar-home, .wc-stat-row__bar-away', host);
+    if (Motion && Motion.revealStagger && !prefersReducedMotion()) {
+      Motion.revealStagger(bars, { step: 25 });
+    } else {
+      bars.forEach(b => b.classList.add('is-visible'));
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════
+   * [06] renderMomentum()
+   * Chart.js line chart (métrica acumulada por minuto) + goal pulse markers.
+   * A metric label e a unidade do tooltip dependem de data.metric
+   * ('goals' → gols; senão → xG). Mantém compat com schema antigo
+   * (cum | xg_cum).
+   * ════════════════════════════════════════════════════════ */
+  function renderMomentum() {
     const canvas = $('#chart-momentum');
     const errBox = $('#wc-flow-error');
     if (!canvas) return;
@@ -520,16 +408,24 @@
       return;
     }
 
+    const data = _data && _data.momentum && _data.momentum.matches
+      ? _data.momentum.matches[_selectedMatchId]
+      : null;
+
     if (!data || !Array.isArray(data.labels) ||
         !data.home || !(Array.isArray(data.home.cum) || Array.isArray(data.home.xg_cum)) ||
         !data.away || !(Array.isArray(data.away.cum) || Array.isArray(data.away.xg_cum))) {
       if (errBox) errBox.hidden = false;
+      // Limpa chart anterior, se houver.
+      if (_momentumChart) { _momentumChart.destroy(); _momentumChart = null; }
+      const markers = $('#wc-momentum-markers');
+      if (markers) markers.innerHTML = '';
       return;
     }
 
     if (errBox) errBox.hidden = true;
 
-    // Defaults coerentes com Blueprint (idempotente se main.js também setar)
+    // Defaults coerentes com Blueprint (idempotente se main.js também setar).
     Chart.defaults.font.family = token('--font-mono', 'IBM Plex Mono, monospace');
     Chart.defaults.font.size = 11;
     Chart.defaults.color = C.inkFaint;
@@ -541,9 +437,9 @@
     const homeLbl     = data.home.code || data.home.name || 'Casa';
     const awayLbl     = data.away.code || data.away.name || 'Fora';
     const metricLabel = data.metric_label || 'xG acumulado';
-    const metricUnit  = data.metric === 'goals' ? '' : ' xG';
+    const isGoals     = data.metric === 'goals';
 
-    // Destruir chart anterior se existir (re-render seguro)
+    // Destruir chart anterior se existir (re-render seguro).
     if (_momentumChart) { _momentumChart.destroy(); _momentumChart = null; }
 
     const gridColor  = C.line;
@@ -607,7 +503,7 @@
               label: (ctx) => {
                 const tag = ctx.dataset.label.split(' · ')[0];
                 const v = Number(ctx.parsed.y);
-                if (data.metric === 'goals') {
+                if (isGoals) {
                   return ` ${tag}: ${v} ${v === 1 ? 'gol' : 'gols'}`;
                 }
                 return ` ${tag}: ${v.toFixed(2)} xG`;
@@ -626,7 +522,10 @@
             beginAtZero: true,
             grid: { color: gridColor },
             border: { display: false },
-            ticks: { color: ticksColor, font: { size: 10 } },
+            ticks: {
+              color: ticksColor, font: { size: 10 },
+              precision: isGoals ? 0 : 2
+            },
             title: { display: true, text: metricLabel, color: C.inkFaint, font: { size: 10 } }
           }
         }
@@ -670,7 +569,7 @@
   function placeMomentumMarkers(chart, goals) {
     const host = $('#wc-momentum-markers');
     if (!host || !chart || !chart.scales) return;
-    // Guarda goals no chart p/ reuse no resize
+    // Guarda goals no chart p/ reuse no resize.
     chart.data._goals = goals;
 
     host.innerHTML = '';
@@ -705,26 +604,30 @@
    * Estado de erro global (fetch falhou → 3 sections em erro)
    * ════════════════════════════════════════════════════════ */
   function renderAllErrors() {
-    const errShot = $('#wc-shotmap-error');
+    const errShot = $('#wc-shotstats-error');
+    const errPass = $('#wc-passstats-error');
     const errFlow = $('#wc-flow-error');
-    const emptyPass = $('#wc-passnet-empty');
+    const hostShot = $('#wc-shotstats-host');
+    const hostPass = $('#wc-passstats-host');
 
+    if (hostShot) hostShot.innerHTML =
+      `<p class="wc-error mono-label" style="padding:var(--space-5)">Falha ao carregar estatísticas de finalização.</p>`;
+    if (hostPass) hostPass.innerHTML =
+      `<p class="wc-error mono-label" style="padding:var(--space-5)">Falha ao carregar estatísticas de passes.</p>`;
     if (errShot) errShot.hidden = false;
+    if (errPass) errPass.hidden = false;
     if (errFlow) errFlow.hidden = false;
-    if (emptyPass) {
-      emptyPass.hidden = false;
-      emptyPass.textContent = 'Rede de passes indisponível. Fonte: StatsBomb 360.';
-    }
   }
 
   /* ════════════════════════════════════════════════════════
-   * Namespace público
+   * Namespace público (debug / testes)
    * ════════════════════════════════════════════════════════ */
   window.WCDeepStats = {
-    renderShotMap,
-    renderPassNetwork,
+    populateSelectors,
+    onMatchChange,
+    renderShotStats,
+    renderPassStats,
     renderMomentum,
-    // expose p/ debug / testes
     _loadJSON: loadJSON,
   };
 
@@ -732,7 +635,7 @@
    * Init
    * ════════════════════════════════════════════════════════ */
   async function init() {
-    // Reveal das seções (fallback se main.js não rodar)
+    // Reveal das seções (fallback se main.js não rodar).
     observeReveals(document);
 
     const result = await loadJSON('deepstats');
@@ -742,12 +645,22 @@
       return;
     }
 
-    const d = result.data;
-    try { renderShotMap(d.shot_map || null); } catch (e) { console.error('[WCDeepStats] renderShotMap falhou:', e); }
-    try { renderPassNetwork(d.pass_network || null); } catch (e) { console.error('[WCDeepStats] renderPassNetwork falhou:', e); }
-    try { renderMomentum(d.momentum || null); } catch (e) { console.error('[WCDeepStats] renderMomentum falhou:', e); }
+    _data = result.data;
+    _selectedMatchId = _data.featured_id ||
+      (Array.isArray(_data.match_list) && _data.match_list[0] && _data.match_list[0].id) ||
+      null;
 
-    // Reobserva reveals injetados (filtros, etc.)
+    // Popula os 3 selects com a lista de partidas (81 no total).
+    if (Array.isArray(_data.match_list)) {
+      populateSelectors(_data.match_list, _selectedMatchId);
+    }
+
+    // Render inicial — falha isolada por seção.
+    try { renderShotStats(); } catch (e) { console.error('[WCDeepStats] renderShotStats falhou:', e); }
+    try { renderPassStats(); } catch (e) { console.error('[WCDeepStats] renderPassStats falhou:', e); }
+    try { renderMomentum(); } catch (e) { console.error('[WCDeepStats] renderMomentum falhou:', e); }
+
+    // Reobserva reveals injetados dinamicamente.
     observeReveals(document);
   }
 

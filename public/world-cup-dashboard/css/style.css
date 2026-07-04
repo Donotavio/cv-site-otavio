@@ -2931,3 +2931,184 @@ html.has-js [data-reveal].is-visible {
   .wc-pass-edge { stroke-dashoffset: 0 !important; opacity: .55 !important; }
   .wc-goal-pulse__ring { display: none; }
 }
+
+/* ════════════════════════════════════════════════════════════
+ * Match selector + stat comparison (sections 04/05/06)
+ * Reaproveitado pelas 3 seções — um único <select> por seção,
+ * todos sincronizados via deepstats.js. Usa SOMENTE tokens
+ * existentes (zero novos). Prefixo .wc-match-* e .wc-stat-*
+ * garante zero vazamento.
+ * ════════════════════════════════════════════════════════════ */
+
+/* Wrapper do par <label> + <select> (compartilhado pelas 3 seções). */
+.wc-match-select-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.wc-match-select-wrap > .mono-label {
+  /* O mono-label já tem [ ] prefix/suffix — só normalizamos o alinhamento. */
+  margin-right: var(--space-2);
+  color: var(--ink-faint);
+}
+
+.wc-match-select {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-card);
+  color: var(--ink);
+  cursor: pointer;
+  /* Quebra de linha em option label é controlada pelo navegador —
+     garantimos largura mínima e overflow estável. */
+  appearance: none;
+  -webkit-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%),
+    linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) calc(50% - 2px),
+    calc(100% - 12px) calc(50% - 2px);
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+  padding-right: 28px;
+}
+.wc-match-select:hover { border-color: var(--line-strong); }
+.wc-match-select:focus-visible {
+  outline: 2px solid var(--accent, #1A1AFF);
+  outline-offset: 2px;
+}
+
+/* Stat comparison host (card.crop já tem padding/border/background).
+   O conteúdo abaixo é o que entra dentro de #wc-shotstats-host /
+   #wc-passstats-host. */
+.wc-stat-compare {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+@media (min-width: 768px) {
+  .wc-stat-compare { padding: var(--space-6); }
+}
+
+/* Cabeçalho: dois times (flags + nomes) nas pontas. */
+.wc-stat-compare__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--space-2);
+  flex-wrap: wrap;
+}
+.wc-stat-compare__team {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--ink);
+  line-height: var(--leading-tight);
+  min-width: 0;
+}
+.wc-stat-compare__team--right {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+.wc-stat-compare__team .wc-flag {
+  font-size: var(--text-xl);
+  line-height: 1;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  flex-shrink: 0;
+}
+.wc-stat-compare__team-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: var(--num-tabular);
+}
+
+/* Bloco de linhas de stat — empilha verticalmente. */
+.wc-stat-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Cada linha = home-value | barra (home+away) | away-value, com label abaixo.
+   grid de 3 colunas: [value home] [bar flex] [value away].
+   O label ocupa toda a largura (coluna 1 / -1) e fica abaixo. */
+.wc-stat-row {
+  display: grid;
+  grid-template-columns: minmax(56px, auto) 1fr minmax(56px, auto);
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+}
+.wc-stat-row__home,
+.wc-stat-row__away {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-align: center;
+  font-variant-numeric: var(--num-tabular);
+  min-width: 56px;
+}
+.wc-stat-row__home {
+  color: var(--wc-field-ink);
+  text-align: right;
+}
+.wc-stat-row__away {
+  color: var(--wc-gold-ink);
+  text-align: left;
+}
+.wc-stat-row__bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--line);
+  /* Barra animada em largura (não transform — mais legível no SR). */
+}
+.wc-stat-row__bar-home,
+.wc-stat-row__bar-away {
+  display: block;
+  height: 100%;
+  width: 0;
+  transition: width 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.wc-stat-row__bar-home { background: var(--wc-field-ink); }
+.wc-stat-row__bar-away { background: var(--wc-gold-ink); }
+.wc-stat-row__label {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+  margin-top: -2px;
+  margin-bottom: var(--space-2);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Rodapé: fonte dos dados (ESPN). */
+.wc-stat-compare__source {
+  align-self: flex-end;
+  margin-top: var(--space-2);
+  color: var(--ink-faint);
+}
+
+/* Reduced motion — neutralizar animação das barras. */
+@media (prefers-reduced-motion: reduce) {
+  .wc-stat-row__bar-home,
+  .wc-stat-row__bar-away {
+    transition: none !important;
+  }
+}
