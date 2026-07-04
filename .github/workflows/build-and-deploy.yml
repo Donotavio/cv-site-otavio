@@ -5,11 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Necessário para deploy-pages
+# Necessário para fazer push do build para a branch gh-pages
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 # Cancela deploy em progresso se novo push chegar
 concurrency:
@@ -17,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -35,18 +33,21 @@ jobs:
       - name: Build Astro site
         run: npm run build
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
+      # O deploy via branch roda Jekyll por padrão, o que excluiria os
+      # arquivos em _astro/. .nojekyll desativa o Jekyll e serve tudo cru.
+      - name: Disable Jekyll processing
+        run: touch dist/.nojekyll
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to gh-pages branch
+        run: |
+          cd dist
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "deploy: ${GITHUB_SHA:0:7}"
+          git branch -M gh-pages
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
