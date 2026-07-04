@@ -1,0 +1,247 @@
+---
+/**
+ * SaulGoodmanCard.astro — Seção Portfólio (card irmão do PIX/Radar/Cockpit/WC)
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Card para o projeto Saul Goodman — extensão anti-procrastinação para Chrome
+ * que rastreia abas em tempo real, calcula um índice de foco e usa um modelo
+ * de deep learning para recomendar ajustes personalizados conforme o padrão
+ * de uso de cada usuário. Tudo 100% local (chrome.storage.local), sem backend.
+ *
+ * O projeto é externo (donotavio.github.io/saul_goodman/), publicado na Chrome
+ * Web Store e com extensão companion para VS Code.
+ *
+ * Motion: revealUp (mesmo grupo de stagger da seção #portfolio).
+ */
+
+const SAUL_URL = 'https://donotavio.github.io/saul_goodman/';
+const SAUL_GITHUB = 'https://github.com/Donotavio/saul_goodman';
+---
+
+<div class="sg-card card crop" role="group" aria-labelledby="sg-card-title">
+  <span class="crop-mark-bl" aria-hidden="true"></span>
+  <span class="crop-mark-br" aria-hidden="true"></span>
+
+  <div class="sg-card__label-row">
+    <span class="mono-label">projeto ao vivo</span>
+    <span class="mono-label sg-card__badge">
+      <span class="sg-card__live-dot" aria-hidden="true"></span>
+      chrome web store
+    </span>
+  </div>
+
+  <h3 id="sg-card-title" class="sg-card__title">Saul Goodman — Extensão Anti-Procrastinação</h3>
+
+  <p class="sg-card__desc">
+    Extensão para Chrome que rastreia abas em tempo real e transforma o
+    comportamento do usuário em um índice de foco. Um modelo de
+    <strong>deep learning</strong> roda localmente no navegador, aprende o
+    padrão de uso e recomenda ajustes personalizados — quais sites vilões
+    bloquear, horários de pico de distração e metas de foco sob medida.
+    Tudo em <code>chrome.storage.local</code>, sem servidores externos.
+  </p>
+
+  <div class="sg-card__tags">
+    <span class="tag tag--sg">Deep Learning</span>
+    <span class="tag tag--sg">Chrome Extension (MV3)</span>
+    <span class="tag tag--sg">Privacy-first</span>
+    <span class="tag">100% Local</span>
+  </div>
+
+  <!-- Stats do produto (estáticos — projeto externo) -->
+  <dl
+    class="sg-card__telemetry"
+    aria-label="Diferenciais do Saul Goodman — IA, plataformas e idiomas"
+  >
+    <div class="sg-card__stat">
+      <dt class="sg-card__stat-label mono-label">motor de IA</dt>
+      <dd class="sg-card__stat-value">
+        Deep Learning
+        <span class="sg-card__stat-sub">recomendações por uso</span>
+      </dd>
+    </div>
+    <div class="sg-card__stat">
+      <dt class="sg-card__stat-label mono-label">plataformas</dt>
+      <dd class="sg-card__stat-value">
+        Chrome + VS Code
+        <span class="sg-card__stat-sub">extensão companion</span>
+      </dd>
+    </div>
+    <div class="sg-card__stat">
+      <dt class="sg-card__stat-label mono-label">idiomas</dt>
+      <dd class="sg-card__stat-value">
+        13
+        <span class="sg-card__stat-sub">🇧🇷 🇺🇸 🇪🇸 +10</span>
+      </dd>
+    </div>
+  </dl>
+
+  <div class="sg-card__actions">
+    <a
+      href={SAUL_URL}
+      class="btn-primary sg-card__cta"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Abrir Saul Goodman — extensão anti-procrastinação com IA (abre em nova aba)"
+    >Ver Projeto →</a>
+    <a
+      href={SAUL_GITHUB}
+      class="btn-secondary"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Ver código fonte do Saul Goodman no GitHub (abre em nova aba)"
+    >GitHub</a>
+  </div>
+</div>
+
+<style>
+  .sg-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-block-end: var(--space-6);
+  }
+
+  .sg-card:hover {
+    border-color: var(--sg-amber-line);
+  }
+
+  .sg-card__label-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .sg-card__badge {
+    color: var(--ink-faint);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .sg-card__live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--sg-amber);
+    flex-shrink: 0;
+    animation: sg-card-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes sg-card-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sg-card__live-dot { animation: none; }
+  }
+
+  .sg-card__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .sg-card__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+    max-width: 68ch;
+  }
+
+  .sg-card__desc strong {
+    color: var(--sg-amber-ink);
+    font-weight: 600;
+  }
+
+  .sg-card__desc code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--sg-amber-ink);
+  }
+
+  .sg-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tag--sg {
+    color: var(--sg-amber-ink);
+    border-color: var(--sg-amber-line);
+    background: var(--sg-amber-dim);
+  }
+
+  /* ── Telemetria (dl) ──────────────────────────────────────── */
+  .sg-card__telemetry {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin: 0;
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sg-card__stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: 0;
+  }
+
+  .sg-card__stat-label {
+    color: var(--ink-faint);
+  }
+
+  .sg-card__stat-value {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    margin: 0;
+  }
+
+  .sg-card__stat-sub {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    margin-top: var(--space-1);
+  }
+
+  /* ── CTAs ─────────────────────────────────────────────────── */
+  .sg-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .sg-card__cta {
+    background: var(--sg-amber-ink);
+    border-color: var(--sg-amber-ink);
+  }
+
+  .sg-card__cta:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  .sg-card__actions .btn-secondary:hover {
+    border-color: var(--sg-amber-ink);
+    color: var(--sg-amber-ink);
+  }
+</style>

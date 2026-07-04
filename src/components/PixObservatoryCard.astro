@@ -535,6 +535,7 @@ const base = import.meta.env.BASE_URL;
     const radarCard = section.querySelector('.radar-card') as Element | null;
     const cockpitCard = section.querySelector('.cockpit-card') as Element | null;
     const wcCard    = section.querySelector('.wc-card') as Element | null;
+    const sgCard    = section.querySelector('.sg-card') as Element | null;
     const upcoming = section.querySelector('.portfolio-upcoming__card') as Element;
 
     if (line) hairlineDraw(line, section);
@@ -543,7 +544,8 @@ const base = import.meta.env.BASE_URL;
     if (motionOk && radarCard) revealUp([radarCard], section, 0.14);
     if (motionOk && cockpitCard) revealUp([cockpitCard], section, 0.2);
     if (motionOk && wcCard) revealUp([wcCard], section, 0.26);
-    if (motionOk && upcoming) revealUp([upcoming], section, 0.32);
+    if (motionOk && sgCard) revealUp([sgCard], section, 0.32);
+    if (motionOk && upcoming) revealUp([upcoming], section, 0.38);
 
     section.querySelectorAll<HTMLElement>('[data-count-to]').forEach((el) => {
       countUp(el, section);
