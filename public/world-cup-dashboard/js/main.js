@@ -737,6 +737,7 @@
     const t1 = m.team1 || {};
     const t2 = m.team2 || {};
     const ft = (m.score && Array.isArray(m.score.ft)) ? m.score.ft : null;
+    const pen = (m.score && Array.isArray(m.score.pen)) ? m.score.pen : null;
     const pending = !ft;
 
     const team1Flag = flagHtml(t1.flag, '—');
@@ -746,12 +747,16 @@
     const isPh1 = !t1.name || t1.name === 'A definir';
     const isPh2 = !t2.name || t2.name === 'A definir';
 
+    const penNote = (!pending && pen && ft[0] === ft[1])
+      ? `<span class="wc-match__score-pen" title="Pênaltis">(${pen[0]}–${pen[1]})</span>`
+      : '';
     const scoreHtml = pending
       ? `<span class="wc-match__score wc-match__score--pending">vs</span>`
       : `<span class="wc-match__score">
            <span class="wc-match__score-num">${ft[0]}</span>
            <span class="wc-match__score-sep">–</span>
            <span class="wc-match__score-num">${ft[1]}</span>
+           ${penNote}
          </span>`;
 
     const todayBadge = isToday ? `<span class="wc-match__today-badge" aria-label="Jogo de hoje">Hoje</span>` : '';
@@ -933,14 +938,30 @@
 
     const t1 = m.team1 || {};
     const t2 = m.team2 || {};
-    const ft = (m.score && Array.isArray(m.score.ft) && m.score.ft.length === 2) ? m.score.ft : null;
+    const s = m.score || {};
+    const ft = Array.isArray(s.ft) && s.ft.length === 2 ? s.ft : null;
+    const et = Array.isArray(s.et) && s.et.length === 2 ? s.et : null;
+    const pen = Array.isArray(s.pen) && s.pen.length === 2 ? s.pen : null;
 
-    // Determina vencedor/perdedor quando finalizado
+    // Determina vencedor/perdedor: tempo normal → prorrogação → pênaltis
     let w1 = null, w2 = null;
+    let sc1 = ft ? ft[0] : null;
+    let sc2 = ft ? ft[1] : null;
     if (ft && isFinished) {
       if (ft[0] > ft[1]) { w1 = true; }
       else if (ft[1] > ft[0]) { w2 = true; }
-      // empate (raro sem pênaltis) — nenhum destacado
+      else {
+        // Empate no tempo normal — verifica prorrogação
+        if (et && et[0] !== et[1]) {
+          sc1 = et[0]; sc2 = et[1];
+          if (et[0] > et[1]) { w1 = true; } else { w2 = true; }
+        } else if (pen && pen[0] !== pen[1]) {
+          // Decisão por pênaltis — mostra ft com notação (pen)
+          sc1 = `${ft[0]} (${pen[0]})`;
+          sc2 = `${ft[1]} (${pen[1]})`;
+          if (pen[0] > pen[1]) { w1 = true; } else { w2 = true; }
+        }
+      }
     }
 
     function teamRow(team, winner, score, isPending) {
@@ -977,8 +998,8 @@
     }
 
     const pending = !ft;
-    const html = teamRow(t1, w1 === true ? true : (w2 === true ? false : null), ft ? ft[0] : null, pending) +
-                 teamRow(t2, w2 === true ? true : (w1 === true ? false : null), ft ? ft[1] : null, pending);
+    const html = teamRow(t1, w1 === true ? true : (w2 === true ? false : null), sc1, pending) +
+                 teamRow(t2, w2 === true ? true : (w1 === true ? false : null), sc2, pending);
 
     const todayTag = isToday ? `<span class="wc-bracket-match__today-tag">HOJE</span>` : '';
 

@@ -829,20 +829,24 @@ def build_simulacao(matches: list, teams_index: dict) -> dict:
             if not t1 or not t2:
                 continue
             score = m.get("score") or {}
-            ft = score.get("ft") if isinstance(score, dict) else None
             t1_raw, t2_raw = m.get("team1") or "", m.get("team2") or ""
+            ft = score.get("ft") if isinstance(score, dict) else None
             if ft and not _is_placeholder(t1_raw) and not _is_placeholder(t2_raw):
+                # Resultado real — determina vencedor pela progressão KO:
+                # tempo normal → prorrogação → pênaltis
                 s1, s2 = int(ft[0]), int(ft[1])
+                et = score.get("et") if isinstance(score, dict) else None
+                pen = score.get("p") if isinstance(score, dict) else None
                 if s1 > s2:
                     sim_results[n] = (t1, t2)
                 elif s2 > s1:
                     sim_results[n] = (t2, t1)
+                elif et and int(et[0]) != int(et[1]):
+                    sim_results[n] = (t1, t2) if int(et[0]) > int(et[1]) else (t2, t1)
+                elif pen:
+                    sim_results[n] = (t1, t2) if int(pen[0]) > int(pen[1]) else (t2, t1)
                 else:
-                    pen = score.get("p") if isinstance(score, dict) else None
-                    if pen:
-                        sim_results[n] = (t1, t2) if int(pen[0]) > int(pen[1]) else (t2, t1)
-                    else:
-                        sim_results[n] = (t1, t2)
+                    sim_results[n] = (t1, t2)
             else:
                 ra = ratings.get(t1, ELO_INIT)
                 rb = ratings.get(t2, ELO_INIT)
