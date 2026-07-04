@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-07-04T02:33:24.389097+00:00",
+  "updated_at": "2026-07-04T04:32:22.353197+00:00",
   "methodology": "Monte Carlo com 10000 simulações do mata-mata restante. Cada jogo não-decidido é sorteado via probabilidade Elo (1/(1+10^((Rb-Ra)/400))). Placeholders W83/L101 resolvidos sequencialmente. Resultados reais (já jogados) são fixos.",
   "simulations": 10000,
-  "total_teams": 17,
+  "total_teams": 16,
   "teams": [
     {
       "name": "France",
       "code": "FRA",
       "flag": "🇫🇷",
       "elo": 1603.1,
-      "titles": 1249,
-      "title_probability": 12.49,
+      "titles": 1280,
+      "title_probability": 12.8,
       "rank": 1
     },
     {
@@ -18,8 +18,8 @@
       "code": "MEX",
       "flag": "🇲🇽",
       "elo": 1589.5,
-      "titles": 909,
-      "title_probability": 9.09,
+      "titles": 934,
+      "title_probability": 9.34,
       "rank": 2
     },
     {
@@ -27,26 +27,26 @@
       "code": "ESP",
       "flag": "🇪🇸",
       "elo": 1574.1,
-      "titles": 812,
-      "title_probability": 8.12,
+      "titles": 811,
+      "title_probability": 8.11,
       "rank": 3
-    },
-    {
-      "name": "Argentina",
-      "code": "ARG",
-      "flag": "🇦🇷",
-      "elo": 1568.4,
-      "titles": 765,
-      "title_probability": 7.65,
-      "rank": 4
     },
     {
       "name": "Brazil",
       "code": "BRA",
       "flag": "🇧🇷",
       "elo": 1574.0,
-      "titles": 755,
-      "title_probability": 7.55,
+      "titles": 735,
+      "title_probability": 7.35,
+      "rank": 4
+    },
+    {
+      "name": "Argentina",
+      "code": "ARG",
+      "flag": "🇦🇷",
+      "elo": 1568.4,
+      "titles": 717,
+      "title_probability": 7.17,
       "rank": 5
     },
     {
@@ -54,89 +54,89 @@
       "code": "SUI",
       "flag": "🇨🇭",
       "elo": 1570.8,
-      "titles": 743,
-      "title_probability": 7.43,
+      "titles": 693,
+      "title_probability": 6.93,
       "rank": 6
-    },
-    {
-      "name": "England",
-      "code": "ENG",
-      "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-      "elo": 1562.7,
-      "titles": 647,
-      "title_probability": 6.47,
-      "rank": 7
     },
     {
       "name": "USA",
       "code": "USA",
       "flag": "🇺🇸",
       "elo": 1551.6,
-      "titles": 624,
-      "title_probability": 6.24,
+      "titles": 594,
+      "title_probability": 5.94,
+      "rank": 7
+    },
+    {
+      "name": "Colombia",
+      "code": "COL",
+      "flag": "🇨🇴",
+      "elo": 1560.2,
+      "titles": 589,
+      "title_probability": 5.89,
       "rank": 8
+    },
+    {
+      "name": "England",
+      "code": "ENG",
+      "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+      "elo": 1562.7,
+      "titles": 557,
+      "title_probability": 5.57,
+      "rank": 9
     },
     {
       "name": "Portugal",
       "code": "POR",
       "flag": "🇵🇹",
       "elo": 1548.1,
-      "titles": 561,
-      "title_probability": 5.61,
-      "rank": 9
+      "titles": 554,
+      "title_probability": 5.54,
+      "rank": 10
     },
     {
       "name": "Morocco",
       "code": "MAR",
       "flag": "🇲🇦",
       "elo": 1541.8,
-      "titles": 558,
-      "title_probability": 5.58,
-      "rank": 10
+      "titles": 552,
+      "title_probability": 5.52,
+      "rank": 11
     },
     {
       "name": "Canada",
       "code": "CAN",
       "flag": "🇨🇦",
       "elo": 1529.2,
-      "titles": 473,
-      "title_probability": 4.73,
-      "rank": 11
+      "titles": 472,
+      "title_probability": 4.72,
+      "rank": 12
     },
     {
       "name": "Norway",
       "code": "NOR",
       "flag": "🇳🇴",
       "elo": 1537.5,
-      "titles": 471,
-      "title_probability": 4.71,
-      "rank": 12
+      "titles": 466,
+      "title_probability": 4.66,
+      "rank": 13
     },
     {
       "name": "Belgium",
       "code": "BEL",
       "flag": "🇧🇪",
       "elo": 1525.5,
-      "titles": 422,
-      "title_probability": 4.22,
-      "rank": 13
+      "titles": 427,
+      "title_probability": 4.27,
+      "rank": 14
     },
     {
       "name": "Egypt",
       "code": "EGY",
       "flag": "🇪🇬",
       "elo": 1522.2,
-      "titles": 369,
-      "title_probability": 3.69,
-      "rank": 14
-    },
-    {
-      "name": "Colombia",
-      "code": "COL",
-      "flag": "🇨🇴",
-      "elo": 1542.7,
-      "titles": 296,
-      "title_probability": 2.96,
+      "titles": 360,
+      "title_probability": 3.6,
       "rank": 15
     },
     {
@@ -144,18 +144,9 @@
       "code": "PAR",
       "flag": "🇵🇾",
       "elo": 1492.9,
-      "titles": 231,
-      "title_probability": 2.31,
+      "titles": 259,
+      "title_probability": 2.59,
       "rank": 16
-    },
-    {
-      "name": "Ghana",
-      "code": "GHA",
-      "flag": "🇬🇭",
-      "elo": 1498.9,
-      "titles": 115,
-      "title_probability": 1.15,
-      "rank": 17
     }
   ]
 }
