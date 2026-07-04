@@ -1837,6 +1837,7 @@ html.has-js [data-reveal].is-visible {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
   min-width: 0;
 }
 .wc-group-row__pts {
@@ -1851,26 +1852,28 @@ html.has-js [data-reveal].is-visible {
 .wc-group-row__diff.is-positive { color: var(--wc-field-ink); }
 .wc-group-row__diff.is-negative { color: var(--wc-live-ink); }
 
-/* Linhas classificadas (top 2) — accent via inset shadow (sem shift de layout) */
+/* Linhas classificadas (top 3) — accent via inset shadow (sem shift de layout) */
 .wc-group-row.is-qualified {
   background: var(--wc-field-dim);
   box-shadow: inset 3px 0 0 var(--wc-field);
   border-radius: var(--radius-sm);
 }
 .wc-group-row__badge {
-  display: inline-block;
-  margin-left: var(--space-2);
-  padding: 1px var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+  width: 16px;
+  height: 16px;
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: var(--tracking-wide);
+  font-weight: 700;
+  line-height: 1;
   color: var(--wc-field-ink);
   background: var(--paper-card);
   border: 1px solid var(--wc-field-line);
-  border-radius: var(--radius-sm);
-  text-transform: lowercase;
-  vertical-align: middle;
-  font-weight: 400; /* badge herda mono-label vibe */
+  border-radius: 50%;
 }
 .wc-group-row__name-block {
   display: flex;

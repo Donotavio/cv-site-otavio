@@ -813,7 +813,7 @@
       const flagCell = flag
         ? `<span class="wc-group-row__flag" aria-hidden="true">${flag}</span>`
         : `<span class="wc-group-row__flag" aria-hidden="true">·</span>`;
-      const badge = isQ ? `<span class="wc-group-row__badge">classificado</span>` : '';
+      const badge = isQ ? `<span class="wc-group-row__badge" aria-label="classificado" title="Classificado">✓</span>` : '';
       const cls = ['wc-group-row'];
       if (isQ) cls.push('is-qualified');
 
