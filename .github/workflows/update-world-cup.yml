@@ -81,6 +81,7 @@ jobs:
           else
             NOW=$(date -u +%Y-%m-%dT%H:%MZ)
             git commit -m "data: atualização automática World Cup Dashboard ${NOW}"
+            git pull --rebase
             git push
             echo "✅ Dados commitados e enviados."
           fi

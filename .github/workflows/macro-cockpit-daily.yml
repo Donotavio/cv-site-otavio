@@ -62,6 +62,7 @@ jobs:
           else
             TODAY=$(date +%Y-%m-%d)
             git commit -m "data: coleta diária PTAX+Mercado — Brasil Cockpit ${TODAY}"
+            git pull --rebase
             git push
             echo "✅ Dados commitados e enviados."
           fi

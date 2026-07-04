@@ -110,6 +110,7 @@ jobs:
           else
             TODAY=$(date +%Y-%m-%d)
             git commit -m "data: atualização automática PIX Observatory ${TODAY}"
+            git pull --rebase
             git push
             echo "✅ Dados commitados e enviados."
           fi

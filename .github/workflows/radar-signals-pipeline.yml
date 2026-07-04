@@ -64,6 +64,7 @@ jobs:
           else
             TODAY=$(date +%Y-%m-%d)
             git commit -m "data: coleta mensal GitHub+PyPI — Data Stack Radar BR ${TODAY}"
+            git pull --rebase
             git push
             echo "✅ Dados commitados e enviados."
           fi
