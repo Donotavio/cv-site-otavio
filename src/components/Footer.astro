@@ -22,19 +22,25 @@ import { t } from '../lib/i18n';
       <p class="footer__tagline" data-i18n-key="footer.tagline">{t('footer.tagline')}</p>
 
       <!-- Links -->
-      <nav class="footer__links" aria-label="Links de contato">
+      <nav
+        class="footer__links"
+        aria-label={t('a11y.footer_links_label')}
+        data-i18n-aria="a11y.footer_links_label"
+      >
         <a class="footer__link link-underline" href="mailto:ribeitemp@gmail.com">ribeitemp@gmail.com</a>
         <a
           class="footer__link link-underline"
           href="https://linkedin.com/in/donotavio/"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="LinkedIn"
         >LinkedIn</a>
         <a
           class="footer__link link-underline"
           href="https://github.com/donotavio"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="GitHub"
         >GitHub</a>
       </nav>
 

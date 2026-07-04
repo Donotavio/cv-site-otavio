@@ -21,25 +21,30 @@
  *
  * Acessibilidade: puramente decorativo (a foto real acessível fica em <img sr-only>
  * no componente). Desativado em touch e em prefers-reduced-motion.
+ *
+ * Cleanup: retorna destroy() que remove listeners, cancela o RAF e limpa
+ * timers pendentes. Também se auto-registra no cleanup central para teardown
+ * automático em SPA / view transitions.
  */
 
 import { motionOk } from './constants';
+import { registerCleaner } from './cleanup';
 
 interface SpotlightOptions {
   radius?: number;   // raio da lanterna em px (default 90)
   holdMs?: number;   // duração do reveal completo após shake (default 3000)
 }
 
-export function spotlightReveal(root: HTMLElement, opts: SpotlightOptions = {}) {
+export function spotlightReveal(root: HTMLElement, opts: SpotlightOptions = {}): () => void {
   const radius = opts.radius ?? 90;
   const holdMs = opts.holdMs ?? 3000;
 
   const photo = root.querySelector<HTMLElement>('[data-spotlight-photo]');
-  if (!photo) return;
+  if (!photo) return noop;
 
   // Touch / reduced-motion: não há hover real → mantém ASCII estático.
   const noHover = window.matchMedia('(hover: none)').matches;
-  if (!motionOk || noHover) return;
+  if (!motionOk || noHover) return noop;
 
   root.style.setProperty('--spot-r', `${radius}px`);
 
@@ -104,4 +109,24 @@ export function spotlightReveal(root: HTMLElement, opts: SpotlightOptions = {}) 
   root.addEventListener('pointermove', onMove);
   root.addEventListener('pointerenter', onEnter);
   root.addEventListener('pointerleave', onLeave);
+
+  // ── Teardown: remove listeners, cancela RAF e limpa timers ──
+  // Evita leaks em re-init (troca de idioma) e em SPA / view transitions.
+  let destroyed = false;
+  function destroy() {
+    if (destroyed) return;
+    destroyed = true;
+    root.removeEventListener('pointermove', onMove);
+    root.removeEventListener('pointerenter', onEnter);
+    root.removeEventListener('pointerleave', onLeave);
+    if (raf) cancelAnimationFrame(raf);
+    window.clearTimeout(shakeTimer);
+    window.clearTimeout(revealTimer);
+    root.classList.remove('is-spotting', 'is-revealed');
+  }
+  registerCleaner(destroy);
+
+  return destroy;
 }
+
+function noop() { /* no-op cleanup */ }

@@ -386,7 +386,6 @@ const renderRecommendations = (items = []) => {
     const translationKey = `recommendations.items.${rec.id}`;
     const translatedText = window.i18n?.t(`${translationKey}.text`) || rec.text || "";
     const translatedDate = window.i18n?.t(`${translationKey}.date`) || rec.date || "";
-    const translatedRelationship = window.i18n?.t(`${translationKey}.relationship`) || rec.relationship || "";
     
     const photoSrc = rec.photo ? `${baseUrl}${rec.photo}` : '';
     const photoHtml = photoSrc ? `<img src="${photoSrc}" alt="${rec.author}" class="recommendation-photo">` : '';
@@ -589,7 +588,6 @@ const renderContributionsHeatmap = (github = {}) => {
   }
   
   const currentYear = years[0];
-  let selectedYear = null; // Começa sem filtro para mostrar radar
   
   // Calcular total de contribuições de todos os anos
   const totalAllYears = Object.values(calendar).reduce((sum, data) => sum + (data.total || 0), 0);
@@ -686,11 +684,9 @@ const renderContributionsHeatmap = (github = {}) => {
       const yearValue = e.target.dataset.year;
       
       if (yearValue === 'all') {
-        selectedYear = null;
         renderYear('all');
         renderActivityRadar(github, null); // Mostrar radar agregado
       } else {
-        selectedYear = yearValue;
         renderYear(yearValue);
         renderActivityRadar(github, yearValue); // Mostrar radar do ano específico
       }
@@ -708,14 +704,11 @@ const renderActivityRadar = (github = {}, selectedYear = null) => {
   // Se um ano foi selecionado, usar breakdown daquele ano
   // Caso contrário, usar breakdown agregado
   let breakdown;
-  let yearLabel = '';
   
   if (selectedYear && github.activity_breakdown_by_year && github.activity_breakdown_by_year[selectedYear]) {
     breakdown = github.activity_breakdown_by_year[selectedYear];
-    yearLabel = selectedYear;
   } else {
     breakdown = github.activity_breakdown || {};
-    yearLabel = window.i18n?.t('stats.all_years') || 'Todos os anos';
   }
   
   const activities = [

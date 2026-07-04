@@ -92,6 +92,33 @@ const applyTranslations = (translations, lang) => {
     }
   });
 
+  /**
+   * Padrão genérico: data-i18n-attr="attr1:key1,attr2:key2"
+   * Permite traduzir QUALQUER atributo HTML (title, placeholder, value,
+   * aria-label, data-* etc.) numa única declaração. Mantém total
+   * retrocompatibilidade com data-i18n-key (textContent) e data-i18n-aria
+   * (atalho legacy para aria-label).
+   *
+   * Exemplo:
+   *   <input data-i18n-attr="placeholder:contact.email_label,title:a11y.help" />
+   */
+  document.querySelectorAll("[data-i18n-attr]").forEach((el) => {
+    const spec = el.dataset.i18nAttr || "";
+    spec.split(",").forEach((pair) => {
+      const trimmed = pair.trim();
+      if (!trimmed) return;
+      const colonIdx = trimmed.indexOf(":");
+      if (colonIdx === -1) return;
+      const attr = trimmed.slice(0, colonIdx).trim();
+      const key = trimmed.slice(colonIdx + 1).trim();
+      if (!attr || !key) return;
+      const value = resolveKey(translations, key);
+      if (value !== undefined) {
+        el.setAttribute(attr, value);
+      }
+    });
+  });
+
   const cvLink = document.getElementById("cv-download");
   if (cvLink && cvFiles[lang]) {
     const baseUrl = getBaseUrl();

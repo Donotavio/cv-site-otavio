@@ -205,8 +205,8 @@ import { t } from '../lib/i18n';
   .rec-card__linkedin:hover { color: var(--accent); }
 
   .rec-card__linkedin:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
     border-radius: var(--radius-sm);
   }
 

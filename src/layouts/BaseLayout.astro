@@ -9,9 +9,14 @@
  * - global.css (tokens → reset → layout → componentes)
  * - i18n.js runtime (portado sem alteração)
  * - motion-init.ts: Lenis + GSAP — uma única vez (web-motion.md)
+ * - <ClientRouter />: View Transitions API habilitada site-wide.
+ *   O motion-engineer já wireou cleanup em `astro:before-swap`
+ *   (src/scripts/motion/cleanup.ts), então o teardown do Lenis/GSAP
+ *   roda automaticamente entre navegações.
  */
 
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title?: string;
@@ -24,6 +29,43 @@ const {
 } = Astro.props;
 
 const base = import.meta.env.BASE_URL;
+
+/**
+ * JSON-LD: Person schema (SEO + rich results).
+ * Identidade pública + sameAs (LinkedIn/GitHub). Dados estáticos
+ * (não variam por idioma) — crawled por todos os search engines.
+ */
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  'name': 'Otávio Henrique da Silva Ribeiro',
+  'givenName': 'Otávio',
+  'familyName': 'Ribeiro',
+  'jobTitle': 'Data Engineering Manager',
+  'description': description,
+  'url': 'https://donotavio.github.io/cv-site-otavio/',
+  'email': 'mailto:ribeitemp@gmail.com',
+  'address': {
+    '@type': 'PostalAddress',
+    'addressLocality': 'Curitiba',
+    'addressRegion': 'PR',
+    'addressCountry': 'BR',
+  },
+  'knowsAbout': [
+    'Data Engineering',
+    'Databricks',
+    'Delta Lake',
+    'Unity Catalog',
+    'Apache Spark',
+    'Machine Learning Platforms',
+    'Cloud Architecture',
+    'Data Governance',
+  ],
+  'sameAs': [
+    'https://linkedin.com/in/donotavio/',
+    'https://github.com/donotavio',
+  ],
+};
 ---
 
 <!doctype html>
@@ -41,13 +83,35 @@ const base = import.meta.env.BASE_URL;
     <!-- SEO — conteúdo atualizado em runtime por i18n.js -->
     <title id="page-title">{title}</title>
     <meta id="page-description" name="description" content={description} />
+    <meta name="author" content="Otávio Ribeiro" />
+    <meta name="robots" content="index, follow" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content="profile" />
     <meta property="og:url" content="https://donotavio.github.io/cv-site-otavio/" />
+    <meta property="og:site_name" content="Otávio Ribeiro — Portfolio" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="es_ES" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
 
     <!-- Canonical -->
     <link rel="canonical" href="https://donotavio.github.io/cv-site-otavio/" />
+
+    <!-- Structured data: Person schema (JSON-LD) -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+
+    <!--
+      View Transitions (Astro 7 ClientRouter).
+      Habilita navegação SPA suave entre páginas (/, /brasil-cockpit,
+      /pix-observatory, /data-stack-radar-br). O fallback `animate` mantém
+      compatibilidade com browsers sem a View Transitions API nativa.
+      O motion-engineer registrou listeners em `astro:before-swap` para
+      teardown do Lenis/GSAP — ver src/scripts/motion/cleanup.ts.
+    -->
+    <ClientRouter fallback="animate" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href={`${base}assets/img/favicon.svg`} />

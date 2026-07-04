@@ -47,7 +47,7 @@ async function main() {
 
   console.log(`Found ${articles.length} article(s) to translate.`);
 
-  const { translateKeys, createProvider } = await loadTranslator();
+  const { translateKeys } = await loadTranslator();
 
   const config = {
     provider: process.env.POLYGLOT_PROVIDER || 'openai',

@@ -1,6 +1,5 @@
 (() => {
   let experiencesData = [];
-  let currentIndex = 0;
 
   const sanitizeHtml = (str) => {
     const div = document.createElement('div');

@@ -32,15 +32,19 @@ const base = import.meta.env.BASE_URL;
     <hr class="section-line" aria-hidden="true" />
 
     <!-- ── Projeto em destaque: PIX Observatory ────────────── -->
-    <div class="portfolio-featured" aria-label="Projeto em destaque">
+    <div class="portfolio-featured" aria-label={t('portfolio.featured_project_label')}>
       <div class="pix-oc__card crop" aria-labelledby="pix-oc-card-title">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
 
         <!-- Label de destaque -->
-        <div class="pix-oc__featured-label" aria-hidden="true">
-          <span class="mono-label">projeto em destaque</span>
-          <span class="pix-oc__live-dot" title="Pipeline ativo"></span>
+        <div class="pix-oc__featured-label">
+          <span class="mono-label" data-i18n-key="portfolio.featured_label">{t('portfolio.featured_label')}</span>
+          <span
+            class="pix-oc__live-dot"
+            aria-label={t('portfolio.live_pipeline')}
+            role="status"
+          ></span>
         </div>
 
         <div class="pix-oc__layout">
@@ -48,29 +52,34 @@ const base = import.meta.env.BASE_URL;
           <!-- Coluna esquerda: descrição + stack + CTA -->
           <div class="pix-oc__info">
             <div class="pix-oc__tags">
-              <span class="tag tag--pix-oc">Engenharia de Dados</span>
-              <span class="tag tag--pix-oc">IA aplicada</span>
-              <span class="tag">Open Source</span>
+              <span class="tag tag--pix-oc" data-i18n-key="portfolio.pix_observatory.tag_1">{t('portfolio.pix_observatory.tag_1')}</span>
+              <span class="tag tag--pix-oc" data-i18n-key="portfolio.pix_observatory.tag_2">{t('portfolio.pix_observatory.tag_2')}</span>
+              <span class="tag" data-i18n-key="portfolio.pix_observatory.tag_open_source">{t('portfolio.pix_observatory.tag_open_source')}</span>
             </div>
 
-            <h3 id="pix-oc-card-title" class="pix-oc__title">PIX Observatory</h3>
+            <h3
+              id="pix-oc-card-title"
+              class="pix-oc__title"
+              data-i18n-key="portfolio.pix_observatory.title"
+            >{t('portfolio.pix_observatory.title')}</h3>
 
-            <p class="pix-oc__desc">
-              Pipeline Bronze → Silver → Gold que ingere, transforma e visualiza
-              dados abertos do Banco Central do Brasil. Agente de chat
-              demonstrativo sobre dados reais — demonstrando que <em>"IA não é
-              modelo, é plataforma"</em>.
+            <p class="pix-oc__desc" data-i18n-key="portfolio.pix_observatory.description">
+              {t('portfolio.pix_observatory.description')}
             </p>
 
             <!-- Stack técnico -->
-            <div class="pix-oc__stack" aria-label="Stack técnico do projeto">
-              <span class="pix-oc__stack-label mono-label" aria-hidden="true">stack</span>
+            <div
+              class="pix-oc__stack"
+              aria-label={t('portfolio.stack_label')}
+              data-i18n-aria="portfolio.stack_label"
+            >
+              <span class="pix-oc__stack-label mono-label" aria-hidden="true" data-i18n-key="portfolio.stack_label">{t('portfolio.stack_label')}</span>
               <div class="pix-oc__stack-items">
                 <span class="tag">Python</span>
                 <span class="tag">DuckDB</span>
                 <span class="tag">Parquet</span>
                 <span class="tag">GitHub Actions</span>
-                <span class="tag">Chat demo</span>
+                <span class="tag" data-i18n-key="portfolio.pix_observatory.gold_desc">{t('portfolio.pix_observatory.gold_desc')}</span>
               </div>
             </div>
 
@@ -79,20 +88,30 @@ const base = import.meta.env.BASE_URL;
               <a
                 href={`${base}pix-observatory/`}
                 class="btn-primary pix-oc__cta"
-                aria-label="Abrir PIX Observatory — dashboard de dados"
-              >Ver Observatory →</a>
+                aria-label={t('portfolio.pix_observatory.cta_observe_aria')}
+                data-i18n-aria="portfolio.pix_observatory.cta_observe_aria"
+              >
+                <span data-i18n-key="portfolio.pix_observatory.cta_observe">{t('portfolio.pix_observatory.cta_observe')}</span> →
+              </a>
               <a
                 href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion"
                 class="btn-secondary"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Ver código fonte no GitHub"
-              >GitHub</a>
+                aria-label={t('portfolio.pix_observatory.cta_github_aria')}
+                data-i18n-aria="portfolio.pix_observatory.cta_github_aria"
+              >
+                <span data-i18n-key="portfolio.pix_observatory.cta_github">{t('portfolio.pix_observatory.cta_github')}</span>
+              </a>
             </div>
           </div>
 
           <!-- Coluna direita: métricas vivas -->
-          <div class="pix-oc__metrics" aria-label="Métricas do PIX">
+          <div
+            class="pix-oc__metrics"
+            aria-label={t('portfolio.metrics_label')}
+            data-i18n-aria="portfolio.metrics_label"
+          >
 
             <div class="pix-oc__metric-hero crop">
               <span class="crop-mark-bl" aria-hidden="true"></span>
@@ -102,19 +121,29 @@ const base = import.meta.env.BASE_URL;
                 class="pix-oc__metric-value"
                 data-count-to="258"
                 data-count-suffix="M+"
-                aria-label="258 milhões e mais transações por dia"
+                aria-label={t('portfolio.pix_observatory.metric_hero_aria')}
+                data-i18n-aria="portfolio.pix_observatory.metric_hero_aria"
               >258M+</span>
-              <span class="pix-oc__metric-label">transações/dia (pico)</span>
+              <span
+                class="pix-oc__metric-label"
+                data-i18n-key="portfolio.pix_observatory.metric_hero_label"
+              >{t('portfolio.pix_observatory.metric_hero_label')}</span>
             </div>
 
             <div class="pix-oc__metric-grid">
               <div class="pix-oc__metric-sm">
                 <span class="pix-oc__metric-value pix-oc__metric-value--sm">106k×</span>
-                <span class="pix-oc__metric-label">crescimento desde nov/2020</span>
+                <span
+                  class="pix-oc__metric-label"
+                  data-i18n-key="portfolio.pix_observatory.metric_2_label"
+                >{t('portfolio.pix_observatory.metric_2_label')}</span>
               </div>
               <div class="pix-oc__metric-sm">
                 <span class="pix-oc__metric-value pix-oc__metric-value--sm">R$4,4tri</span>
-                <span class="pix-oc__metric-label">movimentado em 2024</span>
+                <span
+                  class="pix-oc__metric-label"
+                  data-i18n-key="portfolio.pix_observatory.metric_3_label"
+                >{t('portfolio.pix_observatory.metric_3_label')}</span>
               </div>
             </div>
 
@@ -123,27 +152,37 @@ const base = import.meta.env.BASE_URL;
         </div>
 
         <!-- Pipeline strip na base do card -->
-        <div class="pix-oc__pipeline" aria-label="Arquitetura de dados do projeto" role="list">
-          <div class="pix-oc__pipeline-step" role="listitem">
-            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--bronze mono-label">Bronze</span>
-            <span class="pix-oc__pipeline-desc">BACEN API</span>
-          </div>
-          <span class="pix-oc__pipeline-arrow" aria-hidden="true">→</span>
-          <div class="pix-oc__pipeline-step" role="listitem">
-            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--silver mono-label">Silver</span>
-            <span class="pix-oc__pipeline-desc">DuckDB clean</span>
-          </div>
-          <span class="pix-oc__pipeline-arrow" aria-hidden="true">→</span>
-          <div class="pix-oc__pipeline-step" role="listitem">
-            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--gold mono-label">Gold</span>
-            <span class="pix-oc__pipeline-desc">Analytics + AI</span>
-          </div>
-          <span class="pix-oc__pipeline-arrow" aria-hidden="true">→</span>
-          <div class="pix-oc__pipeline-step" role="listitem">
-            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--gh mono-label">Deploy</span>
-            <span class="pix-oc__pipeline-desc">GitHub Pages</span>
-          </div>
-        </div>
+        <ul
+          class="pix-oc__pipeline"
+          aria-label={t('portfolio.architecture_label')}
+          data-i18n-aria="portfolio.architecture_label"
+        >
+          <li class="pix-oc__pipeline-step">
+            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--bronze mono-label" data-i18n-key="portfolio.pix_observatory.bronze_label">{t('portfolio.pix_observatory.bronze_label')}</span>
+            <span class="pix-oc__pipeline-desc" data-i18n-key="portfolio.pix_observatory.bronze_desc">{t('portfolio.pix_observatory.bronze_desc')}</span>
+          </li>
+          <li class="pix-oc__pipeline-step" aria-hidden="true">
+            <span class="pix-oc__pipeline-arrow">→</span>
+          </li>
+          <li class="pix-oc__pipeline-step">
+            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--silver mono-label" data-i18n-key="portfolio.pix_observatory.silver_label">{t('portfolio.pix_observatory.silver_label')}</span>
+            <span class="pix-oc__pipeline-desc" data-i18n-key="portfolio.pix_observatory.silver_desc">{t('portfolio.pix_observatory.silver_desc')}</span>
+          </li>
+          <li class="pix-oc__pipeline-step" aria-hidden="true">
+            <span class="pix-oc__pipeline-arrow">→</span>
+          </li>
+          <li class="pix-oc__pipeline-step">
+            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--gold mono-label" data-i18n-key="portfolio.pix_observatory.gold_label">{t('portfolio.pix_observatory.gold_label')}</span>
+            <span class="pix-oc__pipeline-desc" data-i18n-key="portfolio.pix_observatory.gold_desc">{t('portfolio.pix_observatory.gold_desc')}</span>
+          </li>
+          <li class="pix-oc__pipeline-step" aria-hidden="true">
+            <span class="pix-oc__pipeline-arrow">→</span>
+          </li>
+          <li class="pix-oc__pipeline-step">
+            <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--gh mono-label" data-i18n-key="portfolio.pix_observatory.deploy_label">{t('portfolio.pix_observatory.deploy_label')}</span>
+            <span class="pix-oc__pipeline-desc" data-i18n-key="portfolio.pix_observatory.deploy_desc">{t('portfolio.pix_observatory.deploy_desc')}</span>
+          </li>
+        </ul>
 
       </div>
     </div>
@@ -156,14 +195,18 @@ const base = import.meta.env.BASE_URL;
     <slot />
 
     <!-- ── Próximos projetos (placeholder extensível) ────────── -->
-    <div class="portfolio-upcoming" aria-label="Próximos projetos">
+    <div class="portfolio-upcoming" aria-label={t('portfolio.upcoming_label_aria')} data-i18n-aria="portfolio.upcoming_label_aria">
       <div class="portfolio-upcoming__card crop">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
-        <span class="mono-label portfolio-upcoming__label">em construção</span>
-        <p class="portfolio-upcoming__text">
-          Próximo projeto sendo definido. Dados abertos, zero custo de infra, impacto mensurável.
-        </p>
+        <span
+          class="mono-label portfolio-upcoming__label"
+          data-i18n-key="portfolio.upcoming_label"
+        >{t('portfolio.upcoming_label')}</span>
+        <p
+          class="portfolio-upcoming__text"
+          data-i18n-key="portfolio.upcoming_text"
+        >{t('portfolio.upcoming_text')}</p>
         <span class="portfolio-upcoming__spark" aria-hidden="true">▁▁▁▂▂▃</span>
       </div>
     </div>
@@ -409,11 +452,13 @@ const base = import.meta.env.BASE_URL;
 
   /* ── Pipeline strip ────────────────────────────────────────── */
   .pix-oc__pipeline {
+    list-style: none;
+    margin: 0;
+    padding-block-start: var(--space-6);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-4);
-    padding-block-start: var(--space-6);
     border-top: 1px solid var(--line);
   }
 

@@ -133,8 +133,18 @@ const portraitPhoto = `${import.meta.env.BASE_URL}assets/img/otavio-portrait-880
           ></pre>
         </div>
 
-        <!-- Foto real acessível a leitores de tela (visualmente oculta) -->
-        <img class="sr-only" src={portraitImg} alt="Otávio Ribeiro" width="440" height="440" />
+        <!-- Foto real acessível a leitores de tela (visualmente oculta).
+             Acima da dobra → eager + fetchpriority alta. alt descritivo. -->
+        <img
+          class="sr-only"
+          src={portraitImg}
+          alt="Foto profissional de Otávio Ribeiro para acessibilidade"
+          width="440"
+          height="440"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
 
         <figcaption class="hero-portrait__caption mono-label" aria-hidden="true">
           render: ascii · 100×52

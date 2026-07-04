@@ -9,11 +9,22 @@
   padding: 0;
 }
 
+:root {
+  /* Blueprint é papel claro, sem dark mode (DESIGN.md trava isso).
+     Declarar explicitamente garante controles nativos, scrollbar e
+     form controls renderizem em modo claro. */
+  color-scheme: light;
+}
+
 html {
   /* Nunca scroll-behavior: smooth — conflita com Lenis (web-motion.md) */
   font-size: 100%;
   -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;  /* sem flash cinza no tap mobile */
   tab-size: 4;
+  /* Âncoras de navegação não devem ficar escondidas atrás do header fixo
+     (altura ≈ 64px + respiro). Centraliza o offset em um token de espaço. */
+  scroll-padding-top: var(--space-20);
   /* Rede de segurança contra scroll horizontal acidental.
      clip não cria contexto de scroll (diferente de hidden) e não quebra sticky. */
   overflow-x: clip;
@@ -41,6 +52,24 @@ img, video, svg {
   max-width: 100%;
 }
 
+picture {
+  display: block;
+}
+
+/* text-wrap: balance quebra títulos de forma mais equilibrada (editorial);
+   pretty evita órfãs no corpo. Progressive enhancement — ignorado sem suporte.
+
+   Os seletores de classe (.hero-title, .tl-display, etc.) reforçam o efeito
+   nos display headings mesmo se um componente Astro scoped reescrever outras
+   propriedades do mesmo elemento — garantem que o balance não se perca. */
+h1, h2, h3, h4,
+.hero-title, .tl-display, .section-head h2 {
+  text-wrap: balance;
+}
+p, li {
+  text-wrap: pretty;
+}
+
 button {
   cursor: pointer;
   font-family: inherit;
@@ -58,10 +87,11 @@ ul, ol {
   list-style: none;
 }
 
-/* Seleção de texto com acento */
+/* Seleção de texto com acento (assinatura blueprint) */
 ::selection {
   background: var(--accent);
-  color: var(--paper);
+  color: var(--accent-on);
+  text-shadow: none;
 }
 
 /* prefers-reduced-motion — fallback CSS obrigatório (web-motion.md) */

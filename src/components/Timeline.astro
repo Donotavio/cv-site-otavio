@@ -219,8 +219,8 @@ import { t } from '../lib/i18n';
   }
 
   #timeline :global(.timeline-card[role='button']:focus-visible) {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
   }
 
   #timeline :global(.tl-card__header) {
@@ -405,8 +405,8 @@ import { t } from '../lib/i18n';
   }
 
   .tl-modal__close:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
   }
 
   .tl-modal__header {

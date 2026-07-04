@@ -11,15 +11,24 @@
  * Classes .lang-btn e data-lang são obrigatórias para i18n.js funcionar.
  * Estado ativo (.active) é gerenciado pelo i18n.js em runtime — sem JS aqui.
  * Separadores · entre botões, em --ink-faint.
+ *
+ * Acessibilidade: o agrupamento recebe aria-label traduzido em runtime
+ * (data-i18n-aria). O valor padrão em pt-BR é renderizado no SSG.
  */
+import { t } from '../lib/i18n';
 ---
 
-<div class="lang-switcher" role="group" aria-label="Language / Idioma">
-  <button class="lang-btn" data-lang="pt-BR" type="button">PT</button>
+<div
+  class="lang-switcher"
+  role="group"
+  aria-label={t('a11y.language_switcher_label')}
+  data-i18n-aria="a11y.language_switcher_label"
+>
+  <button class="lang-btn" data-lang="pt-BR" type="button" aria-label="PT — Português (Brasil)">PT</button>
   <span class="lang-sep" aria-hidden="true">/</span>
-  <button class="lang-btn" data-lang="en-US" type="button">EN</button>
+  <button class="lang-btn" data-lang="en-US" type="button" aria-label="EN — English (United States)">EN</button>
   <span class="lang-sep" aria-hidden="true">/</span>
-  <button class="lang-btn" data-lang="es-ES" type="button">ES</button>
+  <button class="lang-btn" data-lang="es-ES" type="button" aria-label="ES — Español (España)">ES</button>
 </div>
 
 <style>
@@ -53,8 +62,8 @@
   }
 
   .lang-btn:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
   }
 
   /* Sem hover em touch */

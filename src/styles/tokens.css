@@ -16,16 +16,21 @@
   --ink-faint:  #6F6F6F;   /* WCAG AA em todos os fundos: 4.94:1 /paper, 4.56:1 /paper-soft, 5.02:1 /paper-card (era #999 = 2.80:1, reprovava) */
 
   /* ─── Acento elétrico (único) ─────────────────────── */
-  --accent:     #1A1AFF;
-  --accent-dim: rgba(26, 26, 255, 0.08);
+  --accent:       #1A1AFF;   /* 7.83:1 sobre --paper — passa AA */
+  --accent-hover: #0000E6;   /* hover de links/botões · 9.64:1 */
+  --accent-press: #0000D6;   /* :active de botões · 10.47:1 */
+  --accent-dim:   rgba(26, 26, 255, 0.08);
+  --accent-on:    var(--paper);  /* texto sobre --accent/--ink */
 
   /* ─── Glows seletivos (só no ASCII / signature) ───── */
   --glow-blue:    #2B6BFF;
   --glow-magenta: #FF3DCA;
 
   /* ─── Linhas (blueprint) ──────────────────────────── */
+  --line-faint: rgba(10, 10, 10, 0.06);   /* grade sutil / graph paper */
   --line:        rgba(10, 10, 10, 0.12);
   --line-strong: rgba(10, 10, 10, 0.25);
+  --line-hover:  rgba(10, 10, 10, 0.4);   /* hover de bordas / scrollbar */
   --line-accent: rgba(26, 26, 255, 0.4);
 
   /* ─── Sombras (mínimas) ───────────────────────────── */
@@ -35,7 +40,7 @@
   /* ─── Tipografia ──────────────────────────────────── */
   --font-display: 'Instrument Serif', 'Instrument Serif Fallback', Georgia, serif;
   --font-sans:    'Inter', 'Inter Fallback', system-ui, sans-serif;
-  --font-mono:    'IBM Plex Mono', 'Fragment Mono', monospace;
+  --font-mono:    'IBM Plex Mono', 'IBM Plex Mono Fallback', 'Fragment Mono', monospace;
 
   /* Escala fluida — salto dramático no topo (cartaz) */
   --text-xs:   clamp(0.75rem,  0.72rem + 0.15vw, 0.8125rem);
@@ -59,6 +64,7 @@
   --tracking-wider:  0.12em;
 
   /* ─── Espaçamento (base 4px) ──────────────────────── */
+  --space-0:  0;
   --space-1:  4px;   --space-2:  8px;   --space-3:  12px;  --space-4:  16px;
   --space-5:  20px;  --space-6:  24px;  --space-8:  32px;  --space-10: 40px;
   --space-12: 48px;  --space-16: 64px;  --space-20: 80px;  --space-24: 96px;
@@ -74,6 +80,17 @@
   --transition-fast:   0.2s ease;
   --transition-normal: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow:   0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ─── Foco (acessibilidade — centralizado) ────────── */
+  --focus-ring-width:  2px;
+  --focus-ring-offset: 3px;
+  --focus-ring-color:  var(--accent);
+
+  /* ─── Scrollbar (blueprint — thin) ────────────────── */
+  --scrollbar-track:       var(--paper-soft);
+  --scrollbar-thumb:       var(--line-strong);
+  --scrollbar-thumb-hover: var(--line-hover);
+  --scrollbar-size:        10px;
 
   /* ─── Z-index ─────────────────────────────────────── */
   --z-below:  -1;  --z-base:    0;  --z-raised: 10;
@@ -102,17 +119,17 @@
      NUNCA usar as bases (*-bronze/-silver/-gold) como cor de texto pequeno.
      Usar as variantes *-ink (contraste ≥4.5:1 sobre --paper) para texto. */
   --medallion-bronze:      #CD7F32;
-  --medallion-bronze-ink:  #A46528;  /* 4.62:1 — texto/badges */
+  --medallion-bronze-ink:  #8E5520;  /* 5.49:1 /paper-soft — texto/badges (era #A46528, reprovava em paper-soft) */
   --medallion-bronze-dim:  rgba(205, 127, 50, 0.06);
   --medallion-bronze-line: rgba(205, 127, 50, 0.3);
 
   --medallion-silver:      #8A9BB0;
-  --medallion-silver-ink:  #687585;  /* 4.62:1 — texto/badges */
+  --medallion-silver-ink:  #56616F;  /* 5.72:1 /paper-soft — texto/badges (era #687585, reprovava em paper-soft) */
   --medallion-silver-dim:  rgba(138, 155, 176, 0.06);
   --medallion-silver-line: rgba(138, 155, 176, 0.3);
 
   --medallion-gold:        #D4A017;
-  --medallion-gold-ink:    #947010;  /* 4.50:1 — texto/badges */
+  --medallion-gold-ink:    #7E5C08;  /* 5.57:1 /paper-soft — texto/badges (era #947010, reprovava em paper-soft) */
   --medallion-gold-dim:    rgba(212, 160, 23, 0.06);
   --medallion-gold-line:   rgba(212, 160, 23, 0.3);
 
@@ -165,7 +182,7 @@
   --ck-vermelho-line: rgba(220, 59, 42, 0.3);
 
   --ck-neutro:      #8A9BB0;
-  --ck-neutro-ink:  #687585;  /* 4.62:1 sobre --paper */
+  --ck-neutro-ink:  #56616F;  /* 5.72:1 /paper-soft (era #687585, reprovava em paper-soft) */
   --ck-neutro-dim:  rgba(138, 155, 176, 0.08);
   --ck-neutro-line: rgba(138, 155, 176, 0.3);
 
@@ -200,6 +217,31 @@
   --sg-amber-ink:  #8A5406;   /* texto · 6.1:1 — passa AA */
   --sg-amber-dim:  rgba(201, 124, 14, 0.08);
   --sg-amber-line: rgba(201, 124, 14, 0.30);
+
+  /* ─── Semantic status (site-wide) ─────────────────────
+     Alias para as famílias scoped — mesmas regras base/ink/dim/line.
+     Uso: validação de form, mensagens de sistema, badges de status gerais
+     (não decoração). Mantém o princípio "um acento único" — estas cores
+     só aparecem em estados semânticos explícitos, nunca como ornamento. */
+  --success:      var(--ck-verde);
+  --success-ink:  var(--ck-verde-ink);    /* 5.38:1 /paper-soft */
+  --success-dim:  var(--ck-verde-dim);
+  --success-line: var(--ck-verde-line);
+
+  --warning:      var(--ck-amarelo);
+  --warning-ink:  var(--ck-amarelo-ink);  /* 4.98:1 /paper-soft */
+  --warning-dim:  var(--ck-amarelo-dim);
+  --warning-line: var(--ck-amarelo-line);
+
+  --error:        var(--ck-vermelho);
+  --error-ink:    var(--ck-vermelho-ink);  /* 5.43:1 /paper-soft */
+  --error-dim:    var(--ck-vermelho-dim);
+  --error-line:   var(--ck-vermelho-line);
+
+  --info:         var(--radar-trial);
+  --info-ink:     var(--radar-trial-ink);  /* 5.32:1 /paper-soft */
+  --info-dim:     var(--radar-trial-dim);
+  --info-line:    var(--radar-trial-line);
 
   /* Números tabulares para valores de KPI (alinhamento de colunas) */
   --num-tabular: tabular-nums;

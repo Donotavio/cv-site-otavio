@@ -36,7 +36,11 @@ import { t } from '../lib/i18n';
 
           <p class="about-card-title mono-label mono-label--accent" data-i18n-key="about.card_title">{t('about.card_title')}</p>
 
-          <ul class="about-bullets" aria-label="deliverables">
+          <ul
+            class="about-bullets"
+            aria-label={t('a11y.about_bullets_label')}
+            data-i18n-aria="a11y.about_bullets_label"
+          >
             <li class="about-bullet">
               <span class="about-bullet-mark" aria-hidden="true">›</span>
               <span data-i18n-key="about.bullet_1">{t('about.bullet_1')}</span>

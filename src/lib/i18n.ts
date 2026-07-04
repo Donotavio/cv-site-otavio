@@ -27,3 +27,18 @@ export function t(key: string): string {
 }
 
 export const dict = ptBR as Dict;
+
+/**
+ * Tipagem global do `window.i18n` — runtime injetado por assets/js/i18n.js.
+ * Sem este bloco, todos os componentes que fazem `window.i18n?.t(...)` em
+ * blocos <script> TypeScript falham em `astro check` (TS2339).
+ * A assinatura espelha exatamente o que i18n.js atribui em runtime.
+ */
+declare global {
+  interface Window {
+    i18n?: {
+      t: (key: string) => string | undefined;
+      lang: string;
+    };
+  }
+}

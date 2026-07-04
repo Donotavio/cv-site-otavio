@@ -28,12 +28,22 @@
  * Acessibilidade: o overlay é decorativo (aria-hidden). O conteúdo real
  * permanece no DOM e legível; sem JS / reduced-motion → overlay nunca aparece.
  * Só transform/opacity nos tweens GSAP. Cursor piscando via CSS animation.
+ *
+ * Robustez:
+ * - gsap.context() por execução → ctx.revert() mata tweens/ScrollTriggers.
+ * - Token de cancelamento: cadeias async param de escrever no DOM removido.
+ * - finally GARANTE remoção do overlay (mesmo em throw/cancelamento).
+ * - Timings centralizados em constants.ts (LOADER), sem números ad-hoc.
+ * - Null-checks em todo querySelector do overlay.
+ * - queryLoaderDone é seguido de ScrollTrigger.refresh() debounced (conteúdo
+ *   dinâmico injetado depois pelo consumidor pode mudar alturas).
  */
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { QUERIES, type QuerySpec } from './queries';
-import { motionOk, EASINGS } from './constants';
+import { motionOk, EASINGS, LOADER } from './constants';
+import { registerCleaner } from './cleanup';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -41,7 +51,23 @@ gsap.registerPlugin(ScrollTrigger);
 const running = new Set<string>();
 // Seções já vistas por scroll: o loader por scroll roda só na 1ª vez.
 const seenByScroll = new Set<string>();
+
+interface CancelToken { cancelled: boolean }
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Token de cancelamento: sleep que resolve, mas permite checagem pós-await. */
+function makeToken(): CancelToken {
+  return { cancelled: false };
+}
+/** Cancela o token e retorna true se estava ativo (para early-return). */
+function cancel(token: CancelToken): boolean {
+  if (token.cancelled) return false;
+  token.cancelled = true;
+  return true;
+}
+
+/** Token de cancelamento shared por seção (acessível ao teardown). */
+const sectionTokens = new Map<string, CancelToken>();
 
 /** Token de syntax highlight simples para SQL/Python. */
 function highlight(line: string, lang: 'sql' | 'python'): string {
@@ -68,7 +94,7 @@ interface Overlay {
   status: HTMLElement;
 }
 
-function buildOverlay(_section: HTMLElement, spec: QuerySpec): Overlay {
+function buildOverlay(spec: QuerySpec): Overlay | null {
   const root = document.createElement('div');
   root.className = 'ql-overlay';
   root.setAttribute('aria-hidden', 'true');
@@ -87,11 +113,15 @@ function buildOverlay(_section: HTMLElement, spec: QuerySpec): Overlay {
   // na viewport. Dentro da seção, um transform (parallax/reveal) tornaria o
   // fixed relativo à seção, quebrando a centralização.
   document.body.appendChild(root);
-  return {
-    root,
-    pre: root.querySelector('.ql-code') as HTMLElement,
-    status: root.querySelector('.ql-status') as HTMLElement,
-  };
+
+  const pre = root.querySelector<HTMLElement>('.ql-code');
+  const status = root.querySelector<HTMLElement>('.ql-status');
+  // Null-guard: se o markup interno mudar, aborta limpo (sem throw solto).
+  if (!pre || !status) {
+    root.remove();
+    return null;
+  }
+  return { root, pre, status };
 }
 
 const CURSOR = '<span class="ql-cursor">█</span>';
@@ -103,18 +133,20 @@ function renderLines(pre: HTMLElement, lines: string[], lang: 'sql' | 'python') 
 
 /* ────────────────────────────────────────────────────────────────────────
  * Os 9 efeitos de digitação/execução do CÓDIGO (a fase de "escrever a query")
+ * Todos recebem o token para bail-out entre iterações longas.
  * ──────────────────────────────────────────────────────────────────────── */
 
 /** type / insert: typewriter char-by-char com cursor seguindo. */
-async function effectType(pre: HTMLElement, spec: QuerySpec, charMs: number) {
+async function effectType(pre: HTMLElement, spec: QuerySpec, charMs: number, token: CancelToken) {
   const lines = spec.code;
   const done: string[] = [];
   for (const line of lines) {
     for (let c = 0; c <= line.length; c++) {
+      if (token.cancelled) return;
       const head = highlight(line.slice(0, c), spec.lang) + CURSOR;
       pre.innerHTML = [...done.map((l) => highlight(l, spec.lang)), head].join('\n');
       // espaços fluem mais rápido → ritmo natural
-      await sleep(line[c - 1] === ' ' ? charMs * 0.5 : charMs);
+      await sleep(line[c - 1] === ' ' ? charMs * LOADER.spaceFactor : charMs);
     }
     done.push(line);
   }
@@ -122,9 +154,10 @@ async function effectType(pre: HTMLElement, spec: QuerySpec, charMs: number) {
 }
 
 /** plan: linhas surgem com indentação crescente (estilo EXPLAIN). */
-async function effectPlan(pre: HTMLElement, spec: QuerySpec) {
+async function effectPlan(pre: HTMLElement, spec: QuerySpec, token: CancelToken) {
   renderLines(pre, spec.code, spec.lang);
-  await sleep(120);
+  await sleep(LOADER.preEffectPlanMs);
+  if (token.cancelled) return;
   // depois do SQL, revela um mini "query plan" indentado linha a linha
   const plan = [
     '',
@@ -135,6 +168,7 @@ async function effectPlan(pre: HTMLElement, spec: QuerySpec) {
   ];
   const acc = [...spec.code];
   for (const p of plan) {
+    if (token.cancelled) return;
     acc.push(p);
     pre.innerHTML = acc
       .map((l, i) =>
@@ -143,21 +177,23 @@ async function effectPlan(pre: HTMLElement, spec: QuerySpec) {
           : `<span class="ql-dim">${l.replace(/</g, '&lt;')}</span>`,
       )
       .join('\n');
-    await sleep(160);
+    await sleep(LOADER.planMs);
   }
 }
 
 /** stream: stdout Python — linhas surgem com prompt >>> e leve "digitação". */
-async function effectStream(pre: HTMLElement, spec: QuerySpec) {
+async function effectStream(pre: HTMLElement, spec: QuerySpec, token: CancelToken) {
   const acc: string[] = [];
   for (const line of spec.code) {
+    if (token.cancelled) return;
     acc.push(line);
     renderLines(pre, acc, spec.lang);
     pre.innerHTML += '\n' + CURSOR;
-    await sleep(line === '' ? 90 : 170);
+    await sleep(line === '' ? LOADER.lineMsBlankStream : LOADER.lineMsStream);
   }
   renderLines(pre, acc, spec.lang);
-  await sleep(120);
+  await sleep(LOADER.preEffectMs);
+  if (token.cancelled) return;
   // saída de stdout streaming
   const out = [
     '',
@@ -166,27 +202,30 @@ async function effectStream(pre: HTMLElement, spec: QuerySpec) {
     '>>> done',
   ];
   for (const o of out) {
+    if (token.cancelled) return;
     pre.innerHTML =
       acc.map((l) => highlight(l, spec.lang)).join('\n') +
       '\n' +
       `<span class="ql-dim">${o}</span>`;
     acc.push(o);
-    await sleep(150);
+    await sleep(LOADER.lineMsStream);
   }
 }
 
 /** import: imports surgem + spinner "loading packages" + barra ASCII. */
-async function effectImport(pre: HTMLElement, spec: QuerySpec, status: HTMLElement) {
+async function effectImport(pre: HTMLElement, spec: QuerySpec, status: HTMLElement, token: CancelToken) {
   const acc: string[] = [];
   for (const line of spec.code) {
+    if (token.cancelled) return;
     acc.push(line);
     renderLines(pre, acc, spec.lang);
-    await sleep(line === '' ? 60 : 130);
+    await sleep(line === '' ? LOADER.lineMsBlank : LOADER.lineMs);
   }
   // barra de progresso ASCII no status, com spinner
   const spin = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
   const steps = 16;
   for (let i = 0; i <= steps; i++) {
+    if (token.cancelled) return;
     const filled = '█'.repeat(i);
     const empty = '·'.repeat(steps - i);
     const pct = Math.round((i / steps) * 100);
@@ -194,14 +233,15 @@ async function effectImport(pre: HTMLElement, spec: QuerySpec, status: HTMLEleme
     status.innerHTML =
       `<span class="ql-run">${s} loading packages</span>` +
       `<span class="ql-bar-ascii">[${filled}${empty}] ${pct}%</span>`;
-    await sleep(55);
+    await sleep(LOADER.progressMs);
   }
 }
 
 /** sort: linhas embaralham algumas vezes e depois "assentam" ordenadas. */
-async function effectSort(pre: HTMLElement, spec: QuerySpec) {
+async function effectSort(pre: HTMLElement, spec: QuerySpec, token: CancelToken) {
   renderLines(pre, spec.code, spec.lang);
-  await sleep(140);
+  await sleep(LOADER.preEffectMs);
+  if (token.cancelled) return;
   // dataset fake de repositórios para "ordenar" visualmente
   const rows = [
     'kafka-bridge      | scala  | ★ 128',
@@ -210,54 +250,62 @@ async function effectSort(pre: HTMLElement, spec: QuerySpec) {
     'airflow-operators | python | ★ 201',
   ];
   const sorted = [...rows].sort((a, b) => {
-    const sa = parseInt(a.split('★')[1]);
-    const sb = parseInt(b.split('★')[1]);
+    // parseInt(undefined) → NaN; `?? 0` previne comparator NaN (sort instável)
+    // caso o separador '★' mude no futuro.
+    const sa = parseInt(a.split('★')[1] ?? '0', 10) || 0;
+    const sb = parseInt(b.split('★')[1] ?? '0', 10) || 0;
     return sb - sa;
   });
   const base = spec.code.map((l) => highlight(l, spec.lang)).join('\n');
   // 3 frames de shuffle
   for (let f = 0; f < 3; f++) {
+    if (token.cancelled) return;
     const shuffled = [...rows].sort(() => Math.random() - 0.5);
     pre.innerHTML =
       base +
       '\n\n' +
       shuffled.map((r) => `<span class="ql-dim">${r}</span>`).join('\n');
-    await sleep(130);
+    await sleep(LOADER.sortFrameMs);
   }
+  if (token.cancelled) return;
   // frame final ordenado, com destaque de "settle"
   pre.innerHTML =
     base +
     '\n\n' +
     sorted.map((r) => `<span class="ql-sorted">${r}</span>`).join('\n');
-  await sleep(220);
+  await sleep(LOADER.sortSettleMs);
 }
 
 /** scan: cursor de scan varre cada linha, destacando-a ao passar. */
-async function effectScan(pre: HTMLElement, spec: QuerySpec) {
+async function effectScan(pre: HTMLElement, spec: QuerySpec, token: CancelToken) {
   renderLines(pre, spec.code, spec.lang);
-  await sleep(120);
+  await sleep(LOADER.preEffectMs);
+  if (token.cancelled) return;
   const rows = spec.code;
   // passa um "scan" linha a linha — a linha ativa fica realçada
   for (let i = 0; i < rows.length; i++) {
+    if (token.cancelled) return;
     pre.innerHTML = rows
       .map((l, idx) => {
         const h = highlight(l, spec.lang);
         return idx === i ? `<span class="ql-scan">${h}</span>` : h;
       })
       .join('\n');
-    await sleep(180);
+    await sleep(LOADER.scanMs);
   }
   renderLines(pre, rows, spec.lang);
 }
 
 /** paginate: feed de artigos carregando lote a lote, como uma API paginada. */
-async function effectPaginate(pre: HTMLElement, spec: QuerySpec, status: HTMLElement) {
+async function effectPaginate(pre: HTMLElement, spec: QuerySpec, status: HTMLElement, token: CancelToken) {
   const acc: string[] = [];
   for (const line of spec.code) {
+    if (token.cancelled) return;
     acc.push(line);
     renderLines(pre, acc, spec.lang);
-    await sleep(line === '' ? 50 : 120);
+    await sleep(line === '' ? LOADER.lineMsBlank : LOADER.lineMs);
   }
+  if (token.cancelled) return;
   const base = spec.code.map((l) => highlight(l, spec.lang)).join('\n');
   // títulos curtos simulando o feed chegando
   const titles = [
@@ -268,43 +316,48 @@ async function effectPaginate(pre: HTMLElement, spec: QuerySpec, status: HTMLEle
   ];
   const shown: string[] = [];
   for (let i = 0; i < titles.length; i++) {
+    if (token.cancelled) return;
     shown.push(`  ↳ "${titles[i]}"`);
     pre.innerHTML = base + '\n\n' +
       shown.map((t) => `<span class="ql-dim">${t}</span>`).join('\n');
     status.innerHTML =
       `<span class="ql-run">▸ paginando feed</span>` +
       `<span class="ql-bar-ascii">page ${i + 1}/4 · ${(i + 1) * 3} items</span>`;
-    await sleep(150);
+    await sleep(LOADER.paginateMs);
   }
-  await sleep(120);
+  await sleep(LOADER.preEffectMs);
 }
 
 /** fetch: query surge instantânea; status faz "fetching… N rows" contando. */
-async function effectFetch(pre: HTMLElement, spec: QuerySpec, status: HTMLElement) {
+async function effectFetch(pre: HTMLElement, spec: QuerySpec, status: HTMLElement, token: CancelToken) {
   renderLines(pre, spec.code, spec.lang);
-  await sleep(160);
+  await sleep(LOADER.preEffectMs);
+  if (token.cancelled) return;
   const target = 1; // about retorna 1 row
   status.innerHTML = `<span class="ql-run">▸ fetching…</span>`;
-  await sleep(200);
+  await sleep(LOADER.fetchHoldMs);
+  if (token.cancelled) return;
   // "rows fetched" sobe rápido (mesmo que alvo seja pequeno, dá sensação de IO)
   for (let n = 0; n <= 24; n++) {
+    if (token.cancelled) return;
     const shown = Math.min(n, target + 23);
     status.innerHTML =
       `<span class="ql-run">▸ fetching…</span>` +
       `<span class="ql-bar-ascii">${shown} rows</span>`;
-    await sleep(26);
+    await sleep(LOADER.fetchTickMs);
   }
 }
 
 /** aggregate: números do COUNT/SUM "rolando" até o valor final. */
-async function effectAggregate(pre: HTMLElement, spec: QuerySpec, status: HTMLElement) {
+async function effectAggregate(pre: HTMLElement, spec: QuerySpec, status: HTMLElement, token: CancelToken, ctx: gsap.Context) {
   const targets = spec.counters ?? [0];
   const labels = ['years', 'teams', 'PB'];
   // proxy animável compartilhado: 0 → 1 (progresso), aplicado a todos os alvos
   const prog = { t: 0 };
 
   renderLines(pre, spec.code, spec.lang);
-  await sleep(140);
+  await sleep(LOADER.preEffectMs);
+  if (token.cancelled) return;
 
   const paint = () => {
     const parts = targets
@@ -318,16 +371,19 @@ async function effectAggregate(pre: HTMLElement, spec: QuerySpec, status: HTMLEl
       `<span class="ql-bar-ascii ql-roll">${parts}</span>`;
   };
 
-  // tween calmo dos contadores (expo.out)
-  await new Promise<void>((resolve) => {
+  // tween calmo dos contadores (expo.out). Criado dentro do contexto GSAP
+  // para ctx.revert() matá-lo no teardown. NÃO usamos onComplete para resolver
+  // (o tween pode ser morto antes, hangando o await); em vez disso, dormimos
+  // pela duração e checamos cancelamento — à prova de hang.
+  ctx.add(() =>
     gsap.to(prog, {
       t: 1,
-      duration: 1.0,
+      duration: LOADER.aggregateDur,
       ease: EASINGS.out,
       onUpdate: paint,
-      onComplete: resolve,
-    });
-  });
+    }),
+  );
+  await sleep(LOADER.aggregateDur * 1000);
 }
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -336,69 +392,105 @@ async function effectAggregate(pre: HTMLElement, spec: QuerySpec, status: HTMLEl
 
 /** Executa a sequência completa de loader para uma seção. */
 async function run(section: HTMLElement, spec: QuerySpec) {
-  const { root, pre, status } = buildOverlay(section, spec);
+  const token = makeToken();
+  sectionTokens.set(section.id, token);
 
-  // fade-in do overlay (opacity only)
-  await gsap.to(root, { opacity: 1, duration: 0.22, ease: EASINGS.out });
+  const overlay = buildOverlay(spec);
+  // buildOverlay retorna null só em falha de markup — remove token e sai.
+  if (!overlay) {
+    sectionTokens.delete(section.id);
+    return;
+  }
+  const { root, pre, status } = overlay;
 
-  // ── fase de execução: cada effect é único ──
-  switch (spec.effect) {
-    case 'type':
-      await effectType(pre, spec, 24);
-      break;
-    case 'insert':
-      await effectType(pre, spec, 26);
-      break;
-    case 'plan':
-      await effectPlan(pre, spec);
-      break;
-    case 'stream':
-      await effectStream(pre, spec);
-      break;
-    case 'import':
-      await effectImport(pre, spec, status);
-      break;
-    case 'sort':
-      await effectSort(pre, spec);
-      break;
-    case 'scan':
-      await effectScan(pre, spec);
-      break;
-    case 'fetch':
-      await effectFetch(pre, spec, status);
-      break;
-    case 'aggregate':
-      await effectAggregate(pre, spec, status);
-      break;
-    case 'paginate':
-      await effectPaginate(pre, spec, status);
-      break;
-    default:
-      await effectType(pre, spec, 24);
+  // Contexto GSAP: rastreia os tweens de fade e o tween do aggregate para
+  // ctx.revert() no teardown (cancelamento instantâneo). Contexto vazio no
+  // init — tweens são adicionados via ctx.add() ao longo da execução.
+  const ctx = gsap.context(() => {});
+
+  try {
+    // fade-in do overlay (opacity only). Disparamos o tween e dormimos pela
+    // duração — NÃO usamos onComplete (se o tween for morto no teardown antes
+    // do complete, o await hangaria). Cancelamento é checado após o sleep.
+    ctx.add(() =>
+      gsap.to(root, { opacity: 1, duration: LOADER.fadeIn, ease: EASINGS.out }),
+    );
+    await sleep(LOADER.fadeIn * 1000);
+    if (token.cancelled) return;
+
+    // ── fase de execução: cada effect é único ──
+    switch (spec.effect) {
+      case 'type':
+        await effectType(pre, spec, LOADER.charMs, token);
+        break;
+      case 'insert':
+        await effectType(pre, spec, LOADER.charMsInsert, token);
+        break;
+      case 'plan':
+        await effectPlan(pre, spec, token);
+        break;
+      case 'stream':
+        await effectStream(pre, spec, token);
+        break;
+      case 'import':
+        await effectImport(pre, spec, status, token);
+        break;
+      case 'sort':
+        await effectSort(pre, spec, token);
+        break;
+      case 'scan':
+        await effectScan(pre, spec, token);
+        break;
+      case 'fetch':
+        await effectFetch(pre, spec, status, token);
+        break;
+      case 'aggregate':
+        await effectAggregate(pre, spec, status, token, ctx);
+        break;
+      case 'paginate':
+        await effectPaginate(pre, spec, status, token);
+        break;
+      default:
+        await effectType(pre, spec, LOADER.charMs, token);
+    }
+    if (token.cancelled) return;
+
+    // ── estado "executando" → só p/ efeitos que não montaram status próprio ──
+    const ownsStatus =
+      spec.effect === 'import' ||
+      spec.effect === 'fetch' ||
+      spec.effect === 'aggregate' ||
+      spec.effect === 'paginate';
+    if (!ownsStatus) {
+      status.innerHTML = `<span class="ql-run">▸ executando</span>${CURSOR}`;
+      await sleep(LOADER.runMs);
+    }
+    if (token.cancelled) return;
+
+    // ── resultado final ──
+    status.innerHTML = `<span class="ql-ok">✓</span> ${spec.result}`;
+    await sleep(spec.effect === 'insert' ? LOADER.resultMsInsert : LOADER.resultMs);
+    if (token.cancelled) return;
+
+    // ── revela a seção: overlay sai (opacity), conteúdo entra ──
+    ctx.add(() =>
+      gsap.to(root, {
+        opacity: 0,
+        duration: LOADER.fadeOut,
+        ease: EASINGS.inOut,
+        onComplete: () => { if (root.parentNode) root.remove(); },
+      }),
+    );
+    await sleep(LOADER.fadeOut * 1000);
+  } finally {
+    // Garantia: overlay sempre removido e tweens mortos, mesmo em
+    // throw/cancelamento. Idempotente (parentNode check + ctx.revert safe).
+    ctx.revert();
+    if (root.parentNode) root.remove();
+    sectionTokens.delete(section.id);
   }
 
-  // ── estado "executando" → só p/ efeitos que não montaram status próprio ──
-  const ownsStatus =
-    spec.effect === 'import' ||
-    spec.effect === 'fetch' ||
-    spec.effect === 'aggregate' ||
-    spec.effect === 'paginate';
-  if (!ownsStatus) {
-    status.innerHTML = `<span class="ql-run">▸ executando</span>${CURSOR}`;
-    await sleep(320);
-  }
-
-  // ── resultado final ──
-  status.innerHTML = `<span class="ql-ok">✓</span> ${spec.result}`;
-  await sleep(spec.effect === 'insert' ? 320 : 240);
-
-  // ── revela a seção: overlay sai (opacity), conteúdo entra ──
-  await gsap.to(root, {
-    opacity: 0,
-    duration: 0.45,
-    ease: EASINGS.inOut,
-    onComplete: () => root.remove(),
-  });
+  if (token.cancelled) return;
 
   // Sinaliza que o loader terminou de revelar esta seção. Seções com motion
   // de conteúdo (ex.: GitHubStats count-up / heatmap) devem disparar SUA
@@ -407,6 +499,20 @@ async function run(section: HTMLElement, spec: QuerySpec) {
   window.dispatchEvent(
     new CustomEvent('queryLoaderDone', { detail: { id: section.id } }),
   );
+
+  // Conteúdo dinâmico injetado depois do reveal (count-ups, heatmaps, barras)
+  // pode mudar a altura da página e desincronizar ScrollTriggers. Refresh
+  // debounced: se várias seções revelarem em sequência, roda uma vez só.
+  scheduleScrollRefresh();
+}
+
+/** Debounce simples para ScrollTrigger.refresh() após reveals. */
+let refreshTimer = 0;
+function scheduleScrollRefresh() {
+  window.clearTimeout(refreshTimer);
+  refreshTimer = window.setTimeout(() => {
+    try { ScrollTrigger.refresh(); } catch { /* noop */ }
+  }, LOADER.refreshMs);
 }
 
 /**
@@ -414,13 +520,17 @@ async function run(section: HTMLElement, spec: QuerySpec) {
  *  - Scroll: dispara SÓ na primeira vez que a seção entra no viewport.
  *  - Menu (fireQueryLoader): dispara SEMPRE (force).
  * Um guard `running` impede sobrepor dois loaders na mesma seção.
+ * Idempotente: se já registrado (re-init / troca de idioma), no-op.
  */
-export function registerQueryLoader(section: HTMLElement) {
+export function registerQueryLoader(section: HTMLElement): void {
   if (!motionOk) return; // reduced-motion / SSR → sem overlay, conteúdo direto
   const id = section.id;
   const spec = QUERIES[id];
   if (!spec) return;
-  // overlay é position:fixed (centra na viewport) — não precisa ancorar a seção
+  // Idempotência: não re-registra ScrollTrigger nem __qlFire em re-init.
+  const flagged = section as HTMLElement & { __qlRegistered?: boolean };
+  if (flagged.__qlRegistered) return;
+  flagged.__qlRegistered = true;
 
   const fire = async (opts?: { force?: boolean }) => {
     if (running.has(id)) return;     // já tem um loader rodando nesta seção
@@ -450,11 +560,21 @@ export function registerQueryLoader(section: HTMLElement) {
   // expõe trigger manual para navegação por menu (force: ignora cooldown)
   (section as HTMLElement & { __qlFire?: (o?: { force?: boolean }) => void })
     .__qlFire = fire;
+
+  // Teardown: cancela um loader em curso (para de escrever no overlay) e mata
+  // o ScrollTrigger de entrada. O overlay em si é removido pelo finally do run.
+  registerCleaner(() => {
+    const token = sectionTokens.get(id);
+    if (token) cancel(token);
+    ScrollTrigger.getAll()
+      .filter((st) => st.trigger === section && st.vars.once)
+      .forEach((st) => st.kill());
+  });
 }
 
 /** Dispara o loader de uma seção imediatamente (navegação por menu).
  *  force: true → ignora o cooldown (clique sempre roda). */
-export function fireQueryLoader(id: string) {
+export function fireQueryLoader(id: string): void {
   const section = document.getElementById(id) as
     | (HTMLElement & { __qlFire?: (o?: { force?: boolean }) => void })
     | null;

@@ -28,26 +28,26 @@ import { t } from '../lib/i18n';
     <hr class="section-line" aria-hidden="true" />
 
     <!-- Summary cards -->
-    <div class="stats-summary" role="list" aria-label="github summary">
-      <div class="summary-card crop" role="listitem">
+    <ul class="stats-summary" aria-label="GitHub summary">
+      <li class="summary-card crop">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
         <span class="summary-value" data-summary="public_repos">—</span>
         <span class="summary-label mono-label" data-i18n-key="stats.labels.repos">{t('stats.labels.repos')}</span>
-      </div>
-      <div class="summary-card crop" role="listitem">
+      </li>
+      <li class="summary-card crop">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
         <span class="summary-value" data-summary="total_stars">—</span>
         <span class="summary-label mono-label" data-i18n-key="stats.labels.stars">{t('stats.labels.stars')}</span>
-      </div>
-      <div class="summary-card crop" role="listitem">
+      </li>
+      <li class="summary-card crop">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
         <span class="summary-value" data-summary="contributions">—</span>
         <span class="summary-label mono-label" data-i18n-key="stats.labels.contributions">{t('stats.labels.contributions')}</span>
-      </div>
-    </div>
+      </li>
+    </ul>
 
     <!-- Heatmap de contribuições -->
     <div class="stats-block crop">
@@ -109,10 +109,12 @@ import { t } from '../lib/i18n';
 
   /* ── Summary cards ───────────────────────────────────────── */
   .stats-summary {
+    list-style: none;
+    margin: 0 0 var(--space-8) 0;
+    padding: 0;
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-4);
-    margin-block-end: var(--space-8);
   }
   @media (min-width: 640px) {
     .stats-summary { grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
@@ -186,7 +188,10 @@ import { t } from '../lib/i18n';
     border-color: var(--line-accent);
     background: var(--accent-dim);
   }
-  :global(.year-tab:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  :global(.year-tab:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
 
   /* ── Heatmap ─────────────────────────────────────────────── */
   .heatmap-scroll {

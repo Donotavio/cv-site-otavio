@@ -1,0 +1,315 @@
+/*
+ * Print stylesheet — Blueprint
+ *
+ * Um portfólio/CV DEVE imprimir bem — recrutadores imprimem. Esta folha
+ * converte o site (papel editorial digital) em um documento preto-e-branco
+ * limpo, economizando tinta e priorizando conteúdo textual.
+ *
+ * Princípios:
+ *  - Tudo decorativo some (glows, ASCII, scroll indicators, nav, overlays).
+ *  - Todo conteúdo textual fica visível (modais fechados, accordions).
+ *  - Tinta preta sólida (#000) sobre branco — nada de cinzas claros.
+ *  - Quebra de página entre seções principais.
+ *  - URLs externas impressas entre parênteses após o texto do link.
+ */
+
+@media print {
+
+  /* ════════════════════════════════════════════════════════════
+   * 1. Tokens forçados — papel branco, tinta preta
+   * ════════════════════════════════════════════════════════════ */
+  :root {
+    --paper:      #FFFFFF !important;
+    --paper-soft: #FFFFFF !important;
+    --paper-card: #FFFFFF !important;
+    --ink:        #000000 !important;
+    --ink-soft:   #000000 !important;
+    --ink-faint:  #333333 !important;   /* cinza escuro p/ legenda — não #000 para diferenciar hierarquia */
+    --accent:     #000000 !important;
+    --accent-hover: #000000 !important;
+    --accent-press: #000000 !important;
+    --accent-dim: transparent !important;
+    --line:        #000000 !important;
+    --line-strong: #000000 !important;
+    --line-faint:  #999999 !important;
+    --line-accent: #000000 !important;
+    --shadow-sm: none !important;
+    --shadow-md: none !important;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * 2. Base — fundo branco, tinta preta, sem sombras, serif ou sans legível
+   * ════════════════════════════════════════════════════════════ */
+  html, body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-size: 12pt;
+    line-height: 1.5;
+    /* Remove o overflow-x: clip que pode confundir alguns motores de impressão */
+    overflow: visible !important;
+  }
+
+  /* Todo texto herda tinta preta sólida; remove tons cinza claros */
+  * {
+    color: inherit !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+
+  /* Bordas viram linha preta fina */
+  *, *::before, *::after {
+    border-color: #000000 !important;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * 3. Elementos DECORATIVOS a esconder — economiza tinta e páginas
+   * ════════════════════════════════════════════════════════════ */
+
+  /* Navegação, header, hamburger, language switcher */
+  .site-header,
+  .site-nav,
+  .nav-toggle,
+  .nav-list,
+  .header-lang,
+  .lang-switcher,
+  .lang-sep,
+
+  /* Skip link (redundante em papel) */
+  .skip-link,
+
+  /* Footer — recrutadores não precisam do rodapé nem dos contadores de visita */
+  .footer,
+
+  /* Query Loader overlay (terminal decorativo) */
+  .ql-overlay,
+
+  /* Modais (timeline/blog) — conteúdo deles já está expandido abaixo */
+  .tl-modal,
+  .blog-modal,
+
+  /* Hero: ASCII portrait (gasta tinta), glow, spotlight, specline, coords */
+  .hero-portrait,
+  .hero-visual,
+  .hero-specline,
+  .hero-coords,
+  .hero-portrait__glow,
+  .hero-portrait__spotlight,
+  .ascii-portrait,
+
+  /* Scroll indicators genéricos */
+  [class*="scroll-indicator"],
+  [class*="scroll-down"],
+  [data-scroll-indicator],
+
+  /* Agentes flutuantes (PixAgent FAB, etc.) */
+  .pix-agent,
+
+  /* Elementos puramente decorativos */
+  [aria-hidden="true"][class*="crop"],
+  .hero-connector,
+
+  /* Contadores animados (valor numérico fica, mas o pulse/cor some via *) */
+  .footer__stats {
+    display: none !important;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * 4. Expandir conteúdo — desativar overflow hidden, mostrar tudo
+   * ════════════════════════════════════════════════════════════ */
+
+  /* Hero ocupa espaço natural, sem forçar 100svh */
+  #hero {
+    min-height: 0 !important;
+    padding-block: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Seções sem padding excessivo — economiza papel */
+  .section {
+    padding-block: 12pt !important;
+  }
+
+  /* Container: largura total da página, sem padding lateral */
+  .container {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-inline: 0 !important;
+  }
+
+  /* Cards: borda fina, sem radius que corta cantos na impressão */
+  .card,
+  .timeline-card,
+  .tl-card,
+  .summary-card {
+    border: 1px solid #000 !important;
+    border-radius: 0 !important;
+    padding: 8pt !important;
+    margin-bottom: 8pt !important;
+    break-inside: avoid;
+  }
+
+  /* Crops marks (cantos decorativos) — removidos na impressão */
+  .crop::before,
+  .crop::after,
+  .crop > .crop-mark-bl,
+  .crop > .crop-mark-br {
+    display: none !important;
+  }
+
+  /* Monstros animados/transformados voltam ao estado final */
+  [data-motion] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * 5. Tipografia — hierarquia clara em preto
+   * ════════════════════════════════════════════════════════════ */
+  h1, h2, h3, h4 {
+    color: #000000 !important;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* H1 do hero — escala legível em papel (não cartaz) */
+  .hero-title,
+  .tl-display {
+    font-size: 24pt !important;
+    line-height: 1.15 !important;
+    letter-spacing: 0 !important;
+    max-width: none !important;
+  }
+
+  /* Display de seção */
+  h2 {
+    font-size: 18pt !important;
+  }
+
+  h3 {
+    font-size: 14pt !important;
+  }
+
+  /* Corpo e parágrafos */
+  p, li {
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #000000 !important;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Mono labels permanecem mono (assinatura), mas em preto */
+  .mono-label {
+    color: #333333 !important;
+    font-size: 9pt !important;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * 6. Quebras de página entre seções principais
+   * ════════════════════════════════════════════════════════════ */
+  main > section[id] {
+    page-break-inside: auto;
+  }
+
+  /* Quebra após seções "pesadas" — hero, timeline, projetos, contato.
+     Demais seções fluem para não desperdiçar papel. */
+  #hero,
+  #timeline,
+  #projects,
+  #contact {
+    page-break-after: always;
+  }
+
+  /* Evita quebra dentro de entradas da timeline / cards de projeto */
+  .timeline-list,
+  #timeline .tl-entry,
+  .project-card,
+  .recommendation-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Separadores de seção (hr) não geram página vazia */
+  .section-line {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * 7. Links — mostrar URL entre parênteses (somente externos)
+   * ════════════════════════════════════════════════════════════ */
+  a[href^="http"]:not([href*="donotavio.github.io"]):not(.btn-primary):not(.btn-secondary)::after {
+    content: " (" attr(href) ")";
+    font-family: var(--font-mono);
+    font-size: 9pt;
+    color: #333333 !important;
+    word-break: break-all;
+  }
+
+  /* Links de email (mailto:) */
+  a[href^="mailto:"]::after {
+    content: " (" attr(href) ")";
+    font-family: var(--font-mono);
+    font-size: 9pt;
+    color: #333333 !important;
+  }
+
+  /* Links internos (âncoras #) não mostram href — são ruído em papel */
+  a[href^="#"]::after,
+  a[href^="tel:"]::after {
+    content: "";
+  }
+
+  /* Links recebem sublinhado discreto para destaque */
+  a {
+    text-decoration: underline;
+    text-decoration-thickness: 0.5pt;
+    color: #000000 !important;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * 8. Imagens — forçar visíveis e quebrar dentro evitado
+   * ════════════════════════════════════════════════════════════ */
+  img {
+    max-width: 100% !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Logos de empresas na timeline — manter, mas em escala de cinza
+     implícita (já que removemos filter/color via * acima) */
+  .tl-card__logo img {
+    break-inside: avoid;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * 9. Tabelas e listas — evitar quebra interna
+   * ════════════════════════════════════════════════════════════ */
+  table, tr, th, td {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * 10. Cores de fundo de scoped sections (sub-projetos) — branquear
+   * ════════════════════════════════════════════════════════════ */
+  .footer,
+  [style*="background"],
+  [class*="-dim"] {
+    background: #FFFFFF !important;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+   * 11. Margens de página — @page
+   * ════════════════════════════════════════════════════════════ */
+  @page {
+    margin: 1.5cm 2cm;
+  }
+}

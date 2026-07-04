@@ -43,7 +43,11 @@ const meter = (level: number) => {
     <div class="skills-grid">
       <div class="skills-group" data-skills-group>
         <h3 class="group-heading mono-label" data-i18n-key="skills.technical">{t('skills.technical')}</h3>
-        <ul class="skill-list" aria-label="technical skills">
+        <ul
+          class="skill-list"
+          aria-label={t('a11y.skills_technical_label')}
+          data-i18n-aria="a11y.skills_technical_label"
+        >
           {technicalSkills.map(({ key, level }) => (
             <li class="skill-item">
               <div class="skill-row">
@@ -68,7 +72,11 @@ const meter = (level: number) => {
 
       <div class="skills-group" data-skills-group>
         <h3 class="group-heading mono-label" data-i18n-key="skills.leadership">{t('skills.leadership')}</h3>
-        <ul class="skill-list" aria-label="leadership skills">
+        <ul
+          class="skill-list"
+          aria-label={t('a11y.skills_leadership_label')}
+          data-i18n-aria="a11y.skills_leadership_label"
+        >
           {leadershipSkills.map(({ key, level }) => (
             <li class="skill-item">
               <div class="skill-row">

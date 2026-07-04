@@ -812,7 +812,6 @@
       const diff = Number(t.diff) || 0;
       const diffCls = diff > 0 ? 'is-positive' : (diff < 0 ? 'is-negative' : '');
       const diffTxt = (diff > 0 ? '+' : '') + diff;
-      const ved = `${t.wins || 0}-${t.draws || 0}-${t.losses || 0}`;
       const gpGc = `${t.goals_for || 0}:${t.goals_against || 0}`;
       const flag = t.flag ? escapeHtml(t.flag) : '';
       const flagCell = flag
@@ -927,9 +926,6 @@
   function bracketMatchHtml(m) {
     const isToday = m.status === 'today';
     const isFinished = m.status === 'finished' || (m.score && m.score.ft);
-    const isPlaceholder = m.has_placeholder === true ||
-      (!m.team1 || !m.team1.name || m.team1.name === 'A definir') ||
-      (!m.team2 || !m.team2.name || m.team2.name === 'A definir');
     const isFinalDone = isFinished && m.round === 'Final';
 
     const cls = ['wc-bracket-match'];
@@ -1023,7 +1019,6 @@
     }
 
     const d = result.data;
-    const formation = d.formation || '4-3-3';
 
     // Agrupa por posição
     const byPos = { GK: [], DF: [], MF: [], FW: [] };
@@ -1360,7 +1355,6 @@
     writeBolao(picks);
 
     // Feedback no botão
-    const original = btn.textContent;
     btn.textContent = '✓ salvo';
     btn.disabled = true;
     setTimeout(() => {

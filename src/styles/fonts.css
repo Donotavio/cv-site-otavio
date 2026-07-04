@@ -68,3 +68,14 @@
   font-display: swap;
   src: url('/cv-site-otavio/assets/fonts/ibmplexmono-500.woff2') format('woff2');
 }
+
+/* Fallback métrico do IBM Plex Mono — Courier New remapeado para evitar CLS
+   nos labels mono (nav, eyebrows, crop marks, query-loader). */
+@font-face {
+  font-family: 'IBM Plex Mono Fallback';
+  src: local('Courier New');
+  size-adjust: 98%;
+  ascent-override: 92%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}

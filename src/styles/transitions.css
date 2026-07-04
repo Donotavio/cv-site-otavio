@@ -1,0 +1,41 @@
+/*
+ * View Transitions — Blueprint
+ * Cross-fade calmo e premium (cubic-bezier "expo out").
+ * Sem slide, sem scale, sem morph — só opacidade. A estética Blueprint
+ * é editorial, não cinematográfica: a troca de página é quase imperceptível.
+ *
+ * O frontend-builder habilita <ViewTransitions /> no BaseLayout.astro;
+ * este arquivo define a aparência da transição no navegador.
+ *
+ * Skill: .opencode/skills/web-motion.md — guardrails de motion.
+ */
+
+/* ─── Transição raiz (página inteira) ────────────────────
+   Duração curta + easing "expo out" = resolve rápido, assenta suave.
+   Mix-blend-mode: normal garante fundo opaco (sem bleed do snapshot
+   antigo sobre o novo em navegadores que defaultam para plus-lighter). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  mix-blend-mode: normal;
+}
+
+/* Snapshots individuais de elementos nomeados (se usados no futuro)
+   herdam o mesmo easing para coerência. */
+::view-transition-group(*) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Reduced motion: desliga completamente ──────────────
+   O catch-all em reset.css já zera animation-duration, mas o pseudo
+   ::view-transition-* é tratado em pipeline separado em alguns motores
+   — por isso a declaração explícita aqui com !important. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(*) {
+    animation: none !important;
+  }
+}

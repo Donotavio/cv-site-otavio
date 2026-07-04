@@ -20,6 +20,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DURATIONS, EASINGS, motionOk, STAGGER } from './constants';
+import { registerCleaner } from './cleanup';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,46 +34,50 @@ export function meterSweep(
   meters: Element[] | NodeListOf<Element>,
   trigger: Element,
   stagger: number = STAGGER.tight,
-) {
+): void {
   const list = Array.from(meters);
   if (!list.length) return;
 
   // Sem motion: medidor cheio já está no HTML, nada a fazer.
   if (!motionOk) return;
 
-  const run = () => {
-    gsap.fromTo(
-      list,
-      { clipPath: 'inset(0 100% 0 0)' },
-      {
-        clipPath: 'inset(0 0% 0 0)',
-        duration: DURATIONS.normal,
-        ease: EASINGS.out, // expo.out — varredura premium, desacelera no fim
-        stagger,
-        // garante estado final limpo (sem clip residual)
-        onComplete: () => {
-          list.forEach((el) => {
-            (el as HTMLElement).style.clipPath = '';
-          });
+  // gsap.context() rastreia o tween + ScrollTrigger para teardown limpo.
+  const ctx = gsap.context(() => {
+    const run = () => {
+      gsap.fromTo(
+        list,
+        { clipPath: 'inset(0 100% 0 0)' },
+        {
+          clipPath: 'inset(0 0% 0 0)',
+          duration: DURATIONS.normal,
+          ease: EASINGS.out, // expo.out — varredura premium, desacelera no fim
+          stagger,
+          // garante estado final limpo (sem clip residual) + libera will-change
+          onComplete: () => {
+            list.forEach((el) => {
+              (el as HTMLElement).style.clipPath = '';
+            });
+          },
         },
-      },
-    );
-  };
+      );
+    };
 
-  // Já visível no load → dispara já (mesma lógica de count-up.ts)
-  const rect = trigger.getBoundingClientRect();
-  const alreadyVisible =
-    rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
+    // Já visível no load → dispara já (mesma lógica de count-up.ts)
+    const rect = trigger.getBoundingClientRect();
+    const alreadyVisible =
+      rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
 
-  if (alreadyVisible) {
-    run();
-    return;
-  }
+    if (alreadyVisible) {
+      run();
+      return;
+    }
 
-  ScrollTrigger.create({
-    trigger,
-    start: 'top 85%',
-    once: true,
-    onEnter: run,
+    ScrollTrigger.create({
+      trigger,
+      start: 'top 85%',
+      once: true,
+      onEnter: run,
+    });
   });
+  registerCleaner(() => ctx.revert());
 }

@@ -226,8 +226,8 @@ import { t } from '../lib/i18n';
   /* Card clicável (abre o modal). Cursor + focus ring blueprint. */
   :global(.blog-card[role='button']) { cursor: pointer; outline: none; }
   :global(.blog-card[role='button']:focus-visible) {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
   }
 
   /* "Ler artigo" — botão interno do card (não navega; abre modal) */
@@ -245,8 +245,8 @@ import { t } from '../lib/i18n';
   }
   :global(.blog-card__read::after) { content: ' →'; }
   :global(.blog-card__read:focus-visible) {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
   }
 
   /* ── Modal ───────────────────────────────────────────────── */
@@ -317,8 +317,8 @@ import { t } from '../lib/i18n';
     color: var(--accent);
   }
   .blog-modal__close:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
   }
 
   .blog-modal__image {

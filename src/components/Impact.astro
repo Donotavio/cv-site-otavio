@@ -268,10 +268,18 @@ import { t } from '../lib/i18n';
   .metric-value :global(.digit-col) {
     display: flex;
     flex-direction: column;
+    /* will-change é gerenciado pelo motion-engineer em runtime:
+       setado no start da animação (digit-roll.ts) e limpo no
+       onComplete() para liberar a camada compositor quando ociosa.
+       NÃO remover daqui — o CSS funciona como fallback inicial. */
     will-change: transform;
   }
   .metric-value :global(.digit-cell) {
     display: block;
+    /* ⚠️ NÃO MUDAR height: 1em — exigido pelo motion-engineer.
+       O script digit-roll.ts usa `yPercent: -target * 10` (GSAP),
+       que assume células de altura 1em (10 células → 1000% = loop).
+       Qualquer outro valor quebra o offset da slot-machine. */
     height: 1em;
     line-height: 1;
     text-align: center;

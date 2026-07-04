@@ -30,6 +30,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DURATIONS, EASINGS, STAGGER, motionOk } from './constants';
+import { registerCleaner } from './cleanup';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -86,7 +87,35 @@ function buildDigitMarkup(el: HTMLElement, value: string): HTMLElement[] {
   return cols;
 }
 
-/** Anima as colunas rolando do 0 até o dígito-alvo, com stagger L→R. */
+/**
+ * Anima as colunas rolando do 0 até o dígito-alvo, com stagger L→R.
+ *
+ * ⚠️ COUPLING CSS ↔ JS (NÃO QUEBRAR): o offset `yPercent: -target * 10`
+ * depende diretamente do CSS do componente (Impact.astro):
+ *   `.digit-cell { height: 1em; }`  e  `.digit-col { will-change: transform; }`
+ *
+ * Como cada coluna empilha EXATAMENTE 10 células (0..9) e cada uma mede 1em,
+ * o deslocamento por dígito é exatamente 10% da altura total da coluna — daí
+ * o `* 10`. `yPercent` é relativo à altura do próprio elemento (a coluna),
+ * NÃO da célula; por isso funciona com qualquer `font-size` (a coluna cresce
+ * proporcionalmente às células de 1em).
+ *
+ * Casos que QUEBRAM o offset (exigem revisão aqui E no CSS):
+ *  - Mudar o número de células por coluna (ex.: prefixar 0..9 com um "0" extra
+ *    para loop infinito) → `* 10` deixa de ser 1/N.
+ *  - Altura variável entre células (ex.: `height: auto`) → o `1/N` deixa de
+ *    ser uniforme e `yPercent` aponta para o dígito errado.
+ *  - Trocar `yPercent` por `y` em px/em fixo sem recalcular contra o CSS.
+ *
+ * Sempre que tocar no markup/CSS das células, validar visualmente TODOS os
+ * dígitos (0..9) na seção Impact e atualizar este comentário + o fator abaixo.
+ *
+ * will-change cleanup: `.digit-col { will-change: transform }` é permanente no
+ * CSS (promove a composited layer para evitar jank no roll). Após o tween,
+ * resetamos para `auto` no `onComplete` — libera a layer e reduz o footprint
+ * de GPU memory (web-motion.md guardrail). Sem este reset, cada métrica do
+ * Impact mantém uma layer alocada para sempre, mesmo depois de assentada.
+ */
 function rollColumns(cols: HTMLElement[]): void {
   cols.forEach((col, i) => {
     const target = parseInt(col.dataset.target ?? '0', 10);
@@ -100,6 +129,12 @@ function rollColumns(cols: HTMLElement[]): void {
         duration: DURATIONS.entrance,
         ease: EASINGS.outStrong,
         delay: i * STAGGER.tight,
+        // Libera a composited layer após o roll. `.digit-col` tem
+        // will-change:transform permanente no CSS (Impact.astro); sem este
+        // reset, a layer GPU persiste indefinidamente após a animação.
+        onComplete: () => {
+          col.style.willChange = 'auto';
+        },
       },
     );
   });
@@ -158,29 +193,33 @@ export function digitRoll(el: HTMLElement, trigger?: Element): void {
     return;
   }
 
-  const run = () => {
-    if (hasDigit) {
-      const cols = buildDigitMarkup(el, value);
-      rollColumns(cols);
-    } else {
-      scrambleText(el, value);
+  // gsap.context() rastreia tweens + ScrollTrigger para teardown limpo.
+  const ctx = gsap.context(() => {
+    const run = () => {
+      if (hasDigit) {
+        const cols = buildDigitMarkup(el, value);
+        rollColumns(cols);
+      } else {
+        scrambleText(el, value);
+      }
+    };
+
+    const triggerEl = trigger ?? el;
+    const rect = triggerEl.getBoundingClientRect();
+    const alreadyVisible =
+      rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
+
+    if (alreadyVisible) {
+      run();
+      return;
     }
-  };
 
-  const triggerEl = trigger ?? el;
-  const rect = triggerEl.getBoundingClientRect();
-  const alreadyVisible =
-    rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
-
-  if (alreadyVisible) {
-    run();
-    return;
-  }
-
-  ScrollTrigger.create({
-    trigger: triggerEl,
-    start: 'top 85%',
-    once: true,
-    onEnter: run,
+    ScrollTrigger.create({
+      trigger: triggerEl,
+      start: 'top 85%',
+      once: true,
+      onEnter: run,
+    });
   });
+  registerCleaner(() => ctx.revert());
 }

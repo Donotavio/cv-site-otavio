@@ -21,7 +21,12 @@ import { t } from '../lib/i18n';
     <div class="contact-layout">
       <!-- Coluna esquerda: links -->
       <div class="contact-links" id="contact-links-card">
-        <a class="contact-link" href="mailto:ribeitemp@gmail.com" aria-label="Email">
+        <a
+          class="contact-link"
+          href="mailto:ribeitemp@gmail.com"
+          aria-label={t('a11y.contact_email_aria')}
+          data-i18n-aria="a11y.contact_email_aria"
+        >
           <span class="contact-link__label mono-label" data-i18n-key="contact.email_label">{t('contact.email_label')}</span>
           <span class="contact-link__value link-underline">ribeitemp@gmail.com</span>
         </a>
@@ -31,7 +36,8 @@ import { t } from '../lib/i18n';
           href="https://linkedin.com/in/donotavio/"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="LinkedIn"
+          aria-label={t('a11y.contact_linkedin_aria')}
+          data-i18n-aria="a11y.contact_linkedin_aria"
         >
           <span class="contact-link__label mono-label" data-i18n-key="contact.linkedin_label">{t('contact.linkedin_label')}</span>
           <span class="contact-link__value link-underline">linkedin.com/in/donotavio</span>
@@ -42,7 +48,8 @@ import { t } from '../lib/i18n';
           href="https://github.com/donotavio"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="GitHub"
+          aria-label={t('a11y.contact_github_aria')}
+          data-i18n-aria="a11y.contact_github_aria"
         >
           <span class="contact-link__label mono-label" data-i18n-key="contact.github_label">{t('contact.github_label')}</span>
           <span class="contact-link__value link-underline">github.com/donotavio</span>
@@ -59,6 +66,8 @@ import { t } from '../lib/i18n';
           class="btn-primary hire-card__cta"
           href="mailto:ribeitemp@gmail.com?subject=Oportunidade%20de%20Contrata%C3%A7%C3%A3o"
           data-i18n-key="contact.hire_cta"
+          aria-label={t('a11y.hire_cta_aria')}
+          data-i18n-aria="a11y.hire_cta_aria"
         >{t('contact.hire_cta')}</a>
       </div>
     </div>
@@ -129,8 +138,8 @@ import { t } from '../lib/i18n';
   }
 
   .contact-link:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
   }
 
   /* ── Hire card ───────────────────────────────────────────── */

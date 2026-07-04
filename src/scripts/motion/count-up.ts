@@ -11,10 +11,11 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DURATIONS, EASINGS, motionOk } from './constants';
+import { registerCleaner } from './cleanup';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function countUp(el: HTMLElement, trigger?: Element) {
+export function countUp(el: HTMLElement, trigger?: Element): void {
   const target = parseFloat(el.dataset.countTo ?? '0');
   const prefix = el.dataset.countPrefix ?? '';
   const suffix = el.dataset.countSuffix ?? '';
@@ -34,38 +35,45 @@ export function countUp(el: HTMLElement, trigger?: Element) {
     return;
   }
 
-  const run = () => {
-    const obj = { val: 0 };
-    gsap.to(obj, {
-      val: target,
-      duration: DURATIONS.entrance,
-      ease: EASINGS.outStrong,
-      onUpdate: () => { el.textContent = format(obj.val); },
+  // gsap.context() rastreia tweens + ScrollTrigger criados dentro, permitindo
+  // teardown limpo em SPA / view transitions via registerCleaner.
+  const ctx = gsap.context(() => {
+    const run = () => {
+      const obj = { val: 0 };
+      gsap.to(obj, {
+        val: target,
+        duration: DURATIONS.entrance,
+        ease: EASINGS.outStrong,
+        onUpdate: () => { el.textContent = format(obj.val); },
+      });
+    };
+
+    const triggerEl = trigger ?? el;
+
+    // Se o elemento já está visível no load, conta imediatamente.
+    // (ScrollTrigger com start 'top 85%' não dispara de forma confiável
+    //  para elementos que já passaram do ponto de start no carregamento.)
+    const rect = triggerEl.getBoundingClientRect();
+    const alreadyVisible = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
+
+    if (alreadyVisible) {
+      run();
+      return;
+    }
+
+    ScrollTrigger.create({
+      trigger: triggerEl,
+      start: 'top 85%',
+      once: true,
+      onEnter: run,
     });
-  };
-
-  const triggerEl = trigger ?? el;
-
-  // Se o elemento já está visível no load, conta imediatamente.
-  // (ScrollTrigger com start 'top 85%' não dispara de forma confiável
-  //  para elementos que já passaram do ponto de start no carregamento.)
-  const rect = triggerEl.getBoundingClientRect();
-  const alreadyVisible = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
-
-  if (alreadyVisible) {
-    run();
-    return;
-  }
-
-  ScrollTrigger.create({
-    trigger: triggerEl,
-    start: 'top 85%',
-    once: true,
-    onEnter: run,
   });
+  registerCleaner(() => ctx.revert());
 }
 
 /** Aplica count-up a todos os [data-count-to] dentro de um container. */
-export function countUpAll(container: ParentNode = document) {
-  container.querySelectorAll<HTMLElement>('[data-count-to]').forEach(countUp);
+export function countUpAll(container: ParentNode = document): void {
+  // Wrapper em arrow fn: forEach passa (value, key, parent); countUp espera
+  // (el, trigger?). Passar countUp direto quebrava a tipagem.
+  container.querySelectorAll<HTMLElement>('[data-count-to]').forEach((el) => countUp(el));
 }

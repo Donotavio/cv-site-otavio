@@ -16,6 +16,7 @@
 
 import Navigation from './Navigation.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
+import { t } from '../lib/i18n';
 
 // Fora da home (ex: /pix-observatory/) "#hero" seria um link morto —
 // mesma lógica de resolução usada em Navigation.astro.
@@ -28,7 +29,12 @@ const logoHref = isHome ? '#hero' : `${base}#hero`;
 <header class="site-header" id="site-header">
   <div class="header-inner container">
     <!-- Logo: marca mono + nome -->
-    <a href={logoHref} class="logo" aria-label="OR — Otávio Ribeiro, início">
+    <a
+      href={logoHref}
+      class="logo"
+      aria-label={t('a11y.logo_home_label')}
+      data-i18n-aria="a11y.logo_home_label"
+    >
       <span class="logo-mark mono-label" aria-hidden="true">OR</span>
       <span class="logo-text">Otávio Ribeiro</span>
     </a>
@@ -127,8 +133,8 @@ const logoHref = isHome ? '#hero' : `${base}#hero`;
   }
 
   .logo:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
     border-radius: var(--radius-sm);
   }
 

@@ -18,7 +18,7 @@ function getLenis(): LenisLike | undefined {
 }
 
 /** Trava o scroll da página (Lenis + body). Reentrante (conta locks). */
-export function lockScroll() {
+export function lockScroll(): void {
   locks++;
   if (locks > 1) return;
   getLenis()?.stop();
@@ -28,7 +28,7 @@ export function lockScroll() {
 }
 
 /** Destrava o scroll da página. */
-export function unlockScroll() {
+export function unlockScroll(): void {
   locks = Math.max(0, locks - 1);
   if (locks > 0) return;
   getLenis()?.start();

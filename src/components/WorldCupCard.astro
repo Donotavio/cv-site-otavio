@@ -19,6 +19,8 @@
  * Motion: revealUp (mesmo grupo de stagger da seção #portfolio).
  */
 
+import { t } from '../lib/i18n';
+
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -27,46 +29,50 @@ const base = import.meta.env.BASE_URL;
   <span class="crop-mark-br" aria-hidden="true"></span>
 
   <div class="wc-card__label-row">
-    <span class="mono-label">projeto ao vivo</span>
+    <span class="mono-label" data-i18n-key="portfolio.world_cup.live_label">{t('portfolio.world_cup.live_label')}</span>
     <span class="mono-label wc-card__badge">
       <span class="wc-card__live-dot" aria-hidden="true"></span>
-      atualização horária
+      <span data-i18n-key="portfolio.world_cup.updated_hourly">{t('portfolio.world_cup.updated_hourly')}</span>
     </span>
   </div>
 
-  <h3 id="wc-card-title" class="wc-card__title">Dashboard da Copa do Mundo 2026</h3>
+  <h3
+    id="wc-card-title"
+    class="wc-card__title"
+    data-i18n-key="portfolio.world_cup.title"
+  >{t('portfolio.world_cup.title')}</h3>
 
-  <p class="wc-card__desc">
-    Telemetria ao vivo da Copa 2026 em dados: partidas, artilharia, estatísticas
-    deep, probabilidades (Elo Rating local) e um duelo interativo de craques.
-    Tudo custo zero — Openfootball + RSS, sem APIs pagas nem backend.
-  </p>
+  <p
+    class="wc-card__desc"
+    data-i18n-key="portfolio.world_cup.description"
+  >{t('portfolio.world_cup.description')}</p>
 
   <div class="wc-card__tags">
-    <span class="tag tag--wc">Engenharia de Dados</span>
-    <span class="tag tag--wc">Web Scraping</span>
-    <span class="tag tag--wc">Elo Rating</span>
-    <span class="tag">Custo Zero</span>
+    <span class="tag tag--wc" data-i18n-key="portfolio.world_cup.tag_1">{t('portfolio.world_cup.tag_1')}</span>
+    <span class="tag tag--wc" data-i18n-key="portfolio.world_cup.tag_2">{t('portfolio.world_cup.tag_2')}</span>
+    <span class="tag tag--wc" data-i18n-key="portfolio.world_cup.tag_3">{t('portfolio.world_cup.tag_3')}</span>
+    <span class="tag" data-i18n-key="portfolio.world_cup.tag_cost_zero">{t('portfolio.world_cup.tag_cost_zero')}</span>
   </div>
 
   <!-- Telemetria hidratada via fetch em runtime (artilheiro + jogos + fase) -->
   <dl
     class="wc-card__telemetry"
     id="wc-card-telemetry"
-    aria-label="Telemetria ao vivo da Copa 2026 — artilheiro, jogos e fase atual"
+    aria-label={t('portfolio.world_cup.telemetry_aria')}
+    data-i18n-aria="portfolio.world_cup.telemetry_aria"
   >
     <div class="wc-card__stat">
-      <dt class="wc-card__stat-label mono-label">artilheiro</dt>
+      <dt class="wc-card__stat-label mono-label" data-i18n-key="portfolio.world_cup.stat_scorer">{t('portfolio.world_cup.stat_scorer')}</dt>
       <dd class="wc-card__stat-value" data-wc-stat="scorer">
         <span class="wc-card__flag" aria-hidden="true">·</span>···
       </dd>
     </div>
     <div class="wc-card__stat">
-      <dt class="wc-card__stat-label mono-label">jogos</dt>
+      <dt class="wc-card__stat-label mono-label" data-i18n-key="portfolio.world_cup.stat_matches">{t('portfolio.world_cup.stat_matches')}</dt>
       <dd class="wc-card__stat-value" data-wc-stat="matches">···</dd>
     </div>
     <div class="wc-card__stat">
-      <dt class="wc-card__stat-label mono-label">fase</dt>
+      <dt class="wc-card__stat-label mono-label" data-i18n-key="portfolio.world_cup.stat_stage">{t('portfolio.world_cup.stat_stage')}</dt>
       <dd class="wc-card__stat-value" data-wc-stat="stage">···</dd>
     </div>
   </dl>
@@ -75,15 +81,21 @@ const base = import.meta.env.BASE_URL;
     <a
       href={`${base}world-cup-dashboard/`}
       class="btn-primary wc-card__cta"
-      aria-label="Abrir Dashboard da Copa do Mundo 2026 — partidas, artilharia e probabilidades ao vivo"
-    >Ver Dashboard →</a>
+      aria-label={t('portfolio.world_cup.cta_dashboard_aria')}
+      data-i18n-aria="portfolio.world_cup.cta_dashboard_aria"
+    >
+      <span data-i18n-key="portfolio.world_cup.cta_dashboard">{t('portfolio.world_cup.cta_dashboard')}</span> →
+    </a>
     <a
       href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion_worldcup"
       class="btn-secondary"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Ver código fonte do scraper no GitHub (abre em nova aba)"
-    >GitHub</a>
+      aria-label={t('portfolio.world_cup.cta_github_aria')}
+      data-i18n-aria="portfolio.world_cup.cta_github_aria"
+    >
+      <span data-i18n-key="portfolio.world_cup.cta_github">{t('portfolio.world_cup.cta_github')}</span>
+    </a>
   </div>
 </div>
 
@@ -273,7 +285,7 @@ const base = import.meta.env.BASE_URL;
       (document.body as HTMLElement).dataset.baseurl ?? '';
     const dataBase = `${base}world-cup-dashboard/data/`;
 
-    const withTimeout = (url: string) => {
+    const withTimeout = async (url: string) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
       return fetch(url, { cache: 'no-cache', signal: controller.signal })

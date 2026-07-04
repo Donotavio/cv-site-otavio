@@ -106,6 +106,18 @@ export const QUERIES: Record<string, QuerySpec> = {
     result: 'packages loaded · 14 technologies',
   },
 
+  portfolio: {
+    lang: 'sql',
+    effect: 'fetch',
+    code: [
+      'SELECT project, status, impact',
+      'FROM portfolio',
+      "WHERE featured = TRUE",
+      'ORDER BY impact DESC;',
+    ],
+    result: '4 rows fetched · 0.016s',
+  },
+
   projects: {
     lang: 'sql',
     effect: 'sort',

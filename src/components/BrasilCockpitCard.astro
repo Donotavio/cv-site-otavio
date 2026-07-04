@@ -21,6 +21,8 @@
  *         em PixObservatoryCard.astro — este card não registra motion).
  */
 
+import { t } from '../lib/i18n';
+
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -29,43 +31,51 @@ const base = import.meta.env.BASE_URL;
   <span class="crop-mark-br" aria-hidden="true"></span>
 
   <div class="cockpit-card__label-row">
-    <span class="mono-label">projeto ao vivo</span>
-    <span class="mono-label cockpit-card__badge">atualizado diariamente</span>
+    <span class="mono-label" data-i18n-key="portfolio.brasil_cockpit.live_label">{t('portfolio.brasil_cockpit.live_label')}</span>
+    <span
+      class="mono-label cockpit-card__badge"
+      data-i18n-key="portfolio.brasil_cockpit.updated_daily"
+    >{t('portfolio.brasil_cockpit.updated_daily')}</span>
   </div>
 
-  <h3 id="cockpit-card-title" class="cockpit-card__title">Brasil Cockpit</h3>
+  <h3
+    id="cockpit-card-title"
+    class="cockpit-card__title"
+    data-i18n-key="portfolio.brasil_cockpit.title"
+  >{t('portfolio.brasil_cockpit.title')}</h3>
 
-  <p class="cockpit-card__desc">
-    Painel executivo de KPIs macro do Brasil — status semafórico vs metas,
-    delta e tendência, atualizado automaticamente.
-  </p>
+  <p
+    class="cockpit-card__desc"
+    data-i18n-key="portfolio.brasil_cockpit.description"
+  >{t('portfolio.brasil_cockpit.description')}</p>
 
   <div class="cockpit-card__tags">
-    <span class="tag tag--ck">Macroeconomia</span>
-    <span class="tag tag--ck">Dashboard</span>
-    <span class="tag">Open Source</span>
+    <span class="tag tag--ck" data-i18n-key="portfolio.brasil_cockpit.tag_1">{t('portfolio.brasil_cockpit.tag_1')}</span>
+    <span class="tag tag--ck" data-i18n-key="portfolio.brasil_cockpit.tag_2">{t('portfolio.brasil_cockpit.tag_2')}</span>
+    <span class="tag" data-i18n-key="portfolio.brasil_cockpit.tag_open_source">{t('portfolio.brasil_cockpit.tag_open_source')}</span>
   </div>
 
   <ul
     class="cockpit-card__strip"
     id="cockpit-card-strip"
     role="list"
-    aria-label="Contagem de KPIs por status semafórico — Brasil Cockpit"
+    aria-label={t('portfolio.brasil_cockpit.status_aria')}
+    data-i18n-aria="portfolio.brasil_cockpit.status_aria"
   >
     <li class="cockpit-card__status" data-status="verde">
       <span class="cockpit-card__status-dot" aria-hidden="true"></span>
-      <span class="cockpit-card__status-label mono-label">Verde</span>
-      <span class="cockpit-card__status-count" data-status-count="verde">···</span>
+      <span class="cockpit-card__status-label mono-label" data-i18n-key="portfolio.brasil_cockpit.status_verde">{t('portfolio.brasil_cockpit.status_verde')}</span>
+      <span class="cockpit-card__status-count" data-status-count="verde" aria-label="Green KPI count">···</span>
     </li>
     <li class="cockpit-card__status" data-status="amarelo">
       <span class="cockpit-card__status-dot" aria-hidden="true"></span>
-      <span class="cockpit-card__status-label mono-label">Amarelo</span>
-      <span class="cockpit-card__status-count" data-status-count="amarelo">···</span>
+      <span class="cockpit-card__status-label mono-label" data-i18n-key="portfolio.brasil_cockpit.status_amarelo">{t('portfolio.brasil_cockpit.status_amarelo')}</span>
+      <span class="cockpit-card__status-count" data-status-count="amarelo" aria-label="Yellow KPI count">···</span>
     </li>
     <li class="cockpit-card__status" data-status="vermelho">
       <span class="cockpit-card__status-dot" aria-hidden="true"></span>
-      <span class="cockpit-card__status-label mono-label">Vermelho</span>
-      <span class="cockpit-card__status-count" data-status-count="vermelho">···</span>
+      <span class="cockpit-card__status-label mono-label" data-i18n-key="portfolio.brasil_cockpit.status_vermelho">{t('portfolio.brasil_cockpit.status_vermelho')}</span>
+      <span class="cockpit-card__status-count" data-status-count="vermelho" aria-label="Red KPI count">···</span>
     </li>
   </ul>
 
@@ -73,15 +83,21 @@ const base = import.meta.env.BASE_URL;
     <a
       href={`${base}brasil-cockpit/`}
       class="btn-primary cockpit-card__cta"
-      aria-label="Abrir Brasil Cockpit — painel de KPIs macro do Brasil"
-    >Ver Cockpit →</a>
+      aria-label={t('portfolio.brasil_cockpit.cta_cockpit_aria')}
+      data-i18n-aria="portfolio.brasil_cockpit.cta_cockpit_aria"
+    >
+      <span data-i18n-key="portfolio.brasil_cockpit.cta_cockpit">{t('portfolio.brasil_cockpit.cta_cockpit')}</span> →
+    </a>
     <a
       href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion_macro"
       class="btn-secondary"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Ver código fonte do pipeline no GitHub (abre em nova aba)"
-    >GitHub</a>
+      aria-label={t('portfolio.brasil_cockpit.cta_github_aria')}
+      data-i18n-aria="portfolio.brasil_cockpit.cta_github_aria"
+    >
+      <span data-i18n-key="portfolio.brasil_cockpit.cta_github">{t('portfolio.brasil_cockpit.cta_github')}</span>
+    </a>
   </div>
 </div>
 

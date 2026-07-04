@@ -1,12 +1,41 @@
 /*
  * Global stylesheet — Blueprint
- * Ordem: tokens → reset → layout → componentes
+ * Ordem: tokens → reset → layout → view-transitions → componentes → print
+ *
+ * print.css por último: suas regras @media print devem vencer sobre quaisquer
+ * estilos de componente (especificidade igual, ordem maior = ganha).
  */
 
 @import './fonts.css';
 @import './tokens.css';
 @import './reset.css';
 @import './layout.css';
+@import './transitions.css';
+@import './print.css';
+
+/* ─── Scrollbar (blueprint — thin, minimal) ──────────── */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}
 
 /* ─── Skip link (a11y) ───────────────────────────────── */
 .skip-link {
@@ -123,14 +152,26 @@
               transform var(--transition-fast);
 }
 .btn-primary:hover {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
   transform: translateY(-1px);
 }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active {
+  background: var(--accent-press);
+  border-color: var(--accent-press);
+  transform: translateY(0);
+}
 .btn-primary:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.btn-primary:disabled,
+.btn-primary[aria-disabled="true"] {
+  background: var(--ink-soft);
+  border-color: var(--ink-soft);
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.5;
 }
 
 /* ─── Botão secundário (outline) ──────────────────────── */
@@ -152,13 +193,21 @@
               transform var(--transition-fast);
 }
 .btn-secondary:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--accent-hover);
+  color: var(--accent-hover);
   transform: translateY(-1px);
 }
+.btn-secondary:active { transform: translateY(0); }
 .btn-secondary:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.btn-secondary:disabled,
+.btn-secondary[aria-disabled="true"] {
+  color: var(--ink-faint);
+  border-color: var(--line);
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ─── Card ────────────────────────────────────────────── */
@@ -175,6 +224,11 @@
   border-color: var(--line-strong);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+}
+/* Navegação por teclado dentro do card reflete o hover (a11y). */
+.card:focus-within {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-md);
 }
 
 /* ─── Link de texto com underline animado ─────────────── */
@@ -193,8 +247,16 @@
   transform-origin: left center;
   transition: transform var(--transition-fast);
 }
-.link-underline:hover { color: var(--accent); }
+.link-underline:hover { color: var(--accent-hover); }
 .link-underline:hover::after { transform: scaleX(1); }
+/* Foco por teclado: mostra underline + outline consistente (não só outline). */
+.link-underline:focus-visible {
+  color: var(--accent);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+.link-underline:focus-visible::after { transform: scaleX(1); }
 
 @media (hover: none) {
   .link-underline::after { display: none; }
@@ -202,8 +264,8 @@
 
 /* ─── Focus visible global ────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-sm);
 }
 

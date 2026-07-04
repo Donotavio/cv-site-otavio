@@ -334,7 +334,7 @@ class BinaryStream {
   update(ctx, colors) {
     ctx.font = `${this.fontSize}px monospace`;
     
-    this.chars.forEach((char, index) => {
+    this.chars.forEach((char) => {
       const rgb = colors.binary.match(/\d+/g).slice(0, 3).join(', ');
       ctx.fillStyle = `rgba(${rgb}, ${char.opacity * 0.4})`;
       ctx.fillText(char.char, this.x, char.y);

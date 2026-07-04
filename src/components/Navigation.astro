@@ -44,7 +44,7 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
 <nav
   class="site-nav"
   data-nav
-  aria-label="Main navigation"
+  aria-label={t('nav.aria_label')}
   data-i18n-aria="nav.aria_label"
 >
   <!-- Hamburger — visível apenas em mobile/tablet -->
@@ -123,10 +123,13 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
       e.preventDefault();
 
       const lenis = (window as Window & { __lenis?: LenisLike }).__lenis;
+      // Offset negativo = para ANTES do alvo, compensando o header fixo (~80px).
+      // O CSS scroll-padding-top cobre o scroll nativo; Lenis precisa do offset explícito.
+      const headerOffset = -80;
       if (lenis) {
-        lenis.scrollTo(target, { offset: 0, duration: 1.1 });
+        lenis.scrollTo(target, { offset: headerOffset, duration: 1.1 });
       } else {
-        // reduced-motion / Lenis ausente → scroll nativo
+        // reduced-motion / Lenis ausente → scroll nativo (respeita scroll-padding-top)
         target.scrollIntoView({ behavior: 'auto', block: 'start' });
       }
 
@@ -167,8 +170,8 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
   }
 
   .nav-toggle:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
   }
 
   @media (hover: none) {
@@ -245,8 +248,8 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
   }
 
   .nav-link:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
     border-radius: var(--radius-sm);
   }
 
