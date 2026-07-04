@@ -39,6 +39,8 @@
   <!-- Estilos e app -->
   <link rel="stylesheet" href="css/style.css">
   <script src="js/main.js" defer></script>
+  <script src="js/motion.js" defer></script>
+  <script src="js/deepstats.js" defer></script>
 
   <!-- Fallback sem JS: garante que [data-reveal] não fique invisível
        permanentemente se o IntersectionObserver nunca rodar, e mostra
@@ -116,8 +118,9 @@
           <p class="wc-hero__lead">
             Dashboard estático sobre a Copa do Mundo FIFA 2026 — 48 seleções,
             104 jogos. Pipeline Python coleta partidas, artilharia e estatísticas
-            a cada hora durante a janela de jogos. Tudo renderizado no navegador
-            a partir de JSONs públicos.
+            a cada hora. Uma camada de análise por bola — momentum via openfootball
+            hoje, finalizações e redes de passes quando o rastreamento óptico abrir —
+            completa o painel. Tudo no navegador, a partir de JSONs públicos.
           </p>
 
           <div class="wc-hero__actions">
@@ -349,12 +352,105 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════════
-         [04] MONTE CARLO (simulação 10k)
+         [04] MAPA DE FINALIZAÇÕES (shot map + xG)
+         ══════════════════════════════════════════════════════ -->
+    <section id="shot-map" class="section wc-shotmap-section" aria-labelledby="wc-shotmap-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="mono-label">04</span>
+          <h2 id="wc-shotmap-title" class="wc-display">Mapa de Finalizações</h2>
+          <p class="wc-lead">Local de cada finalização no gramado, dimensionada pelo xG. Posições via FBref (fonte primária: StatsBomb) — ativa assim que o pipeline entregar a primeira partida.</p>
+        </div>
+        <hr class="section-line" aria-hidden="true" data-reveal>
+        <span class="mono-label wc-shotmap-tagline" style="display:block;margin-bottom:var(--space-5);color:var(--ink-faint)">rastreamento óptico público · não o sensor da bola</span>
+
+        <!-- filter toolbar -->
+        <div class="wc-shotmap-controls" role="toolbar" aria-label="Filtrar finalizações" style="display:flex;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-4)">
+          <div class="wc-shotmap-controls__group" role="group" aria-label="Filtrar por resultado" id="wc-shotmap-filters" style="display:flex;gap:var(--space-2);flex-wrap:wrap"></div>
+        </div>
+
+        <div class="wc-shotmap-grid" style="display:grid;gap:var(--space-5);grid-template-columns:1fr">
+          <div class="wc-shotmap-pitch crop" data-reveal style="position:relative;aspect-ratio:3/4;background:var(--wc-field-dim);border-radius:var(--radius-md);overflow:hidden;max-width:520px">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <svg id="wc-shotmap-svg" class="wc-shotmap-pitch__svg" viewBox="0 0 60 80" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="wc-shotmap-title wc-shotmap-desc" style="position:absolute;inset:0;width:100%;height:100%">
+              <title id="wc-shotmap-desc">Campo de futebol em vista lateral mostrando a posição de cada finalização; o tamanho do círculo indica o valor de gols esperados.</title>
+            </svg>
+            <div id="wc-shotmap-bubbles" style="position:absolute;inset:0"></div>
+            <p class="wc-shotmap-empty wc-loading mono-label" id="wc-shotmap-empty" hidden style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">Aguardando dados de finalizações para a partida selecionada.</p>
+          </div>
+          <aside class="wc-shotmap-summary card crop" data-reveal aria-live="polite" style="padding:var(--space-5)">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <span class="mono-label" id="wc-shotmap-match">—</span>
+            <ul class="wc-shotmap-legend" role="list" style="display:flex;flex-direction:column;gap:var(--space-2);margin:var(--space-3) 0;list-style:none;padding:0">
+              <li><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--wc-gold);vertical-align:middle"></span> <span class="mono-label">gol marcado</span></li>
+              <li><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--wc-field);opacity:.55;vertical-align:middle"></span> <span class="mono-label">defendida ou fora</span></li>
+            </ul>
+            <p class="wc-error mono-label" id="wc-shotmap-error" hidden>Falha ao carregar o mapa de finalizações. Tentando novamente na próxima atualização.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [05] REDE DE PASSES (pass network)
+         ══════════════════════════════════════════════════════ -->
+    <section id="pass-network" class="section wc-passnet-section" aria-labelledby="wc-passnet-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="mono-label">05</span>
+          <h2 id="wc-passnet-title" class="wc-display">Rede de Passes</h2>
+          <p class="wc-lead">Conexões entre os 11 de cada seleção em uma partida, com espessura proporcional ao volume de passes. Coordenadas via StatsBomb 360 — rastreamento óptico aberto só após o torneio.</p>
+        </div>
+        <hr class="section-line" aria-hidden="true" data-reveal>
+        <span class="mono-label" style="display:block;margin-bottom:var(--space-5);color:var(--ink-faint)">trajetórias dos atletas · não telemetria do chip</span>
+
+        <div class="wc-passnet-team-toggle" role="group" aria-label="Seleção" id="wc-passnet-toggle" style="display:flex;gap:var(--space-2);margin-bottom:var(--space-4);flex-wrap:wrap"></div>
+
+        <div class="wc-passnet-pitch crop" data-reveal style="position:relative;aspect-ratio:16/10;background:var(--wc-field-dim);border-radius:var(--radius-md);overflow:hidden">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <svg id="wc-passnet-svg" class="wc-passnet-pitch__svg" viewBox="0 0 100 64" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="wc-passnet-title wc-passnet-desc" style="position:absolute;inset:0;width:100%;height:100%">
+            <title id="wc-passnet-desc">Campo de futebol em vista superior com os 11 jogadores de cada equipe como nós e linhas entre eles indicando trocas de passes.</title>
+          </svg>
+          <p class="wc-passnet-empty wc-loading mono-label" id="wc-passnet-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">Rede de passes indisponível para a Copa 2026 — dados de rastreamento óptico serão liberados após o torneio.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [06] TRAJETÓRIA DA BOLA (momentum / xG race)
+         ══════════════════════════════════════════════════════ -->
+    <section id="momentum" class="section wc-flow-section" aria-labelledby="wc-flow-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="mono-label">06</span>
+          <h2 id="wc-flow-title" class="wc-display">Trajetória da Bola</h2>
+          <p class="wc-lead">Onde o jogo pendeu, minuto a minuto. Cada subida na linha é um gol; cada marcador, o instante exato. Gols reais da Copa 2026 via openfootball — a telemetria do chip Trionda segue privada na FIFA.</p>
+        </div>
+        <hr class="section-line" aria-hidden="true" data-reveal>
+        <span class="mono-label" style="display:block;margin-bottom:var(--space-5);color:var(--ink-faint)">sinais de jogo via vídeo · não da bola conectada</span>
+
+        <div class="wc-flow-card crop" data-reveal style="position:relative;padding:var(--space-5)">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <div class="wc-momentum-chart wc-stat-card__chart" style="height:clamp(280px,38vw,360px);position:relative">
+            <canvas id="chart-momentum" role="img" aria-label="Linha do tempo horizontal mostrando o xG acumulado por seleção ao longo da partida."></canvas>
+            <div class="wc-momentum-chart__markers" id="wc-momentum-markers" style="position:absolute;inset:0;pointer-events:none"></div>
+          </div>
+          <p class="wc-error mono-label" id="wc-flow-error" hidden>Série temporal indisponível. Fonte: openfootball.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [07] MONTE CARLO (simulação 10k)
          ══════════════════════════════════════════════════════ -->
     <section id="monte-carlo" class="section wc-prob-section" aria-labelledby="wc-prob-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">04</span>
+          <span class="mono-label">07</span>
           <div class="wc-mc-title-row">
             <h2 id="wc-prob-title" class="wc-display">Monte Carlo</h2>
             <button type="button"
@@ -510,7 +606,7 @@
     <section id="grupos" class="section wc-groups-section" aria-labelledby="wc-groups-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">05</span>
+          <span class="mono-label">08</span>
           <h2 id="wc-groups-title" class="wc-display">Fase de grupos</h2>
           <p class="wc-lead">
             12 grupos de 4 seleções. Os três primeiros de cada grupo avançam
@@ -534,7 +630,7 @@
     <section id="mata-mata" class="section wc-bracket-section" aria-labelledby="wc-bracket-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">06</span>
+          <span class="mono-label">09</span>
           <h2 id="wc-bracket-title" class="wc-display">Mata-mata</h2>
           <p class="wc-lead">
             32 seleções no mata-mata: 16 avos, oitavas, quartas, semifinal e final.
@@ -556,7 +652,7 @@
     <section id="selecao-copa" class="section wc-selection-section" aria-labelledby="wc-selection-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">07</span>
+          <span class="mono-label">10</span>
           <h2 id="wc-selection-title" class="wc-display">Seleção da Copa</h2>
           <p class="wc-lead">
             O melhor XI em 4-3-3, inferido dos resultados do torneio. O artilheiro
@@ -577,7 +673,7 @@
     <section id="insights" class="section wc-insights-section" aria-labelledby="wc-insights-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">08</span>
+          <span class="mono-label">11</span>
           <h2 id="wc-insights-title" class="wc-display">Insights</h2>
           <p class="wc-lead">
             Oito leituras editoriais sobre o torneio — números que contam a história.
@@ -600,7 +696,7 @@
     <section id="craque" class="section wc-game-section" aria-labelledby="wc-game-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">09</span>
+          <span class="mono-label">12</span>
           <h2 id="wc-game-title" class="wc-display">Quem é o craque?</h2>
           <p class="wc-lead">
             Dois jogadores aparecem lado a lado. Escolha quem você acha melhor.
@@ -649,7 +745,7 @@
     <section id="partidas" class="section wc-matches-section" aria-labelledby="wc-matches-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">10</span>
+          <span class="mono-label">13</span>
           <h2 id="wc-matches-title" class="wc-display">Partidas</h2>
           <p class="wc-lead">
             Resultados recentes e próximos jogos da Copa. Jogos de hoje
@@ -692,7 +788,7 @@
     <section id="bolao" class="section wc-bolao-section" aria-labelledby="wc-bolao-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">11</span>
+          <span class="mono-label">14</span>
           <h2 id="wc-bolao-title" class="wc-display">Bolão local</h2>
           <p class="wc-lead">
             Palpites salvos só neste navegador. Acerto exato do placar vale
@@ -744,8 +840,10 @@
       <div class="wc-footer__col">
         <span class="mono-label">fonte dos dados</span>
         <p class="wc-footer__text">
-          openfootball/worldcup.json + Google News RSS. Pipeline Python roda
-          a cada hora durante a janela de jogos (13h–22h BRT).
+          openfootball/worldcup.json (calendário, placares e momentum), Google News RSS
+          (manchetes), FBref (xG e mapas de finalização, best-effort) e StatsBomb Open Data
+          360 (rastreamento óptico e redes de passes, liberado após o torneio). Pipeline
+          Python roda a cada hora durante a janela de jogos (13h–22h BRT).
         </p>
       </div>
       <div class="wc-footer__col">

@@ -1,253 +1,324 @@
-# Accessibility & Performance Report — World Cup Dashboard 2026 (v2)
+# Accessibility & Performance Report — World Cup 2026 Dashboard
 
-> Subprojeto HTML/CSS/JS vanilla isolado em `public/world-cup-dashboard/`.
-> Servido direto pelo GitHub Pages (sem build Astro). 3 arquivos soltos
-> + 9 JSONs gerados por scraper (6 seções originais + 6 novas: Grupos,
-> Mata-mato, Seleção da Copa, Insights, Bolão + Monte Carlo expandido).
+**Audit scope:** New sections 04 Shot Map, 05 Pass Network, 06 Momentum + verification that restructuring (renumbered 01–03, 07–14) did not break existing sections.
 
-| Item | Valor |
-|------|-------|
-| Auditor | A11y & Performance Auditor (agent) |
-| Data | 2026-07-03 |
-| Pages-tested | `index.html` (single-page, 11 seções) |
-| Tools | Lighthouse 13.4 (desktop + mobile), @axe-core/cli 4.12, Chrome DevTools (CDP), Impeccable detect 2.x |
-| Status | ✓ **Pronto para produção** |
+- **Auditor:** A11y & Performance Auditor (automated agent)
+- **Date:** 2026-07-04
+- **Page under test:** `http://localhost:4321/cv-site-otavio/world-cup-dashboard/index.html` (Astro dev server, HTTP 200)
+- **Stack:** Static HTML + vanilla JS + Chart.js 4.4.4 (CDN, `defer`) + CSS with design tokens
+- **Lighthouse:** v 12.x, Chrome 150 headless
 
 ---
 
 ## 1. Executive Summary
 
-- **Lighthouse A11y: 100/100** (desktop e mobile) — meta ≥90 ✓ (era 91, **+9 pts**)
-- **Lighthouse Performance: 58 desktop / 70 mobile** — meta ≥90 ⚠ (limitado por CSS/JS sem minify; sem build no subprojeto)
-- **Lighthouse Best Practices: 96/100** (mesma flha esperada: 5× 404 em produção) ✓
-- **Lighthouse SEO: 100/100** ✓
-- **Axe WCAG 2.1 AA: 0 violations** (43 regras passam, era 14) ✓
-- **Axe Full Scan: 0 violations** (era 8 — `aria-allowed-role` em `<article>`) ✓
-- **WCAG 2.1 AA Compliance: ✓ Pass**
-- **Blockers corrigidos: 7** (lista na seção 6)
-- **Warnings restantes: 4** (nenhum bloqueante — listados na seção 7)
-- **Veredito: ✓ Ready for production** (a11y perfeito; performance documentada como tech-debt)
+| Category | Status | Notes |
+|---|---|---|
+| Accessibility (WCAG 2.1 AA) | ⚠ **PARTIAL PASS** | 1 critical bug (latent crash) + 1 wrong aria-label + 4 pre-existing contrast fails |
+| Performance | ⚠ **PARTIAL PASS** | LCP/CLS targets missed (pre-existing); new code itself is clean |
+| Functional verification | ✅ **PASS** for seed-data state; 🔴 **FAIL** for production data state |
+| Cross-check / data flow | ✅ **PASS** for current seed; 🔴 **FAIL** when real data arrives |
+
+**Verdict:** 🔴 **BLOCKED — DO NOT SHIP TO PRODUCTION**
+
+There is a **critical latent bug** in `js/motion.js:17–18` that will crash the Shot Map (04) and Pass Network (05) renderers the moment the FBref/StatsBomb pipeline populates `deepstats.json` with real data. The dashboard "works" only because the seed data marks both sections as `available: false`. As soon as that flag flips, the page throws `TypeError` and the entire deep-stats module aborts. This is a guaranteed production failure on first data refresh.
+
+Fix is **one line** in `motion.js` (see §3).
 
 ---
 
-## 2. Lighthouse Scores (v13.4)
+## 2. PASS/FAIL per Category
 
-### Desktop
-| Categoria | Score Antes | Score Agora | Meta | Status |
-|-----------|-------------|-------------|------|--------|
-| Performance | 58 | 58 | ≥90 | ⚠ limitado por assets não-minificados |
-| Accessibility | **91** | **100** | ≥90 | ✓ |
-| Best Practices | 96 | 96 | ≥90 | ✓ |
-| SEO | **100** | **100** | ≥90 | ✓ |
+### 2.1 Accessibility (WCAG 2.1 AA) — ⚠ PARTIAL PASS
 
-### Mobile
-| Categoria | Score Antes | Score Agora | Meta | Status |
-|-----------|-------------|-------------|------|--------|
-| Performance | 70 | 70 | ≥85 | ⚠ limitado por assets não-minificados |
-| Accessibility | **91** | **100** | ≥90 | ✓ |
-| Best Practices | 96 | 96 | ≥90 | ✓ |
-| SEO | **100** | **100** | ≥90 | ✓ |
+| Check | Result | Detail |
+|---|---|---|
+| All 14 sections have `aria-labelledby` → real `<h2>` | ✅ PASS | Verified programmatically; 14/14 valid (`allSections` in probe output). Hero section uses `wc-hero-title` on `<h1>` (intentional). |
+| Section numbering sequential 01–14, no gaps/dupes | ✅ PASS | 01 Notícias → 02 Artilharia → 03 Estatísticas → **04 Shot Map → 05 Pass Network → 06 Momentum** → 07 Monte Carlo → 08 Grupos → 09 Mata-mata → 10 Seleção → 11 Insights → 12 Craque → 13 Partidas → 14 Bolão. No dupes. |
+| Shot map bubbles: `role="button"` + `tabindex="0"` + descriptive `aria-label` | ✅ PASS (in code) | `js/deepstats.js:289–297` emits correct attrs. **Note:** Cannot be exercised at runtime because of the crash bug (§3.1) — the renderer dies at line 303 before bubbles are injected. |
+| Pass network SVG `role="img"` + `aria-labelledby` → title+desc | ✅ PASS | `index.html:414–416`. SVG `<title id="wc-passnet-desc">` is the description. |
+| Pass network toggle uses `aria-pressed` | ✅ PASS (in code) | `js/deepstats.js:380–383`. Same caveat as above — toggle is only rendered when `data.available !== false`, which means it has never been rendered in production. |
+| Momentum canvas `role="img"` + descriptive `aria-label` | ⚠ **PARTIAL** | `role="img"` ✅. `aria-label` is **WRONG**: HTML hardcodes *"Linha do tempo horizontal mostrando o **xG acumulado** por seleção ao longo da partida"* but the chart actually renders **gols acumulados** (`metric: "goals"` in JSON). The renderer never updates the canvas aria-label dynamically. Also fails the spec criterion "mentions the match, the final score, number of goals". See §4.1. |
+| Goal pulse markers `aria-hidden="true"` | ✅ PASS | `js/deepstats.js:689` `span.setAttribute('aria-hidden', 'true')`. Verified 8 markers present, all hidden from AT. |
+| Color contrast (new classes) | ✅ PASS for new code | `.wc-shot-bubble--goal` (gold `#B0820D` w/ gold-ink ring `#8A5A06`) on paper: ≥5.8:1 ✓. `.wc-pass-edge` decorative SVG line, not text — 3:1 N/A. `.wc-goal-pulse__dot` gold on chart bg — decorative, N/A. |
+| Color contrast (pre-existing, **not in audit scope**) | ⚠ **FAIL** | 4 instances of `--ink-faint` `#6C6C6C` on `--wc-live-dim` (rendered `#f3e5e4`) = **4.28:1** < 4.5:1. Found in news-source tag, freshness, etc. Pre-existing in main.js sections — **not introduced by this PR**. |
+| Keyboard navigation, `:focus-visible` visible | ✅ PASS | Tab chain verified: skip-link → nav back → team filter chips → … All 8 sampled stops report `hasFocusVisible: true`. |
+| `prefers-reduced-motion` neutralizes new animations | ✅ PASS | Three layers all verified: (a) CSS `@media (prefers-reduced-motion: reduce)` at `css/style.css:2924–2933` overrides `.wc-shot-bubble`, `.wc-pass-node`, `.wc-pass-edge`, hides `.wc-goal-pulse__ring`. (b) JS guard `prefersReducedMotion()` in `motion.js:9, 22, 64, 89` short-circuits to instant. (c) Chart.js animation disabled — measured `chart.options.animation === false` under emulated reduced-motion. |
+| `IntersectionObserver` fallback | ✅ PASS | `motion.js:22` and `motion.js:89` check `typeof IntersectionObserver === 'undefined'` and add `.is-visible` immediately. `deepstats.js:101` does the same. |
 
-### Core Web Vitals
+### 2.2 Performance — ⚠ PARTIAL PASS
+
 | Metric | Desktop | Mobile | Target | Status |
-|--------|---------|--------|--------|--------|
-| FCP (First Contentful Paint) | 1.7 s | 1.7 s | <2.5 s | ✓ |
-| LCP (Largest Contentful Paint) | 3.2 s | 3.2 s | <2.5 s | ⚠ |
-| CLS (Cumulative Layout Shift) | 0.341 | 0.625 | <0.1 | ⚠ |
-| TBT (Total Blocking Time) | 10 ms | 10 ms | <200 ms | ✓ |
-| Speed Index | 1.7 s | 1.7 s | <3.0 s | ✓ |
+|---|---|---|---|---|
+| Lighthouse Performance | 59 | 65 | ≥90 | 🔴 (pre-existing) |
+| Lighthouse Accessibility | 96 | 96 | ≥90 | ✅ |
+| Lighthouse Best Practices | 96 | 96 | ≥90 | ✅ (only fail is favicon 404, pre-existing) |
+| Lighthouse SEO | 100 | 100 | ≥90 | ✅ |
+| FCP | 1.8s | 1.8s | <2.5s | ✅ |
+| LCP | 3.6s | 3.6s | <2.5s | 🔴 (pre-existing — hero font swap) |
+| CLS | **0.625** | **0.625** | <0.1 | 🔴 (pre-existing — hero font swap) |
+| TBT | 330ms | 130ms | <200ms | ⚠ desktop only |
 
-*LCP 3.2s e CLS elevado derivam de:
-- **CSS 76 KB não-minificado** (render-blocking → adia LCP)
-- **JS 75 KB não-minificado** (Chart.js CDN já é min; main.js não)
-- **Skeleton heights** nem sempre casam 1:1 com conteúdo real → micro-shifts quando seções populam
-- Sem build step no subprojeto vanilla (mitigação documentada na seção 7)*
+**Performance findings specific to the new code:**
 
----
+- ✅ **No layout thrash.** New CSS (`css/style.css:2854–2933`) only transitions `transform`, `opacity`, `stroke-dashoffset`. No `width`/`top`/`left` transitions. ✓
+- ✅ **No new render-blocking resources.** New scripts (`motion.js`, `deepstats.js`) load via existing `<script defer>` chain. ✓
+- ✅ **No new long tasks attributable to new code.** Existing 10 long tasks all originate from `cdn.jsdelivr.net/.../chart.umd.min.js` (Chart.js parse). New code (`deepstats.js`/`motion.js`) adds negligible parse cost.
+- ⚠ **Unused JS:** 28 KiB from Chart.js (deepstats uses only line chart). Pre-existing pattern (other charts in main.js also use Chart.js). Not blocking.
+- ✅ **CSP compliance.** Verified no inline event handlers introduced; Chart.js still loaded from whitelisted `https://cdn.jsdelivr.net`. Page-level `<meta http-equiv="Content-Security-Policy">` (`index.html:17–24`) is honored by browsers even though Astro dev server doesn't echo it as a header.
+- ✅ **Chart.js load order.** All four scripts are `defer`, executed in document order: Chart.js → main.js → motion.js → deepstats.js. `Chart` is guaranteed defined when `renderMomentum` runs. Defensive `typeof Chart === 'undefined'` guard exists at `js/deepstats.js:517`. ✓
 
-## 3. WCAG 2.1 AA Compliance
+### 2.3 Functional Verification — ✅ for seed state, 🔴 for production state
 
-| Pilar | Status | Detalhe |
-|-------|--------|---------|
-| **Perceivable** | ✓ Pass | Contraste, alt text, captions em canvas via `aria-label` |
-| **Operable** | ✓ Pass | Teclado, focus visible, skip link, sem traps |
-| **Understandable** | ✓ Pass | `lang="pt-BR"`, labels descritivos, erro visível no bolão |
-| **Robust** | ✓ Pass | HTML semântico, ARIA correto, compatibility AT |
+| Check | Result |
+|---|---|
+| `main.js` unchanged | ✅ PASS — `md5(e6c6f409ba9d31229a84d64d89d1bdfb)` matches HEAD exactly. `git diff HEAD -- main.js` returns empty. |
+| Sections 01–03 render | ✅ PASS — skeletons present, mono-labels 01/02/03, h2 titles valid. |
+| Sections 07–14 (renumbered) render | ✅ PASS — labels sequential 07–14, all `aria-labelledby` valid, no broken refs. |
+| Section 04 graceful empty state | ✅ PASS — `#wc-shotmap-empty` shown with `"Aguardando dados de finalizações para a partida selecionada."`, `#wc-shotmap-error` correctly hidden, `#wc-shotmap-match` reads `"aguardando FBref · pipeline CI"`. |
+| Section 05 graceful empty state | ✅ PASS — `#wc-passnet-empty` shown with `"Selecione uma partida para montar a rede de passes."`. |
+| Section 06 momentum chart renders | ✅ PASS — canvas 696×270, Chart.js instance created, 8 goal markers placed, error box hidden. Dataset labels: `"GER · Gols acumulados"` and `"CUW · Gols acumulados"` (matches `metric_label`). Axis Y title: `"Gols acumulados"`. Tooltip callback returns `"${tag}: ${v} gols"` (verified in code, `deepstats.js:610–613`). |
+| Section 04 with data | 🔴 **FAIL** — see §3.1 (motion.js crash). |
+| Section 05 with data | 🔴 **FAIL** — see §3.1 (same bug). |
 
----
+### 2.4 Cross-check Data Flow — ✅ for seed, 🔴 when populated
 
-## 4. Audit das 6 NOVAS Seções
-
-### [04] Monte Carlo (10k simulações)
-- ✓ Lista `role="list"` com 12 itens `role="listitem"`
-- ✓ Barra de probabilidade agora usa `transform: scaleX` (era `width` — causava layout thrash)
-- ✓ `aria-live="polite"` no methodology badge
-- ✓ Respeita `prefers-reduced-motion` (barra instantânea)
-
-### [05] Grupos (12 grupos × 4 seleções)
-- ✓ **FIX B1**: Adicionado `role="list"` em `.wc-group-rows` (era missing → `role="listitem"` órfão falhava `aria-required-parent`)
-- ✓ Badge "classificado" com contraste adequado (`--wc-field-ink` em `--wc-field-dim`)
-- ✓ Linhas qualificadas agora usam `box-shadow: inset 3px 0 0` (era `border-left: 3px solid` — causava shift de layout e era flag de AI-tell)
-- ✓ `title` em cada célula (PTS, J, GP:GC, SG) para tooltip acessível
-
-### [06] Mata-mato (Bracket)
-- ✓ Desktop: 6 colunas com `role="region" aria-label`
-- ✓ Mobile: 6 `<details><summary>` (nativo, acessível por teclado)
-- ✓ Connectores decorativos: 84 elementos `aria-hidden="true"`
-- ✓ Badge "HOJE": redundância texto + cor (azul-tag `--wc-live-ink` + dot `--wc-live`)
-- ✓ Card "is-today": agora usa `box-shadow: inset` em vez de `border-left` (mesma razão dos grupos)
-
-### [07] Seleção da Copa (XI em campo 4-3-3)
-- ✓ `.wc-pitch` tem `role="img"` + `aria-label="Campo 4-3-3 com a seleção da Copa"`
-- ✓ Crop-marks decorativos: `aria-hidden="true"`
-- ✓ Artilheiro entre FW ganha `.wc-player-token--topscorer` (anel dourado visível)
-- ✓ Goleiros em row própria (`.wc-pitch__row--gk`) + faixa lateral `top_goalkeepers`
-- ✓ Tokens têm `title` com nome + seleção + posição + stat
-
-### [08] Insights (8 cards editoriais)
-- ✓ Hierarquia correta: `<h2>` (seção) → `<h3>` (cada insight)
-- ✓ **FIX B4**: Removido `role="listitem"` dos `<article>` (era inválido per `aria-allowed-role` — article tem role implícito)
-- ✓ Categoria do card (gold/field/live/ink) por cor de top-border (não só texto — dupla codificação)
-- ✓ Numeração `[01]–[08]` em `mono-label` (assinatura Blueprint, aceita como estilo)
-- ✓ Palavra-chave numérica destacada via `<span class="wc-insight-card__key">` no body
-
-### [11] Bolão Local (localStorage)
-- ✓ Todos os 10 inputs têm `aria-label` descritivo (`"Gols ${teamName}"`)
-- ✓ Submit buttons: 5× `<button type="button">` (acessíveis por teclado — Tab + Enter)
-- ✓ Região `aria-live="polite"` na lista de palpites (anuncia mudanças)
-- ✓ **FIX B2**: Removido `opacity: 0.78` de `.wc-bolao-item.is-finished` (era causa de contraste insuficiente — agora só muda background)
-- ✓ Reset button com `confirm()` para evitar acidentes
-
-### Skeleton (estado de carregamento)
-- ✓ **FIX B6**: `<noscript>` aprimorado — esconde skeletons e mostra `.wc-nojs-msg` (antes skeletons ficavam visíveis para sempre sem JS)
-- ✓ **FIX B7**: `min-height` reservado em 5 host containers (grupos/bracket/selection/insights/bolão) para reduzir CLS
-- ✓ `.wc-skeleton-card` tem `min-height: 88px` base
-- ✓ Shimmer respeita `prefers-reduced-motion: reduce` (animação desligada)
+| Check | Result |
+|---|---|
+| `data/deepstats.json` fetches with HTTP 200 | ✅ PASS |
+| `deepstats.js` parses JSON and dispatches to 3 renderers | ✅ PASS (`init()` at `deepstats.js:734–752`) |
+| Renderer reads `data.home.cum` (not `xg_cum`) | ✅ PASS — `deepstats.js:538` `const homeData = data.home.cum || data.home.xg_cum;`. Backwards-compatible. |
+| `metric_label` used for axis title | ✅ PASS — `deepstats.js:630` `title: { display: true, text: metricLabel }` |
+| `metric === 'goals'` switches tooltip to `"gols"` | ✅ PASS — `deepstats.js:610–613` |
 
 ---
 
-## 5. Accessibility Audit Results (Detalhado)
+## 3. Critical Issues (must fix before production)
 
-### Keyboard Navigation
-- ✓ Tab order lógico (skip-link → nav → KPIs → seções sequencialmente)
-- ✓ Focus visible em todos os 85 elementos focáveis (`:focus-visible` com outline 2px)
-- ✓ Modal (`#wc-ranking-modal`): `role="dialog" aria-modal="true"`, fecha com ✕ e backdrop
-- ✓ `<details>/<summary>` do bracket-mobile: abre/fecha com Enter e Space
-- ✓ Inputs do bolão: Tab entre eles, Enter no botão "Palpitar" submete
+### 3.1 🔴 `motion.js:17–18` — sort-wrapper bug crashes both new renderers
 
-### Screen Reader (VoiceOver/NVDA compatible)
-- ✓ Página estrutura anunciada: `<header>` (banner), `<main id="main-content">`, `<section aria-labelledby>` × 11, `<footer>` (contentinfo)
-- ✓ Links e botões com texto descritivo (sem "click here")
-- ✓ Canvas (charts) têm `role="img"` + `aria-label` com descrição do gráfico
-- ✓ Imagens decorativas (flags emoji, crop-marks): `aria-hidden="true"`
-- ✓ Aria-live regions: freshness, news, matches, bolão
+**Symptom (live reproduction):**
 
-### Color Contrast
-- ✓ **Body text**: `--ink` (#0A0A0A) em `--paper-card` (#FFF) = 20:1 ✓
-- ✓ **Ink-soft**: `#545454` em `#FFFFFF` = 7.56:1 ✓
-- ✓ **Ink-faint**: `#6C6C6C` em `#FFFFFF` = 5.16:1 ✓
-- ✓ **Ink-faint** em `--paper-soft` `#F4F4F2` = 4.76:1 ✓
-- ✓ **FIX B5**: KPI/stat/player-card/bolão value agora usam `--wc-field-ink` (#0B6B2E, 6.54:1) em vez de `--wc-field` (#2E8B2E, 4.33:1 — falhava em axe)
-- ✓ WCAG AA 4.5:1 confirmado em todos os textos (0 violations)
+```
+TypeError: Cannot read properties of undefined (reading 'xg')
+    at sort (deepstats.js:305:42)
+    at Array.sort (<anonymous>)
+    at Object.revealStagger (motion.js:18:17)
+    at renderShotMapBubbles (deepstats.js:303:14)
 
-### Reduced-Motion Testing
-- ✓ Feature detect: `prefers-reduced-motion` em CSS (`[data-reveal]`, animations, shimmer, count-up)
-- ✓ JS check: `prefersReducedMotion()` em `observeReveals`, `setupCountUp`, `renderDuel`
-- ✓ Animações desativadas em modais e backdrop
-- ✓ Comportamento fallback testado em macOS (System Settings → Accessibility → Display → Reduce Motion)
+TypeError: Cannot read properties of undefined (reading 'line')
+    at sort (deepstats.js:493:46)
+    at Array.sort (<anonymous>)
+    at Object.revealStagger (motion.js:18:17)
+    at renderPassNetNodes (deepstats.js:491:14)
+```
 
----
+**Root cause:**
 
-## 6. Blockers Corrigidos (antes → depois)
+`js/motion.js:16–20`:
 
-| # | Issue | Causa | Fix | Arquivo |
-|---|-------|-------|-----|---------|
-| **B1** | `[role]`s not contained by required parent (Lighthouse weight=10) | `.wc-group-row role="listitem"` órfão dentro de `.wc-group-rows` sem `role="list"` | Adicionado `role="list"` ao wrapper `.wc-group-rows` | `js/main.js:750` |
-| **B2** | Color contrast 2.06:1 em match placeholders (Axe × 5) | `.wc-match--placeholder { opacity: 0.78 }` reduz contraste de todo texto filho | Trocado `opacity` por `background: var(--paper-soft)` + cor de texto `--ink-soft` (4.5:1+) | `css/style.css:1518-1521` |
-| **B3** | Color contrast em elementos durante reveal animation | `[data-reveal]` começava em `opacity: 0` mesmo sem JS ter rodado — Axe capturava mid-animation | (a) Default state agora é `opacity: 1`; (b) hidden state gated por `html.has-js` class adicionada via inline script ANTES do primeiro paint; (c) Removido `data-reveal` de hero card e KPIs (above-the-fold, render imediato); (d) Transition `0.6s` → `0.35s` | `css/style.css:476-492`, `index.html:51-56,105,131,147,161,176` |
-| **B4** | `aria-allowed-role`: `<article role="listitem">` inválido (Axe × 8) | `<article>` tem role implícito que não pode ser overridden com `listitem` | Removido `role="listitem"` dos 8 articles de insights + removido `role="list"` do container (não é mais lista) | `index.html:461`, `js/main.js:1075` |
-| **B5** | Low contrast em números grandes (kpi/stat/player/bolao) | `--wc-field` (#2E8B2E) tem 4.33:1 — passa large-text (3:1) mas falha em scanners automatizados | Trocado por `--wc-field-ink` (#0B6B2E = 6.54:1) em 4 usos de texto | `css/style.css:690,1037,1258,2526` |
-| **B6** | Skeleton cards permaneciam para sempre sem JS | `<noscript>` só mostrava `[data-reveal]`, não escondia skeletons | `<noscript>` aprimorado: esconde `.wc-skeleton-card`, mostra `.wc-nojs-msg` com instruções | `index.html:43-67` |
-| **B7** | CLS alto (0.341 desktop, 0.625 mobile) — containers sem altura reservada | Skeleton heights não casavam com conteúdo real | Adicionado `min-height` em 5 host containers (grupos/bracket/selection/insights/bolão) + min-height 88px em todos os skeleton cards | `css/style.css:1686-1693` |
+```js
+if (typeof o.sort === 'function') {
+  const withIndex = arr.map((el, i) => ({ el, i }));
+  withIndex.sort(o.sort);          // ❌ passes {el, i} wrappers, not raw els
+  arr = withIndex.map(x => x.el);
+}
+```
 
----
+The `withIndex` array holds `{el, i}` wrapper objects, but `withIndex.sort(o.sort)` invokes the **user-supplied** `o.sort` with those wrappers. The user sort callbacks in `deepstats.js` access element APIs directly:
 
-## 7. Warnings Restantes (não bloqueantes)
+- `js/deepstats.js:305` — `sort: (a, b) => Number(b.dataset.xg) - Number(a.dataset.xg)`
+- `js/deepstats.js:493` — `sort: (a, b) => (lineOrder[a.dataset.line] ?? 9) - (lineOrder[b.dataset.line] ?? 9)`
 
-### W1. Performance score 58/70 (meta ≥90)
-**Causa**: CSS 76 KB e JS 75 KB não-minificados (subprojeto vanilla, sem build step).
-**Mitigação sugerida**: Adicionar um `scripts/build-wc.sh` que minifica antes do deploy, OU migrar para Astro para herdar o pipeline do site principal.
-**Esforço**: médio (4h).
-**Priority**: P2 — não bloqueia launch (Core Web Vitals limpos no field data).
+So `b.dataset` is `undefined` (because `b` is `{el, i}`, not the DOM node) → `undefined.xg` → TypeError. The whole `renderShotMapBubbles` (and `renderPassNetNodes`) call aborts.
 
-### W2. `.wc-scorers-wrap` padding ainda flagged
-**Estado**: Já corrigido (era `padding: 0`, agora `padding: 12px 16px`). Impeccable ainda mostra 1 finding residual em outra seção — falsos positivos em `<section>` (tem 80px de padding-block + container com 20px inline).
-**Priority**: P3 — false positive.
+**Why this is critical:**
 
-### W3. Layout transition em width (CORRECTED)
-**Estado**: CORRIGIDO — barra de probabilidade agora usa `transform: scaleX` (era `transition: width`). Impeccable ainda mostra a linha antiga na cache local.
-**Priority**: P4 — já feito.
+1. The dashboard ships with `shot_map.available === false` and `pass_network.available === false` (seed JSON), so the crash is **latent** — early-exit in `renderShotMap` (`deepstats.js:200`) and `renderPassNetwork` (`deepstats.js:353`) prevents the buggy code path from running.
+2. The pipeline is described as *"currently aguardando FBref · pipeline CI"* and *"Tentativa automatizada ativa no pipeline CI."* The moment CI writes real shots/edges, `data.available` flips `true` and **the page breaks on next refresh.**
+3. The crash is **uncaught** — it propagates out of `renderShotMapBubbles` → `renderShotMap` → `init()`. The third renderer (`renderMomentum`) is called immediately after at `deepstats.js:748`; whether it still runs depends on whether the IIFE-level `init()` catches. It does **not** — there is no try/catch around lines 746–748. So **a single bad shots array also kills the working momentum chart.**
+4. Even if momentum were guarded, two of the three new sections (the headline features of this PR) would silently fail and leave empty pitches with no error UI.
 
-### W4. Side-tab borders (CORRECTED)
-**Estado**: CORRIGIDO — `border-left: 3px solid` em `.wc-group-row.is-qualified` e `.wc-bracket-match.is-today` trocado por `box-shadow: inset 3px 0 0` (mais sofisticado, sem shift de layout). Impeccable detect agora passa limpo nessas duas linhas.
-**Priority**: P4 — já feito.
+**Fix (one line):**
 
----
+`js/motion.js:18`:
 
-## 8. Impeccable Detect — Anti-patterns
+```diff
+- withIndex.sort(o.sort);
++ withIndex.sort((a, b) => o.sort(a.el, b.el));
+```
 
-| Finding | Antes | Depois | Ação |
-|---------|-------|--------|------|
-| Total anti-patterns | 24 | **19** | 5 corrigidos |
-| `side-tab` (border-left 3px) | 2 | 0 | ✓ Corrigido (`box-shadow: inset`) |
-| `layout-transition` (width) | 1 | 0 | ✓ Corrigido (`transform: scaleX`) |
-| `low-contrast` (#2e8b2e em texto) | 1 | 0 | ✓ Corrigido (`--wc-field-ink`) |
-| `cramped-padding` (.wc-scorers-wrap) | 1 | 0 | ✓ Corrigido (`padding: 12px 16px`) |
-| `cramped-padding` (sections × 6) | 5 | 6 | False positive (sections têm 80px padding-block + container 20px inline — o dobro do recomendado) |
-| `clipped-overflow-container` (html/body) | 2 | 2 | False positive (`overflow-x: clip` só clipa horizontal; modals usam `position: fixed` que escapa) |
-| `overused-font` (Instrument Serif/Inter) | 6 | 6 | Skip — assinatura da marca (não corrigir) |
-| `all-caps-body` (mono-labels) | 3 | 3 | Skip — intencional (eyebrow labels) |
-| `em-dash-overuse` (14 em-dashes) | 1 | 1 | Skip — estilo editorial |
-| `numbered-section-markers` (01-11) | 1 | 1 | Skip — assinatura Blueprint |
+This adapts the wrapper objects to the documented user-facing API. The original `i` index is preserved (currently unused but kept for future use).
+
+**Additional defensive recommendation (should also do):**
+
+Wrap each renderer call in `init()` so a failure in one section doesn't kill the others:
+
+`js/deepstats.js:745–748`:
+
+```diff
+- const d = result.data;
+- renderShotMap(d.shot_map || null);
+- renderPassNetwork(d.pass_network || null);
+- renderMomentum(d.momentum || null);
++ const d = result.data;
++ const safe = (fn, arg) => { try { fn(arg); } catch (e) { console.warn('[WCDeepStats]', e); } };
++ safe(renderShotMap,     d.shot_map     || null);
++ safe(renderPassNetwork, d.pass_network || null);
++ safe(renderMomentum,    d.momentum     || null);
+```
 
 ---
 
-## 9. Browser & Device Compatibility
+## 4. Warnings (should fix, not strictly blocking)
 
-| Browser/Device | Status | Notas |
-|----------------|--------|-------|
-| Chrome 90+ (desktop) | ✓ | Lighthouse 100 a11y |
-| Firefox 88+ (desktop) | ✓ | Sem polyfill necessário |
-| Safari 14+ (desktop) | ✓ | `overflow-x: clip` suportado |
-| Edge 90+ (desktop) | ✓ | Base Chromium |
-| iOS Safari 14+ | ✓ | Lighthouse mobile 100 a11y |
-| Chrome Android 90+ | ✓ | Lighthouse mobile 100 a11y |
+### 4.1 ⚠ Momentum canvas aria-label is stale / wrong
 
-## 10. Assistive Technology Compatibility
+**Location:** `index.html:439`
 
-| AT | Status | Notas |
-|----|--------|-------|
-| VoiceOver (macOS) | ✓ Testado via DevTools a11y tree | Hierarquia clara, labels descritivos |
-| NVDA (Windows) | ✓ Compatível (sem ARIA experimental) | Semrár-_live_, sem role conflitante |
-| JAWS (Windows) | ✓ Compatível | Apenas ARIA estável (dialog, list, listitem, img, region) |
-| Mobile Screen Readers | ✓ | 85 elementos focáveis, todos com nome acessível |
+```html
+<canvas id="chart-momentum" role="img" aria-label="Linha do tempo horizontal mostrando o xG acumulado por seleção ao longo da partida."></canvas>
+```
+
+**Problem:** Hardcoded text says **"xG acumulado"** but the chart actually renders **"Gols acumulados"** (`data.metric === "goals"`, axis title verified at runtime). Screen-reader users hear a description that contradicts what sighted users see. Also fails the spec criterion *"mentions the match, the final score, number of goals"*.
+
+**Fix:** Update the canvas aria-label dynamically inside `renderMomentum` after `metricLabel` is computed (`deepstats.js:~543`):
+
+```js
+const matchStr   = data.match ? `${data.match} — ` : '';
+const finalScore = data.home && data.away
+  ? `Placar final ${data.home.code} ${homeData[homeData.length-1]}–${awayData[awayData.length-1]} ${data.away.code}. `
+  : '';
+const totalGoals = Array.isArray(data.goals) ? `${data.goals.length} gols.` : '';
+canvas.setAttribute('aria-label',
+  `${matchStr}linha do tempo horizontal mostrando ${metricLabel.toLowerCase()} por seleção ao longo da partida. ${finalScore}${totalGoals}`);
+```
+
+### 4.2 ⚠ LCP 3.6s, target <2.5s
+
+**Pre-existing** (not introduced by this PR). LCP element is the hero display title `<h1>23WC A Copa em dados…>`, blocked by font swap on `Instrument Serif` (preloaded at `index.html:31–32` but with metric fallback only). New PR changed only the hero lead paragraph text, not the structure — diff is +9 lines of body copy.
+
+### 4.3 ⚠ CLS 0.625 (Lighthouse), 0.126 (Puppeteer session)
+
+**Pre-existing** (not introduced by this PR). Puppeteer session trace attributes the largest shift to `SECTION.wc-hero` (height 858→679) and `DIV.wc-hero__actions` collapsing during web-font swap at ~283 ms after FCP. New code does **not** contribute to this — the new sections all use `aspect-ratio` (shot map `3/4` at `index.html:373`, pass network `16/10` at `index.html:411`, momentum `clamp(280px,38vw,360px)` at `index.html:438`) so their boxes are reserved before content arrives.
+
+### 4.4 ⚠ Color contrast: `--ink-faint` on `--wc-live-dim` — 4.28:1
+
+**Pre-existing** (not introduced by this PR). 4 instances reported by Lighthouse, all in main.js-driven news/freshness chrome (color `#6C6C6C` on rendered `#f3e5e4`). Spec target 4.5:1 for normal text. Fix would be either:
+- Darken `--ink-faint` token to `#666666` (4.85:1) — global change, needs visual review.
+- Or scope `.wc-news-source, .wc-freshness { color: var(--ink-soft); }` — surgical.
+
+### 4.5 ⚠ `.wc-shot-bubble--miss` effective contrast ~1.5:1 on field-green over paper
+
+**Location:** `css/style.css:2870–2871`
+
+The miss-bubble is `--wc-field` `#2E8B2E` at `opacity: .55` once visible. Composited on `--paper` `#FDFDFD`, effective color is roughly `#94C294`, contrast ≈ 1.5:1 against the paper. These are decorative dots, not text or meaningful UI affordances (the legend at `index.html:386–389` conveys meaning textually), so strict 3:1 does not apply — but consider raising to `opacity: .7` so colour-blind users can distinguish goal vs miss without hovering.
+
+### 4.6 ⚠ `/favicon.ico` 404
+
+Pre-existing. Triggers Lighthouse "errors-in-console" best-practices flag (otherwise best-practices would be 100). Add `<link rel="icon" href="data:,">` or ship a real favicon.
+
+### 4.7 ⚠ `wc-passnet-empty` is not `hidden` initially
+
+**Location:** `index.html:417`
+
+Unlike `#wc-shotmap-empty` (which has `hidden`) and `#wc-shotmap-error` / `#wc-flow-error` (both `hidden`), `#wc-passnet-empty` is visible by default. This is intentional (so the message shows before fetch resolves), but means screen-reader users encounter *"Selecione uma partida para montar a rede de passes."* even if JS is disabled and they have no way to "select" anything. Consider `aria-live="polite"` so AT doesn't announce it eagerly, and gate the message on JS availability via the existing `.has-js` class on `<html>`.
 
 ---
 
-## 11. Recommendations for Maintenance
+## 5. Lighthouse Scores
 
-1. **Minificar CSS/JS antes do deploy** (P2): criar um `npm run build:wc` que chama `lightningcss` e `terser` para reduzir 76→55 KB CSS e 75→45 KB JS. Performance score deve subir para ≥85.
-2. **Re-auditar mensalmente** (P3): scores Lighthouse tendem a deriva com novos browsers — rodar `npm run audit:wc` no CI.
-3. **Monitorar Web Vitals em produção** (P3): adicionar Google Analytics 4 ou Vercel Analytics para field data real (RUM).
-4. **Auditoria anual com usuários reais de AT** (P3): automated cobre 20-50%; o resto precisa de teste manual.
+### Desktop (form factor: desktop, no throttling)
+
+| Category | Score |
+|---|---|
+| Performance | **59**/100 |
+| Accessibility | **96**/100 |
+| Best Practices | **96**/100 |
+| SEO | **100**/100 |
+
+Metrics: FCP **1.8s** · LCP **3.6s** · CLS **0.625** · TBT **330ms** · SI **1.8s** · TTI **4.2s**
+
+### Mobile (form factor: mobile, Lighthouse default 4G throttling)
+
+| Category | Score |
+|---|---|
+| Performance | **65**/100 |
+| Accessibility | **96**/100 |
+| Best Practices | **96**/100 |
+| SEO | **100**/100 |
+
+Metrics: FCP **1.8s** · LCP **3.6s** · CLS **0.625** · TBT **130ms**
+
+### A11y audit failures (score < 1)
+
+- `color-contrast` — 4 instances (see §4.4, pre-existing).
+
+### A11y manual audits (score=null)
+
+All relevant manual audits (heading-order, label, link-name, landmark-one-main, target-size, svg-img-alt, button-name, aria-* family, html-has-lang, skip-link, meta-viewport) were checked programmatically and pass.
 
 ---
 
-## 12. Sign-Off
+## 6. Console Errors
 
-- Auditor: A11y & Performance Auditor (agent)
-- Data: 2026-07-03
-- Files modified: `index.html`, `css/style.css`, `js/main.js`
-- Blockers corrigidos: **7**
-- Warnings restantes: **4** (nenhum bloqueante)
-- **Status: ✓ Ready for production** (a11y perfeito; performance é tech-debt documentada)
+Captured via Puppeteer on a fresh cold load (no data injection):
+
+```
+Failed to load resource: the server responded with a status of 404 (Not Found)
+  → http://localhost:4321/favicon.ico
+```
+
+That is the **only** console error. No JS errors from `deepstats.js`, `motion.js`, or `main.js`. No CSP violations. No 404s on any of the new assets (CSS, both new JS files, deepstats.json — all HTTP 200).
+
+**When shot-map or pass-network data is injected at runtime** (simulating the moment the pipeline populates the JSON), the following uncaught errors appear in console:
+
+```
+TypeError: Cannot read properties of undefined (reading 'xg')
+    at sort (deepstats.js:305:42)
+    at Array.sort (<anonymous>)
+    at Object.revealStagger (motion.js:18:17)
+    at renderShotMapBubbles (deepstats.js:303:14)
+
+TypeError: Cannot read properties of undefined (reading 'line')
+    at sort (deepstats.js:493:46)
+    at Array.sort (<anonymous>)
+    at Object.revealStagger (motion.js:18:17)
+    at renderPassNetNodes (deepstats.js:491:14)
+```
+
+See §3.1 for fix.
+
+---
+
+## 7. Browser / Device Compatibility
+
+Not exhaustively tested in this audit (no Sauce Labs / BrowserStack available). Verified:
+
+- Chrome 150 (headless, Puppeteer) ✅
+- Chrome 150 (Lighthouse desktop + mobile emulation) ✅
+
+Untested but expected to work (vanilla JS, no platform-specific APIs in new code):
+- Firefox latest, Safari 14+, Edge latest, iOS Safari 14+, Chrome Android.
+
+The only platform-specific APIs used are `IntersectionObserver`, `matchMedia('(prefers-reduced-motion: reduce)')`, `PerformanceObserver` (audit only), `fetch`, `Chart.js`. All have fallbacks in place.
+
+---
+
+## 8. Recommendations for Maintenance
+
+1. **CI gate on the bug fixed in §3.1.** Add a smoke test that injects non-empty `shots` and `nodes`/`edges` and asserts no `pageerror` — would have caught this regression before merge.
+2. **Quarterly Lighthouse runs** to catch CLS/LCP drift, especially after font changes.
+3. **Dynamic ARIA for chart canvas** — see §4.1; generalise to all Chart.js canvases (existing stats charts at `index.html:288, 301, 314` have static aria-labels too).
+4. **Token review** — `--ink-faint` at 4.28:1 on tinted backgrounds is a recurring pain point; consider splitting into `--ink-faint` (decorative) and `--ink-meta` (text on tint) at WCAG-AA compliant value.
+5. **CSP header** — currently delivered via `<meta http-equiv>`. Production hosts (GitHub Pages) don't add headers, so meta is the only enforcement. Consider adding `Reporting-Endpoints` / `report-to` for production visibility on violations.
+
+---
+
+## 9. Sign-Off
+
+- **Auditor:** A11y & Performance Auditor (automated)
+- **Date:** 2026-07-04
+- **Status:** 🔴 **BLOCKED — DO NOT LAUNCH**
+
+The single one-line fix in §3.1 unblocks production. Once applied and re-verified, plus the §4.1 aria-label fix, the dashboard can ship. Performance issues (LCP/CLS) are pre-existing and out of scope for this audit cycle.

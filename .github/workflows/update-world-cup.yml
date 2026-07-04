@@ -51,6 +51,9 @@ jobs:
       - name: Executar scraper (Openfootball + RSS + cálculo Elo)
         run: python ingestion_worldcup/scraper.py
 
+      - name: Executar ball-level data (momentum + FBref best-effort)
+        run: python ingestion_worldcup/fetch_ball_level.py
+
       - name: Verificar JSONs gerados
         run: |
           echo "📄 Arquivos em public/world-cup-dashboard/data/:"

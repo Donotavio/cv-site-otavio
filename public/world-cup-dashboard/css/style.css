@@ -2821,3 +2821,113 @@ html.has-js [data-reveal].is-visible {
   .wc-mc-info-btn.is-nudged { animation: none; }
   .wc-mc-modal__body > * { animation: none; }
 }
+
+/* ════════════════════════════════════════════════════════════
+ * Ball-level sections 04 / 05 / 06
+ * Motion + layout para shot map, pass network e momentum.
+ * Usa SOMENTE tokens existentes (zero novos). Prefixo .wc-shot-*,
+ * .wc-pass-*, .wc-goal-* garante zero vazamento.
+ * ════════════════════════════════════════════════════════════ */
+
+/* Section backgrounds (alternate paper/paper-soft como nas demais) */
+.wc-shotmap-section { background: var(--paper); }
+.wc-passnet-section { background: var(--paper-soft); }
+.wc-flow-section    { background: var(--paper); }
+
+/* Shot-map tagline (mono-label inline-block, mesma cor que ink-faint) */
+.wc-shotmap-tagline { color: var(--ink-faint); }
+
+/* Shot map grid — pitch + summary lado a lado em telas grandes */
+@media (min-width: 768px) {
+  .wc-shotmap-grid {
+    grid-template-columns: minmax(0, 520px) minmax(0, 1fr) !important;
+    align-items: start;
+  }
+}
+
+/* Summary card content */
+.wc-shotmap-summary { display: flex; flex-direction: column; gap: var(--space-2); }
+.wc-shotmap-legend { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); }
+.wc-shotmap-legend li { display: flex; align-items: center; gap: var(--space-2); }
+
+/* Shot map — bubbles */
+.wc-shot-bubble {
+  position: absolute;
+  width: calc(var(--r, 8) * 2px);
+  height: calc(var(--r, 8) * 2px);
+  margin-left: calc(var(--r, 8) * -1px);
+  margin-top: calc(var(--r, 8) * -1px);
+  border-radius: 50%;
+  transform: scale(0);
+  transform-origin: center;
+  opacity: 0;
+  cursor: pointer;
+  transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+.wc-shot-bubble.is-visible { transform: scale(1); }
+.wc-shot-bubble--miss { background: var(--wc-field); }
+.wc-shot-bubble--miss.is-visible { opacity: .55; }
+.wc-shot-bubble--goal { background: var(--wc-gold); box-shadow: 0 0 0 1.5px var(--wc-gold-ink); }
+.wc-shot-bubble--goal.is-visible { opacity: 1; }
+@media (hover: hover) {
+  .wc-shot-bubble.is-visible:hover { transform: scale(1.18); z-index: 5; }
+  .wc-shot-bubble--miss.is-visible:hover { opacity: .85; }
+}
+.wc-shot-bubble.is-exiting { transform: scale(0.4); opacity: 0 !important; transition: transform 180ms, opacity 180ms; }
+.wc-shot-bubble:focus-visible {
+  outline: 2px solid var(--wc-gold-ink);
+  outline-offset: 3px;
+}
+.wc-shot-bubble__tip {
+  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  padding: 4px 8px; font-family: var(--font-mono); font-size: var(--text-xs);
+  white-space: nowrap; background: var(--ink); color: var(--paper);
+  border-radius: var(--radius-sm); opacity: 0; pointer-events: none;
+  transition: opacity 150ms;
+}
+.wc-shot-bubble:hover .wc-shot-bubble__tip,
+.wc-shot-bubble:focus-visible .wc-shot-bubble__tip { opacity: 1; }
+
+/* Pass network — nodes + edges */
+.wc-pass-node {
+  opacity: 0; transform: scale(0.5);
+  transform-box: fill-box; transform-origin: center;
+  transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.wc-pass-node.is-visible { opacity: 1; transform: scale(1); }
+.wc-pass-node__label { opacity: 0; transition: opacity 200ms 150ms; font-family: var(--font-mono); fill: var(--ink); }
+.wc-pass-node.is-visible .wc-pass-node__label { opacity: 1; }
+.wc-pass-edge {
+  fill: none; stroke: var(--ink-soft); stroke-width: 1.25; stroke-linecap: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
+  transition: stroke-dashoffset 500ms cubic-bezier(0.65, 0, 0.35, 1), opacity 300ms;
+}
+.wc-pass-edge.is-visible { stroke-dashoffset: 0; opacity: .55; }
+.wc-pass-edge--strong { stroke-width: 2; }
+.wc-pass-edge--strong.is-visible { opacity: .75; stroke: var(--wc-field-ink); }
+
+/* Momentum — goal pulse markers */
+.wc-goal-pulse { position: absolute; width: 12px; height: 12px; margin-left: -6px; margin-top: -6px; pointer-events: none; z-index: 2; }
+.wc-goal-pulse__dot { position: absolute; inset: 0; border-radius: 50%; background: var(--wc-gold); border: 1.5px solid var(--wc-gold-ink); }
+.wc-goal-pulse__ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--wc-gold); opacity: 0; animation: wc-goal-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+@keyframes wc-goal-pulse {
+  0% { transform: scale(1); opacity: .7; }
+  70% { transform: scale(2.6); opacity: 0; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+.wc-goal-pulse:nth-child(2n) .wc-goal-pulse__ring { animation-delay: .6s; }
+.wc-goal-pulse:nth-child(3n) .wc-goal-pulse__ring { animation-delay: 1.2s; }
+
+/* Reduced motion — neutralize all ball-level motion */
+@media (prefers-reduced-motion: reduce) {
+  .wc-shot-bubble, .wc-shot-bubble.is-visible, .wc-pass-node, .wc-pass-edge, .wc-goal-pulse__ring {
+    transition: none !important; animation: none !important;
+  }
+  .wc-shot-bubble { transform: scale(1) !important; opacity: 1 !important; }
+  .wc-shot-bubble--miss.is-visible { opacity: .55 !important; }
+  .wc-pass-node { transform: scale(1) !important; opacity: 1 !important; }
+  .wc-pass-edge { stroke-dashoffset: 0 !important; opacity: .55 !important; }
+  .wc-goal-pulse__ring { display: none; }
+}
