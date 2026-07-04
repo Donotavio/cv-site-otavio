@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-04T16:03:58.804899+00:00",
+  "updated_at": "2026-07-04T20:53:50.052610+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -221,6 +221,13 @@
       "date": "2026-06-14",
       "goals": 4,
       "has_stats": true
+    },
+    {
+      "id": "can-mar-2026-07-04",
+      "label": "Canada 0–3 Morocco",
+      "date": "2026-07-04",
+      "goals": 3,
+      "has_stats": false
     },
     {
       "id": "por-cro-2026-07-02",
@@ -5022,6 +5029,107 @@
             "team": "away",
             "player": "Daichi Kamada",
             "cum": 2
+          }
+        ]
+      },
+      "can-mar-2026-07-04": {
+        "id": "can-mar-2026-07-04",
+        "label": "Canada 0–3 Morocco",
+        "date": "2026-07-04",
+        "total_goals": 3,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "CAN",
+          "flag": "🇨🇦",
+          "name": "Canada",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "away": {
+          "code": "MAR",
+          "flag": "🇲🇦",
+          "name": "Morocco",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            2,
+            3
+          ]
+        },
+        "goals": [
+          {
+            "minute": 50,
+            "team": "away",
+            "player": "Azzedine Ounahi",
+            "cum": 1
+          },
+          {
+            "minute": 82,
+            "team": "away",
+            "player": "Azzedine Ounahi",
+            "cum": 2
+          },
+          {
+            "minute": 90,
+            "team": "away",
+            "player": "Soufiane Rahimi",
+            "cum": 3
           }
         ]
       },
