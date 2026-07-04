@@ -693,7 +693,7 @@ def fetch_noticias() -> dict:
 def build_grupos(matches: list, teams_index: dict) -> dict:
     """
     Classificação completa dos grupos (A–L): pts/V/E/D/GP/GC/SG/jogos.
-    Ordenação: pts → SG → GP → nome. Top 2 marcados como classificados.
+    Ordenação: pts → SG → GP → nome. Top 3 marcados como classificados.
     """
     groups: dict[str, dict[str, dict]] = {}
 
@@ -744,7 +744,7 @@ def build_grupos(matches: list, teams_index: dict) -> dict:
         teams.sort(key=lambda x: (x["pts"], x["diff"], x["goals_for"], -ord(x["name"][0])), reverse=True)
         for i, t in enumerate(teams):
             t["position"] = i + 1
-            t["qualified"] = i < 2
+            t["qualified"] = i < 3
         out_groups.append({"group": grp_name, "teams": teams})
 
     return {

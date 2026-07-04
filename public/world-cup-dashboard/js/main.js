@@ -844,7 +844,7 @@
   }
 
   /* ════════════════════════════════════════════════════════
-   * [06] Render — Bracket do mata-mato
+   * [06] Render — Bracket do mata-mata
    * ════════════════════════════════════════════════════════ */
   // Ordem canônica das fases + label curto.
   const BRACKET_ROUNDS = [
@@ -865,7 +865,7 @@
       return;
     }
 
-    // Filtra só mata-mato (round sem "Matchday"), ordena por num.
+    // Filtra só mata-mata (round sem "Matchday"), ordena por num.
     const ko = result.data.matches
       .filter(m => m.round && !/matchday/i.test(m.round))
       .sort((a, b) => (a.num || 0) - (b.num || 0));
@@ -879,7 +879,7 @@
 
     // Desktop: 6-col grid.
     const desktopHtml = `
-      <div class="wc-bracket" role="region" aria-label="Chave do mata-mato (desktop)">
+      <div class="wc-bracket" role="region" aria-label="Chave do mata-mata (desktop)">
         ${BRACKET_ROUNDS.map(r => {
           const ms = byRound[r.match] || [];
           return `
@@ -898,7 +898,7 @@
 
     // Mobile: <details> por fase.
     const mobileHtml = `
-      <div class="wc-bracket-mobile" role="region" aria-label="Chave do mata-mato">
+      <div class="wc-bracket-mobile" role="region" aria-label="Chave do mata-mata">
         ${BRACKET_ROUNDS.map((r, i) => {
           const ms = byRound[r.match] || [];
           if (!ms.length) return '';
