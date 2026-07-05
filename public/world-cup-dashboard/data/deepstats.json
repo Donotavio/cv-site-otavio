@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-04T20:53:50.052610+00:00",
+  "updated_at": "2026-07-05T00:02:42.662084+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -493,6 +493,13 @@
       "label": "Mexico 2–0 South Africa",
       "date": "2026-06-11",
       "goals": 2,
+      "has_stats": false
+    },
+    {
+      "id": "par-fra-2026-07-04",
+      "label": "Paraguay 0–1 France",
+      "date": "2026-07-04",
+      "goals": 1,
       "has_stats": false
     },
     {
@@ -8842,6 +8849,95 @@
             "team": "home",
             "player": "Raúl Jiménez",
             "cum": 2
+          }
+        ]
+      },
+      "par-fra-2026-07-04": {
+        "id": "par-fra-2026-07-04",
+        "label": "Paraguay 0–1 France",
+        "date": "2026-07-04",
+        "total_goals": 1,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "PAR",
+          "flag": "🇵🇾",
+          "name": "Paraguay",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "away": {
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "name": "France",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "goals": [
+          {
+            "minute": 70,
+            "team": "away",
+            "player": "Kylian Mbappé",
+            "cum": 1
           }
         ]
       },
