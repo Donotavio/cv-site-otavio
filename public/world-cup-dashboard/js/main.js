@@ -957,6 +957,22 @@
     // 3rd place (se existir) ← perdedores das semis (não reordenável)
   };
 
+  // Lado A (vai para SF1 #101) vs Lado B (vai para SF2 #102).
+  // Centro = Final + 3º lugar. Derivado do BRACKET_CROSSING.
+  const BRACKET_SIDES = {
+    // Lado A
+    101: 'A', 97: 'A', 98: 'A', 89: 'A', 90: 'A', 93: 'A', 94: 'A',
+    73: 'A', 74: 'A', 75: 'A', 77: 'A', 81: 'A', 82: 'A', 83: 'A', 84: 'A',
+    // Lado B
+    102: 'B', 99: 'B', 100: 'B', 91: 'B', 92: 'B', 95: 'B', 96: 'B',
+    76: 'B', 78: 'B', 79: 'B', 80: 'B', 85: 'B', 86: 'B', 87: 'B', 88: 'B',
+    // Centro (Final + 3º)
+    103: 'C', 104: 'C',
+  };
+
+  // Ordem das colunas dentro de cada lado (esquerda → direita = fora → centro).
+  const BRACKET_SIDE_ROUNDS = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final'];
+
   function buildBracketVisualOrder(matches) {
     // Indexa por num
     const byNum = new Map();
@@ -1052,46 +1068,105 @@
     const ko = result.data.matches
       .filter(m => m.round && !/matchday/i.test(m.round));
 
-    // Reordena visualmente para refletir o cruzamento oficial (W73 vs W74
-    // lado a lado quando alimentam o mesmo jogo da próxima fase).
+    // Reordena visualmente para refletir o cruzamento oficial.
     const byRound = buildBracketVisualOrder(ko);
 
-    // Desktop: 6-col grid.
+    // Divide partidas em lados A/B/C (Centro = Final + 3º).
+    const split = { A: {}, B: {}, C: {} };
+    Object.entries(byRound).forEach(([round, ms]) => {
+      ms.forEach(m => {
+        const side = BRACKET_SIDES[m.num] || 'C';
+        if (!split[side][round]) split[side][round] = [];
+        split[side][round].push(m);
+      });
+    });
+
+    // Helpers para gerar coluna de um lado
+    const sideColHtml = (round, side) => {
+      const ms = split[side][round] || [];
+      const meta = BRACKET_ROUNDS.find(r => r.match === round);
+      const label = meta ? meta.short : round;
+      return `
+        <div class="wc-bracket-side__col" data-round="${escapeHtml(round)}">
+          <div class="wc-bracket-side__col-head mono-label">${label}</div>
+          <div class="wc-bracket-side__matches">
+            ${ms.length
+              ? ms.map(m => bracketMatchHtml(m)).join('')
+              : `<div class="wc-bracket-match wc-bracket-match--empty" aria-hidden="true"></div>`}
+          </div>
+        </div>`;
+    };
+
+    // Desktop: tree layout com 3 zonas — Lado A | Centro | Lado B
     const desktopHtml = `
-      <div class="wc-bracket" role="region" aria-label="Chave do mata-mata (desktop)">
-        ${BRACKET_ROUNDS.map(r => {
-          const ms = byRound[r.match] || [];
-          return `
-            <div class="wc-bracket__col">
-              <div class="wc-bracket__col-head">
-                <span class="mono-label">${r.short}</span>
-              </div>
-              <div class="wc-bracket__matches">
-                ${ms.length
-                  ? ms.map(m => bracketMatchHtml(m)).join('')
-                  : `<div class="wc-bracket-match wc-bracket-match--empty" aria-hidden="true"></div>`}
-              </div>
-            </div>`;
-        }).join('')}
+      <div class="wc-bracket-tree" role="region" aria-label="Chave do mata-mata">
+        <div class="wc-bracket-tree__side wc-bracket-tree__side--left">
+          <div class="wc-bracket-tree__head mono-label">Lado A → SF1</div>
+          <div class="wc-bracket-tree__cols">
+            ${BRACKET_SIDE_ROUNDS.map(r => sideColHtml(r, 'A')).join('')}
+          </div>
+        </div>
+
+        <div class="wc-bracket-tree__center">
+          <div class="wc-bracket-tree__head mono-label">Final</div>
+          ${(split.C['Final'] || []).map(m => bracketMatchHtml(m)).join('')}
+          ${split.C['Match for third place'] && split.C['Match for third place'].length
+            ? `<div class="wc-bracket-tree__head mono-label" style="margin-top:var(--space-5)">3º lugar</div>
+               ${split.C['Match for third place'].map(m => bracketMatchHtml(m)).join('')}`
+            : ''}
+        </div>
+
+        <div class="wc-bracket-tree__side wc-bracket-tree__side--right">
+          <div class="wc-bracket-tree__head mono-label">SF2 ← Lado B</div>
+          <div class="wc-bracket-tree__cols">
+            ${[...BRACKET_SIDE_ROUNDS].reverse().map(r => sideColHtml(r, 'B')).join('')}
+          </div>
+        </div>
       </div>`;
 
-    // Mobile: <details> por fase.
+    // Mobile: <details> por lado (A / Centro / B), com partidas por fase dentro.
+    const mobileSideHtml = (side, label, open) => {
+      const rounds = side === 'B' ? [...BRACKET_SIDE_ROUNDS].reverse() : BRACKET_SIDE_ROUNDS;
+      const sections = rounds
+        .map(r => {
+          const ms = split[side][r] || [];
+          if (!ms.length) return '';
+          const meta = BRACKET_ROUNDS.find(rr => rr.match === r);
+          return `
+            <div class="wc-bracket-mobile__round">
+              <div class="wc-bracket-mobile__round-head mono-label">${meta ? meta.short : r}</div>
+              ${ms.map(m => bracketMatchHtml(m)).join('')}
+            </div>`;
+        })
+        .join('');
+      const center = side === 'C' && split.C['Final'];
+      if (!sections && !center) return '';
+      return `
+        <details ${open ? 'open' : ''}>
+          <summary>
+            <span class="mono-label">${label}</span>
+          </summary>
+          <div class="wc-bracket-mobile__body">
+            ${center ? `
+              <div class="wc-bracket-mobile__round">
+                <div class="wc-bracket-mobile__round-head mono-label">Final</div>
+                ${split.C['Final'].map(m => bracketMatchHtml(m)).join('')}
+              </div>
+              ${split.C['Match for third place'] && split.C['Match for third place'].length ? `
+                <div class="wc-bracket-mobile__round">
+                  <div class="wc-bracket-mobile__round-head mono-label">3º lugar</div>
+                  ${split.C['Match for third place'].map(m => bracketMatchHtml(m)).join('')}
+                </div>` : ''}
+            ` : sections}
+          </div>
+        </details>`;
+    };
+
     const mobileHtml = `
       <div class="wc-bracket-mobile" role="region" aria-label="Chave do mata-mata">
-        ${BRACKET_ROUNDS.map((r, i) => {
-          const ms = byRound[r.match] || [];
-          if (!ms.length) return '';
-          return `
-            <details ${i < 2 ? 'open' : ''}>
-              <summary>
-                <span class="mono-label">${r.short}</span>
-                <span class="wc-bracket-mobile__count">${ms.length} jogo${ms.length > 1 ? 's' : ''}</span>
-              </summary>
-              <div class="wc-bracket-mobile__body">
-                ${ms.map(m => bracketMatchHtml(m)).join('')}
-              </div>
-            </details>`;
-        }).join('')}
+        ${mobileSideHtml('A', 'Lado A → SF1', true)}
+        ${mobileSideHtml('C', 'Final', false)}
+        ${mobileSideHtml('B', 'SF2 ← Lado B', true)}
       </div>`;
 
     host.innerHTML = desktopHtml + mobileHtml;

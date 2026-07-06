@@ -1986,7 +1986,109 @@ html.has-js [data-reveal].is-visible {
  * ════════════════════════════════════════════════════════════ */
 .wc-bracket-section { background: var(--paper); }
 
-/* Desktop (≥1024px): grid de 6 colunas */
+/* ════════════════════════════════════════════════════════════
+ * BRACKET TREE — layout Sofascore-like (2 lados + centro)
+ * ════════════════════════════════════════════════════════════ */
+.wc-bracket-tree {
+  display: grid;
+  grid-template-columns: 1fr minmax(180px, auto) 1fr;
+  gap: var(--space-6);
+  align-items: stretch;
+  padding: var(--space-3) 0;
+}
+
+.wc-bracket-tree__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.wc-bracket-tree__head {
+  text-align: center;
+  padding: var(--space-2);
+  background: var(--paper-soft, #FAFAFA);
+  border: 1px solid var(--line, rgba(10,10,10,0.10));
+  border-radius: var(--radius-sm, 6px);
+  font-size: var(--text-xs, 0.75rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft, #545454);
+  font-weight: 600;
+}
+
+.wc-bracket-tree__side--right .wc-bracket-tree__head {
+  text-align: center;
+}
+
+.wc-bracket-tree__cols {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+/* Cada coluna dentro de um lado */
+.wc-bracket-side__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.wc-bracket-side__col-head {
+  text-align: center;
+  font-size: var(--text-xxs, 0.6875rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint, #6C6C6C);
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
+  border-bottom: 1px dashed var(--line, rgba(10,10,10,0.10));
+}
+
+.wc-bracket-side__matches {
+  display: flex;
+  flex-direction: column;
+  /* space-around faz as partidas se distribuírem verticalmente,
+     alinhando visualmente com a próxima fase (efeito tree). */
+  justify-content: space-around;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+/* Centro: Final + 3º lugar */
+.wc-bracket-tree__center {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-self: center;
+  padding: 0 var(--space-2);
+}
+
+.wc-bracket-tree__center .wc-bracket-match {
+  /* Destaque visual para a final */
+  border: 2px solid var(--wc-gold, #B0820D);
+  background: rgba(176, 130, 13, 0.04);
+}
+
+/* Desktop-only (mobile mostra wc-bracket-mobile) */
+@media (max-width: 1023px) {
+  .wc-bracket-tree { display: none; }
+}
+
+/* Scroll horizontal se precisar em telas menores que 1280px */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .wc-bracket-tree {
+    overflow-x: auto;
+    min-width: 0;
+  }
+  .wc-bracket-tree__cols {
+    min-width: 540px;
+  }
+}
+
+/* Desktop (≥1024px): grid de 6 colunas (legado — mantido por compat) */
 .wc-bracket {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
