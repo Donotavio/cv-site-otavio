@@ -51,8 +51,10 @@ ESPN_SUMMARY = (
 # ─── Configuração ─────────────────────────────────────────────────────
 OUTPUT_DIR = Path("public/world-cup-dashboard/data")
 HTTP_TIMEOUT = 30
-ESPN_DELAY = 0.4  # segundos entre requests de summary (rate-limit friendly)
-MAX_ESPN_SUMMARIES = 20  # top N partidas por gols
+ESPN_DELAY = 0.25           # s entre requests (rate-limit friendly)
+ESPN_HARD_MAX = 200         # teto de segurança — cobre as ~104 partidas da Copa
+ESPN_RETRY_ATTEMPTS = 2     # tentativas extras em falha transitória (429/5xx)
+ESPN_RETRY_BACKOFF = 1.5    # multiplicador de backoff entre tentativas
 USER_AGENT = "worldcup-dashboard/1.0 (+https://github.com/Donotavio/cv-site-otavio)"
 
 # WC 2026 teams: name → (code, flag)
@@ -91,6 +93,10 @@ ESPN_NAME_FIX: dict[str, str] = {
     "IR Iran": "Iran",
     "Korea Republic": "South Korea",
     "Côte d'Ivoire": "Ivory Coast",
+    # Variantes adicionais — algumas aparecem em partidas específicas
+    "Türkiye": "Turkey",
+    "Congo DR": "DR Congo",
+    "DR Congo": "DR Congo",  # normalização defensiva
 }
 
 
@@ -101,12 +107,35 @@ def _http_get(url: str, timeout: int = HTTP_TIMEOUT) -> bytes:
         return resp.read()
 
 
-def _http_get_json(url: str, timeout: int = HTTP_TIMEOUT) -> list | dict | None:
-    try:
-        return json.loads(_http_get(url, timeout).decode("utf-8"))
-    except (URLError, HTTPError, TimeoutError, ValueError, OSError) as e:
-        print(f"    ✗ Falha ao buscar {url}: {e}")
-        return None
+def _http_get_json(url: str, timeout: int = HTTP_TIMEOUT, retries: int = 0):
+    """
+    GET JSON com retry opcional em falha transitória (HTTP 429/5xx, timeout).
+    Em caso de erro definitivo (404, JSON inválido), retorna None sem retry.
+    """
+    last_err: Exception | None = None
+    for attempt in range(retries + 1):
+        try:
+            raw = _http_get(url, timeout=timeout)
+            return json.loads(raw.decode("utf-8"))
+        except (URLError, HTTPError, TimeoutError, OSError) as e:
+            last_err = e
+            # 4xx definitivos (exceto 429) não compensam retry
+            code = getattr(e, "code", None)
+            if code is not None and code != 429 and 400 <= code < 500:
+                print(f"    ✗ Falha definitiva {code} em {url}: {e}")
+                return None
+            if attempt < retries:
+                wait = ESPN_RETRY_BACKOFF ** (attempt + 1)
+                print(f"    ↻ Tentativa {attempt + 1}/{retries} em {wait:.1f}s… ({e})")
+                time.sleep(wait)
+                continue
+            print(f"    ✗ Falha ao buscar {url}: {e}")
+            return None
+        except ValueError as e:  # JSON inválido — não retenta
+            print(f"    ✗ JSON inválido em {url}: {e}")
+            return None
+    print(f"    ✗ Esgotadas {retries + 1} tentativas para {url}: {last_err}")
+    return None
 
 
 def _write_json_resilient(path: Path, payload: dict) -> bool:
@@ -275,7 +304,7 @@ def _extract_stat(stats: list[dict], label: str) -> int | float:
 def fetch_espn_summary(event_id: str) -> dict | None:
     """Busca o summary da ESPN e extrai stats de chute e passe."""
     url = ESPN_SUMMARY.format(event_id=event_id)
-    data = _http_get_json(url, timeout=15)
+    data = _http_get_json(url, timeout=15, retries=ESPN_RETRY_ATTEMPTS)
     if not data or not isinstance(data, dict):
         return None
 
@@ -328,16 +357,25 @@ def fetch_espn_summary(event_id: str) -> dict | None:
     return {"home": home, "away": away}
 
 
-def fetch_espn_stats(momentum_matches: list[dict]) -> tuple[dict, dict]:
+def fetch_espn_stats(
+    momentum_matches: list[dict],
+) -> tuple[dict, dict, list[dict]]:
     """
-    Busca ESPN stats para as top N partidas (por gols).
-    Retorna (shot_stats_by_id, pass_stats_by_id).
+    Busca ESPN stats para TODAS as partidas finalizadas disponíveis no
+    scoreboard da ESPN (limitado apenas por ESPN_HARD_MAX como teto de
+    segurança). Retorna (shot_stats_by_id, pass_stats_by_id,
+    espn_only_matches).
+
+    `espn_only_matches` contém metadados (id/label/date) das partidas
+    que existem na ESPN mas não tinham momentum (ex.: 0-0 ou falha de
+    matching de nome no openfootball) — usados para completar o
+    match_list do deepstats.json.
     """
     events = fetch_espn_events()
     if not events:
-        return {}, {}
+        return {}, {}, []
 
-    # Indexa momentum por nome normalizado para matching
+    # Indexa momentum por nome normalizado (ordem direta e inversa)
     mom_index: dict[str, dict] = {}
     for m in momentum_matches:
         key = f"{_normalize_name(m['home']['name'])}-{_normalize_name(m['away']['name'])}"
@@ -345,24 +383,42 @@ def fetch_espn_stats(momentum_matches: list[dict]) -> tuple[dict, dict]:
 
     shot_stats: dict[str, dict] = {}
     pass_stats: dict[str, dict] = {}
+    espn_only_matches: list[dict] = []
     fetched = 0
+    skipped_no_summary = 0
 
-    for ev in events[:MAX_ESPN_SUMMARIES]:
+    total = min(len(events), ESPN_HARD_MAX)
+    print(f"    ℹ Iterando sobre {total} partidas (ESPN scoreboard)")
+
+    for idx, ev in enumerate(events[:ESPN_HARD_MAX], start=1):
         key = f"{_normalize_name(ev['home_name'])}-{_normalize_name(ev['away_name'])}"
         mom = mom_index.get(key)
         if not mom:
             # Tenta ordem inversa (ESPN pode listar away primeiro)
             key_rev = f"{_normalize_name(ev['away_name'])}-{_normalize_name(ev['home_name'])}"
             mom = mom_index.get(key_rev)
-        if not mom:
+
+        # Mesmo sem momentum, geramos um ID próprio para a partida ESPN-only.
+        # ID canônico: lowercase codes + data. Coincide com o formato do
+        # openfootball se a ordem dos times for a mesma.
+        home_code, _ = _team_meta(ev["home_name"])
+        away_code, _ = _team_meta(ev["away_name"])
+        fallback_id = f"{home_code.lower()}-{away_code.lower()}-{ev['date']}"
+        fallback_label = f"{ev['home_name']} {ev['home_score']}–{ev['away_score']} {ev['away_name']}"
+
+        match_id = mom["id"] if mom else fallback_id
+        label = mom["label"] if mom else fallback_label
+
+        # Evita re-buscar se já temos (pode acontecer se mom e fallback
+        # colidirem para partidas diferentes).
+        if match_id in shot_stats:
             continue
 
-        match_id = mom["id"]
         summary = fetch_espn_summary(ev["event_id"])
         if not summary:
+            skipped_no_summary += 1
             continue
 
-        label = mom["label"]
         shot_stats[match_id] = {
             "match": label,
             "source": "ESPN",
@@ -378,11 +434,27 @@ def fetch_espn_stats(momentum_matches: list[dict]) -> tuple[dict, dict]:
                      ("code", "flag", "name", "passes", "accurate_passes", "pass_pct", "crosses", "accurate_crosses", "long_balls", "possession")},
         }
         fetched += 1
-        print(f"    ✓ ESPN stats: {label}")
+
+        # Se a partida ESPN não tinha momentum, registra metadados para
+        # incluir no match_list do deepstats.json (permitindo que ela
+        # apareça no seletor do frontend, com stats mas sem chart).
+        if not mom:
+            espn_only_matches.append({
+                "id": fallback_id,
+                "label": fallback_label,
+                "date": ev["date"],
+                "goals": ev["total_goals"],
+                "has_momentum": False,
+            })
+
+        if fetched % 10 == 0 or idx == total:
+            print(f"    … {idx}/{total} processadas — {fetched} com stats")
+
         time.sleep(ESPN_DELAY)
 
-    print(f"    ✓ {fetched} partidas com stats de ESPN")
-    return shot_stats, pass_stats
+    print(f"    ✓ {fetched} partidas com stats de ESPN"
+          f" ({skipped_no_summary} sem summary)")
+    return shot_stats, pass_stats, espn_only_matches
 
 
 # ─── Orquestração ─────────────────────────────────────────────────────
@@ -399,9 +471,9 @@ def main() -> int:
         print("    ✗ Nenhuma partida com gols — abortando.")
         return 1
 
-    # Phase 2: ESPN stats (top N partidas)
-    print(f"\n[2/3] Buscando stats de chute/passe (ESPN, top {MAX_ESPN_SUMMARIES})…")
-    shot_stats, pass_stats = fetch_espn_stats(momentum_matches)
+    # Phase 2: ESPN stats (todas as partidas disponíveis)
+    print(f"\n[2/3] Buscando stats de chute/passe (ESPN, TODAS as finalizadas)…")
+    shot_stats, pass_stats, espn_only_matches = fetch_espn_stats(momentum_matches)
 
     # Phase 3: Monta JSON
     print("\n[3/3] Escrevendo deepstats.json…")
@@ -409,7 +481,8 @@ def main() -> int:
     featured = momentum_matches[0]
     featured_id = featured["id"]
 
-    # Marca quais partidas têm stats
+    # match_list = momentum (com gols) + ESPN-only (sem momentum, mas com stats).
+    # Ordenação: por gols (desc) → data (desc) — partida com mais gols primeiro.
     match_list = []
     for m in momentum_matches:
         match_list.append({
@@ -418,7 +491,12 @@ def main() -> int:
             "date": m["date"],
             "goals": m["total_goals"],
             "has_stats": m["id"] in shot_stats,
+            "has_momentum": True,
         })
+    for m in espn_only_matches:
+        m["has_stats"] = True  # só entram na lista se a ESPN retornou stats
+        match_list.append(m)
+    match_list.sort(key=lambda x: (x.get("goals", 0), x.get("date", "")), reverse=True)
 
     # Momentum: dict indexado por ID (para lookup rápido no frontend)
     momentum_index = {m["id"]: m for m in momentum_matches}
