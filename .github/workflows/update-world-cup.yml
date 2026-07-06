@@ -1,19 +1,21 @@
 name: World Cup Dashboard — Data Pipeline
 
-# A cada hora, APENAS das 13h às 22h no Horário de Brasília (UTC-3).
-# Em UTC isso equivale às 16h–01h (do dia seguinte). A janela cobre o
-# horário real dos jogos da Copa 2026 (sedes EUA/Canadá/México) — fora
-# dela não há jogos para atualizar.
+# A cada hora, das 13h às 00h (meia-noite) no Horário de Brasília (UTC-3).
+# Em UTC isso equivale às 16h–03h (do dia seguinte). Janela completa dos
+# jogos da Copa 2026 (sedes EUA/Canadá/México), do 1º jogo (horário de
+# Los Angeles) até o fim do último jogo da Costa Leste.
 #
 # Conversão UTC ↔ BRT (UTC-3):
 #   16:00 UTC = 13:00 BRT   ← 1º jogo do dia (horário de Los Angeles)
 #   ...
-#   01:00 UTC = 22:00 BRT   ← último jogo (horário da Costa Leste)
+#   03:00 UTC = 00:00 BRT   ← fim da janela (após último jogo)
+#
+# Roda até o fim da Copa (19/07/2026). Após isso, desativar manualmente.
 #
 # `workflow_dispatch` permite rodar manualmente (útil para validar).
 on:
   schedule:
-    - cron: '0 16-23,0-1 * * *'
+    - cron: '0 16-23,0-3 * * *'
   workflow_dispatch: {}
 
 # Cancela runs horárias sobrepostas (evita race condition no git push
