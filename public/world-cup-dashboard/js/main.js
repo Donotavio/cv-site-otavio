@@ -933,24 +933,41 @@
    * pela ordem da fase N+1: para cada partida da próxima fase, os dois
    * jogos que a alimentam (placeholders Wxx) ficam adjacentes.
    *
-   * Exemplo: se R16#89 = W74 vs W77, então R32#74 e R32#77 ficam lado a
+   * Problema: o scraper resolve os placeholders quando o jogo já foi
+   * decidido (France vira "France", não "W89"). Por isso hardcodamos
+   * o cruzamento oficial da Copa 2026 em BRACKET_CROSSING.
+   *
+   * Exemplo: R16#89 = W74 vs W77, então R32#74 e R32#77 ficam lado a
    * lado na coluna, em vez de seguirem a ordem cronológica 73, 74, 75...
    *
    * Retorna um { round: match[] } ordenado.
    */
+  // Mapeamento oficial Copa 2026: num_da_partida → [source_nums]
+  // Fonte: estrutura do openfootball/worldcup.json (placeholders Wxx).
+  const BRACKET_CROSSING = {
+    // Round of 16 ← Round of 32
+    89: [74, 77], 90: [73, 75], 91: [76, 78], 92: [79, 80],
+    93: [83, 84], 94: [81, 82], 95: [86, 88], 96: [85, 87],
+    // Quarter-final ← Round of 16
+    97: [89, 90], 98: [93, 94], 99: [91, 92], 100: [95, 96],
+    // Semi-final ← Quarter-final
+    101: [97, 98], 102: [99, 100],
+    // Final ← Semi-final
+    104: [101, 102],
+    // 3rd place (se existir) ← perdedores das semis (não reordenável)
+  };
+
   function buildBracketVisualOrder(matches) {
     // Indexa por num
     const byNum = new Map();
     matches.forEach(m => { if (m.num) byNum.set(m.num, m); });
 
-    // Para cada partida, identifica os num das partidas que a alimentam
-    // (via placeholders Wxx). O scraper publica o placeholder em team.code
-    // quando team.name é "A definir", ou em team.name no openfootball cru.
-    const sourcesByNum = new Map(); // num → [src_num1, src_num2]
+    // Para cada partida, identifica os nums que a alimentam:
+    // 1. Tenta placeholder no team.code/name (partidas pendentes)
+    // 2. Senão, usa BRACKET_CROSSING hardcodado (partidas já resolvidas)
     const PH_RE = /^W(\d+)$/;
     const getPlaceholder = (t) => {
       if (!t) return null;
-      // Objeto {name, code, flag} — code preserva "W93" quando name é "A definir"
       if (typeof t === 'object') {
         const code = String(t.code || '').match(PH_RE);
         if (code) return parseInt(code[1], 10);
@@ -958,10 +975,11 @@
         if (name) return parseInt(name[1], 10);
         return null;
       }
-      // String pura (openfootball cru)
       const m = String(t).match(PH_RE);
       return m ? parseInt(m[1], 10) : null;
     };
+
+    const sourcesByNum = new Map();
     matches.forEach(m => {
       if (!m.num) return;
       const s1 = getPlaceholder(m.team1);
@@ -969,6 +987,10 @@
       const srcs = [];
       if (s1) srcs.push(s1);
       if (s2) srcs.push(s2);
+      // Fallback: hardcode oficial
+      if (!srcs.length && BRACKET_CROSSING[m.num]) {
+        srcs.push(...BRACKET_CROSSING[m.num]);
+      }
       if (srcs.length) sourcesByNum.set(m.num, srcs);
     });
 
@@ -980,9 +1002,8 @@
     });
     Object.values(byRound).forEach(arr => arr.sort((a, b) => (a.num || 0) - (b.num || 0)));
 
-    // Itera de trás pra frente (Final → SF → QF → R16 → R32)
-    // Para cada fase N, percorre fase N+1 (já ordenada) e reordena N
-    // para que os sources de cada partida de N+1 fiquem adjacentes.
+    // Itera de trás pra frente: para cada fase N, percorre fase N+1
+    // (já ordenada) e reordena N para que sources fiquem adjacentes.
     const order = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final', 'Final'];
     for (let i = order.length - 2; i >= 0; i--) {
       const curr = order[i];
@@ -1004,8 +1025,7 @@
         });
       });
 
-      // Garantia: adiciona as partidas que ficaram de fora (ex.: 3º lugar
-      // ou fontes não mapeadas) na ordem original.
+      // Garantia: adiciona partidas não mapeadas (3º lugar, fallback)
       byRound[curr].forEach(m => {
         if (!added.has(m.num)) {
           reordered.push(m);
