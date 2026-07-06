@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-06T16:45:07.636776+00:00",
+  "updated_at": "2026-07-06T22:04:50.186572+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -578,6 +578,14 @@
       "label": "Mexico 2–0 South Africa",
       "date": "2026-06-11",
       "goals": 2,
+      "has_stats": true,
+      "has_momentum": true
+    },
+    {
+      "id": "por-esp-2026-07-06",
+      "label": "Portugal 0–1 Spain",
+      "date": "2026-07-06",
+      "goals": 1,
       "has_stats": true,
       "has_momentum": true
     },
@@ -2613,6 +2621,28 @@
           "shots": 15,
           "on_target": 5,
           "blocked": 4,
+          "goals": 1
+        }
+      },
+      "por-esp-2026-07-06": {
+        "match": "Portugal 0–1 Spain",
+        "source": "ESPN",
+        "home": {
+          "code": "POR",
+          "flag": "🇵🇹",
+          "name": "Portugal",
+          "shots": 10,
+          "on_target": 2,
+          "blocked": 3,
+          "goals": 0
+        },
+        "away": {
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "name": "Spain",
+          "shots": 15,
+          "on_target": 6,
+          "blocked": 3,
           "goals": 1
         }
       },
@@ -5154,6 +5184,34 @@
           "accurate_crosses": 1,
           "long_balls": 39,
           "possession": 75.9
+        }
+      },
+      "por-esp-2026-07-06": {
+        "match": "Portugal 0–1 Spain",
+        "source": "ESPN",
+        "home": {
+          "code": "POR",
+          "flag": "🇵🇹",
+          "name": "Portugal",
+          "passes": 426,
+          "accurate_passes": 357,
+          "pass_pct": 80.0,
+          "crosses": 13,
+          "accurate_crosses": 4,
+          "long_balls": 53,
+          "possession": 44.5
+        },
+        "away": {
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "name": "Spain",
+          "passes": 531,
+          "accurate_passes": 467,
+          "pass_pct": 90.0,
+          "crosses": 16,
+          "accurate_crosses": 1,
+          "long_balls": 36,
+          "possession": 55.5
         }
       },
       "esp-cpv-2026-06-15": {
@@ -12868,6 +12926,95 @@
             "team": "home",
             "player": "Raúl Jiménez",
             "cum": 2
+          }
+        ]
+      },
+      "por-esp-2026-07-06": {
+        "id": "por-esp-2026-07-06",
+        "label": "Portugal 0–1 Spain",
+        "date": "2026-07-06",
+        "total_goals": 1,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "POR",
+          "flag": "🇵🇹",
+          "name": "Portugal",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "away": {
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "name": "Spain",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "goals": [
+          {
+            "minute": 90,
+            "team": "away",
+            "player": "Mikel Merino",
+            "cum": 1
           }
         ]
       },
