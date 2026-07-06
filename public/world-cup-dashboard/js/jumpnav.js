@@ -170,22 +170,35 @@
 
       const reduce = prefersReducedMotion();
 
-      try {
-        target.scrollIntoView({
-          behavior: reduce ? 'auto' : 'smooth',
-          block: 'start',
-        });
-      } catch {
-        // Fallback: scroll manual
-        const top = target.getBoundingClientRect().top + window.pageYOffset - 80;
-        window.scrollTo(0, top);
+      // No mobile com sheet aberto, fecha PRIMEIRO o sheet (que
+      // destrava o body overflow) e só então rola. Caso contrário,
+      // o scrollIntoView é bloqueado pelo overflow:hidden do body.
+      const wasMobileSheetOpen = isMobile() &&
+        $('#wc-jumpnav-fab')?.getAttribute('aria-expanded') === 'true';
+
+      const doScroll = () => {
+        try {
+          target.scrollIntoView({
+            behavior: reduce ? 'auto' : 'smooth',
+            block: 'start',
+          });
+        } catch {
+          const top = target.getBoundingClientRect().top + window.pageYOffset - 80;
+          window.scrollTo(0, top);
+        }
+        history.replaceState(null, '', '#' + id);
+      };
+
+      if (wasMobileSheetOpen) {
+        closeSheet();
+        // Espera o body overflow voltar e o sheet fechar visualmente
+        setTimeout(doScroll, reduce ? 0 : 260);
+      } else {
+        doScroll();
       }
 
-      // Atualiza hash sem causar scroll nativo
-      history.replaceState(null, '', '#' + id);
-
-      // Fecha o sheet no mobile após click
-      if (isMobile()) closeSheet();
+      // Atualiza item ativo imediatamente (IntersectionObserver pode demorar)
+      setActive(id);
     });
   }
 
