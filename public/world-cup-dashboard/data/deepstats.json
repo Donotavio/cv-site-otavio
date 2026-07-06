@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-05T00:02:42.662084+00:00",
+  "updated_at": "2026-07-06T00:02:29.130466+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -221,6 +221,13 @@
       "date": "2026-06-14",
       "goals": 4,
       "has_stats": true
+    },
+    {
+      "id": "bra-nor-2026-07-05",
+      "label": "Brazil 1–2 Norway",
+      "date": "2026-07-05",
+      "goals": 3,
+      "has_stats": false
     },
     {
       "id": "can-mar-2026-07-04",
@@ -5035,6 +5042,107 @@
             "minute": 88,
             "team": "away",
             "player": "Daichi Kamada",
+            "cum": 2
+          }
+        ]
+      },
+      "bra-nor-2026-07-05": {
+        "id": "bra-nor-2026-07-05",
+        "label": "Brazil 1–2 Norway",
+        "date": "2026-07-05",
+        "total_goals": 3,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "BRA",
+          "flag": "🇧🇷",
+          "name": "Brazil",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "away": {
+          "code": "NOR",
+          "flag": "🇳🇴",
+          "name": "Norway",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            2
+          ]
+        },
+        "goals": [
+          {
+            "minute": 90,
+            "team": "home",
+            "player": "Neymar",
+            "cum": 1
+          },
+          {
+            "minute": 79,
+            "team": "away",
+            "player": "Erling Haaland",
+            "cum": 1
+          },
+          {
+            "minute": 90,
+            "team": "away",
+            "player": "Erling Haaland",
             "cum": 2
           }
         ]
