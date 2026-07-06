@@ -2072,6 +2072,32 @@ html.has-js [data-reveal].is-visible {
   background: rgba(176, 130, 13, 0.04);
 }
 
+/* Taça entre Final e 3º lugar */
+.wc-bracket-tree__trophy {
+  font-size: 3.5rem;
+  line-height: 1;
+  text-align: center;
+  margin: var(--space-3) 0;
+  filter: drop-shadow(0 4px 12px rgba(176, 130, 13, 0.35));
+  animation: wc-trophy-pulse 3s ease-in-out infinite;
+  user-select: none;
+}
+
+@keyframes wc-trophy-pulse {
+  0%, 100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 4px 12px rgba(176, 130, 13, 0.35));
+  }
+  50% {
+    transform: translateY(-3px);
+    filter: drop-shadow(0 8px 18px rgba(176, 130, 13, 0.5));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-bracket-tree__trophy { animation: none; }
+}
+
 /* Desktop-only (mobile mostra wc-bracket-mobile) */
 @media (max-width: 1023px) {
   .wc-bracket-tree { display: none; }

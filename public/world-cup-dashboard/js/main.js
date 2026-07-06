@@ -1110,8 +1110,9 @@
         <div class="wc-bracket-tree__center">
           <div class="wc-bracket-tree__head mono-label">Final</div>
           ${(split.C['Final'] || []).map(m => bracketMatchHtml(m)).join('')}
+          <div class="wc-bracket-tree__trophy" aria-hidden="true">🏆</div>
           ${split.C['Match for third place'] && split.C['Match for third place'].length
-            ? `<div class="wc-bracket-tree__head mono-label" style="margin-top:var(--space-5)">3º lugar</div>
+            ? `<div class="wc-bracket-tree__head mono-label" style="margin-top:var(--space-2)">3º lugar</div>
                ${split.C['Match for third place'].map(m => bracketMatchHtml(m)).join('')}`
             : ''}
         </div>
