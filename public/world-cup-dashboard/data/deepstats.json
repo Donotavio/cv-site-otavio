@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-06T00:02:29.130466+00:00",
+  "updated_at": "2026-07-06T05:08:06.968687+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -59,6 +59,13 @@
       "label": "Sweden 5–1 Tunisia",
       "date": "2026-06-14",
       "goals": 6,
+      "has_stats": true
+    },
+    {
+      "id": "mex-eng-2026-07-05",
+      "label": "Mexico 2–3 England",
+      "date": "2026-07-05",
+      "goals": 5,
       "has_stats": true
     },
     {
@@ -213,7 +220,7 @@
       "label": "Iran 2–2 New Zealand",
       "date": "2026-06-15",
       "goals": 4,
-      "has_stats": true
+      "has_stats": false
     },
     {
       "id": "ned-jpn-2026-06-14",
@@ -972,6 +979,28 @@
           "goals": 2
         }
       },
+      "mex-eng-2026-07-05": {
+        "match": "Mexico 2–3 England",
+        "source": "ESPN",
+        "home": {
+          "code": "MEX",
+          "flag": "🇲🇽",
+          "name": "Mexico",
+          "shots": 20,
+          "on_target": 5,
+          "blocked": 7,
+          "goals": 2
+        },
+        "away": {
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "name": "England",
+          "shots": 6,
+          "on_target": 5,
+          "blocked": 0,
+          "goals": 3
+        }
+      },
       "ned-jpn-2026-06-14": {
         "match": "Netherlands 2–2 Japan",
         "source": "ESPN",
@@ -991,28 +1020,6 @@
           "shots": 10,
           "on_target": 3,
           "blocked": 1,
-          "goals": 2
-        }
-      },
-      "irn-nzl-2026-06-15": {
-        "match": "Iran 2–2 New Zealand",
-        "source": "ESPN",
-        "home": {
-          "code": "IRN",
-          "flag": "🇮🇷",
-          "name": "Iran",
-          "shots": 17,
-          "on_target": 4,
-          "blocked": 5,
-          "goals": 2
-        },
-        "away": {
-          "code": "NZL",
-          "flag": "🇳🇿",
-          "name": "New Zealand",
-          "shots": 14,
-          "on_target": 8,
-          "blocked": 2,
           "goals": 2
         }
       }
@@ -1498,6 +1505,34 @@
           "possession": 36.4
         }
       },
+      "mex-eng-2026-07-05": {
+        "match": "Mexico 2–3 England",
+        "source": "ESPN",
+        "home": {
+          "code": "MEX",
+          "flag": "🇲🇽",
+          "name": "Mexico",
+          "passes": 455,
+          "accurate_passes": 420,
+          "pass_pct": 90.0,
+          "crosses": 49,
+          "accurate_crosses": 11,
+          "long_balls": 42,
+          "possession": 66.8
+        },
+        "away": {
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "name": "England",
+          "passes": 244,
+          "accurate_passes": 195,
+          "pass_pct": 80.0,
+          "crosses": 4,
+          "accurate_crosses": 1,
+          "long_balls": 45,
+          "possession": 33.2
+        }
+      },
       "ned-jpn-2026-06-14": {
         "match": "Netherlands 2–2 Japan",
         "source": "ESPN",
@@ -1524,34 +1559,6 @@
           "accurate_crosses": 6,
           "long_balls": 36,
           "possession": 40.2
-        }
-      },
-      "irn-nzl-2026-06-15": {
-        "match": "Iran 2–2 New Zealand",
-        "source": "ESPN",
-        "home": {
-          "code": "IRN",
-          "flag": "🇮🇷",
-          "name": "Iran",
-          "passes": 409,
-          "accurate_passes": 314,
-          "pass_pct": 80.0,
-          "crosses": 19,
-          "accurate_crosses": 6,
-          "long_balls": 61,
-          "possession": 48.5
-        },
-        "away": {
-          "code": "NZL",
-          "flag": "🇳🇿",
-          "name": "New Zealand",
-          "passes": 446,
-          "accurate_passes": 376,
-          "pass_pct": 80.0,
-          "crosses": 12,
-          "accurate_crosses": 1,
-          "long_balls": 40,
-          "possession": 51.5
         }
       }
     }
@@ -2522,6 +2529,119 @@
             "team": "away",
             "player": "Omar Rekik",
             "cum": 1
+          }
+        ]
+      },
+      "mex-eng-2026-07-05": {
+        "id": "mex-eng-2026-07-05",
+        "label": "Mexico 2–3 England",
+        "date": "2026-07-05",
+        "total_goals": 5,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "MEX",
+          "flag": "🇲🇽",
+          "name": "Mexico",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "away": {
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "name": "England",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            2,
+            2,
+            2,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3
+          ]
+        },
+        "goals": [
+          {
+            "minute": 42,
+            "team": "home",
+            "player": "Julián Quiñones",
+            "cum": 1
+          },
+          {
+            "minute": 69,
+            "team": "home",
+            "player": "Raúl Jiménez",
+            "cum": 2
+          },
+          {
+            "minute": 36,
+            "team": "away",
+            "player": "Jude Bellingham",
+            "cum": 1
+          },
+          {
+            "minute": 38,
+            "team": "away",
+            "player": "Jude Bellingham",
+            "cum": 2
+          },
+          {
+            "minute": 60,
+            "team": "away",
+            "player": "Harry Kane",
+            "cum": 3
           }
         ]
       },
