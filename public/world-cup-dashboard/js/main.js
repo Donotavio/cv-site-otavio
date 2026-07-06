@@ -944,18 +944,31 @@
     matches.forEach(m => { if (m.num) byNum.set(m.num, m); });
 
     // Para cada partida, identifica os num das partidas que a alimentam
-    // (via placeholders Wxx no team1/team2 — string no openfootball cru).
+    // (via placeholders Wxx). O scraper publica o placeholder em team.code
+    // quando team.name é "A definir", ou em team.name no openfootball cru.
     const sourcesByNum = new Map(); // num → [src_num1, src_num2]
     const PH_RE = /^W(\d+)$/;
+    const getPlaceholder = (t) => {
+      if (!t) return null;
+      // Objeto {name, code, flag} — code preserva "W93" quando name é "A definir"
+      if (typeof t === 'object') {
+        const code = String(t.code || '').match(PH_RE);
+        if (code) return parseInt(code[1], 10);
+        const name = String(t.name || '').match(PH_RE);
+        if (name) return parseInt(name[1], 10);
+        return null;
+      }
+      // String pura (openfootball cru)
+      const m = String(t).match(PH_RE);
+      return m ? parseInt(m[1], 10) : null;
+    };
     matches.forEach(m => {
       if (!m.num) return;
-      const t1Name = typeof m.team1 === 'string' ? m.team1 : (m.team1 && m.team1.name) || '';
-      const t2Name = typeof m.team2 === 'string' ? m.team2 : (m.team2 && m.team2.name) || '';
+      const s1 = getPlaceholder(m.team1);
+      const s2 = getPlaceholder(m.team2);
       const srcs = [];
-      const m1 = String(t1Name).match(PH_RE);
-      const m2 = String(t2Name).match(PH_RE);
-      if (m1) srcs.push(parseInt(m1[1], 10));
-      if (m2) srcs.push(parseInt(m2[1], 10));
+      if (s1) srcs.push(s1);
+      if (s2) srcs.push(s2);
       if (srcs.length) sourcesByNum.set(m.num, srcs);
     });
 
