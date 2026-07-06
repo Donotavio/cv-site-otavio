@@ -42,7 +42,20 @@ Deploy: push para `main` dispara `.github/workflows/build-and-deploy.yml`
 ## Testing Guidelines
 
 - No automated tests are configured.
-- Manually verify key flows: language switcher, timeline interactions, and layout on desktop/mobile.
+- **Visual validation**: prefer delegar ao agente `ui-validator` (opencode Task)
+  para screenshots, snapshots e auditorias Lighthouse em Chrome real.
+- Manual fallback: language switcher, timeline interactions, layout em desktop/mobile.
+
+## Browser / chrome-devtools MCP — regra de ouro
+
+**NUNCA** matar (`pkill Chrome`, `killall`) ou lançar Chrome manualmente
+(`open -a`, `/Applications/Google Chrome.app/...`). O usuário tem tabs
+abertas com trabalho não salvo. As tools `chrome-devtools_*` gerenciam
+o ciclo de vida do browser sozinhas (config `--autoConnect` em
+`~/.config/opencode/opencode.json`).
+
+Skill de referência: `.opencode/skills/chrome-devtools/SKILL.md` (com
+KB de troubleshooting, configuration e tool-cheatsheet).
 
 ## Commit & Pull Request Guidelines
 

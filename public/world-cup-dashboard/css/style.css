@@ -3193,3 +3193,321 @@ html.has-js [data-reveal].is-visible {
     transition: none !important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════
+ * JUMP NAV — dock vertical (desktop) + FAB sheet (mobile)
+ * z-index layer: sticky (acima de conteúdo, abaixo de modais)
+ * ════════════════════════════════════════════════════════════ */
+.wc-jumpnav,
+.wc-jumpnav-fab {
+  --jn-bullet: 10px;
+  --jn-bullet-active: 28px;
+  --jn-rail-color: var(--line, rgba(10, 10, 10, 0.10));
+  --jn-ink: var(--ink-faint, #6C6C6C);
+  --jn-ink-active: var(--wc-gold-ink, #8A5A06);
+  --jn-fill: var(--wc-gold, #B0820D);
+}
+
+/* ── FAB (mobile/tablet, < 1024px) ────────────────────────── */
+.wc-jumpnav-fab {
+  position: fixed;
+  bottom: var(--space-4, 16px);
+  right: var(--space-4, 16px);
+  display: none;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  background: var(--paper-card, #FFFFFF);
+  color: var(--ink, #0A0A0A);
+  border: 1px solid var(--line, rgba(10, 10, 10, 0.10));
+  border-radius: 999px;
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.08),
+              0 1px 3px rgba(10, 10, 10, 0.04);
+  z-index: 40;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.wc-jumpnav-fab:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(10, 10, 10, 0.12),
+              0 2px 4px rgba(10, 10, 10, 0.06);
+}
+
+.wc-jumpnav-fab:active { transform: translateY(0); }
+
+.wc-jumpnav-fab__icon {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 14px;
+}
+
+.wc-jumpnav-fab__icon span {
+  display: block;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.wc-jumpnav-fab__icon span:nth-child(2) { width: 70%; align-self: flex-end; }
+
+/* FAB expandido vira sheet com a lista */
+.wc-jumpnav-fab[aria-expanded="true"] {
+  background: var(--paper-card, #FFFFFF);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-bottom: var(--space-3, 12px);
+}
+
+.wc-jumpnav-fab[aria-expanded="true"] .wc-jumpnav-fab__icon span:nth-child(1) {
+  transform: translateY(5px) rotate(45deg);
+  transition: transform 0.2s ease-out;
+}
+.wc-jumpnav-fab[aria-expanded="true"] .wc-jumpnav-fab__icon span:nth-child(2) {
+  opacity: 0;
+}
+.wc-jumpnav-fab[aria-expanded="true"] .wc-jumpnav-fab__icon span:nth-child(3) {
+  transform: translateY(-5px) rotate(-45deg);
+  transition: transform 0.2s ease-out;
+}
+
+/* ── Nav dock (desktop, >= 1024px) ────────────────────────── */
+.wc-jumpnav {
+  position: fixed;
+  right: var(--space-5, 20px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  z-index: 35;
+}
+
+.wc-jumpnav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+/* Trilho vertical atrás dos bullets */
+.wc-jumpnav__list::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  bottom: 5px;
+  width: 1px;
+  background: var(--jn-rail-color);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.wc-jumpnav__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3, 12px);
+  margin: var(--space-2, 8px) 0;
+  z-index: 1;
+}
+
+.wc-jumpnav__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+  text-decoration: none;
+  color: var(--jn-ink);
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-xs, 0.75rem);
+  letter-spacing: 0.02em;
+  padding: 4px 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  outline-offset: 4px;
+  transition: color 0.2s ease-out;
+}
+
+/* Label (escondido por padrão, aparece no hover/active) */
+.wc-jumpnav__label {
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  pointer-events: none;
+  padding: 2px var(--space-2, 8px);
+  background: var(--paper-card, #FFFFFF);
+  border-radius: var(--radius-sm, 6px);
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
+}
+
+/* Bullet */
+.wc-jumpnav__bullet {
+  display: block;
+  width: var(--jn-bullet);
+  height: var(--jn-bullet);
+  border-radius: 50%;
+  background: var(--paper-card, #FFFFFF);
+  border: 1.5px solid var(--jn-ink);
+  flex-shrink: 0;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hover: mostra label */
+.wc-jumpnav__link:hover .wc-jumpnav__label,
+.wc-jumpnav__link:focus-visible .wc-jumpnav__label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.wc-jumpnav__link:hover .wc-jumpnav__bullet {
+  border-color: var(--jn-fill);
+  background: var(--jn-fill);
+  transform: scale(1.2);
+}
+
+/* Item ativo */
+.wc-jumpnav__link[aria-current="true"] {
+  color: var(--jn-ink-active);
+}
+
+.wc-jumpnav__link[aria-current="true"] .wc-jumpnav__bullet {
+  width: var(--jn-bullet-active);
+  height: 8px;
+  border-radius: 999px;
+  border-color: var(--jn-fill);
+  background: var(--jn-fill);
+}
+
+.wc-jumpnav__link[aria-current="true"] .wc-jumpnav__label {
+  opacity: 1;
+  transform: translateX(0);
+  font-weight: 600;
+}
+
+/* Numeração (apenas mobile sheet) */
+.wc-jumpnav__num {
+  display: none;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.5;
+  min-width: 1.5em;
+}
+
+/* ── Breakpoints ──────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  .wc-jumpnav { display: block; }
+  .wc-jumpnav-fab { display: none; }
+}
+
+@media (max-width: 1023px) {
+  .wc-jumpnav-fab { display: inline-flex; }
+
+  /* Nav vira bottom sheet aberto pelo FAB */
+  .wc-jumpnav {
+    position: fixed;
+    inset: auto 0 0 0;
+    top: auto;
+    transform: none;
+    background: var(--paper-card, #FFFFFF);
+    border-top: 1px solid var(--line, rgba(10, 10, 10, 0.10));
+    border-radius: var(--radius-lg, 16px) var(--radius-lg, 16px) 0 0;
+    padding: var(--space-4, 16px) var(--space-4, 16px) var(--space-6, 24px);
+    box-shadow: 0 -8px 32px rgba(10, 10, 10, 0.12);
+    max-height: 70vh;
+    overflow-y: auto;
+    z-index: 39;
+  }
+
+  .wc-jumpnav[hidden] { display: none; }
+
+  .wc-jumpnav__list::before { display: none; }
+
+  .wc-jumpnav__list {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .wc-jumpnav__item {
+    justify-content: flex-start;
+    border-bottom: 1px solid var(--line, rgba(10, 10, 10, 0.06));
+  }
+
+  .wc-jumpnav__item:last-child { border-bottom: 0; }
+
+  .wc-jumpnav__link {
+    width: 100%;
+    padding: var(--space-3, 12px) var(--space-2, 8px);
+    font-size: var(--text-sm, 0.875rem);
+  }
+
+  .wc-jumpnav__label {
+    opacity: 1;
+    transform: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+    flex: 1;
+    text-align: left;
+  }
+
+  .wc-jumpnav__num {
+    display: inline-block;
+    font-family: var(--font-mono, monospace);
+    color: var(--jn-ink);
+    margin-right: var(--space-3, 12px);
+  }
+
+  .wc-jumpnav__bullet { display: none; }
+
+  .wc-jumpnav__link[aria-current="true"] {
+    background: rgba(176, 130, 13, 0.06);
+    color: var(--jn-ink-active);
+    border-radius: var(--radius-sm, 6px);
+  }
+
+  .wc-jumpnav__link[aria-current="true"] .wc-jumpnav__num {
+    color: var(--jn-fill);
+    opacity: 1;
+    font-weight: 700;
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .wc-jumpnav__bullet,
+  .wc-jumpnav__label,
+  .wc-jumpnav-fab,
+  .wc-jumpnav-fab__icon span {
+    transition: none !important;
+  }
+}
+
+/* ── Backdrop (mobile, fecha sheet ao toque fora) ─────────── */
+.wc-jumpnav-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.32);
+  z-index: 38;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out;
+}
+
+.wc-jumpnav-backdrop.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-jumpnav-backdrop { transition: none !important; }
+}
