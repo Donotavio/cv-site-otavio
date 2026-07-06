@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-06T05:07:52.853400+00:00",
+  "updated_at": "2026-07-06T16:58:31.326717+00:00",
   "source": "openfootball/worldcup.json (cálculo local)",
   "total_matches": 92,
   "total_goals": 265,
@@ -272,5 +272,79 @@
       "losses": 2,
       "diff_per_match": 0.6
     }
-  ]
+  ],
+  "tournament_progress": {
+    "total_matches": 104,
+    "finished_matches": 92,
+    "remaining_matches": 12,
+    "progress_pct": 88.5,
+    "current_phase": "Oitavas de Final",
+    "current_phase_key": "round_16",
+    "is_complete": false,
+    "phases": [
+      {
+        "key": "groups",
+        "label": "Fase de Grupos",
+        "total": 72,
+        "finished": 72,
+        "scheduled": 0,
+        "completed": true
+      },
+      {
+        "key": "round_32",
+        "label": "32 Avos de Final",
+        "total": 16,
+        "finished": 16,
+        "scheduled": 0,
+        "completed": true
+      },
+      {
+        "key": "round_16",
+        "label": "Oitavas de Final",
+        "total": 8,
+        "finished": 4,
+        "scheduled": 4,
+        "completed": false
+      },
+      {
+        "key": "quarter",
+        "label": "Quartas de Final",
+        "total": 4,
+        "finished": 0,
+        "scheduled": 4,
+        "completed": false
+      },
+      {
+        "key": "semi",
+        "label": "Semifinal",
+        "total": 2,
+        "finished": 0,
+        "scheduled": 2,
+        "completed": false
+      },
+      {
+        "key": "third_place",
+        "label": "Disputa de 3º lugar",
+        "total": 1,
+        "finished": 0,
+        "scheduled": 1,
+        "completed": false
+      },
+      {
+        "key": "final",
+        "label": "Final",
+        "total": 1,
+        "finished": 0,
+        "scheduled": 1,
+        "completed": false
+      }
+    ],
+    "next_match": {
+      "date": "2026-07-06",
+      "time": "14:00 UTC-5",
+      "round": "Round of 16",
+      "team1": "Portugal",
+      "team2": "Spain"
+    }
+  }
 }

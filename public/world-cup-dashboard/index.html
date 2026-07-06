@@ -129,6 +129,27 @@
           </div>
         </div>
 
+        <!-- Progresso do torneio: fase atual + % completo + próxima partida -->
+        <div class="wc-progress" id="wc-tournament-progress" hidden
+             role="region" aria-label="Progresso do torneio">
+          <div class="wc-progress__head">
+            <span class="wc-progress__phase mono-label" id="wc-progress-phase">—</span>
+            <span class="wc-progress__pct" id="wc-progress-pct">0%</span>
+          </div>
+          <div class="wc-progress__bar"
+               role="progressbar"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+               aria-label="Porcentagem do torneio concluída"
+               id="wc-progress-bar">
+            <div class="wc-progress__fill" id="wc-progress-fill" style="width:0%"></div>
+          </div>
+          <div class="wc-progress__meta">
+            <span id="wc-progress-remaining">— partidas restantes</span>
+            <span class="wc-progress__sep" aria-hidden="true">·</span>
+            <span id="wc-progress-next">—</span>
+          </div>
+        </div>
+
         <!-- KPI Bento -->
         <div class="wc-kpi-bento" role="list" aria-label="Métricas gerais da Copa">
           <div class="wc-kpi wc-kpi--hero crop" role="listitem"

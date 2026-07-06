@@ -245,6 +245,73 @@
   }
 
   /* ════════════════════════════════════════════════════════
+   * Render — Barra de progresso do torneio (hero)
+   * Mostra: fase atual, % completo, partidas restantes, próxima
+   * partida. Datas em UTC são convertidas para display local.
+   * ════════════════════════════════════════════════════════ */
+  function renderTournamentProgress(estatisticas) {
+    const wrap = $('#wc-tournament-progress');
+    if (!wrap) return;
+    const tp = estatisticas?.ok && estatisticas?.data?.tournament_progress;
+    if (!tp) { wrap.hidden = true; return; }
+
+    wrap.hidden = false;
+
+    const phaseEl = $('#wc-progress-phase');
+    const pctEl   = $('#wc-progress-pct');
+    const fillEl  = $('#wc-progress-fill');
+    const barEl   = $('#wc-progress-bar');
+    const remEl   = $('#wc-progress-remaining');
+    const nextEl  = $('#wc-progress-next');
+
+    if (phaseEl) phaseEl.textContent = tp.current_phase || '—';
+    if (pctEl)   pctEl.textContent = (tp.progress_pct || 0).toFixed(1).replace('.', ',') + '%';
+    if (barEl)   barEl.setAttribute('aria-valuenow', String(tp.progress_pct || 0));
+
+    // Animação do preenchimento (depois do primeiro paint)
+    if (fillEl) {
+      requestAnimationFrame(() => {
+        fillEl.style.width = (tp.progress_pct || 0) + '%';
+      });
+    }
+
+    if (remEl) {
+      if (tp.is_complete || tp.remaining_matches === 0) {
+        remEl.textContent = 'Torneio finalizado 🏆';
+      } else {
+        const n = tp.remaining_matches;
+        remEl.textContent = `${n} ${n === 1 ? 'partida restante' : 'partidas restantes'}`;
+      }
+    }
+
+    if (nextEl) {
+      if (tp.is_complete || !tp.next_match) {
+        nextEl.textContent = 'Campeão definido 🏆';
+      } else {
+        const nm = tp.next_match;
+        const dateStr = nm.date ? formatLocalDate(nm.date) : '';
+        const timeStr = nm.time ? ` · ${nm.time}` : '';
+        nextEl.textContent = `Próxima: ${nm.team1} x ${nm.team2}${dateStr ? ' · ' + dateStr : ''}${timeStr}`;
+      }
+    }
+  }
+
+  /** Formata data ISO (YYYY-MM-DD) para "06/07" ou "hoje" se for hoje. */
+  function formatLocalDate(iso) {
+    try {
+      const d = new Date(iso + 'T00:00:00');
+      const today = new Date();
+      if (d.toDateString() === today.toDateString()) return 'hoje';
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      if (d.toDateString() === tomorrow.toDateString()) return 'amanhã';
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    } catch {
+      return iso || '';
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════
    * Render — Freshness badge (hero + footer)
    * ════════════════════════════════════════════════════════ */
   function renderFreshness(results) {
@@ -1877,6 +1944,9 @@
 
     // KPIs do hero (depende de 3 JSONs)
     renderHeroKPIs({ partidas, artilheiros, estatisticas });
+
+    // Barra de progresso do torneio (fase atual, %, próxima partida)
+    renderTournamentProgress(estatisticas);
 
     // Seções (cada uma é resiliente — fallback gracioso)
     renderNews(noticias);

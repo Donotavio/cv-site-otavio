@@ -459,6 +459,123 @@ def build_estatisticas(matches: list, teams_index: dict) -> dict:
         "highest_scoring_match": highest_scoring,
         "goals_by_minute": [{"range": k, "count": v} for k, v in minute_buckets.items()],
         "teams_efficiency": efficiency[:16],
+        "tournament_progress": _build_tournament_progress(matches),
+    }
+
+
+# ─── progresso do torneio ─────────────────────────────────────────────
+# Mapeamento round (openfootball) → (label PT-BR, ordem cronológica)
+_PHASE_ORDER = {
+    "groups":        ("Fase de Grupos",          0),
+    "round_32":      ("32 Avos de Final",        1),
+    "round_16":      ("Oitavas de Final",        2),
+    "quarter":       ("Quartas de Final",        3),
+    "semi":          ("Semifinal",               4),
+    "third_place":   ("Disputa de 3º lugar",     5),
+    "final":         ("Final",                   6),
+}
+
+
+def _phase_key(round_name: str) -> str | None:
+    """Converte nome do round do openfootball em chave canônica."""
+    r = (round_name or "").lower().strip()
+    if r.startswith("matchday"):
+        return "groups"
+    if "round of 32" in r or "round-of-32" in r:
+        return "round_32"
+    if "round of 16" in r or "round-of-16" in r:
+        return "round_16"
+    if "quarter" in r:
+        return "quarter"
+    if "semi" in r:
+        return "semi"
+    if "third" in r or "3rd" in r:
+        return "third_place"
+    if r == "final":
+        return "final"
+    return None
+
+
+def _build_tournament_progress(matches: list) -> dict:
+    """
+    Detecta a fase atual do torneio e partidas restantes.
+    Lógica: primeira fase (em ordem cronológica) com partidas agendadas.
+    """
+    # Contadores por fase
+    by_phase: dict[str, dict] = {}
+    next_match = None
+
+    for m in matches:
+        round_name = m.get("round", "")
+        pkey = _phase_key(round_name)
+        if pkey is None:
+            continue
+        if pkey not in by_phase:
+            by_phase[pkey] = {"total": 0, "finished": 0, "scheduled": 0}
+        by_phase[pkey]["total"] += 1
+
+        is_finished = bool((m.get("score") or {}).get("ft"))
+        if is_finished:
+            by_phase[pkey]["finished"] += 1
+        else:
+            by_phase[pkey]["scheduled"] += 1
+            # Próxima partida: menor data entre as agendadas
+            date = m.get("date", "")
+            t1 = m.get("team1") or ""
+            t2 = m.get("team2") or ""
+            if isinstance(t1, dict): t1 = t1.get("name", "?")
+            if isinstance(t2, dict): t2 = t2.get("name", "?")
+            candidate = {
+                "date": date,
+                "time": m.get("time", ""),
+                "round": round_name,
+                "team1": t1,
+                "team2": t2,
+            }
+            if next_match is None or (date and date < next_match["date"]):
+                next_match = candidate
+
+    # Determina fase atual: primeira com partidas agendadas
+    current_key = None
+    for pkey in sorted(_PHASE_ORDER.keys(), key=lambda k: _PHASE_ORDER[k][1]):
+        stats = by_phase.get(pkey)
+        if stats and stats["scheduled"] > 0:
+            current_key = pkey
+            break
+
+    total_matches = sum(s["total"] for s in by_phase.values())
+    finished_total = sum(s["finished"] for s in by_phase.values())
+    scheduled_total = sum(s["scheduled"] for s in by_phase.values())
+
+    progress_pct = round(finished_total / total_matches * 100, 1) if total_matches else 0.0
+
+    current_label = _PHASE_ORDER[current_key][0] if current_key else "Torneio finalizado"
+
+    # Detalhe por fase (em ordem cronológica)
+    phases = []
+    for pkey in sorted(_PHASE_ORDER.keys(), key=lambda k: _PHASE_ORDER[k][1]):
+        if pkey not in by_phase:
+            continue
+        stats = by_phase[pkey]
+        phases.append({
+            "key": pkey,
+            "label": _PHASE_ORDER[pkey][0],
+            "total": stats["total"],
+            "finished": stats["finished"],
+            "scheduled": stats["scheduled"],
+            "completed": stats["scheduled"] == 0,
+        })
+
+    return {
+        "total_matches": total_matches,
+        "finished_matches": finished_total,
+        "remaining_matches": scheduled_total,
+        "progress_pct": progress_pct,
+        "current_phase": current_label,
+        "current_phase_key": current_key or "completed",
+        "is_complete": current_key is None,
+        "phases": phases,
+        "next_match": next_match,
     }
 
 

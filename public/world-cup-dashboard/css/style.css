@@ -617,6 +617,87 @@ html.has-js [data-reveal].is-visible {
 .wc-freshness[data-stale="amber"]::before { background: var(--wc-amber-ink); }
 
 /* ════════════════════════════════════════════════════════════
+ * BARRA DE PROGRESSO DO TORNEIO
+ * Compacta, entre hero card e KPIs. Mostra fase atual, % e próxima.
+ * ════════════════════════════════════════════════════════════ */
+.wc-progress {
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  background: var(--paper-soft, #FAFAFA);
+  border: 1px solid var(--line, rgba(10,10,10,0.10));
+  border-radius: var(--radius-md, 12px);
+}
+
+.wc-progress__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-3);
+  gap: var(--space-3);
+}
+
+.wc-progress__phase {
+  font-size: var(--text-xs, 0.75rem);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft, #545454);
+  font-weight: 600;
+}
+
+.wc-progress__pct {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: 600;
+  color: var(--ink, #0A0A0A);
+  font-variant-numeric: tabular-nums;
+}
+
+.wc-progress__bar {
+  height: 8px;
+  background: var(--line, rgba(10,10,10,0.10));
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.wc-progress__fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--wc-field, #2E8B2E) 0%,
+    var(--wc-gold, #B0820D) 100%
+  );
+  border-radius: 999px;
+  width: 0%;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wc-progress__meta {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--ink-soft, #545454);
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.wc-progress__sep {
+  opacity: 0.4;
+}
+
+@media (max-width: 480px) {
+  .wc-progress { padding: var(--space-3) var(--space-4); }
+  .wc-progress__pct { font-size: var(--text-base, 1rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-progress__fill { transition: none; }
+}
+
+/* ════════════════════════════════════════════════════════════
  * KPI BENTO
  * ════════════════════════════════════════════════════════════ */
 .wc-kpi-bento {
