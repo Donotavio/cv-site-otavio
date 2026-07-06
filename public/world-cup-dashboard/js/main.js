@@ -927,6 +927,85 @@
     { match: 'Match for third place',short: '3º LUGAR', full: 'Disputa de 3º lugar' },
   ];
 
+  /**
+   * Reordena as partidas de cada fase do mata-mata para que o cruzamento
+   * visual reflita o chaveamento oficial. A ordem da fase N é determinada
+   * pela ordem da fase N+1: para cada partida da próxima fase, os dois
+   * jogos que a alimentam (placeholders Wxx) ficam adjacentes.
+   *
+   * Exemplo: se R16#89 = W74 vs W77, então R32#74 e R32#77 ficam lado a
+   * lado na coluna, em vez de seguirem a ordem cronológica 73, 74, 75...
+   *
+   * Retorna um { round: match[] } ordenado.
+   */
+  function buildBracketVisualOrder(matches) {
+    // Indexa por num
+    const byNum = new Map();
+    matches.forEach(m => { if (m.num) byNum.set(m.num, m); });
+
+    // Para cada partida, identifica os num das partidas que a alimentam
+    // (via placeholders Wxx no team1/team2 — string no openfootball cru).
+    const sourcesByNum = new Map(); // num → [src_num1, src_num2]
+    const PH_RE = /^W(\d+)$/;
+    matches.forEach(m => {
+      if (!m.num) return;
+      const t1Name = typeof m.team1 === 'string' ? m.team1 : (m.team1 && m.team1.name) || '';
+      const t2Name = typeof m.team2 === 'string' ? m.team2 : (m.team2 && m.team2.name) || '';
+      const srcs = [];
+      const m1 = String(t1Name).match(PH_RE);
+      const m2 = String(t2Name).match(PH_RE);
+      if (m1) srcs.push(parseInt(m1[1], 10));
+      if (m2) srcs.push(parseInt(m2[1], 10));
+      if (srcs.length) sourcesByNum.set(m.num, srcs);
+    });
+
+    // Agrupa por round mantendo ordem original por num
+    const byRound = {};
+    BRACKET_ROUNDS.forEach(r => { byRound[r.match] = []; });
+    matches.forEach(m => {
+      if (byRound[m.round]) byRound[m.round].push(m);
+    });
+    Object.values(byRound).forEach(arr => arr.sort((a, b) => (a.num || 0) - (b.num || 0)));
+
+    // Itera de trás pra frente (Final → SF → QF → R16 → R32)
+    // Para cada fase N, percorre fase N+1 (já ordenada) e reordena N
+    // para que os sources de cada partida de N+1 fiquem adjacentes.
+    const order = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final', 'Final'];
+    for (let i = order.length - 2; i >= 0; i--) {
+      const curr = order[i];
+      const next = order[i + 1];
+      const nextOrdered = byRound[next] || [];
+
+      const reordered = [];
+      const added = new Set();
+
+      nextOrdered.forEach(nm => {
+        const srcs = sourcesByNum.get(nm.num) || [];
+        srcs.forEach(srcNum => {
+          if (added.has(srcNum)) return;
+          const src = byNum.get(srcNum);
+          if (src && src.round === curr) {
+            reordered.push(src);
+            added.add(srcNum);
+          }
+        });
+      });
+
+      // Garantia: adiciona as partidas que ficaram de fora (ex.: 3º lugar
+      // ou fontes não mapeadas) na ordem original.
+      byRound[curr].forEach(m => {
+        if (!added.has(m.num)) {
+          reordered.push(m);
+          added.add(m.num);
+        }
+      });
+
+      byRound[curr] = reordered;
+    }
+
+    return byRound;
+  }
+
   function renderBracket(result) {
     const host = $('#wc-bracket-host');
     if (!host) return;
@@ -936,17 +1015,13 @@
       return;
     }
 
-    // Filtra só mata-mata (round sem "Matchday"), ordena por num.
+    // Filtra só mata-mata (round sem "Matchday").
     const ko = result.data.matches
-      .filter(m => m.round && !/matchday/i.test(m.round))
-      .sort((a, b) => (a.num || 0) - (b.num || 0));
+      .filter(m => m.round && !/matchday/i.test(m.round));
 
-    // Indexa por round.
-    const byRound = {};
-    BRACKET_ROUNDS.forEach(r => { byRound[r.match] = []; });
-    ko.forEach(m => {
-      if (byRound[m.round]) byRound[m.round].push(m);
-    });
+    // Reordena visualmente para refletir o cruzamento oficial (W73 vs W74
+    // lado a lado quando alimentam o mesmo jogo da próxima fase).
+    const byRound = buildBracketVisualOrder(ko);
 
     // Desktop: 6-col grid.
     const desktopHtml = `
