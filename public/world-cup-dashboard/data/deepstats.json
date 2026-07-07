@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-07T01:31:43.598745+00:00",
+  "updated_at": "2026-07-07T05:55:04.257936+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -66,6 +66,14 @@
       "label": "Sweden 5–1 Tunisia",
       "date": "2026-06-14",
       "goals": 6,
+      "has_stats": true,
+      "has_momentum": true
+    },
+    {
+      "id": "usa-bel-2026-07-06",
+      "label": "USA 1–4 Belgium",
+      "date": "2026-07-06",
+      "goals": 5,
       "has_stats": true,
       "has_momentum": true
     },
@@ -1170,6 +1178,28 @@
           "on_target": 5,
           "blocked": 0,
           "goals": 3
+        }
+      },
+      "usa-bel-2026-07-06": {
+        "match": "USA 1–4 Belgium",
+        "source": "ESPN",
+        "home": {
+          "code": "USA",
+          "flag": "🇺🇸",
+          "name": "USA",
+          "shots": 7,
+          "on_target": 2,
+          "blocked": 0,
+          "goals": 1
+        },
+        "away": {
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "name": "Belgium",
+          "shots": 15,
+          "on_target": 7,
+          "blocked": 4,
+          "goals": 4
         }
       },
       "ned-jpn-2026-06-14": {
@@ -3336,6 +3366,34 @@
           "accurate_crosses": 1,
           "long_balls": 44,
           "possession": 33.1
+        }
+      },
+      "usa-bel-2026-07-06": {
+        "match": "USA 1–4 Belgium",
+        "source": "ESPN",
+        "home": {
+          "code": "USA",
+          "flag": "🇺🇸",
+          "name": "USA",
+          "passes": 527,
+          "accurate_passes": 459,
+          "pass_pct": 90.0,
+          "crosses": 11,
+          "accurate_crosses": 2,
+          "long_balls": 36,
+          "possession": 55.9
+        },
+        "away": {
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "name": "Belgium",
+          "passes": 414,
+          "accurate_passes": 334,
+          "pass_pct": 80.0,
+          "crosses": 15,
+          "accurate_crosses": 5,
+          "long_balls": 60,
+          "possession": 44.1
         }
       },
       "ned-jpn-2026-06-14": {
@@ -6378,6 +6436,119 @@
             "team": "away",
             "player": "Omar Rekik",
             "cum": 1
+          }
+        ]
+      },
+      "usa-bel-2026-07-06": {
+        "id": "usa-bel-2026-07-06",
+        "label": "USA 1–4 Belgium",
+        "date": "2026-07-06",
+        "total_goals": 5,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "USA",
+          "flag": "🇺🇸",
+          "name": "USA",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "away": {
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "name": "Belgium",
+          "cum": [
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            4
+          ]
+        },
+        "goals": [
+          {
+            "minute": 31,
+            "team": "home",
+            "player": "Malik Tillman",
+            "cum": 1
+          },
+          {
+            "minute": 9,
+            "team": "away",
+            "player": "Charles De Ketelaere",
+            "cum": 1
+          },
+          {
+            "minute": 33,
+            "team": "away",
+            "player": "Charles De Ketelaere",
+            "cum": 2
+          },
+          {
+            "minute": 57,
+            "team": "away",
+            "player": "Hans Vanaken",
+            "cum": 3
+          },
+          {
+            "minute": 90,
+            "team": "away",
+            "player": "Romelu Lukaku",
+            "cum": 4
           }
         ]
       },
