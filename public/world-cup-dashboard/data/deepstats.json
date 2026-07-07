@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-07T05:55:04.257936+00:00",
+  "updated_at": "2026-07-07T19:28:59.792678+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -66,6 +66,14 @@
       "label": "Sweden 5–1 Tunisia",
       "date": "2026-06-14",
       "goals": 6,
+      "has_stats": true,
+      "has_momentum": true
+    },
+    {
+      "id": "arg-egy-2026-07-07",
+      "label": "Argentina 3–2 Egypt",
+      "date": "2026-07-07",
+      "goals": 5,
       "has_stats": true,
       "has_momentum": true
     },
@@ -1200,6 +1208,28 @@
           "on_target": 7,
           "blocked": 4,
           "goals": 4
+        }
+      },
+      "arg-egy-2026-07-07": {
+        "match": "Argentina 3–2 Egypt",
+        "source": "ESPN",
+        "home": {
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "name": "Argentina",
+          "shots": 19,
+          "on_target": 7,
+          "blocked": 4,
+          "goals": 3
+        },
+        "away": {
+          "code": "EGY",
+          "flag": "🇪🇬",
+          "name": "Egypt",
+          "shots": 5,
+          "on_target": 2,
+          "blocked": 1,
+          "goals": 2
         }
       },
       "ned-jpn-2026-06-14": {
@@ -3394,6 +3424,34 @@
           "accurate_crosses": 5,
           "long_balls": 60,
           "possession": 44.1
+        }
+      },
+      "arg-egy-2026-07-07": {
+        "match": "Argentina 3–2 Egypt",
+        "source": "ESPN",
+        "home": {
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "name": "Argentina",
+          "passes": 602,
+          "accurate_passes": 541,
+          "pass_pct": 90.0,
+          "crosses": 26,
+          "accurate_crosses": 8,
+          "long_balls": 31,
+          "possession": 63.6
+        },
+        "away": {
+          "code": "EGY",
+          "flag": "🇪🇬",
+          "name": "Egypt",
+          "passes": 349,
+          "accurate_passes": 289,
+          "pass_pct": 80.0,
+          "crosses": 8,
+          "accurate_crosses": 2,
+          "long_balls": 36,
+          "possession": 36.4
         }
       },
       "ned-jpn-2026-06-14": {
@@ -6436,6 +6494,119 @@
             "team": "away",
             "player": "Omar Rekik",
             "cum": 1
+          }
+        ]
+      },
+      "arg-egy-2026-07-07": {
+        "id": "arg-egy-2026-07-07",
+        "label": "Argentina 3–2 Egypt",
+        "date": "2026-07-07",
+        "total_goals": 5,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "name": "Argentina",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "away": {
+          "code": "EGY",
+          "flag": "🇪🇬",
+          "name": "Egypt",
+          "cum": [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "goals": [
+          {
+            "minute": 79,
+            "team": "home",
+            "player": "Cristian Romero",
+            "cum": 1
+          },
+          {
+            "minute": 83,
+            "team": "home",
+            "player": "Lionel Messi",
+            "cum": 2
+          },
+          {
+            "minute": 90,
+            "team": "home",
+            "player": "Enzo Fernández",
+            "cum": 3
+          },
+          {
+            "minute": 15,
+            "team": "away",
+            "player": "Yasser Ibrahim",
+            "cum": 1
+          },
+          {
+            "minute": 67,
+            "team": "away",
+            "player": "Mostafa Zico",
+            "cum": 2
           }
         ]
       },

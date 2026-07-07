@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-07T05:54:32.767095+00:00",
+  "updated_at": "2026-07-07T19:28:22.530535+00:00",
   "methodology": "Elo Rating local (K=40, init=1500). Pênaltis contam como empate. Bônus de margem de gols no K. Probabilidade de título via softmax (temp=180). NOTA: Elo pondera a FORÇA dos adversários — uma seleção invicta contra times fracos pode ter Elo menor que uma com derrotas vs favoritos (ex: México 0 sofridos vs times fracos < França 13 gols vs times fortes).",
   "total_teams": 48,
   "teams": [
@@ -28,6 +28,18 @@
       "rank": 2
     },
     {
+      "name": "Argentina",
+      "code": "ARG",
+      "flag": "🇦🇷",
+      "elo": 1585.8,
+      "win_probability": 3.23,
+      "matches_played": 5,
+      "wins": 4,
+      "draws": 1,
+      "losses": 0,
+      "rank": 3
+    },
+    {
       "name": "England",
       "code": "ENG",
       "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
@@ -37,7 +49,7 @@
       "wins": 4,
       "draws": 1,
       "losses": 0,
-      "rank": 3
+      "rank": 4
     },
     {
       "name": "Switzerland",
@@ -49,7 +61,7 @@
       "wins": 3,
       "draws": 1,
       "losses": 0,
-      "rank": 4
+      "rank": 5
     },
     {
       "name": "Morocco",
@@ -60,18 +72,6 @@
       "matches_played": 5,
       "wins": 3,
       "draws": 2,
-      "losses": 0,
-      "rank": 5
-    },
-    {
-      "name": "Argentina",
-      "code": "ARG",
-      "flag": "🇦🇷",
-      "elo": 1568.4,
-      "win_probability": 2.93,
-      "matches_played": 4,
-      "wins": 3,
-      "draws": 1,
       "losses": 0,
       "rank": 6
     },
@@ -128,7 +128,7 @@
       "code": "BRA",
       "flag": "🇧🇷",
       "elo": 1551.9,
-      "win_probability": 2.68,
+      "win_probability": 2.67,
       "matches_played": 5,
       "wins": 3,
       "draws": 1,
@@ -140,7 +140,7 @@
       "code": "NED",
       "flag": "🇳🇱",
       "elo": 1550.7,
-      "win_probability": 2.66,
+      "win_probability": 2.65,
       "matches_played": 4,
       "wins": 2,
       "draws": 2,
@@ -172,18 +172,6 @@
       "rank": 14
     },
     {
-      "name": "Egypt",
-      "code": "EGY",
-      "flag": "🇪🇬",
-      "elo": 1522.2,
-      "win_probability": 2.27,
-      "matches_played": 4,
-      "wins": 1,
-      "draws": 3,
-      "losses": 0,
-      "rank": 15
-    },
-    {
       "name": "USA",
       "code": "USA",
       "flag": "🇺🇸",
@@ -193,7 +181,7 @@
       "wins": 3,
       "draws": 0,
       "losses": 2,
-      "rank": 16
+      "rank": 15
     },
     {
       "name": "Japan",
@@ -204,6 +192,18 @@
       "matches_played": 4,
       "wins": 1,
       "draws": 2,
+      "losses": 1,
+      "rank": 16
+    },
+    {
+      "name": "Egypt",
+      "code": "EGY",
+      "flag": "🇪🇬",
+      "elo": 1504.8,
+      "win_probability": 2.06,
+      "matches_played": 5,
+      "wins": 1,
+      "draws": 3,
       "losses": 1,
       "rank": 17
     },
@@ -272,7 +272,7 @@
       "code": "CRO",
       "flag": "🇭🇷",
       "elo": 1497.4,
-      "win_probability": 1.98,
+      "win_probability": 1.97,
       "matches_played": 4,
       "wins": 2,
       "draws": 0,
