@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-07T21:12:40.423119+00:00",
+  "updated_at": "2026-07-07T23:42:49.544478+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -708,6 +708,14 @@
       "goals": 1,
       "has_stats": true,
       "has_momentum": true
+    },
+    {
+      "id": "sui-col-2026-07-07",
+      "label": "Switzerland 0–0 Colombia",
+      "date": "2026-07-07",
+      "goals": 0,
+      "has_momentum": false,
+      "has_stats": true
     },
     {
       "id": "cpv-ksa-2026-06-27",
@@ -2856,6 +2864,28 @@
           "name": "Portugal",
           "shots": 13,
           "on_target": 2,
+          "blocked": 4,
+          "goals": 0
+        }
+      },
+      "sui-col-2026-07-07": {
+        "match": "Switzerland 0–0 Colombia",
+        "source": "ESPN",
+        "home": {
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "name": "Switzerland",
+          "shots": 7,
+          "on_target": 2,
+          "blocked": 1,
+          "goals": 0
+        },
+        "away": {
+          "code": "COL",
+          "flag": "🇨🇴",
+          "name": "Colombia",
+          "shots": 15,
+          "on_target": 3,
           "blocked": 4,
           "goals": 0
         }
@@ -5524,6 +5554,34 @@
           "accurate_crosses": 2,
           "long_balls": 29,
           "possession": 45.4
+        }
+      },
+      "sui-col-2026-07-07": {
+        "match": "Switzerland 0–0 Colombia",
+        "source": "ESPN",
+        "home": {
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "name": "Switzerland",
+          "passes": 626,
+          "accurate_passes": 546,
+          "pass_pct": 90.0,
+          "crosses": 15,
+          "accurate_crosses": 1,
+          "long_balls": 62,
+          "possession": 53.2
+        },
+        "away": {
+          "code": "COL",
+          "flag": "🇨🇴",
+          "name": "Colombia",
+          "passes": 548,
+          "accurate_passes": 454,
+          "pass_pct": 80.0,
+          "crosses": 18,
+          "accurate_crosses": 4,
+          "long_balls": 78,
+          "possession": 46.8
         }
       }
     }
