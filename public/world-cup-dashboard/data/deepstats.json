@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-08T04:54:33.432852+00:00",
+  "updated_at": "2026-07-09T23:00:22.767025+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -426,6 +426,14 @@
       "label": "South Korea 2–1 Czech Republic",
       "date": "2026-06-11",
       "goals": 3,
+      "has_stats": true,
+      "has_momentum": true
+    },
+    {
+      "id": "fra-mar-2026-07-09",
+      "label": "France 2–0 Morocco",
+      "date": "2026-07-09",
+      "goals": 2,
       "has_stats": true,
       "has_momentum": true
     },
@@ -2404,6 +2412,28 @@
           "on_target": 3,
           "blocked": 6,
           "goals": 1
+        }
+      },
+      "fra-mar-2026-07-09": {
+        "match": "France 2–0 Morocco",
+        "source": "ESPN",
+        "home": {
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "name": "France",
+          "shots": 22,
+          "on_target": 8,
+          "blocked": 5,
+          "goals": 2
+        },
+        "away": {
+          "code": "MAR",
+          "flag": "🇲🇦",
+          "name": "Morocco",
+          "shots": 5,
+          "on_target": 1,
+          "blocked": 1,
+          "goals": 0
         }
       },
       "hai-sco-2026-06-13": {
@@ -4966,6 +4996,34 @@
           "accurate_crosses": 6,
           "long_balls": 77,
           "possession": 58.3
+        }
+      },
+      "fra-mar-2026-07-09": {
+        "match": "France 2–0 Morocco",
+        "source": "ESPN",
+        "home": {
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "name": "France",
+          "passes": 485,
+          "accurate_passes": 432,
+          "pass_pct": 90.0,
+          "crosses": 12,
+          "accurate_crosses": 5,
+          "long_balls": 30,
+          "possession": 48.1
+        },
+        "away": {
+          "code": "MAR",
+          "flag": "🇲🇦",
+          "name": "Morocco",
+          "passes": 524,
+          "accurate_passes": 452,
+          "pass_pct": 90.0,
+          "crosses": 13,
+          "accurate_crosses": 2,
+          "long_balls": 39,
+          "possession": 51.9
         }
       },
       "hai-sco-2026-06-13": {
@@ -11331,6 +11389,101 @@
             "team": "away",
             "player": "Ladislav Krejcí",
             "cum": 1
+          }
+        ]
+      },
+      "fra-mar-2026-07-09": {
+        "id": "fra-mar-2026-07-09",
+        "label": "France 2–0 Morocco",
+        "date": "2026-07-09",
+        "total_goals": 2,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "name": "France",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "away": {
+          "code": "MAR",
+          "flag": "🇲🇦",
+          "name": "Morocco",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "goals": [
+          {
+            "minute": 60,
+            "team": "home",
+            "player": "Kylian Mbappé",
+            "cum": 1
+          },
+          {
+            "minute": 66,
+            "team": "home",
+            "player": "Ousmane Dembélé",
+            "cum": 2
           }
         ]
       },
