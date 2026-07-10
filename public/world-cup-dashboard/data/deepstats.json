@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-10T04:41:50.725884+00:00",
+  "updated_at": "2026-07-10T21:54:12.628771+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -274,6 +274,14 @@
       "label": "Netherlands 2–2 Japan",
       "date": "2026-06-14",
       "goals": 4,
+      "has_stats": true,
+      "has_momentum": true
+    },
+    {
+      "id": "esp-bel-2026-07-10",
+      "label": "Spain 2–1 Belgium",
+      "date": "2026-07-10",
+      "goals": 3,
       "has_stats": true,
       "has_momentum": true
     },
@@ -1950,6 +1958,28 @@
           "on_target": 5,
           "blocked": 1,
           "goals": 2
+        }
+      },
+      "esp-bel-2026-07-10": {
+        "match": "Spain 2–1 Belgium",
+        "source": "ESPN",
+        "home": {
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "name": "Spain",
+          "shots": 17,
+          "on_target": 8,
+          "blocked": 5,
+          "goals": 2
+        },
+        "away": {
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "name": "Belgium",
+          "shots": 5,
+          "on_target": 2,
+          "blocked": 2,
+          "goals": 1
         }
       },
       "mex-rsa-2026-06-11": {
@@ -4408,6 +4438,34 @@
           "accurate_crosses": 1,
           "long_balls": 54,
           "possession": 66.4
+        }
+      },
+      "esp-bel-2026-07-10": {
+        "match": "Spain 2–1 Belgium",
+        "source": "ESPN",
+        "home": {
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "name": "Spain",
+          "passes": 665,
+          "accurate_passes": 598,
+          "pass_pct": 90.0,
+          "crosses": 19,
+          "accurate_crosses": 2,
+          "long_balls": 37,
+          "possession": 67.8
+        },
+        "away": {
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "name": "Belgium",
+          "passes": 314,
+          "accurate_passes": 244,
+          "pass_pct": 80.0,
+          "crosses": 10,
+          "accurate_crosses": 2,
+          "long_balls": 45,
+          "possession": 32.2
         }
       },
       "mex-rsa-2026-06-11": {
@@ -9470,6 +9528,107 @@
             "team": "away",
             "player": "Daichi Kamada",
             "cum": 2
+          }
+        ]
+      },
+      "esp-bel-2026-07-10": {
+        "id": "esp-bel-2026-07-10",
+        "label": "Spain 2–1 Belgium",
+        "date": "2026-07-10",
+        "total_goals": 3,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "name": "Spain",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            2
+          ]
+        },
+        "away": {
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "name": "Belgium",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "goals": [
+          {
+            "minute": 30,
+            "team": "home",
+            "player": "Fabián Ruiz",
+            "cum": 1
+          },
+          {
+            "minute": 88,
+            "team": "home",
+            "player": "Mikel Merino",
+            "cum": 2
+          },
+          {
+            "minute": 41,
+            "team": "away",
+            "player": "Charles De Ketelaere",
+            "cum": 1
           }
         ]
       },
