@@ -64,7 +64,16 @@ jobs:
           else
             TODAY=$(date +%Y-%m-%d)
             git commit -m "data: coleta mensal GitHub+PyPI — Data Stack Radar BR ${TODAY}"
-            git pull --rebase
+
+            # Rebase pode conflitar se outro run já empurrou os mesmos JSON.
+            # Em caso de conflito, aborta e faz merge mantendo os dados locais
+            # (recém-gerados e fontes de verdade) sobre os remotos.
+            if ! git pull --rebase; then
+              echo "⚠ Conflito no rebase — abortando e resolvendo a favor dos dados locais."
+              git rebase --abort
+              git pull --no-rebase --strategy-option=ours
+            fi
+
             git push
             echo "✅ Dados commitados e enviados."
           fi
