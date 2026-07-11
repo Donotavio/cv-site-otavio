@@ -58,7 +58,16 @@ jobs:
           else
             TODAY=$(date +%Y-%m-%d)
             git commit -m "data: coleta trimestral IBGE — Brasil Cockpit ${TODAY}"
-            git pull --rebase
+            # Usa merge (não rebase) para evitar conflito irrecuperável em
+            # binários regenerados (ex.: data/gold/historico.parquet).
+            # Em caso de conflito de conteúdo, prioriza a versão local
+            # recém-reconstruída (gold é full rebuild) e conclui o merge.
+            git pull --no-rebase || {
+              echo "⚠ Conflito no pull — resolvendo com versão local (full rebuild)."
+              git checkout --ours data/gold/historico.parquet || true
+              git add data/gold/historico.parquet || true
+              git commit --no-edit || true
+            }
             git push
             echo "✅ Dados commitados e enviados."
           fi
