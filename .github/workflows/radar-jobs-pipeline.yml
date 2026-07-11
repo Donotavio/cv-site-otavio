@@ -4,7 +4,7 @@ name: Data Stack Radar BR — Coleta de vagas
 # Também pode ser disparado manualmente via workflow_dispatch.
 on:
   schedule:
-    - cron: '0 2 * * 1'
+    - cron: '0 15 * * *'
   workflow_dispatch: {}
 
 permissions:

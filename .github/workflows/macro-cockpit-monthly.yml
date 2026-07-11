@@ -4,7 +4,7 @@ name: Brasil Cockpit — Coleta mensal (SGS)
 # comércio), fiscal (dívida, resultado primário). silver+gold reconstrói.
 on:
   schedule:
-    - cron: '0 6 28 * *'
+    - cron: '0 15 * * *'
   workflow_dispatch: {}
 
 permissions:
