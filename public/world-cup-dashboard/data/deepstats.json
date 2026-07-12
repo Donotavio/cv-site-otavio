@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-11T01:15:16.235586+00:00",
+  "updated_at": "2026-07-12T01:17:03.194147+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -274,6 +274,14 @@
       "label": "Netherlands 2–2 Japan",
       "date": "2026-06-14",
       "goals": 4,
+      "has_stats": true,
+      "has_momentum": true
+    },
+    {
+      "id": "nor-eng-2026-07-11",
+      "label": "Norway 1–1 England",
+      "date": "2026-07-11",
+      "goals": 3,
       "has_stats": true,
       "has_momentum": true
     },
@@ -1980,6 +1988,28 @@
           "on_target": 2,
           "blocked": 2,
           "goals": 1
+        }
+      },
+      "nor-eng-2026-07-11": {
+        "match": "Norway 1–1 England",
+        "source": "ESPN",
+        "home": {
+          "code": "NOR",
+          "flag": "🇳🇴",
+          "name": "Norway",
+          "shots": 13,
+          "on_target": 4,
+          "blocked": 3,
+          "goals": 1
+        },
+        "away": {
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "name": "England",
+          "shots": 14,
+          "on_target": 8,
+          "blocked": 3,
+          "goals": 2
         }
       },
       "mex-rsa-2026-06-11": {
@@ -4466,6 +4496,34 @@
           "accurate_crosses": 2,
           "long_balls": 45,
           "possession": 32.1
+        }
+      },
+      "nor-eng-2026-07-11": {
+        "match": "Norway 1–1 England",
+        "source": "ESPN",
+        "home": {
+          "code": "NOR",
+          "flag": "🇳🇴",
+          "name": "Norway",
+          "passes": 576,
+          "accurate_passes": 492,
+          "pass_pct": 90.0,
+          "crosses": 19,
+          "accurate_crosses": 3,
+          "long_balls": 48,
+          "possession": 47.6
+        },
+        "away": {
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "name": "England",
+          "passes": 628,
+          "accurate_passes": 569,
+          "pass_pct": 90.0,
+          "crosses": 21,
+          "accurate_crosses": 9,
+          "long_balls": 50,
+          "possession": 52.4
         }
       },
       "mex-rsa-2026-06-11": {
@@ -9527,6 +9585,107 @@
             "minute": 88,
             "team": "away",
             "player": "Daichi Kamada",
+            "cum": 2
+          }
+        ]
+      },
+      "nor-eng-2026-07-11": {
+        "id": "nor-eng-2026-07-11",
+        "label": "Norway 1–1 England",
+        "date": "2026-07-11",
+        "total_goals": 3,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "NOR",
+          "flag": "🇳🇴",
+          "name": "Norway",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "away": {
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "name": "England",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "goals": [
+          {
+            "minute": 36,
+            "team": "home",
+            "player": "Andreas Schjelderup",
+            "cum": 1
+          },
+          {
+            "minute": 45,
+            "team": "away",
+            "player": "Jude Bellingham",
+            "cum": 1
+          },
+          {
+            "minute": 93,
+            "team": "away",
+            "player": "Jude Bellingham",
             "cum": 2
           }
         ]
