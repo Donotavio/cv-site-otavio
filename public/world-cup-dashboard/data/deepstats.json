@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-12T01:17:03.194147+00:00",
+  "updated_at": "2026-07-12T05:01:26.913189+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -170,6 +170,14 @@
       "label": "USA 4–1 Paraguay",
       "date": "2026-06-12",
       "goals": 5,
+      "has_stats": true,
+      "has_momentum": true
+    },
+    {
+      "id": "arg-sui-2026-07-11",
+      "label": "Argentina 1–1 Switzerland",
+      "date": "2026-07-11",
+      "goals": 4,
       "has_stats": true,
       "has_momentum": true
     },
@@ -1548,6 +1556,28 @@
           "on_target": 4,
           "blocked": 1,
           "goals": 3
+        }
+      },
+      "arg-sui-2026-07-11": {
+        "match": "Argentina 1–1 Switzerland",
+        "source": "ESPN",
+        "home": {
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "name": "Argentina",
+          "shots": 22,
+          "on_target": 7,
+          "blocked": 7,
+          "goals": 3
+        },
+        "away": {
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "name": "Switzerland",
+          "shots": 11,
+          "on_target": 5,
+          "blocked": 3,
+          "goals": 1
         }
       },
       "kor-cze-2026-06-11": {
@@ -3938,6 +3968,34 @@
           "possession": 73.3
         }
       },
+      "arg-sui-2026-07-11": {
+        "match": "Argentina 1–1 Switzerland",
+        "source": "ESPN",
+        "home": {
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "name": "Argentina",
+          "passes": 692,
+          "accurate_passes": 615,
+          "pass_pct": 90.0,
+          "crosses": 22,
+          "accurate_crosses": 7,
+          "long_balls": 51,
+          "possession": 59.1
+        },
+        "away": {
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "name": "Switzerland",
+          "passes": 474,
+          "accurate_passes": 399,
+          "pass_pct": 80.0,
+          "crosses": 19,
+          "accurate_crosses": 3,
+          "long_balls": 54,
+          "possession": 40.9
+        }
+      },
       "kor-cze-2026-06-11": {
         "match": "South Korea 2–1 Czech Republic",
         "source": "ESPN",
@@ -4505,12 +4563,12 @@
           "code": "NOR",
           "flag": "🇳🇴",
           "name": "Norway",
-          "passes": 576,
-          "accurate_passes": 492,
+          "passes": 577,
+          "accurate_passes": 494,
           "pass_pct": 90.0,
           "crosses": 19,
           "accurate_crosses": 3,
-          "long_balls": 48,
+          "long_balls": 46,
           "possession": 47.6
         },
         "away": {
@@ -4518,7 +4576,7 @@
           "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
           "name": "England",
           "passes": 628,
-          "accurate_passes": 569,
+          "accurate_passes": 568,
           "pass_pct": 90.0,
           "crosses": 21,
           "accurate_crosses": 9,
@@ -8194,6 +8252,113 @@
             "minute": 73,
             "team": "away",
             "player": "Mauricio",
+            "cum": 1
+          }
+        ]
+      },
+      "arg-sui-2026-07-11": {
+        "id": "arg-sui-2026-07-11",
+        "label": "Argentina 1–1 Switzerland",
+        "date": "2026-07-11",
+        "total_goals": 4,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "name": "Argentina",
+          "cum": [
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "away": {
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "name": "Switzerland",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "goals": [
+          {
+            "minute": 10,
+            "team": "home",
+            "player": "Alexis Mac Allister",
+            "cum": 1
+          },
+          {
+            "minute": 112,
+            "team": "home",
+            "player": "Julián Álvarez",
+            "cum": 2
+          },
+          {
+            "minute": 120,
+            "team": "home",
+            "player": "Lautaro Martínez",
+            "cum": 3
+          },
+          {
+            "minute": 67,
+            "team": "away",
+            "player": "Dan Ndoye",
             "cum": 1
           }
         ]

@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-07-12T01:16:28.752561+00:00",
+  "updated_at": "2026-07-12T05:00:37.103313+00:00",
   "source": "openfootball/worldcup.json (cálculo local)",
-  "total_matches": 99,
-  "total_goals": 283,
-  "avg_goals_per_match": 2.86,
-  "goals_first_half": 104,
-  "goals_second_half": 137,
-  "goals_extra_time": 33,
+  "total_matches": 100,
+  "total_goals": 285,
+  "avg_goals_per_match": 2.85,
+  "goals_first_half": 105,
+  "goals_second_half": 138,
+  "goals_extra_time": 35,
   "penalties_scored": 14,
   "own_goals": 14,
   "biggest_win": {
@@ -28,7 +28,7 @@
   "goals_by_minute": [
     {
       "range": "0-14",
-      "count": 31
+      "count": 32
     },
     {
       "range": "15-29",
@@ -44,7 +44,7 @@
     },
     {
       "range": "60-74",
-      "count": 42
+      "count": 43
     },
     {
       "range": "75-89",
@@ -56,11 +56,11 @@
     },
     {
       "range": "105-119",
-      "count": 0
+      "count": 1
     },
     {
       "range": "120-134",
-      "count": 1
+      "count": 2
     }
   ],
   "teams_efficiency": [
@@ -89,19 +89,6 @@
       "draws": 1,
       "losses": 0,
       "diff_per_match": 1.67
-    },
-    {
-      "name": "Argentina",
-      "code": "ARG",
-      "flag": "🇦🇷",
-      "goals_for": 12,
-      "goals_against": 4,
-      "diff": 8,
-      "matches": 5,
-      "wins": 4,
-      "draws": 1,
-      "losses": 0,
-      "diff_per_match": 1.6
     },
     {
       "name": "Germany",
@@ -143,17 +130,17 @@
       "diff_per_match": 1.4
     },
     {
-      "name": "Switzerland",
-      "code": "SUI",
-      "flag": "🇨🇭",
-      "goals_for": 9,
-      "goals_against": 3,
-      "diff": 6,
-      "matches": 5,
-      "wins": 3,
+      "name": "Argentina",
+      "code": "ARG",
+      "flag": "🇦🇷",
+      "goals_for": 13,
+      "goals_against": 5,
+      "diff": 8,
+      "matches": 6,
+      "wins": 4,
       "draws": 2,
       "losses": 0,
-      "diff_per_match": 1.2
+      "diff_per_match": 1.33
     },
     {
       "name": "Brazil",
@@ -167,6 +154,19 @@
       "draws": 1,
       "losses": 1,
       "diff_per_match": 1.2
+    },
+    {
+      "name": "Switzerland",
+      "code": "SUI",
+      "flag": "🇨🇭",
+      "goals_for": 10,
+      "goals_against": 4,
+      "diff": 6,
+      "matches": 6,
+      "wins": 3,
+      "draws": 3,
+      "losses": 0,
+      "diff_per_match": 1.0
     },
     {
       "name": "Belgium",
@@ -275,11 +275,11 @@
   ],
   "tournament_progress": {
     "total_matches": 104,
-    "finished_matches": 99,
-    "remaining_matches": 5,
-    "progress_pct": 95.2,
-    "current_phase": "Quartas de Final",
-    "current_phase_key": "quarter",
+    "finished_matches": 100,
+    "remaining_matches": 4,
+    "progress_pct": 96.2,
+    "current_phase": "Semifinal",
+    "current_phase_key": "semi",
     "is_complete": false,
     "phases": [
       {
@@ -310,9 +310,9 @@
         "key": "quarter",
         "label": "Quartas de Final",
         "total": 4,
-        "finished": 3,
-        "scheduled": 1,
-        "completed": false
+        "finished": 4,
+        "scheduled": 0,
+        "completed": true
       },
       {
         "key": "semi",
@@ -340,11 +340,11 @@
       }
     ],
     "next_match": {
-      "date": "2026-07-11",
-      "time": "20:00 UTC-5",
-      "round": "Quarter-final",
-      "team1": "Argentina",
-      "team2": "Switzerland"
+      "date": "2026-07-14",
+      "time": "14:00 UTC-5",
+      "round": "Semi-final",
+      "team1": "France",
+      "team2": "Spain"
     }
   }
 }
