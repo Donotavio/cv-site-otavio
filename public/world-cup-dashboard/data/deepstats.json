@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-12T16:41:05.097723+00:00",
+  "updated_at": "2026-07-14T21:43:31.179529+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -451,6 +451,14 @@
       "date": "2026-06-11",
       "goals": 3,
       "has_stats": true,
+      "has_momentum": true
+    },
+    {
+      "id": "fra-esp-2026-07-14",
+      "label": "France 0–2 Spain",
+      "date": "2026-07-14",
+      "goals": 2,
+      "has_stats": false,
       "has_momentum": true
     },
     {
@@ -11872,6 +11880,101 @@
             "team": "away",
             "player": "Ladislav Krejcí",
             "cum": 1
+          }
+        ]
+      },
+      "fra-esp-2026-07-14": {
+        "id": "fra-esp-2026-07-14",
+        "label": "France 0–2 Spain",
+        "date": "2026-07-14",
+        "total_goals": 2,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "name": "France",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "away": {
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "name": "Spain",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "goals": [
+          {
+            "minute": 22,
+            "team": "away",
+            "player": "Mikel Oyarzabal",
+            "cum": 1
+          },
+          {
+            "minute": 58,
+            "team": "away",
+            "player": "Pedro Porro",
+            "cum": 2
           }
         ]
       },
