@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-14T21:43:31.179529+00:00",
+  "updated_at": "2026-07-15T21:47:39.388524+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -283,6 +283,14 @@
       "date": "2026-06-14",
       "goals": 4,
       "has_stats": true,
+      "has_momentum": true
+    },
+    {
+      "id": "eng-arg-2026-07-15",
+      "label": "England 1–2 Argentina",
+      "date": "2026-07-15",
+      "goals": 3,
+      "has_stats": false,
       "has_momentum": true
     },
     {
@@ -9758,6 +9766,107 @@
             "minute": 88,
             "team": "away",
             "player": "Daichi Kamada",
+            "cum": 2
+          }
+        ]
+      },
+      "eng-arg-2026-07-15": {
+        "id": "eng-arg-2026-07-15",
+        "label": "England 1–2 Argentina",
+        "date": "2026-07-15",
+        "total_goals": 3,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "name": "England",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "away": {
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "name": "Argentina",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "goals": [
+          {
+            "minute": 55,
+            "team": "home",
+            "player": "Anthony Gordon",
+            "cum": 1
+          },
+          {
+            "minute": 86,
+            "team": "away",
+            "player": "Enzo Fernández",
+            "cum": 1
+          },
+          {
+            "minute": 92,
+            "team": "away",
+            "player": "Lautaro Martínez",
             "cum": 2
           }
         ]
