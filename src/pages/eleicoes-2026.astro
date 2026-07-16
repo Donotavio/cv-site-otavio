@@ -47,7 +47,7 @@ const base = import.meta.env.BASE_URL;
           <header class="hero-card__header">
             <span class="mono-label" data-i18n-key="portfolio.eleicoes.hero_label">Observatório Eleições 2026</span>
             <span class="mono-label el-badge" id="el-updated" aria-live="polite">
-              atualizado · <span id="el-updated-date">···</span>
+              <span data-i18n-key="portfolio.eleicoes.updated_label">atualizado</span> · <span id="el-updated-date">···</span>
             </span>
           </header>
 
@@ -182,6 +182,25 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
+    <!-- ═══════════════════════ [05] COBERTURA POR UF ═══════════════════════ -->
+    <section id="el-cobertura" class="section" aria-labelledby="el-uf-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">05</span>
+          <h2 id="el-uf-title" class="el-h2" data-i18n-key="portfolio.eleicoes.uf_title">Onde se mede mais</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.uf_lead">
+            Pesquisas estaduais por UF (exclui a disputa presidencial/nacional).
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+        <div class="el-uf card crop" id="el-uf" aria-label="Pesquisas por estado">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <p class="el-loading mono-label">carregando cobertura…</p>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <Footer />
@@ -244,9 +263,13 @@ const base = import.meta.env.BASE_URL;
   .el-loading { color: var(--ink-faint); }
   .el-error { color: var(--ink-faint); font-family: var(--font-mono); font-size: var(--text-sm); }
 
+  /* Cobertura por UF */
+  .el-uf { padding: var(--space-8); margin-top: var(--space-8); display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2) var(--space-10); }
+
   @media (max-width: 720px) {
     .el-kpis { grid-template-columns: repeat(2, 1fr); }
     .el-grid3 { grid-template-columns: 1fr; }
+    .el-uf { grid-template-columns: 1fr; }
   }
 </style>
 
@@ -261,6 +284,7 @@ const base = import.meta.env.BASE_URL;
     por_mes?: { mes: string; n: number }[];
     por_nivel?: { presidencial?: number; estadual?: number };
     top_institutos?: { empresa: string; n: number; investimento_rs: number }[];
+    por_uf?: { uf: string; n: number }[];
     propria_vs_contratada?: { propria?: number; contratada?: number };
     amostragem?: { faixa: string; n: number }[];
     notas?: { escopo?: string };
@@ -368,6 +392,23 @@ const base = import.meta.env.BASE_URL;
     }
   }
 
+  function renderUF(p: ElPayload): void {
+    const box = el('el-uf');
+    if (!box) return;
+    // Exclui 'BR' (disputa presidencial/nacional) — foco na cobertura estadual.
+    const data = (p.por_uf ?? []).filter((d) => d.uf && d.uf !== 'BR').slice(0, 14);
+    if (!data.length) { box.innerHTML = '<p class="el-error">cobertura indisponível</p>'; return; }
+    const max = Math.max(...data.map((d) => d.n), 1);
+    const rows = data.map((d) => `
+      <div class="el-bar-row">
+        <span class="el-bar-lbl">${esc(d.uf)}</span>
+        <span class="el-bar-track"><span class="el-bar-fill" style="width:${(d.n / max) * 100}%"></span></span>
+        <span class="el-bar-n">${nf.format(d.n)}</span>
+      </div>`).join('');
+    box.innerHTML =
+      '<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>' + rows;
+  }
+
   async function loadEleicoes(): Promise<void> {
     const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
     const controller = new AbortController();
@@ -385,9 +426,10 @@ const base = import.meta.env.BASE_URL;
       renderTimeline(data);
       renderRanking(data);
       renderComo(data);
+      renderUF(data);
     } catch {
       clearTimeout(timeoutId);
-      ['el-timeline', 'el-ranking'].forEach((id) => {
+      ['el-timeline', 'el-ranking', 'el-uf'].forEach((id) => {
         const box = el(id);
         if (box) box.innerHTML = '<p class="el-error">dados indisponíveis — tente recarregar</p>';
       });
@@ -395,4 +437,29 @@ const base = import.meta.env.BASE_URL;
   }
 
   document.addEventListener('DOMContentLoaded', loadEleicoes);
+</script>
+
+<script>
+  // Motion — padrão nomeado `reveal-up` do site (GSAP + ScrollTrigger),
+  // guardado por motionOk (respeita prefers-reduced-motion). Revela o hero e,
+  // por seção, o cabeçalho e os cards com stagger. Mesmo padrão da página do
+  // Data Stack Radar. Só transform/opacity; sem layout thrash.
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { motionOk, STAGGER } from '../scripts/motion/constants';
+
+  function animateEleicoes(): void {
+    if (!motionOk) return;
+
+    const heroCard = document.querySelector('#eleicoes-hero .hero-card') as HTMLElement | null;
+    if (heroCard) revealUp([heroCard], heroCard, 0);
+
+    document.querySelectorAll<HTMLElement>('main section[id^="el-"]').forEach((sec) => {
+      const head = sec.querySelector('.section-head') as HTMLElement | null;
+      if (head) revealUp([head], sec, 0);
+      const cards = Array.from(sec.querySelectorAll<HTMLElement>('.card'));
+      if (cards.length) revealUp(cards, sec, STAGGER.tight);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', animateEleicoes);
 </script>
