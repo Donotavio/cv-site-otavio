@@ -572,6 +572,9 @@ const base = import.meta.env.BASE_URL;
 
   </main>
 
+  <!-- Tooltip flutuante das barras HTML (segue o cursor; position:fixed) -->
+  <div class="el-chart-tip el-chart-tip--float" id="el-float-tip" role="status" aria-hidden="true" hidden></div>
+
   <!-- Jump-nav: rail de pontos (desktop) + FAB/bottom-sheet (mobile). Lê main section[id]. -->
   <button id="el-jumpnav-fab" class="el-jumpnav-fab" type="button" hidden
           aria-expanded="false" aria-controls="el-jumpnav" aria-label="Navegar entre seções"
@@ -730,6 +733,9 @@ const base = import.meta.env.BASE_URL;
   .el-band__svg :global(.el-band-line--gold) { stroke: var(--wc-gold-ink); stroke-width: 2; }
   .el-band__svg :global(.el-band-marker) { stroke: var(--paper-card); stroke-width: 1.5; }
   .el-band__svg :global(.el-band-markerval) { font-family: var(--font-mono); font-size: 10px; font-weight: 500; fill: var(--ink); font-variant-numeric: var(--num-tabular); }
+  /* Rótulo de nome no fim da linha — halo de papel garante leitura sobre as linhas */
+  .el-band__svg :global(.el-band-endlabel) { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-soft); paint-order: stroke; stroke: var(--paper-card); stroke-width: 3px; stroke-linejoin: round; }
+  .el-band__svg :global(.el-band-endlabel.is-leader) { fill: var(--wc-gold-ink); font-weight: 600; }
   /* Camada de hover (guia vertical + pontos) e área de captura transparente */
   .el-band__svg :global(.el-band-capture) { fill: transparent; }
   .el-band__svg :global(.el-band-guide) { stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
@@ -745,6 +751,10 @@ const base = import.meta.env.BASE_URL;
   .el-chart-tip :global(.el-tip-row.is-leader .el-tip-name), .el-chart-tip :global(.el-tip-row.is-leader .el-tip-val) { color: var(--wc-gold-ink); }
   .el-chart-tip :global(.el-tip-name .mono-label) { color: var(--ink-faint); }
   .el-chart-tip :global(.el-tip-val) { color: var(--ink); font-variant-numeric: var(--num-tabular); }
+  .el-chart-tip--float { position: fixed; }
+  /* Barras com tooltip: cursor de ajuda + realce sutil no hover */
+  :global([data-tip]) { cursor: help; }
+  .el-vote-bars :global(.el-vote-row[data-tip]:hover .el-vote-track), .el-bars :global(.el-bar-row[data-tip]:hover .el-bar-track), .el-ufchart :global(.el-uf-row[data-tip]:hover .el-uf-track) { box-shadow: 0 0 0 2px var(--wc-gold-dim); }
 
   /* ── [02] Série temporal — card + legenda ── */
   .el-seriecard { margin-top: var(--space-6); }
@@ -1108,6 +1118,14 @@ const base = import.meta.env.BASE_URL;
     return { ticks, niceMax };
   }
 
+  // ── Tooltip para barras HTML: dados vão num atributo data-tip como JSON
+  //    (escapado p/ atributo — sem HTML embutido, evita dupla-codificação).
+  //    O HTML é montado no hover por initBarTips(). ──
+  function escAttr(s: string): string { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function barTip(title: string, rows: [string, string][]): string {
+    return ` data-tip="${escAttr(JSON.stringify({ t: title, r: rows }))}"`;
+  }
+
   // ── Faixa de progresso: contagem para o 1º turno (4/out/2026) ──
   function renderProgress(p: ElPayload): void {
     const ELECTION = Date.parse('2026-10-04T00:00:00-03:00');
@@ -1191,6 +1209,37 @@ const base = import.meta.env.BASE_URL;
     svg.style.touchAction = 'pan-y';
     svg.addEventListener('pointermove', move);
     svg.addEventListener('pointerleave', hide);
+  }
+
+  // ── Tooltip flutuante para barras HTML: delegação única em [data-tip];
+  //    monta o HTML no hover a partir do JSON e segue o cursor (fixed). ──
+  function initBarTips(): void {
+    const tip = el('el-float-tip'); if (!tip) return;
+    let active: HTMLElement | null = null;
+    const place = (e: PointerEvent): void => {
+      const tw = tip.offsetWidth, th = tip.offsetHeight;
+      let left = e.clientX + 14, top = e.clientY + 14;
+      if (left + tw > window.innerWidth - 8) left = e.clientX - tw - 14;
+      if (top + th > window.innerHeight - 8) top = e.clientY - th - 14;
+      tip.style.left = Math.max(8, left) + 'px';
+      tip.style.top = Math.max(8, top) + 'px';
+    };
+    document.addEventListener('pointermove', (e) => {
+      const host = (e.target as HTMLElement).closest?.('[data-tip]') as HTMLElement | null;
+      if (host?.dataset.tip) {
+        if (host !== active) {
+          active = host;
+          try {
+            const d = JSON.parse(host.dataset.tip) as { t: string; r: [string, string][] };
+            tip.innerHTML = `<div class="el-tip-head">${esc(d.t)}</div>` +
+              d.r.map(([k, v]) => `<div class="el-tip-row"><span class="el-tip-name">${esc(k)}</span><span class="el-tip-val">${esc(v)}</span></div>`).join('');
+            tip.hidden = false;
+          } catch { tip.hidden = true; active = null; return; }
+        }
+        place(e);
+      } else if (active) { active = null; tip.hidden = true; }
+    });
+    window.addEventListener('scroll', () => { if (active) { active = null; tip.hidden = true; } }, { passive: true });
   }
 
   // ── Gráfico de barras vertical (SVG) — com eixo Y (niceTicks), grade e
@@ -1309,7 +1358,7 @@ const base = import.meta.env.BASE_URL;
     const data = (p.por_uf ?? []).filter((d) => d.uf && d.uf !== 'BR').slice(0, 14);
     if (!data.length) { box.innerHTML = '<p class="el-error">cobertura indisponível</p>'; return; }
     const max = Math.max(...data.map((d) => d.n), 1);
-    const rows = data.map((d, i) => `<div class="el-uf-row${i === 0 ? ' is-leader' : ''}">
+    const rows = data.map((d, i) => `<div class="el-uf-row${i === 0 ? ' is-leader' : ''}"${barTip(UF_NAME[d.uf] ?? d.uf, [[t('portfolio.eleicoes.tip_pesquisas', 'pesquisas'), nf.format(d.n)]])}>
       <span class="el-uf-uf">${esc(d.uf)}</span>
       <span class="el-uf-track"><span class="el-uf-fill" style="width:${(d.n / max) * 100}%"></span></span>
       <span class="el-uf-n">${nf.format(d.n)}</span>
@@ -1456,7 +1505,13 @@ const base = import.meta.env.BASE_URL;
       const deltaHtml = d == null ? '' :
         `<span class="el-vote-delta ${d > 0 ? 'is-up' : d < 0 ? 'is-down' : ''}">${d > 0 ? '▲' : d < 0 ? '▼' : '–'} ${Math.abs(d).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</span>`;
       const sparkHtml = withSpark ? `<span class="el-vote-spark">${sparkSVG(series!.candidatos?.[c.nome], c.lider)}</span>` : '';
-      return `<div class="el-vote-row${withSpark ? ' el-vote-row--spark' : ''}${c.lider ? ' is-leader' : ''}">
+      const tip = barTip(`${c.nome} · ${c.partido}`, [
+        [t('portfolio.eleicoes.tip_media', 'média recente'), `${c.media_recente.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`],
+        [t('portfolio.eleicoes.tip_ultima', 'última medição'), `${c.pct_ultima.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% · ${c.instituto_ultima}`],
+        [t('portfolio.eleicoes.tip_data', 'data'), fmtDate(c.data_ultima)],
+        [t('portfolio.eleicoes.tip_pesquisas', 'pesquisas'), nf.format(c.n_pesquisas)],
+      ]);
+      return `<div class="el-vote-row${withSpark ? ' el-vote-row--spark' : ''}${c.lider ? ' is-leader' : ''}"${tip}>
         <span class="el-vote-name">${esc(c.nome)} <span class="el-vote-party mono-label">${esc(c.partido)}</span></span>
         <span class="el-vote-track"><span class="el-vote-fill" style="width:${(c.media_recente / max) * 100}%"></span></span>
         ${sparkHtml}
@@ -1507,7 +1562,7 @@ const base = import.meta.env.BASE_URL;
       .slice(0, 5);
     if (!series.length) { fail(); return; }
 
-    const W = 720, H = 300, PAD = { l: 40, r: 18, t: 18, b: 40 };
+    const W = 720, H = 300, PAD = { l: 40, r: 84, t: 18, b: 40 };
     const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b;
     const allVals = series.flatMap((s) => s.vals.filter((v): v is number => v != null));
     const { ticks, niceMax } = niceTicks(0, Math.max(...allVals, 1) * 1.1, 5);
@@ -1552,8 +1607,27 @@ const base = import.meta.env.BASE_URL;
       return poly + marker;
     }).join('');
 
+    // Rótulo de nome no fim de cada linha — desambigua o "campo" (líder em gold).
+    // Nome curto = último token sem parênteses; anti-sobreposição por cluster de x.
+    interface EndLabel { name: string; x: number; y: number; li: number; leader: boolean }
+    const shortName = (n: string): string => { const parts = n.replace(/\(.*\)/, '').trim().split(/\s+/); return parts.length > 1 ? parts[parts.length - 1] : parts[0]; };
+    const labels: EndLabel[] = [];
+    series.forEach((s) => {
+      let li = -1; for (let i = s.vals.length - 1; i >= 0; i--) if (s.vals[i] != null) { li = i; break; }
+      if (li >= 0) labels.push({ name: shortName(s.cand.nome), x: xAt(li) + 8, y: yAt(s.vals[li] as number), li, leader: s.cand.lider });
+    });
+    const MINGAP = 12, botY = H - PAD.b;
+    const groups = new Map<number, EndLabel[]>();
+    labels.forEach((l) => { const g = groups.get(l.li) ?? []; g.push(l); groups.set(l.li, g); });
+    groups.forEach((g) => {
+      g.sort((a, b) => a.y - b.y);
+      for (let i = 1; i < g.length; i++) if (g[i].y < g[i - 1].y + MINGAP) g[i].y = g[i - 1].y + MINGAP;
+      for (let i = g.length - 1; i >= 0; i--) { if (g[i].y > botY) g[i].y = botY; if (i > 0 && g[i].y - g[i - 1].y < MINGAP) g[i - 1].y = g[i].y - MINGAP; }
+    });
+    const labelEls = labels.map((l) => `<text class="el-band-endlabel${l.leader ? ' is-leader' : ''}" x="${l.x.toFixed(1)}" y="${(l.y + 3).toFixed(1)}" text-anchor="start">${esc(l.name)}</text>`).join('');
+
     const capture = `<rect class="el-band-capture" x="0" y="0" width="${W}" height="${H}"></rect>`;
-    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('portfolio.eleicoes.serie_aria', 'Evolução da intenção de voto no 1º turno'))}">${tickEls}${yearEls}${baseline}${lines}${capture}</svg>`;
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('portfolio.eleicoes.serie_aria', 'Evolução da intenção de voto no 1º turno'))}">${tickEls}${yearEls}${baseline}${lines}${labelEls}${capture}</svg>`;
     if (legendBox) legendBox.innerHTML = series.map((s) =>
       `<span class="el-serie__lg${s.cand.lider ? ' is-leader' : ''}"><span class="el-serie__sw" aria-hidden="true"></span>${esc(s.cand.nome)} <span class="mono-label">${esc(s.cand.partido)}</span></span>`
     ).join('');
@@ -1666,12 +1740,16 @@ const base = import.meta.env.BASE_URL;
     elt.forEach((u) => { pop[u.uf] = u.eleitores; });
     const rows = (p.por_uf ?? [])
       .filter((d) => d.uf && d.uf !== 'BR' && pop[d.uf])
-      .map((d) => ({ uf: d.uf, idx: d.n / (pop[d.uf] / 1_000_000) }))
+      .map((d) => ({ uf: d.uf, idx: d.n / (pop[d.uf] / 1_000_000), n: d.n, elei: pop[d.uf] }))
       .sort((a, b) => b.idx - a.idx)
       .slice(0, 14);
     if (!rows.length) { box.innerHTML = '<p class="el-error">índice indisponível</p>'; return; }
     const max = Math.max(...rows.map((r) => r.idx), 1);
-    box.innerHTML = `<div class="el-uf-grid">` + rows.map((r, i) => `<div class="el-uf-row${i === 0 ? ' is-leader' : ''}">
+    box.innerHTML = `<div class="el-uf-grid">` + rows.map((r, i) => `<div class="el-uf-row${i === 0 ? ' is-leader' : ''}"${barTip(UF_NAME[r.uf] ?? r.uf, [
+      [t('portfolio.eleicoes.tip_indice', 'índice (pesq/mi eleitores)'), r.idx.toLocaleString('pt-BR', { maximumFractionDigits: 1 })],
+      [t('portfolio.eleicoes.tip_pesquisas', 'pesquisas'), nf.format(r.n)],
+      [t('portfolio.eleicoes.tip_eleitores', 'eleitores'), fmtNum(r.elei)],
+    ])}>
       <span class="el-uf-uf">${esc(r.uf)}</span>
       <span class="el-uf-track"><span class="el-uf-fill" style="width:${(r.idx / max) * 100}%"></span></span>
       <span class="el-uf-n">${r.idx.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</span>
@@ -1807,6 +1885,7 @@ const base = import.meta.env.BASE_URL;
   }
 
   document.addEventListener('DOMContentLoaded', loadEleicoes);
+  document.addEventListener('DOMContentLoaded', initBarTips);
   window.addEventListener('languageChanged', () => { if (payload) renderAll(payload); });
 </script>
 
