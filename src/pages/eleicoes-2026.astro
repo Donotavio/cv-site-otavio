@@ -542,11 +542,42 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [13] TRANSPARÊNCIA & FONTES ═══════════════════════ -->
-    <section id="el-transparencia" class="section" aria-labelledby="el-tr-title">
+    <!-- ═══════════════════════ [13] SITUAÇÃO JURÍDICA DOS PRÉ-CANDIDATOS ═══════════════════════ -->
+    <section id="el-integridade" class="section el-alt" aria-labelledby="el-integ-title">
       <div class="container">
         <div class="section-head">
           <span class="mono-label">13</span>
+          <h2 id="el-integ-title" class="el-h2" data-i18n-key="portfolio.eleicoes.integ_title">Situação jurídica dos pré-candidatos</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.integ_lead">
+            Processos e condições de elegibilidade a partir de fontes oficiais (TSE, STF/STJ) — estágio processual à vista, presunção de inocência. Medição, não julgamento.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+        <div class="el-integ-wrap">
+          <div class="el-explorar__control el-est-ctl">
+            <label class="el-explorar__caption mono-label" for="el-integ-input" data-i18n-key="portfolio.eleicoes.integ_pick">recorte</label>
+            <div class="el-combobox" id="el-integ-combobox">
+              <input type="text" id="el-integ-input" class="el-combobox__input" role="combobox"
+                     aria-expanded="false" aria-autocomplete="list" aria-controls="el-integ-listbox"
+                     placeholder="Presidência ou estado…" data-i18n-attr="placeholder:portfolio.eleicoes.integ_search"
+                     autocomplete="off" spellcheck="false" />
+              <button type="button" class="el-combobox__btn" tabindex="-1" aria-label="Abrir lista"
+                      data-i18n-aria="portfolio.eleicoes.uf_open"><span aria-hidden="true">▾</span></button>
+              <ul id="el-integ-listbox" class="el-combobox__list" role="listbox" aria-label="Recorte" hidden></ul>
+            </div>
+          </div>
+          <div class="el-integ-legend" id="el-integ-legend" aria-hidden="true"></div>
+          <div class="el-integ-cards" id="el-integ-cards" aria-live="polite"><p class="el-loading mono-label">···</p></div>
+          <p class="el-nota" id="el-integ-nota"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ [14] TRANSPARÊNCIA & FONTES ═══════════════════════ -->
+    <section id="el-transparencia" class="section" aria-labelledby="el-tr-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">14</span>
           <h2 id="el-tr-title" class="el-h2" data-i18n-key="portfolio.eleicoes.tr_title">Como este painel trata a intenção de voto</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.tr_lead">
             Um recorte honesto do que o dado público permite — medição, não previsão.
@@ -1073,6 +1104,30 @@ const base = import.meta.env.BASE_URL;
   .el-source-link:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 2px; }
   @media (hover: none) { .el-source-link:hover { box-shadow: none; } }
   @media (prefers-reduced-motion: reduce) { .el-source-link { transition: none; } }
+
+  /* ── [13] Situação jurídica (integridade) — cards/legend injetados via :global ── */
+  .el-integ-wrap { margin-top: var(--space-8); display: flex; flex-direction: column; gap: var(--space-6); }
+  .el-integ-legend { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  #el-integridade :global(.el-integ-lg) { padding: var(--space-1) var(--space-3); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-wide); color: var(--ink-soft); background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--radius-full); }
+  #el-integridade :global(.el-integ-lg[data-stage="ficha_limpa"]) { color: var(--wc-gold-ink); border-color: var(--wc-gold-line); }
+  .el-integ-cards { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+  @media (min-width: 640px) { .el-integ-cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .el-integ-cards { grid-template-columns: repeat(3, 1fr); } }
+  #el-integridade :global(.el-integ-card) { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
+  #el-integridade :global(.el-integ-head) { display: flex; align-items: baseline; gap: var(--space-2); flex-wrap: wrap; }
+  #el-integridade :global(.el-integ-name) { font-family: var(--font-display); font-size: var(--text-xl); color: var(--ink); line-height: 1.05; }
+  #el-integridade :global(.el-integ-party) { color: var(--ink-faint); }
+  #el-integridade :global(.el-integ-none) { color: var(--ink-faint); }
+  #el-integridade :global(.el-integ-itens) { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+  #el-integridade :global(.el-integ-item) { display: flex; flex-direction: column; gap: var(--space-1); }
+  #el-integridade :global(.el-integ-stage) { align-self: flex-start; padding: 1px var(--space-2); font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--ink-soft); background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--radius-sm); }
+  #el-integridade :global(.el-integ-stage[data-stage="ficha_limpa"]) { color: var(--wc-gold-ink); border-color: var(--wc-gold-line); background: var(--wc-gold-dim); }
+  #el-integridade :global(.el-integ-desc) { color: var(--ink); font-size: var(--text-sm); }
+  #el-integridade :global(.el-integ-srclink) { color: var(--ink-faint); text-decoration: none; }
+  #el-integridade :global(.el-integ-srclink:hover) { color: var(--wc-gold-ink); }
+  #el-integridade :global(.el-integ-consulta) { margin-top: auto; display: flex; flex-wrap: wrap; gap: var(--space-3); padding-top: var(--space-2); }
+  #el-integridade :global(.el-integ-src) { font-family: var(--font-mono); font-size: 10px; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line); }
+  #el-integridade :global(.el-integ-src:hover) { color: var(--wc-gold-ink); border-color: var(--wc-gold-line); }
 </style>
 
 <script>
@@ -1136,6 +1191,14 @@ const base = import.meta.env.BASE_URL;
     fundo_eleitoral?: { valor_rs?: number; ref_2018_rs?: number; multiplo_vs_2018?: number; top5_partidos_share_pct?: number; cota_mulheres_pct?: number; cota_negros_pct?: number; nota_dobro?: string };
     calendario?: { data: string; marco: string }[];
     calendario_fonte_url?: string;
+  }
+  interface IntegItem { estagio: string; tipo?: string; descricao: string; orgao?: string; fonte?: string; fonte_url?: string; data?: string }
+  interface IntegridadePayload {
+    metodologia?: string;
+    disclaimer?: string;
+    estagios?: { id: string; label: string }[];
+    fontes?: { label: string; url: string }[];
+    itens_por_candidato?: Record<string, IntegItem[]>;
   }
 
   const nf = new Intl.NumberFormat('pt-BR');
@@ -1973,7 +2036,55 @@ const base = import.meta.env.BASE_URL;
     box.innerHTML = (idx < 0 ? [...rows, nowMarker] : [...rows.slice(0, idx), nowMarker, ...rows.slice(idx)]).join('');
   }
 
-  // ── [11] Fontes ──
+  // ── [13] Situação jurídica dos pré-candidatos (integridade) ──
+  let integridade: IntegridadePayload | null = null;
+  let integBuilt = false;
+  let integCb: { setValue(v: string): void } | null = null;
+  let currentInteg = 'PR';
+  function integCandidatos(scope: string): { nome: string; partido: string }[] {
+    const src = scope === 'PR'
+      ? (precand?.primeiro_turno?.candidatos ?? [])
+      : (estaduais?.estados?.[scope]?.governador_1t?.candidatos ?? []);
+    return src.map((c) => ({ nome: c.nome, partido: c.partido }));
+  }
+  function renderIntegCards(scope: string): void {
+    currentInteg = scope;
+    const box = el('el-integ-cards'); if (!box) return;
+    const cands = integCandidatos(scope);
+    if (!cands.length) { box.innerHTML = `<p class="el-error mono-label">${esc(t('portfolio.eleicoes.integ_empty_scope', 'sem pré-candidatos neste recorte'))}</p>`; return; }
+    const itensMap = integridade?.itens_por_candidato ?? {};
+    const estLabel = (id: string): string => (integridade?.estagios ?? []).find((e) => e.id === id)?.label ?? id;
+    const consulta = (integridade?.fontes ?? []).map((f) => `<a class="el-integ-src" href="${esc(f.url)}" target="_blank" rel="noopener noreferrer">${esc(f.label)} <span aria-hidden="true">↗</span></a>`).join('');
+    box.innerHTML = cands.map((c) => {
+      const itens = itensMap[c.nome] ?? [];
+      const body = itens.length
+        ? `<ul class="el-integ-itens">${itens.map((it) => `<li class="el-integ-item"><span class="el-integ-stage" data-stage="${esc(it.estagio)}">${esc(estLabel(it.estagio))}</span><span class="el-integ-desc">${esc(it.descricao)}${it.orgao ? ` <span class="mono-label">${esc(it.orgao)}</span>` : ''}</span>${it.fonte_url ? `<a class="el-integ-srclink mono-label" href="${esc(it.fonte_url)}" target="_blank" rel="noopener noreferrer">${esc(it.fonte || t('portfolio.eleicoes.integ_fonte', 'fonte'))} ↗</a>` : ''}</li>`).join('')}</ul>`
+        : `<p class="el-integ-none mono-label">${esc(t('portfolio.eleicoes.integ_none', 'sem registros nesta base — consulte as fontes oficiais'))}</p>`;
+      return `<article class="el-integ-card crop">
+        <span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="el-integ-head"><span class="el-integ-name">${esc(c.nome)}</span> <span class="el-integ-party mono-label">${esc(c.partido)}</span></header>
+        ${body}
+        <div class="el-integ-consulta">${consulta}</div>
+      </article>`;
+    }).join('');
+  }
+  function renderIntegridade(): void {
+    const legend = el('el-integ-legend'); const nota = el('el-integ-nota');
+    if (legend) legend.innerHTML = (integridade?.estagios ?? []).map((e) => `<span class="el-integ-lg" data-stage="${esc(e.id)}">${esc(e.label)}</span>`).join('');
+    if (nota) nota.textContent = `${integridade?.metodologia ?? ''} ${integridade?.disclaimer ?? ''}`.trim();
+    if (!integBuilt) {
+      const ufs = estaduais?.ufs_disponiveis ?? [];
+      const items = [{ value: 'PR', label: t('portfolio.eleicoes.integ_presidencia', 'Presidência (federal)') }, ...ufs.map((u) => ({ value: u, label: `${UF_NAME[u] ?? u} (${u})` }))];
+      const selectInteg = (v: string): void => { renderIntegCards(v); integCb?.setValue(v); };
+      integCb = buildCombobox('el-integ-combobox', items, selectInteg) ?? null;
+      selectInteg('PR');
+      integBuilt = true;
+    } else {
+      renderIntegCards(currentInteg);
+    }
+  }
+
+  // ── [14] Fontes ──
   function renderSources(): void {
     const box = el('el-sources'); if (!box) return;
     const srcs: [string, string][] = [
@@ -2006,6 +2117,7 @@ const base = import.meta.env.BASE_URL;
     renderIntensidadeUF(data, eleitorado);
     renderJogo(contexto);
     renderRelogio(contexto);
+    renderIntegridade();
     renderSources();
   }
 
@@ -2022,17 +2134,19 @@ const base = import.meta.env.BASE_URL;
 
   async function loadEleicoes(): Promise<void> {
     const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
-    const [pdata, edata, cdata, prdata, estdata] = await Promise.all([
+    const [pdata, edata, cdata, prdata, estdata, intdata] = await Promise.all([
       fetchJSON<ElPayload>(base, 'eleicoes_pesquisas.json'),
       fetchJSON<EleitoradoPayload>(base, 'eleicoes_eleitorado.json'),
       fetchJSON<ContextoPayload>(base, 'eleicoes_contexto.json'),
       fetchJSON<PrecandPayload>(base, 'eleicoes_precandidatos.json'),
       fetchJSON<EstaduaisPayload>(base, 'eleicoes_estaduais.json'),
+      fetchJSON<IntegridadePayload>(base, 'eleicoes_integridade.json'),
     ]);
     eleitorado = edata;
     contexto = cdata;
     precand = prdata;
     estaduais = estdata;
+    integridade = intdata;
     if (pdata && pdata.kpis) {
       payload = pdata;
       renderAll(pdata);
@@ -2040,7 +2154,7 @@ const base = import.meta.env.BASE_URL;
       ['el-barchart-svg', 'el-uf', 'el-iuf-body'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">dados indisponíveis — tente recarregar</p>'; });
       const body = el('el-rank-body'); if (body) body.innerHTML = '<tr><td colspan="4"><p class="el-error">dados indisponíveis — tente recarregar</p></td></tr>';
       // seções independentes ainda renderizam se vieram
-      renderPrecandidatos(precand); renderEstaduais(estaduais); renderEleitorado(eleitorado); renderJogo(contexto); renderRelogio(contexto); renderSources();
+      renderPrecandidatos(precand); renderEstaduais(estaduais); renderEleitorado(eleitorado); renderJogo(contexto); renderRelogio(contexto); renderIntegridade(); renderSources();
     }
   }
 
@@ -2092,6 +2206,7 @@ const base = import.meta.env.BASE_URL;
     { id: 'el-explorar',       key: 'portfolio.eleicoes.nav_explorar',      fb: 'Explorar' },
     { id: 'el-jogo',           key: 'portfolio.eleicoes.nav_jogo',          fb: 'Em jogo' },
     { id: 'el-relogio',        key: 'portfolio.eleicoes.nav_relogio',       fb: 'Calendário' },
+    { id: 'el-integridade',    key: 'portfolio.eleicoes.nav_integridade',   fb: 'Situação jurídica' },
     { id: 'el-transparencia',  key: 'portfolio.eleicoes.nav_transparencia', fb: 'Transparência' },
   ];
   const jt = (k: string, fb: string): string => {
