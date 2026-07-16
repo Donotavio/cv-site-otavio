@@ -5,7 +5,7 @@ name: PIX Observatory — Data Pipeline
 # Também pode ser disparado manualmente via workflow_dispatch.
 on:
   schedule:
-    - cron: '0 15 * * *'
+    - cron: '10 15 * * *'
   workflow_dispatch:
     inputs:
       force_full_reload:
@@ -110,9 +110,23 @@ jobs:
           else
             TODAY=$(date +%Y-%m-%d)
             git commit -m "data: atualização automática PIX Observatory ${TODAY}"
-            git pull --rebase
-            git push
-            echo "✅ Dados commitados e enviados."
+            # Push resiliente: reconcilia com origin/main preferindo os dados
+            # recém-gerados (resolve até parquet binário) e re-tenta.
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD:main; then
+                echo "✅ Dados enviados (tentativa ${attempt})."
+                break
+              fi
+              if [ "${attempt}" = "5" ]; then
+                echo "✗ Push falhou após 5 tentativas."; exit 1
+              fi
+              echo "↻ Push rejeitado — reconciliando com origin/main (tentativa ${attempt})."
+              git fetch origin main
+              git merge -X ours --no-edit FETCH_HEAD || {
+                git checkout --ours . && git add -A && GIT_EDITOR=true git commit --no-edit || true
+              }
+              sleep $(( attempt * 3 ))
+            done
           fi
 
       - name: Disparar deploy do site

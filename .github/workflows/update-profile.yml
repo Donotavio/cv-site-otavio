@@ -47,6 +47,7 @@ jobs:
       - name: Fetch LinkedIn articles
         env:
           LINKEDIN_PROFILE_URL: https://linkedin.com/in/donotavio/
+          LINKEDIN_SESSION_COOKIE: ${{ secrets.LINKEDIN_SESSION_COOKIE }}
         run: python scripts/fetch_linkedin_articles.py
 
       - name: Build profile data
@@ -74,8 +75,23 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add assets/data/*.json assets/i18n/*.json
             git commit -m "chore: update profile data and translations"
-            git pull --rebase
-            git push
+            # Push resiliente: reconcilia com origin/main preferindo os dados
+            # recém-gerados e re-tenta (evita corrida com os outros pipelines).
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD:main; then
+                echo "✅ Dados enviados (tentativa ${attempt})."
+                break
+              fi
+              if [ "${attempt}" = "5" ]; then
+                echo "✗ Push falhou após 5 tentativas."; exit 1
+              fi
+              echo "↻ Push rejeitado — reconciliando com origin/main (tentativa ${attempt})."
+              git fetch origin main
+              git merge -X ours --no-edit FETCH_HEAD || {
+                git checkout --ours . && git add -A && GIT_EDITOR=true git commit --no-edit || true
+              }
+              sleep $(( attempt * 3 ))
+            done
           else
             echo "No data changes"
           fi

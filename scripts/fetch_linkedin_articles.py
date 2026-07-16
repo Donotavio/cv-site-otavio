@@ -32,11 +32,24 @@ HEADERS = {
     "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
 }
 
+# Sessão compartilhada. Se LINKEDIN_SESSION_COOKIE estiver definido (o mesmo
+# secret usado por fetch_linkedin_data_enhanced.py), autentica via cookie li_at.
+# Sem ele o LinkedIn devolve a parede de login e nenhum artigo é encontrado —
+# por isso a coleta anônima grava vazio (e o site cai no fallback en-US/es-ES).
+SESSION = requests.Session()
+SESSION.headers.update(HEADERS)
+_LINKEDIN_COOKIE = os.environ.get("LINKEDIN_SESSION_COOKIE")
+if _LINKEDIN_COOKIE:
+    SESSION.cookies.set("li_at", _LINKEDIN_COOKIE, domain=".linkedin.com")
+    print("✓ Session cookie configurado (li_at)")
+else:
+    print("⚠️  Sem LINKEDIN_SESSION_COOKIE — scraping anônimo raramente retorna artigos")
+
 
 def fetch_page(url: str):
     """Fetch a URL and return parsed HTML."""
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=30)
+        resp = SESSION.get(url, timeout=30)
         resp.raise_for_status()
         return BeautifulSoup(resp.text, "html.parser")
     except requests.RequestException as e:
@@ -306,32 +319,32 @@ def extract_article(url: str):
     }
 
 
-def main():
-    print("=== LinkedIn Articles Fetcher ===\n")
+def load_existing_articles():
+    """Artigos já salvos em blog_articles.json (para não sobrescrever dados bons)."""
+    if not OUTPUT_PATH.exists():
+        return []
+    try:
+        data = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+        return data.get("articles", []) or []
+    except (json.JSONDecodeError, OSError):
+        return []
 
-    article_urls = extract_article_urls(PROFILE_URL)
-    if not article_urls:
-        print("No article URLs found. Writing empty articles file.")
-        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        OUTPUT_PATH.write_text(json.dumps({"articles": [], "external_links": {
-            "linkedin_posts": PROFILE_URL.rstrip("/") + "/recent-activity/all/"
-        }}, indent=2, ensure_ascii=False) + "\n")
-        return
 
-    articles = []
-    for url in article_urls:
-        time.sleep(REQUEST_DELAY)
-        article = extract_article(url)
-        if article:
-            articles.append(article)
-            print(f"    ✓ {article['title'][:60]}")
-        else:
-            print(f"    ✗ Failed to extract: {url}")
+def write_output(articles):
+    """Grava blog_articles.json — NUNCA sobrescreve dados existentes com vazio.
 
-    # Sort by date descending
-    articles.sort(key=lambda a: a.get("date", ""), reverse=True)
+    A coleta anônima do LinkedIn falha na maior parte do tempo (parede de
+    login). Se nada foi coletado agora mas já existem artigos salvos, preserva-os
+    em vez de zerar o arquivo (evita regressão silenciosa a cada run do cron).
+    """
+    if not articles:
+        existing = load_existing_articles()
+        if existing:
+            print(f"⚠️  Nenhum artigo coletado agora — preservando {len(existing)} artigo(s) já salvos.")
+            return
+        print("Nenhum artigo encontrado e sem dados prévios — gravando arquivo vazio.")
 
-    # Mark top N as featured
+    # Marca os N mais recentes como destaque.
     for i, article in enumerate(articles):
         article["featured"] = i < MAX_FEATURED
 
@@ -347,6 +360,31 @@ def main():
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n")
     print(f"\n✓ Saved {len(articles)} articles to {OUTPUT_PATH}")
+
+
+def main():
+    print("=== LinkedIn Articles Fetcher ===\n")
+
+    article_urls = extract_article_urls(PROFILE_URL)
+    if not article_urls:
+        print("No article URLs found.")
+        write_output([])
+        return
+
+    articles = []
+    for url in article_urls:
+        time.sleep(REQUEST_DELAY)
+        article = extract_article(url)
+        if article:
+            articles.append(article)
+            print(f"    ✓ {article['title'][:60]}")
+        else:
+            print(f"    ✗ Failed to extract: {url}")
+
+    # Sort by date descending
+    articles.sort(key=lambda a: a.get("date", ""), reverse=True)
+
+    write_output(articles)
 
 
 if __name__ == "__main__":

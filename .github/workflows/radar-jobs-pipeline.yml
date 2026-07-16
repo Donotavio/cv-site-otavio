@@ -1,10 +1,10 @@
 name: Data Stack Radar BR — Coleta de vagas
 
-# Toda segunda-feira às 02:00 UTC, conforme spec do projeto.
-# Também pode ser disparado manualmente via workflow_dispatch.
+# Diariamente às 15:30 UTC (~12h30 BRT), escalonado para não colidir com os
+# demais pipelines de dados. Também pode ser disparado via workflow_dispatch.
 on:
   schedule:
-    - cron: '0 15 * * *'
+    - cron: '30 15 * * *'
   workflow_dispatch: {}
 
 permissions:
@@ -69,9 +69,25 @@ jobs:
           else
             TODAY=$(date +%Y-%m-%d)
             git commit -m "data: coleta semanal de vagas — Data Stack Radar BR ${TODAY}"
-            git pull --rebase
-            git push
-            echo "✅ Dados commitados e enviados."
+            # Push resiliente: radar-jobs e radar-signals regeneram os mesmos
+            # arquivos (radar_scores.json/parquet, radar_trending.json). Em vez
+            # de rebase (que quebra no parquet binário), reconcilia com merge
+            # preferindo os dados recém-gerados e re-tenta o push.
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD:main; then
+                echo "✅ Dados enviados (tentativa ${attempt})."
+                break
+              fi
+              if [ "${attempt}" = "5" ]; then
+                echo "✗ Push falhou após 5 tentativas."; exit 1
+              fi
+              echo "↻ Push rejeitado — reconciliando com origin/main (tentativa ${attempt})."
+              git fetch origin main
+              git merge -X ours --no-edit FETCH_HEAD || {
+                git checkout --ours . && git add -A && GIT_EDITOR=true git commit --no-edit || true
+              }
+              sleep $(( attempt * 3 ))
+            done
           fi
 
       - name: Disparar deploy do site

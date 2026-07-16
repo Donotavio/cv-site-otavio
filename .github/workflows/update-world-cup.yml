@@ -86,9 +86,23 @@ jobs:
           else
             NOW=$(date -u +%Y-%m-%dT%H:%MZ)
             git commit -m "data: atualização automática World Cup Dashboard ${NOW}"
-            git pull --rebase
-            git push
-            echo "✅ Dados commitados e enviados."
+            # Push resiliente: reconcilia com origin/main preferindo os dados
+            # recém-gerados e re-tenta (evita corrida com os outros pipelines).
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD:main; then
+                echo "✅ Dados enviados (tentativa ${attempt})."
+                break
+              fi
+              if [ "${attempt}" = "5" ]; then
+                echo "✗ Push falhou após 5 tentativas."; exit 1
+              fi
+              echo "↻ Push rejeitado — reconciliando com origin/main (tentativa ${attempt})."
+              git fetch origin main
+              git merge -X ours --no-edit FETCH_HEAD || {
+                git checkout --ours . && git add -A && GIT_EDITOR=true git commit --no-edit || true
+              }
+              sleep $(( attempt * 3 ))
+            done
           fi
 
       - name: Disparar deploy do site
