@@ -18,6 +18,7 @@ from __future__ import annotations
 import csv
 import io
 import sys
+import time
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -36,19 +37,41 @@ from ingestion_eleicoes.catalog import (  # noqa: E402
 
 BRONZE_DIR = Path("data/bronze/eleicoes_pesquisas")
 TIMEOUT = 60
+MAX_RETRIES = 4
 
 
 def _baixar_csv_nacional() -> str:
-    """Baixa o zip do TSE e devolve o conteúdo do CSV nacional (texto)."""
-    resp = requests.get(
-        TSE_PESQUISAS_ZIP_URL,
-        headers={"User-Agent": "observatorio-eleicoes-2026/1.0"},
-        timeout=TIMEOUT,
-    )
-    resp.raise_for_status()
-    with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
-        with zf.open(TSE_CSV_NACIONAL) as fh:
-            return fh.read().decode(CSV_ENCODING)
+    """Baixa o zip do TSE (com retry/backoff) e devolve o CSV nacional (texto).
+
+    O CDN do TSE (cdn.tse.jus.br) às vezes atrasa/recusa conexões de IPs de
+    nuvem — timeout transitório no runner. Repete com backoff e respeita
+    Retry-After em 429/503. Se esgotar as tentativas, propaga a última exceção
+    (o main() trata como fail-soft).
+    """
+    last_exc: Exception | None = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = requests.get(
+                TSE_PESQUISAS_ZIP_URL,
+                headers={"User-Agent": "observatorio-eleicoes-2026/1.0"},
+                timeout=TIMEOUT,
+            )
+            if resp.status_code in (429, 503):
+                wait = int(resp.headers.get("Retry-After", 0) or 0) or attempt * 5
+                print(f"  · TSE {resp.status_code} — aguardando {wait}s ({attempt}/{MAX_RETRIES})")
+                time.sleep(wait)
+                continue
+            resp.raise_for_status()
+            with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+                with zf.open(TSE_CSV_NACIONAL) as fh:
+                    return fh.read().decode(CSV_ENCODING)
+        except requests.RequestException as e:  # noqa: BLE001
+            last_exc = e
+            if attempt < MAX_RETRIES:
+                wait = attempt * 5
+                print(f"  · falha de rede ({attempt}/{MAX_RETRIES}): {e.__class__.__name__} — retry em {wait}s")
+                time.sleep(wait)
+    raise last_exc if last_exc else RuntimeError("download do TSE falhou após retries")
 
 
 def _parse_rows(csv_text: str) -> list[dict]:
@@ -84,8 +107,8 @@ def main() -> int:
     print("🗳  Observatório Eleições 2026 — coleta de pesquisas registradas (TSE)")
     try:
         csv_text = _baixar_csv_nacional()
-    except requests.RequestException as e:  # noqa: BLE001
-        print(f"  ✗ falha ao baixar o dataset do TSE: {e}")
+    except (requests.RequestException, RuntimeError) as e:  # noqa: BLE001
+        print(f"  ✗ falha ao baixar o dataset do TSE (após {MAX_RETRIES} tentativas): {e}")
         return 1
 
     rows = _parse_rows(csv_text)

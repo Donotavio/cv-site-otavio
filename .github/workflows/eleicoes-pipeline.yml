@@ -37,10 +37,18 @@ jobs:
       - name: Criar diretórios de dados
         run: mkdir -p data/bronze/eleicoes_pesquisas data/bronze/eleicoes_precandidatos data/bronze/eleicoes_estaduais data/bronze/eleicoes_integridade data/gold
 
+      # Resiliência: o CDN do TSE (cdn.tse.jus.br) às vezes recusa/atrasa
+      # conexões de IPs de nuvem (timeout no runner). Antes esse passo era o
+      # único sem continue-on-error e derrubava o run inteiro — bloqueando até
+      # as seções que NÃO dependem do TSE. Agora degrada sozinho: mantém o
+      # eleicoes_pesquisas.json anterior (o frontend já é fail-soft) e deixa as
+      # demais seções coletarem, commitarem e deployarem.
       - name: Coletar pesquisas registradas (TSE)
+        continue-on-error: true
         run: python ingestion_eleicoes/collect_pesquisas.py
 
       - name: Gold — agregações do observatório
+        continue-on-error: true
         run: python transform_eleicoes/gold_eleicoes.py
 
       # Fonte é a Wikipedia (layout pode mudar) — não deve derrubar o pipeline
