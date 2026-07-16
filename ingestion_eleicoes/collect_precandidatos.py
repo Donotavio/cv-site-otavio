@@ -23,6 +23,7 @@ from __future__ import annotations
 import io
 import re
 import sys
+import time
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
@@ -44,10 +45,15 @@ from ingestion_eleicoes.catalog import (  # noqa: E402
 
 BRONZE_DIR = Path("data/bronze/eleicoes_precandidatos")
 TIMEOUT = 60
+MAX_RETRIES = 4
 
 
 def _baixar_html() -> str:
-    """Baixa o HTML renderizado do artigo via API MediaWiki (action=parse)."""
+    """Baixa o HTML renderizado do artigo via API MediaWiki (action=parse).
+
+    Retry/backoff (respeita Retry-After em 429/503) para tolerar oscilações
+    transitórias da Wikipedia. Esgotadas as tentativas, propaga a exceção.
+    """
     url = WIKIPEDIA_API + "?" + urllib.parse.urlencode(
         {
             "action": "parse",
@@ -57,14 +63,29 @@ def _baixar_html() -> str:
             "formatversion": "2",
         }
     )
-    resp = requests.get(
-        url, headers={"User-Agent": "observatorio-eleicoes-2026/1.0"}, timeout=TIMEOUT
-    )
-    resp.raise_for_status()
-    data = resp.json()
-    if "error" in data:
-        raise RuntimeError(f"API MediaWiki: {data['error']}")
-    return data["parse"]["text"]
+    last_exc: Exception | None = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = requests.get(
+                url, headers={"User-Agent": "observatorio-eleicoes-2026/1.0"}, timeout=TIMEOUT
+            )
+            if resp.status_code in (429, 503):
+                wait = int(resp.headers.get("Retry-After", 0) or 0) or attempt * 5
+                print(f"  · Wikipedia {resp.status_code} — aguardando {wait}s ({attempt}/{MAX_RETRIES})")
+                time.sleep(wait)
+                continue
+            resp.raise_for_status()
+            data = resp.json()
+            if "error" in data:
+                raise RuntimeError(f"API MediaWiki: {data['error']}")
+            return data["parse"]["text"]
+        except requests.RequestException as e:  # noqa: BLE001
+            last_exc = e
+            if attempt < MAX_RETRIES:
+                wait = attempt * 5
+                print(f"  · falha de rede ({attempt}/{MAX_RETRIES}): {e.__class__.__name__} — retry em {wait}s")
+                time.sleep(wait)
+    raise last_exc if last_exc else RuntimeError("download da Wikipedia falhou após retries")
 
 
 def _ano_do_heading(tbl) -> int | None:
