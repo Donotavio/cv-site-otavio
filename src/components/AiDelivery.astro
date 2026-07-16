@@ -1,0 +1,280 @@
+---
+/**
+ * AiDelivery.astro — Seção [ 04 ] — Direção Blueprint
+ * "Operating model" de desenvolvimento com IA — o meta-diferencial que
+ * viabilizou os números do Impact (medalhão em tempo recorde).
+ *
+ * Estrutura:
+ *  - Stat strip: métricas agregadas do ecossistema de harness (agentes,
+ *    skills, hooks, KBs, repos). count-up (SSG mostra valor final).
+ *  - Pilares (2×2): Orquestração · Guardrails · Contexto dinâmico ·
+ *    Conhecimento versionado.
+ *  - Cases públicos: cv-site + saul_goodman como vitrine concreta.
+ *
+ * Números são AGREGADOS/abstratos — sem expor nomes de projetos internos.
+ * Motion: revealUp (padrão aprovado) + hairlineDraw + count-up. Zero hex,
+ * CSS scoped, mobile-first, texto UI via data-i18n-key, legível sem JS (SSG).
+ */
+import { t } from '../lib/i18n';
+
+const stats = [
+  { key: 'agents', to: '86',  suffix: ''  },
+  { key: 'skills', to: '75',  suffix: ''  },
+  { key: 'hooks',  to: '17',  suffix: ''  },
+  { key: 'kbs',    to: '180', suffix: '+' },
+  { key: 'repos',  to: '7',   suffix: ''  },
+];
+
+const pillars = ['orchestration', 'guardrails', 'context', 'knowledge'];
+---
+
+<section id="ai-delivery" class="section aidev" aria-labelledby="aidev-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">04</span>
+      <h2 id="aidev-title" class="aidev-display" data-i18n-key="aidev.title">{t('aidev.title')}</h2>
+      <p class="aidev-lead" data-i18n-key="aidev.subtitle">{t('aidev.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <!-- Stat strip — telemetria do ecossistema de harness -->
+    <ul class="aidev-stats" aria-label={t('aidev.stats_aria')} data-i18n-aria="aidev.stats_aria">
+      {stats.map((s, i) => (
+        <li class="stat">
+          <span class="stat-idx mono-label">{String(i).padStart(2, '0')}</span>
+          <span
+            class="stat-num"
+            data-count-to={s.to}
+            data-count-suffix={s.suffix}
+          >{s.to}{s.suffix}</span>
+          <span class="stat-lab" data-i18n-key={`aidev.stat_${s.key}`}>{t(`aidev.stat_${s.key}`)}</span>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Pilares do operating model -->
+    <div class="aidev-pillars">
+      {pillars.map((p, i) => (
+        <article class="pillar crop">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <span class="pillar-idx mono-label mono-label--accent">{String(i + 1).padStart(2, '0')}</span>
+          <h3 class="pillar-title" data-i18n-key={`aidev.pillar_${p}_title`}>{t(`aidev.pillar_${p}_title`)}</h3>
+          <p class="pillar-desc" data-i18n-key={`aidev.pillar_${p}_desc`}>{t(`aidev.pillar_${p}_desc`)}</p>
+        </article>
+      ))}
+    </div>
+
+    <!-- Cases públicos -->
+    <div class="aidev-cases crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <p class="cases-title mono-label" data-i18n-key="aidev.cases_title">{t('aidev.cases_title')}</p>
+      <p class="cases-desc" data-i18n-key="aidev.cases_desc">{t('aidev.cases_desc')}</p>
+      <div class="cases-tags" aria-hidden="true">
+        <span class="tag">cv-site</span>
+        <span class="tag">saul_goodman</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .aidev {
+    background: var(--paper-soft);
+  }
+
+  .aidev-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .aidev-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 62ch;
+  }
+
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
+  /* ── Stat strip ──────────────────────────────────────────── */
+  .aidev-stats {
+    list-style: none;
+    margin: 0 0 var(--space-16);
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6) var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .aidev-stats { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .aidev-stats {
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-8);
+    }
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-inline-start: var(--space-4);
+    border-inline-start: 1px solid var(--line);
+  }
+
+  .stat-idx {
+    color: var(--ink-faint);
+  }
+
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: var(--num-tabular);
+  }
+
+  .stat-lab {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-snug);
+    max-width: 22ch;
+  }
+
+  /* ── Pilares ─────────────────────────────────────────────── */
+  .aidev-pillars {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-block-end: var(--space-12);
+  }
+
+  @media (min-width: 640px) {
+    .aidev-pillars {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-5);
+    }
+  }
+
+  .pillar {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--accent);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    transition: border-color var(--transition-normal);
+  }
+
+  .pillar:hover {
+    border-color: var(--line-strong);
+    border-top-color: var(--accent);
+  }
+
+  .pillar-idx {
+    margin: 0;
+  }
+
+  .pillar-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .pillar-desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  /* ── Cases ───────────────────────────────────────────────── */
+  .aidev-cases {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .cases-title {
+    margin: 0;
+    color: var(--ink-faint);
+  }
+
+  .cases-desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 72ch;
+  }
+
+  .cases-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-block-start: var(--space-1);
+  }
+
+  .cases-tags .tag {
+    font-family: var(--font-mono);
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { countUp } from '../scripts/motion/count-up';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const section = document.getElementById('ai-delivery');
+  if (section) {
+    const line    = section.querySelector('.section-line') as Element;
+    const head    = section.querySelector('.section-head') as Element;
+    const stats   = section.querySelectorAll('.stat');
+    const nums    = section.querySelectorAll<HTMLElement>('.stat-num[data-count-to]');
+    const pillars = section.querySelectorAll('.pillar');
+    const cases   = section.querySelector('.aidev-cases') as Element;
+
+    if (line) hairlineDraw(line, section);
+
+    if (motionOk) {
+      revealUp([head], section, 0);
+      revealUp(stats, section, 0.08);
+      revealUp(pillars, section, 0.1);
+      if (cases) revealUp([cases], section, 0);
+    }
+
+    // count-up nos números (mostra valor final se reduced-motion)
+    nums.forEach((n) => countUp(n, section));
+  }
+</script>
