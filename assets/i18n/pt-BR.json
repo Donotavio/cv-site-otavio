@@ -99,6 +99,26 @@
     "cases_title": "Cases públicos",
     "cases_desc": "A mesma arquitetura aparece fora do trabalho: este portfólio (pipeline art-director → motion-engineer → frontend-builder → auditoria de a11y/performance) e o saul_goodman (agentes de review, i18n em 13 idiomas, QA e fundamentos de ML)."
   },
+  "enrich": {
+    "title": "Máquinas de enriquecimento de dados",
+    "subtitle": "Transformo dados públicos da web em datasets enriquecidos e confiáveis: uma máquina configurável de scraping + LLM, com resolução de identidade determinística e guardrails contra alucinação.",
+    "stats_aria": "Capacidade da máquina de enriquecimento",
+    "stat_sources": "Fontes públicas orquestradas",
+    "stat_attrs": "Atributos por entidade",
+    "stat_models": "LLMs avaliados em bake-off",
+    "stat_identity": "Camadas de resolução de identidade",
+    "stages_title": "A máquina, ponta a ponta",
+    "stage_seed": "Semente",
+    "stage_identity": "Resolução de identidade",
+    "stage_scrape": "Scraping",
+    "stage_llm": "Extração com LLM",
+    "stage_dq": "Dedup + Data Quality",
+    "stage_load": "Carga idempotente em Delta",
+    "card_scrape_title": "Scraping resiliente",
+    "card_scrape_desc": "requests + proxy de leitura headless que contorna JS e anti-bot, com BeautifulSoup para descoberta de links. Workers concorrentes, rate-limit educado, retry com fallback de espelho, e conteúdo deduplicado e truncado para controlar o custo de token.",
+    "card_llm_title": "LLM sem alucinação",
+    "card_llm_desc": "Extração estruturada em JSON com temperatura 0 e prompts \"nunca invente\"; regex determinístico cobre tudo que não precisa de LLM. O modelo é escolhido num bake-off de 10 endpoints (custo × latência × acurácia), com fallback automático e campos cruzados antes de gravar."
+  },
   "timeline": {
     "title": "Timeline da carreira",
     "subtitle": "Liderança em ciclos de crescimento e impacto mensurável.",

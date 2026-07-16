@@ -99,6 +99,26 @@
     "cases_title": "Public cases",
     "cases_desc": "The same architecture shows up outside work: this portfolio (art-director → motion-engineer → frontend-builder → a11y/performance audit pipeline) and saul_goodman (review agents, i18n across 13 locales, QA, and ML foundations)."
   },
+  "enrich": {
+    "title": "Data enrichment machines",
+    "subtitle": "I turn public web data into enriched, trustworthy datasets: a configurable scraping + LLM machine with deterministic identity resolution and guardrails against hallucination.",
+    "stats_aria": "Enrichment machine capability",
+    "stat_sources": "Public sources orchestrated",
+    "stat_attrs": "Attributes per entity",
+    "stat_models": "LLMs evaluated in a bake-off",
+    "stat_identity": "Identity-resolution layers",
+    "stages_title": "The machine, end to end",
+    "stage_seed": "Seed",
+    "stage_identity": "Identity resolution",
+    "stage_scrape": "Scraping",
+    "stage_llm": "LLM extraction",
+    "stage_dq": "Dedup + Data Quality",
+    "stage_load": "Idempotent load to Delta",
+    "card_scrape_title": "Resilient scraping",
+    "card_scrape_desc": "requests + a headless reader proxy that bypasses JS and anti-bot, with BeautifulSoup for link discovery. Concurrent workers, polite rate-limiting, retry with mirror fallback, and content deduplicated and truncated to control token cost.",
+    "card_llm_title": "Hallucination-free LLM",
+    "card_llm_desc": "Structured JSON extraction at temperature 0 with \"never invent\" prompts; deterministic regex handles everything that doesn't need an LLM. The model is chosen in a 10-endpoint bake-off (cost × latency × accuracy), with automatic fallback and fields cross-checked before writing."
+  },
   "timeline": {
     "title": "Career timeline",
     "subtitle": "Leadership across growth cycles and measurable outcomes.",
