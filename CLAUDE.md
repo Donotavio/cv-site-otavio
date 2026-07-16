@@ -99,8 +99,8 @@ python transform_macro/gold_cockpit.py       # Silver → Gold + assets/data/coc
 
 Painel apartidário sobre a *máquina de medição* da eleição (quem mede o
 eleitorado, onde, com que rigor, a que custo) + o perfil real do eleitorado +
-intenção de voto presidencial (medição, não previsão). Página
-`src/pages/eleicoes-2026.astro` (12 seções). Quatro JSONs em `assets/data/`,
+intenção de voto presidencial e estadual (medição, não previsão). Página
+`src/pages/eleicoes-2026.astro` (13 seções). Cinco JSONs em `assets/data/`,
 todos consumidos por fetch em runtime (zero LLM):
 
 ```bash
@@ -111,10 +111,12 @@ python ingestion_eleicoes/collect_eleitorado.py    # TSE perfil eleitorado ATUAL
 python transform_eleicoes/gold_eleitorado.py       # → eleicoes_eleitorado.json (perfil por sexo/idade/escolaridade/UF)
 python ingestion_eleicoes/collect_precandidatos.py # Wikipedia PT (agrega pesquisas do TSE) → bronze
 python transform_eleicoes/gold_precandidatos.py    # → eleicoes_precandidatos.json (1º/2º turno + panorama presidencial)
+python ingestion_eleicoes/collect_estaduais.py     # Wikipedia PT, 1 artigo/UF (throttle anti-429) → bronze
+python transform_eleicoes/gold_estaduais.py        # → eleicoes_estaduais.json (governador 1º/2º turno + senador, por UF)
 ```
 
-- `ingestion_eleicoes/catalog.py` — fonte única (URLs TSE + Wikipedia, mapa de colunas, normalização de candidatos, regras). Nunca hardcodar fora daqui.
+- `ingestion_eleicoes/catalog.py` — fonte única (URLs TSE + Wikipedia, mapa de colunas, normalização de candidatos, sufixos de UF, regras). Nunca hardcodar fora daqui.
 - `assets/data/eleicoes_contexto.json` — **curado à mão** de fontes oficiais (cargos, Fundo Eleitoral, calendário, exterior, renovação). Cada bloco traz `fonte`/`fonte_url`. Atualizar quando o TSE publicar números novos (não é pipeline).
-- **Pré-candidatos/intenção (v1 = presidencial):** fonte é a Wikipedia PT que agrega as pesquisas registradas no TSE (o dataset de registro do TSE não traz percentuais). Parsing de wikitables é frágil → coletor fail-soft, normalização no catálogo, e passos de CI com `continue-on-error` (a seção degrada sozinha). Estaduais (governador/senador) ficam para fase futura, provável curadoria manual.
+- **Intenção de voto (presidencial + estadual):** fonte é a Wikipedia PT que agrega as pesquisas registradas no TSE (o dataset de registro do TSE não traz percentuais). Presidencial = 1 artigo; estadual = 1 artigo por UF (24 das 27 têm; faltam DF/MS/MT). Parsing de wikitables é frágil (2 formatos de partido, cargo pelo H2) → coletores fail-soft por estado/tabela, normalização no catálogo, throttle + retry anti-429 no coletor estadual, e passos de CI com `continue-on-error` (as seções degradam sozinhas). Governador renova em 1º/2º turno; Senado renova 2 de 3 vagas/UF em 2026.
 - Cor: monocromático `--ink*` para dados + `--wc-gold*` para líder/destaque (sem cor partidária). Sem hex hardcoded.
-- CI: `.github/workflows/eleicoes-pipeline.yml` (pesquisas + pré-candidatos, diário) + `eleicoes-eleitorado-monthly.yml` (eleitorado, mensal — job pesado).
+- CI: `.github/workflows/eleicoes-pipeline.yml` (pesquisas + pré-candidatos + estaduais, diário) + `eleicoes-eleitorado-monthly.yml` (eleitorado, mensal — job pesado).

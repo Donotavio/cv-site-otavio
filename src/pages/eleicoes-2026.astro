@@ -226,11 +226,65 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [03] O ELEITORADO ═══════════════════════ -->
-    <section id="el-eleitorado" class="section" aria-labelledby="el-elt-title">
+    <!-- ═══════════════════════ [03] INTENÇÃO ESTADUAL (governador + senador) ═══════════════════════ -->
+    <section id="el-estadual" class="section el-alt" aria-labelledby="el-est-title">
       <div class="container">
         <div class="section-head">
           <span class="mono-label">03</span>
+          <h2 id="el-est-title" class="el-h2" data-i18n-key="portfolio.eleicoes.est_title">Intenção de voto nos estados</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.est_lead">
+            Governador e senador por UF — mesmo agregado de institutos (via Wikipedia), com instituto, data e margem à vista. Escolha um estado.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="el-explorar">
+          <div class="el-explorar__control">
+            <label class="el-explorar__caption mono-label" for="el-est-input" data-i18n-key="portfolio.eleicoes.est_pick">estado</label>
+            <div class="el-combobox" id="el-est-combobox">
+              <input type="text" id="el-est-input" class="el-combobox__input" role="combobox"
+                     aria-expanded="false" aria-autocomplete="list" aria-controls="el-est-listbox"
+                     placeholder="Buscar estado…" data-i18n-attr="placeholder:portfolio.eleicoes.uf_search"
+                     autocomplete="off" spellcheck="false" />
+              <button type="button" class="el-combobox__btn" tabindex="-1" aria-label="Abrir lista de estados"
+                      data-i18n-aria="portfolio.eleicoes.uf_open"><span aria-hidden="true">▾</span></button>
+              <ul id="el-est-listbox" class="el-combobox__list" role="listbox" aria-label="Estados" hidden></ul>
+            </div>
+          </div>
+
+          <div class="el-est-panels" id="el-est-panels" aria-live="polite">
+            <article class="el-panel crop" aria-labelledby="el-est-gov-t">
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="el-panel__title mono-label" id="el-est-gov-t" data-i18n-key="portfolio.eleicoes.est_gov_1t">governador · 1º turno</span>
+              <div id="el-est-gov1" class="el-vote-bars"><p class="el-loading mono-label">selecione um estado…</p></div>
+              <p class="el-vote-ref mono-label" id="el-est-gov1-ref"></p>
+            </article>
+            <article class="el-panel crop" aria-labelledby="el-est-gov2-t">
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <span class="el-panel__title mono-label" id="el-est-gov2-t" data-i18n-key="portfolio.eleicoes.est_gov_2t">governador · 2º turno</span>
+              <div id="el-est-gov2" class="el-vote-duels"><p class="el-loading mono-label">···</p></div>
+            </article>
+            <article class="el-panel crop" aria-labelledby="el-est-sen-t">
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <span class="el-panel__title mono-label" id="el-est-sen-t" data-i18n-key="portfolio.eleicoes.est_sen">senador</span>
+              <div id="el-est-sen" class="el-vote-bars"><p class="el-loading mono-label">···</p></div>
+              <p class="el-vote-ref mono-label" id="el-est-sen-ref"></p>
+            </article>
+          </div>
+        </div>
+
+        <p class="el-nota mono-label" data-i18n-key="portfolio.eleicoes.est_nota">
+          Fonte: Wikipedia — pesquisas estaduais registradas no TSE. Em 2026 cada estado renova 2 das 3 cadeiras do Senado. Sem cor partidária; líder é destaque visual. DF, MS e MT ainda sem artigo na fonte.
+        </p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ [04] O ELEITORADO ═══════════════════════ -->
+    <section id="el-eleitorado" class="section" aria-labelledby="el-elt-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">04</span>
           <h2 id="el-elt-title" class="el-h2" data-i18n-key="portfolio.eleicoes.elt_title">Quem é o eleitorado</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.elt_lead">
             O corpo que os institutos tentam medir — perfil real do Cadastro Nacional de Eleitores (TSE), agregado de 11 milhões de linhas por seção.
@@ -267,11 +321,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [04] INTENSIDADE (bar chart) ═══════════════════════ -->
+    <!-- ═══════════════════════ [05] INTENSIDADE (bar chart) ═══════════════════════ -->
     <section id="el-intensidade" class="section el-alt" aria-labelledby="el-int-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">04</span>
+          <span class="mono-label">05</span>
           <h2 id="el-int-title" class="el-h2" data-i18n-key="portfolio.eleicoes.timeline_title">A rampa das pesquisas</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.timeline_lead">
             Pesquisas divulgadas por mês. A intensidade acelera conforme a eleição se aproxima.
@@ -289,11 +343,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════ [05] INTENSIDADE REAL POR UF (índice normalizado) ═══════════════ -->
+    <!-- ═══════════════ [06] INTENSIDADE REAL POR UF (índice normalizado) ═══════════════ -->
     <section id="el-intensidade-uf" class="section" aria-labelledby="el-iuf-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">05</span>
+          <span class="mono-label">06</span>
           <h2 id="el-iuf-title" class="el-h2" data-i18n-key="portfolio.eleicoes.iuf_title">Onde a disputa está quente de verdade</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.iuf_lead">
             Contagem bruta favorece estados grandes. Aqui, pesquisas por milhão de eleitores — cruzando o registro do TSE com o Cadastro de Eleitores. Revela onde se mede com mais intensidade, independentemente do tamanho.
@@ -314,11 +368,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [06] QUEM MEDE (tabela) ═══════════════════════ -->
+    <!-- ═══════════════════════ [07] QUEM MEDE (tabela) ═══════════════════════ -->
     <section id="el-institutos" class="section el-alt" aria-labelledby="el-inst-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">06</span>
+          <span class="mono-label">07</span>
           <h2 id="el-inst-title" class="el-h2" data-i18n-key="portfolio.eleicoes.institutos_title">Quem mede o eleitorado</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.institutos_lead">
             Institutos por volume de pesquisas registradas e investimento declarado (R$). Mercado pulverizado — o líder detém <span id="el-conc-inline">···</span> do total.
@@ -345,11 +399,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [07] COMO MEDEM ═══════════════════════ -->
+    <!-- ═══════════════════════ [08] COMO MEDEM ═══════════════════════ -->
     <section id="el-como" class="section" aria-labelledby="el-como-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">07</span>
+          <span class="mono-label">08</span>
           <h2 id="el-como-title" class="el-h2" data-i18n-key="portfolio.eleicoes.como_title">Como medem</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.como_lead">
             Nível da disputa, origem da encomenda e rigor amostral.
@@ -380,11 +434,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [08] COBERTURA POR UF ═══════════════════════ -->
+    <!-- ═══════════════════════ [09] COBERTURA POR UF ═══════════════════════ -->
     <section id="el-cobertura" class="section el-alt" aria-labelledby="el-uf-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">08</span>
+          <span class="mono-label">09</span>
           <h2 id="el-uf-title" class="el-h2" data-i18n-key="portfolio.eleicoes.uf_title">Onde se mede mais</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.uf_lead">
             Pesquisas estaduais por UF (exclui a disputa presidencial/nacional).
@@ -399,11 +453,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════ [09] EXPLORAR POR ESTADO (interativo) ═══════════════════ -->
+    <!-- ═══════════════════ [10] EXPLORAR POR ESTADO (interativo) ═══════════════════ -->
     <section id="el-explorar" class="section el-alt" aria-labelledby="el-exp-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">09</span>
+          <span class="mono-label">10</span>
           <h2 id="el-exp-title" class="el-h2" data-i18n-key="portfolio.eleicoes.explorar_title">Explore por estado</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.explorar_lead">
             Escolha uma UF e veja o recorte local: volume de pesquisas, rigor amostral e os institutos que mais medem ali.
@@ -432,11 +486,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [10] O QUE ESTÁ EM JOGO ═══════════════════════ -->
+    <!-- ═══════════════════════ [11] O QUE ESTÁ EM JOGO ═══════════════════════ -->
     <section id="el-jogo" class="section" aria-labelledby="el-jogo-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">10</span>
+          <span class="mono-label">11</span>
           <h2 id="el-jogo-title" class="el-h2" data-i18n-key="portfolio.eleicoes.jogo_title">O que está em jogo</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.jogo_lead">
             Os cargos em disputa e o dinheiro público de campanha — o tamanho da aposta de 2026.
@@ -452,11 +506,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [11] RELÓGIO DA DEMOCRACIA ═══════════════════════ -->
+    <!-- ═══════════════════════ [12] RELÓGIO DA DEMOCRACIA ═══════════════════════ -->
     <section id="el-relogio" class="section el-alt" aria-labelledby="el-rel-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">11</span>
+          <span class="mono-label">12</span>
           <h2 id="el-rel-title" class="el-h2" data-i18n-key="portfolio.eleicoes.rel_title">O relógio da democracia</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.rel_lead">
             Os marcos oficiais do calendário eleitoral de 2026 — da convenção à posse.
@@ -473,11 +527,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [12] TRANSPARÊNCIA & FONTES ═══════════════════════ -->
+    <!-- ═══════════════════════ [13] TRANSPARÊNCIA & FONTES ═══════════════════════ -->
     <section id="el-transparencia" class="section" aria-labelledby="el-tr-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">12</span>
+          <span class="mono-label">13</span>
           <h2 id="el-tr-title" class="el-h2" data-i18n-key="portfolio.eleicoes.tr_title">Como este painel trata a intenção de voto</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.tr_lead">
             Um recorte honesto do que o dado público permite — medição, não previsão.
@@ -737,6 +791,11 @@ const base = import.meta.env.BASE_URL;
   .el-vote-chips :global(.el-chip) { padding: var(--space-1) var(--space-3); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-wide); color: var(--ink-soft); background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--radius-full); }
   .el-vote-chips :global(.el-chip .mono-label) { color: var(--ink-faint); }
 
+  /* ── [03] Intenção estadual — grid de painéis (gov 1t / gov 2t / senador) ── */
+  .el-est-panels { margin-top: var(--space-6); display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
+  @media (min-width: 720px) { .el-est-panels { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1080px) { .el-est-panels { grid-template-columns: 1fr 1fr 1fr; } }
+
   .el-nota { color: var(--ink-faint); font-size: var(--text-xs); margin-top: var(--space-8); max-width: 72ch; line-height: 1.5; }
   .el-loading { color: var(--ink-faint); }
   :global(.el-error) { color: var(--ink-faint); font-family: var(--font-mono); font-size: var(--text-sm); }
@@ -921,6 +980,13 @@ const base = import.meta.env.BASE_URL;
     panorama?: { nome: string; partido: string; n_pesquisas: number; ultima: string }[];
     primeiro_turno?: { data_ref?: string; janela_dias?: number; n_pesquisas?: number; candidatos: VoteCand[] } | null;
     segundo_turno?: VoteDuel[];
+  }
+  interface VoteSnapshot { data_ref?: string; janela_dias?: number; n_pesquisas?: number; candidatos: VoteCand[] }
+  interface EstadoIntencao { governador_1t: VoteSnapshot | null; governador_2t: VoteDuel[]; senador: VoteSnapshot | null }
+  interface EstaduaisPayload {
+    fonte_url_fmt?: string;
+    ufs_disponiveis?: string[];
+    estados?: Record<string, EstadoIntencao>;
   }
   interface ContextoPayload {
     cargos?: { presidente?: number; governadores?: number; senadores?: number; senado_total?: number; deputados_federais?: number; nota_senado?: string };
@@ -1204,6 +1270,41 @@ const base = import.meta.env.BASE_URL;
     </div>`).join('');
   }
 
+  // ── Helpers de intenção (reusados por presidencial [02] e estadual [03]) ──
+  function voteBarsHTML(cands: VoteCand[]): string {
+    const max = Math.max(...cands.map((c) => c.media_recente), 1);
+    return cands.map((c) => {
+      const d = c.delta;
+      const deltaHtml = d == null ? '' :
+        `<span class="el-vote-delta ${d > 0 ? 'is-up' : d < 0 ? 'is-down' : ''}">${d > 0 ? '▲' : d < 0 ? '▼' : '–'} ${Math.abs(d).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</span>`;
+      return `<div class="el-vote-row${c.lider ? ' is-leader' : ''}">
+        <span class="el-vote-name">${esc(c.nome)} <span class="el-vote-party mono-label">${esc(c.partido)}</span></span>
+        <span class="el-vote-track"><span class="el-vote-fill" style="width:${(c.media_recente / max) * 100}%"></span></span>
+        <span class="el-vote-pct">${c.media_recente.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%${deltaHtml}</span>
+      </div>`;
+    }).join('');
+  }
+  function voteDuelsHTML(duels: VoteDuel[]): string {
+    return duels.map((d) => {
+      const aWin = d.a.pct >= d.b.pct;
+      return `<div class="el-vote-duel">
+        <div class="el-vote-duel__row">
+          <span class="el-vote-duel__name">${esc(d.a.nome)} <span class="mono-label">${esc(d.a.partido)}</span></span>
+          <span class="el-vote-duel__pct${aWin ? ' is-leader' : ''}">${d.a.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
+        </div>
+        <div class="el-vote-duel__bar"><span style="width:${d.a.pct}%" class="${aWin ? 'is-leader' : ''}"></span><span style="width:${d.b.pct}%" class="${!aWin ? 'is-leader' : ''}"></span></div>
+        <div class="el-vote-duel__row">
+          <span class="el-vote-duel__name">${esc(d.b.nome)} <span class="mono-label">${esc(d.b.partido)}</span></span>
+          <span class="el-vote-duel__pct${!aWin ? ' is-leader' : ''}">${d.b.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
+        </div>
+        <span class="el-vote-duel__src mono-label">${esc(d.instituto)} · ${esc(fmtDate(d.data))}</span>
+      </div>`;
+    }).join('');
+  }
+  function voteRefText(s: { janela_dias?: number; data_ref?: string; n_pesquisas?: number }): string {
+    return `${t('portfolio.eleicoes.vote_ref', 'média dos últimos')} ${s.janela_dias ?? 90} ${t('portfolio.eleicoes.vote_ref_dias', 'dias · até')} ${fmtDate(s.data_ref)} · ${nf.format(s.n_pesquisas ?? 0)} ${t('portfolio.eleicoes.vote_ref_pesq', 'pesquisas')}`;
+  }
+
   // ── [02] Intenção de voto presidencial (pré-candidatos) ──
   function voteFail(): void {
     ['el-vote-1t', 'el-vote-2t'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">intenção indisponível — tente recarregar</p>'; });
@@ -1213,49 +1314,48 @@ const base = import.meta.env.BASE_URL;
   function renderPrecandidatos(pc: PrecandPayload | null): void {
     if (!pc || !pc.primeiro_turno || !pc.primeiro_turno.candidatos?.length) { voteFail(); return; }
     const pt = pc.primeiro_turno;
-    // 1º turno — barras horizontais (líder em dourado)
     const box1 = el('el-vote-1t');
-    if (box1) {
-      const max = Math.max(...pt.candidatos.map((c) => c.media_recente), 1);
-      box1.innerHTML = pt.candidatos.map((c) => {
-        const d = c.delta;
-        const deltaHtml = d == null ? '' :
-          `<span class="el-vote-delta ${d > 0 ? 'is-up' : d < 0 ? 'is-down' : ''}">${d > 0 ? '▲' : d < 0 ? '▼' : '–'} ${Math.abs(d).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</span>`;
-        return `<div class="el-vote-row${c.lider ? ' is-leader' : ''}">
-          <span class="el-vote-name">${esc(c.nome)} <span class="el-vote-party mono-label">${esc(c.partido)}</span></span>
-          <span class="el-vote-track"><span class="el-vote-fill" style="width:${(c.media_recente / max) * 100}%"></span></span>
-          <span class="el-vote-pct">${c.media_recente.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%${deltaHtml}</span>
-        </div>`;
-      }).join('');
-    }
+    if (box1) box1.innerHTML = voteBarsHTML(pt.candidatos);
     const ref = el('el-vote-1t-ref');
-    if (ref) ref.textContent = `${t('portfolio.eleicoes.vote_ref', 'média dos últimos')} ${pt.janela_dias ?? 90} ${t('portfolio.eleicoes.vote_ref_dias', 'dias · até')} ${fmtDate(pt.data_ref)} · ${nf.format(pt.n_pesquisas ?? 0)} ${t('portfolio.eleicoes.vote_ref_pesq', 'pesquisas')}`;
-    // 2º turno — confrontos mais recentes (top 5)
+    if (ref) ref.textContent = voteRefText(pt);
     const box2 = el('el-vote-2t');
     if (box2) {
       const duels = (pc.segundo_turno ?? []).slice(0, 5);
-      if (!duels.length) { box2.innerHTML = '<p class="el-error">sem confrontos medidos</p>'; }
-      else box2.innerHTML = duels.map((d) => {
-        const aWin = d.a.pct >= d.b.pct;
-        return `<div class="el-vote-duel">
-          <div class="el-vote-duel__row">
-            <span class="el-vote-duel__name">${esc(d.a.nome)} <span class="mono-label">${esc(d.a.partido)}</span></span>
-            <span class="el-vote-duel__pct${aWin ? ' is-leader' : ''}">${d.a.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
-          </div>
-          <div class="el-vote-duel__bar"><span style="width:${d.a.pct}%" class="${aWin ? 'is-leader' : ''}"></span><span style="width:${d.b.pct}%" class="${!aWin ? 'is-leader' : ''}"></span></div>
-          <div class="el-vote-duel__row">
-            <span class="el-vote-duel__name">${esc(d.b.nome)} <span class="mono-label">${esc(d.b.partido)}</span></span>
-            <span class="el-vote-duel__pct${!aWin ? ' is-leader' : ''}">${d.b.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
-          </div>
-          <span class="el-vote-duel__src mono-label">${esc(d.instituto)} · ${esc(fmtDate(d.data))}</span>
-        </div>`;
-      }).join('');
+      box2.innerHTML = duels.length ? voteDuelsHTML(duels) : '<p class="el-error">sem confrontos medidos</p>';
     }
-    // Panorama — chips (nome + partido)
     const chips = el('el-vote-chips');
-    if (chips) {
-      const pan = (pc.panorama ?? []).slice(0, 16);
-      chips.innerHTML = pan.map((p) => `<span class="el-chip">${esc(p.nome)} <span class="mono-label">${esc(p.partido)}</span></span>`).join('');
+    if (chips) chips.innerHTML = (pc.panorama ?? []).slice(0, 16)
+      .map((p) => `<span class="el-chip">${esc(p.nome)} <span class="mono-label">${esc(p.partido)}</span></span>`).join('');
+  }
+
+  // ── [03] Intenção de voto estadual (governador + senador) ──
+  let estaduais: EstaduaisPayload | null = null;
+  let estBuilt = false;
+  let currentEstUf = '';
+  function renderEstadoDetail(uf: string): void {
+    currentEstUf = uf;
+    const est = estaduais?.estados?.[uf];
+    const gov1 = el('el-est-gov1'), gov1ref = el('el-est-gov1-ref');
+    const gov2 = el('el-est-gov2'), sen = el('el-est-sen'), senref = el('el-est-sen-ref');
+    const semDados = t('portfolio.eleicoes.est_empty', 'sem pesquisas para este cargo');
+    if (gov1) gov1.innerHTML = est?.governador_1t?.candidatos?.length ? voteBarsHTML(est.governador_1t.candidatos) : `<p class="el-error">${esc(semDados)}</p>`;
+    if (gov1ref) gov1ref.textContent = est?.governador_1t ? voteRefText(est.governador_1t) : '';
+    if (gov2) gov2.innerHTML = est?.governador_2t?.length ? voteDuelsHTML(est.governador_2t.slice(0, 4)) : `<p class="el-error">${esc(semDados)}</p>`;
+    if (sen) sen.innerHTML = est?.senador?.candidatos?.length ? voteBarsHTML(est.senador.candidatos) : `<p class="el-error">${esc(semDados)}</p>`;
+    if (senref) senref.textContent = est?.senador ? voteRefText(est.senador) : '';
+  }
+  function renderEstaduais(pc: EstaduaisPayload | null): void {
+    const fail = (msg: string) => ['el-est-gov1', 'el-est-gov2', 'el-est-sen'].forEach((id) => { const b = el(id); if (b) b.innerHTML = `<p class="el-error">${esc(msg)}</p>`; });
+    const ufs = pc?.ufs_disponiveis ?? [];
+    if (!ufs.length) { fail(t('portfolio.eleicoes.est_unavailable', 'intenção estadual indisponível — tente recarregar')); return; }
+    if (!estBuilt) {
+      const items = ufs.map((u) => ({ value: u, label: `${UF_NAME[u] ?? u} (${u})` }));
+      const cb = buildCombobox('el-est-combobox', items, renderEstadoDetail);
+      cb?.setValue(ufs[0]);
+      renderEstadoDetail(ufs[0]);
+      estBuilt = true;
+    } else if (currentEstUf) {
+      renderEstadoDetail(currentEstUf);
     }
   }
 
@@ -1373,6 +1473,7 @@ const base = import.meta.env.BASE_URL;
       [t('portfolio.eleicoes.src_eleitorado', 'Estatísticas de Eleitorado — TSE'), 'https://dadosabertos.tse.jus.br/dataset/eleitorado-atual'],
     ];
     if (precand?.fonte_url) srcs.push([t('portfolio.eleicoes.src_precand', 'Pesquisas presidenciais 2026 — Wikipedia (agrega TSE)'), precand.fonte_url]);
+    if (estaduais?.ufs_disponiveis?.length) srcs.push([t('portfolio.eleicoes.src_estaduais', 'Pesquisas estaduais 2026 — Wikipedia (agrega TSE)'), 'https://pt.wikipedia.org/wiki/Categoria:Pesquisas_eleitorais_para_as_elei%C3%A7%C3%B5es_estaduais_no_Brasil_em_2026']);
     if (contexto?.calendario_fonte_url) srcs.push([t('portfolio.eleicoes.src_calendario', 'Calendário Eleitoral 2026 — TSE'), contexto.calendario_fonte_url]);
     box.innerHTML = srcs.map(([label, url]) =>
       `<li><a href="${esc(url)}" target="_blank" rel="noopener noreferrer" class="el-source-link">${esc(label)} <span aria-hidden="true">↗</span></a></li>`
@@ -1392,6 +1493,7 @@ const base = import.meta.env.BASE_URL;
     renderUF(data);
     initExplorar(data);
     renderPrecandidatos(precand);
+    renderEstaduais(estaduais);
     renderEleitorado(eleitorado);
     renderIntensidadeUF(data, eleitorado);
     renderJogo(contexto);
@@ -1412,15 +1514,17 @@ const base = import.meta.env.BASE_URL;
 
   async function loadEleicoes(): Promise<void> {
     const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
-    const [pdata, edata, cdata, prdata] = await Promise.all([
+    const [pdata, edata, cdata, prdata, estdata] = await Promise.all([
       fetchJSON<ElPayload>(base, 'eleicoes_pesquisas.json'),
       fetchJSON<EleitoradoPayload>(base, 'eleicoes_eleitorado.json'),
       fetchJSON<ContextoPayload>(base, 'eleicoes_contexto.json'),
       fetchJSON<PrecandPayload>(base, 'eleicoes_precandidatos.json'),
+      fetchJSON<EstaduaisPayload>(base, 'eleicoes_estaduais.json'),
     ]);
     eleitorado = edata;
     contexto = cdata;
     precand = prdata;
+    estaduais = estdata;
     if (pdata && pdata.kpis) {
       payload = pdata;
       renderAll(pdata);
@@ -1428,7 +1532,7 @@ const base = import.meta.env.BASE_URL;
       ['el-barchart-svg', 'el-uf', 'el-iuf-body'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">dados indisponíveis — tente recarregar</p>'; });
       const body = el('el-rank-body'); if (body) body.innerHTML = '<tr><td colspan="4"><p class="el-error">dados indisponíveis — tente recarregar</p></td></tr>';
       // seções independentes ainda renderizam se vieram
-      renderPrecandidatos(precand); renderEleitorado(eleitorado); renderJogo(contexto); renderRelogio(contexto); renderSources();
+      renderPrecandidatos(precand); renderEstaduais(estaduais); renderEleitorado(eleitorado); renderJogo(contexto); renderRelogio(contexto); renderSources();
     }
   }
 
@@ -1464,6 +1568,7 @@ const base = import.meta.env.BASE_URL;
     { id: 'eleicoes-hero',     key: 'portfolio.eleicoes.nav_hero',          fb: 'Início' },
     { id: 'el-panorama',       key: 'portfolio.eleicoes.nav_panorama',      fb: 'Panorama' },
     { id: 'el-intencao',       key: 'portfolio.eleicoes.nav_intencao',      fb: 'Intenção de voto' },
+    { id: 'el-estadual',       key: 'portfolio.eleicoes.nav_estadual',      fb: 'Intenção estadual' },
     { id: 'el-eleitorado',     key: 'portfolio.eleicoes.nav_eleitorado',    fb: 'Eleitorado' },
     { id: 'el-intensidade',    key: 'portfolio.eleicoes.nav_intensidade',   fb: 'Intensidade' },
     { id: 'el-intensidade-uf', key: 'portfolio.eleicoes.nav_intensidade_uf', fb: 'Por estado' },
