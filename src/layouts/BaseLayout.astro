@@ -148,11 +148,14 @@ const personSchema = {
       document.addEventListener('DOMContentLoaded', () => {
         initMotion();
 
-        // Query Loader: cada seção carrega como o resultado de uma query.
+        // Query Loader: efeito de "terminal" APENAS no hero, no primeiro load.
+        // Antes rodava em toda seção (scroll) e na navegação por menu — o overlay
+        // full-screen opaco cobria o conteúdo e dava aparência de site quebrado.
+        // Agora fica restrito ao #hero: dispara uma única vez ao carregar e nunca
+        // mais (nem no scroll de outras seções, nem em navegação).
         // registerQueryLoader retorna cedo se reduced-motion / sem query.
-        document
-          .querySelectorAll<HTMLElement>('main section[id]')
-          .forEach((section) => registerQueryLoader(section));
+        const hero = document.querySelector<HTMLElement>('main section#hero');
+        if (hero) registerQueryLoader(hero);
       });
     </script>
   </body>

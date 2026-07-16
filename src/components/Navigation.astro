@@ -73,10 +73,8 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
   </ul>
 </nav>
 
-<!-- Toggle mobile + navegação por menu (scroll suave + Query Loader) -->
+<!-- Toggle mobile + navegação por menu (scroll suave) -->
 <script>
-  import { fireQueryLoader } from '../scripts/motion/query-loader';
-
   const toggle = document.querySelector('[data-nav-toggle]') as HTMLButtonElement | null;
   const list   = document.getElementById('nav-list');
 
@@ -107,8 +105,9 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
    * Navegação por menu:
    *  1. previne o jump instantâneo da âncora
    *  2. scroll suave via Lenis (cai em scrollIntoView se Lenis ausente)
-   *  3. dispara o Query Loader da seção destino (uma vez por seção)
-   *  4. fecha o drawer mobile
+   *  3. fecha o drawer mobile
+   * (O Query Loader não é mais disparado na navegação — fica só no hero, no
+   *  1º load; ver BaseLayout.astro.)
    */
   type LenisLike = { scrollTo: (t: Element, o?: object) => void };
 
@@ -133,9 +132,6 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
         // reduced-motion / Lenis ausente → scroll nativo (respeita scroll-padding-top)
         target.scrollIntoView({ behavior: 'auto', block: 'start' });
       }
-
-      // dispara o loader temático da seção (no-op se já tocou ou reduced-motion)
-      fireQueryLoader(id);
 
       closeMenu();
     });
