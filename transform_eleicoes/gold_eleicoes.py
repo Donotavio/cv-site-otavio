@@ -113,6 +113,24 @@ def _agg(df) -> dict:
     invest_total = float(df["vr_pesquisa"].fillna(0).sum())
     mediana_amostra = q.median()
 
+    # ── Recordes (card estrela do bento + linha de mini-stats) ──
+    inst_top = None
+    if len(inst):
+        r0 = inst.iloc[0]
+        inst_top = {
+            "empresa": r0["empresa"].title() if isinstance(r0["empresa"], str) else r0["empresa"],
+            "n": int(r0["n"]),
+            "investimento_rs": round(float(r0["investimento_rs"] or 0), 2),
+        }
+    mes_pico = None
+    if len(por_mes):
+        rm = por_mes.loc[por_mes["n"].idxmax()]
+        mes_pico = {"mes": str(rm["mes"]), "n": int(rm["n"])}
+    maior_amostra = int(q.max()) if len(q) else None
+    pesquisa_mais_cara = (
+        round(float(df["vr_pesquisa"].max()), 2) if df["vr_pesquisa"].notna().any() else None
+    )
+
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(),
         "fonte": "TSE — Portal de Dados Abertos (Pesquisas Eleitorais 2026)",
@@ -149,6 +167,12 @@ def _agg(df) -> dict:
         "por_uf": [{"uf": r["uf"], "n": int(r["n"])} for _, r in por_uf.iterrows()],
         "propria_vs_contratada": {"propria": propria, "contratada": contratada},
         "amostragem": amostragem,
+        "records": {
+            "maior_amostra": maior_amostra,
+            "pesquisa_mais_cara_rs": pesquisa_mais_cara,
+            "instituto_mais_ativo": inst_top,
+            "mes_pico": mes_pico,
+        },
         "notas": {
             "escopo": (
                 "Dataset de REGISTRO do TSE: metadados das pesquisas (instituto, "

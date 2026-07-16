@@ -1,25 +1,27 @@
 ---
 /**
  * eleicoes-2026.astro — Observatório Eleições 2026
- * Direção: Blueprint (DESIGN.md) — irmão de pix-observatory.astro e
- * data-stack-radar-br.astro.
+ * Direção: Blueprint (DESIGN.md) — mesmo nível de apresentação de
+ * pix-observatory.astro / data-stack-radar-br.astro / world-cup-dashboard.
  *
  * Ângulo: a *máquina de medição* da eleição. O dataset oficial do TSE
  * (Pesquisas Eleitorais 2026) é de REGISTRO — traz metadados (instituto,
  * cargo, UF, amostra, custo, datas), não os percentuais de intenção de voto.
- * Apartidário por construção: mede quem mede o eleitorado.
+ * Apartidário por construção: mede quem mede o eleitorado. Cor: monocromático
+ * (--ink) para os dados + --wc-gold-* para líder/estrela (sem cor partidária).
  *
- * Seções (mono-labels [01]…[04]):
- *  0. Header (reuse) + Hero — badge ATUALIZADO em runtime
- *  1. [01] KPIs — total de pesquisas, institutos, investimento, amostra mediana
- *  2. [02] Intensidade — pesquisas por mês (rampa rumo a 4/out)
- *  3. [03] Quem mede — ranking de institutos (nº + investimento declarado)
- *  4. [04] Como medem — nível da disputa, própria×contratada, tamanho de amostra
- *  5. Footer (reuse)
+ * Seções (mono-labels [01]…[05]):
+ *  0. Header + Hero + faixa de progresso (contagem para 4/out)
+ *  1. [01] Panorama — bento de KPIs (dominante + secundárias + estrela) + mini-stats
+ *  2. [02] Intensidade — gráfico de barras: pesquisas por mês (rampa)
+ *  3. [03] Quem mede — tabela ranqueada de institutos (medalha no líder)
+ *  4. [04] Como medem — donut (própria×contratada) + nível + amostra
+ *  5. [05] Cobertura — ranking horizontal por UF com eixo
  *
- * Dado real via ingestion_eleicoes/collect_pesquisas.py → gold_eleicoes.py →
- * fetch runtime de assets/data/eleicoes_pesquisas.json. Zero LLM em runtime.
- * i18n: data-i18n-key nos textos estáticos (portfolio.eleicoes.*).
+ * Dado real: ingestion_eleicoes → gold_eleicoes.py → fetch runtime de
+ * assets/data/eleicoes_pesquisas.json. Zero LLM em runtime.
+ * i18n: data-i18n-key estático + window.i18n.t() nos rótulos dinâmicos.
+ * Motion: padrão nomeado `reveal-up` (motionOk). Breakpoints mobile-first.
  */
 
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -47,6 +49,7 @@ const base = import.meta.env.BASE_URL;
           <header class="hero-card__header">
             <span class="mono-label" data-i18n-key="portfolio.eleicoes.hero_label">Observatório Eleições 2026</span>
             <span class="mono-label el-badge" id="el-updated" aria-live="polite">
+              <span class="el-badge__dot" aria-hidden="true"></span>
               <span data-i18n-key="portfolio.eleicoes.updated_label">atualizado</span> · <span id="el-updated-date">···</span>
             </span>
           </header>
@@ -62,8 +65,25 @@ const base = import.meta.env.BASE_URL;
             ganha: os percentuais não estão no registro, só os metadados.
           </p>
 
+          <!-- Faixa de progresso — contagem para o 1º turno -->
+          <div class="el-progress" role="region" aria-label="Contagem para a eleição">
+            <div class="el-progress__head">
+              <span class="el-progress__phase mono-label" id="el-prog-phase" data-i18n-key="portfolio.eleicoes.prog_phase">rumo ao 1º turno</span>
+              <span class="el-progress__pct" id="el-prog-pct">···</span>
+            </div>
+            <div class="el-progress__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+                 aria-label="Progresso rumo ao 1º turno" data-i18n-aria="portfolio.eleicoes.prog_aria">
+              <div class="el-progress__fill" id="el-prog-fill" style="width:0%"></div>
+            </div>
+            <div class="el-progress__meta">
+              <span id="el-prog-remaining">···</span>
+              <span class="el-progress__sep" aria-hidden="true">·</span>
+              <span id="el-prog-next">04/10/2026</span>
+            </div>
+          </div>
+
           <div class="hero-actions">
-            <a href="#el-kpis" class="btn-primary" data-i18n-key="portfolio.eleicoes.cta_dados">Ver os dados</a>
+            <a href="#el-panorama" class="btn-primary" data-i18n-key="portfolio.eleicoes.cta_dados">Ver os dados</a>
             <a
               href="https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026"
               class="btn-secondary" target="_blank" rel="noopener noreferrer"
@@ -74,8 +94,8 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [01] KPIs ═══════════════════════ -->
-    <section id="el-kpis" class="section" aria-labelledby="el-kpis-title">
+    <!-- ═══════════════════════ [01] PANORAMA (bento) ═══════════════════════ -->
+    <section id="el-panorama" class="section el-alt" aria-labelledby="el-kpis-title">
       <div class="container">
         <div class="section-head">
           <span class="mono-label">01</span>
@@ -86,30 +106,73 @@ const base = import.meta.env.BASE_URL;
         </div>
         <hr class="section-line" aria-hidden="true" />
 
-        <div class="el-kpis" role="list">
-          <article class="el-kpi card crop" role="listitem">
+        <div class="el-bento" role="list" aria-label="Métricas das pesquisas">
+          <article class="el-kpi el-kpi--hero crop" role="listitem">
             <span class="crop-mark-bl" aria-hidden="true"></span>
-            <span class="el-kpi__value" id="kpi-total">···</span>
-            <span class="el-kpi__label" data-i18n-key="portfolio.eleicoes.kpi_total">pesquisas registradas</span>
-          </article>
-          <article class="el-kpi card crop" role="listitem">
-            <span class="el-kpi__value" id="kpi-institutos">···</span>
-            <span class="el-kpi__label" data-i18n-key="portfolio.eleicoes.kpi_institutos">institutos distintos</span>
-          </article>
-          <article class="el-kpi card crop" role="listitem">
-            <span class="el-kpi__value" id="kpi-investimento">···</span>
-            <span class="el-kpi__label" data-i18n-key="portfolio.eleicoes.kpi_investimento">investimento declarado</span>
-          </article>
-          <article class="el-kpi card crop" role="listitem">
             <span class="crop-mark-br" aria-hidden="true"></span>
-            <span class="el-kpi__value" id="kpi-amostra">···</span>
-            <span class="el-kpi__label" data-i18n-key="portfolio.eleicoes.kpi_amostra">amostra mediana</span>
+            <header class="el-kpi__head">
+              <span class="mono-label" aria-hidden="true">01</span>
+              <span class="el-kpi__spark" aria-hidden="true">▁▂▃▅▆▇█</span>
+            </header>
+            <div>
+              <span class="el-kpi__value el-kpi__value--hero" id="kpi-total">···</span>
+              <span class="el-kpi__label" data-i18n-key="portfolio.eleicoes.kpi_total">pesquisas registradas</span>
+            </div>
           </article>
+
+          <article class="el-kpi crop" role="listitem">
+            <header class="el-kpi__head"><span class="mono-label" aria-hidden="true">02</span></header>
+            <div>
+              <span class="el-kpi__value" id="kpi-institutos">···</span>
+              <span class="el-kpi__label" data-i18n-key="portfolio.eleicoes.kpi_institutos">institutos distintos</span>
+            </div>
+          </article>
+
+          <article class="el-kpi crop" role="listitem">
+            <header class="el-kpi__head"><span class="mono-label" aria-hidden="true">03</span></header>
+            <div>
+              <span class="el-kpi__value" id="kpi-investimento">···</span>
+              <span class="el-kpi__label" data-i18n-key="portfolio.eleicoes.kpi_investimento">investimento declarado</span>
+            </div>
+          </article>
+
+          <article class="el-kpi el-kpi--star crop" role="listitem">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <header class="el-kpi__head">
+              <span class="mono-label" aria-hidden="true">04</span>
+              <span class="el-kpi__badge" data-i18n-key="portfolio.eleicoes.star_badge">instituto mais ativo</span>
+            </header>
+            <div class="el-kpi__star">
+              <span class="el-kpi__value el-kpi__value--star" id="kpi-star-name">···</span>
+              <span class="el-kpi__label" id="kpi-star-meta"></span>
+            </div>
+          </article>
+        </div>
+
+        <!-- mini-stats -->
+        <div class="el-ministats" role="list">
+          <div class="el-ministat" role="listitem">
+            <span class="el-ministat__label mono-label" data-i18n-key="portfolio.eleicoes.mini_amostra_max">maior amostra</span>
+            <span class="el-ministat__value" id="mini-amostra">···</span>
+          </div>
+          <div class="el-ministat" role="listitem">
+            <span class="el-ministat__label mono-label" data-i18n-key="portfolio.eleicoes.mini_amostra_med">amostra mediana</span>
+            <span class="el-ministat__value" id="mini-mediana">···</span>
+          </div>
+          <div class="el-ministat" role="listitem">
+            <span class="el-ministat__label mono-label" data-i18n-key="portfolio.eleicoes.mini_cara">pesquisa mais cara</span>
+            <span class="el-ministat__value" id="mini-cara">···</span>
+          </div>
+          <div class="el-ministat" role="listitem">
+            <span class="el-ministat__label mono-label" data-i18n-key="portfolio.eleicoes.mini_pico">mês de pico</span>
+            <span class="el-ministat__value" id="mini-pico">···</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══════════════════════ [02] INTENSIDADE ═══════════════════════ -->
+    <!-- ═══════════════════════ [02] INTENSIDADE (bar chart) ═══════════════════════ -->
     <section id="el-intensidade" class="section" aria-labelledby="el-int-title">
       <div class="container">
         <div class="section-head">
@@ -120,16 +183,19 @@ const base = import.meta.env.BASE_URL;
           </p>
         </div>
         <hr class="section-line" aria-hidden="true" />
-        <div class="el-timeline card crop" id="el-timeline" aria-label="Pesquisas por mês">
+        <figure class="el-chartcard crop" id="el-barchart" aria-label="Pesquisas por mês">
           <span class="crop-mark-bl" aria-hidden="true"></span>
           <span class="crop-mark-br" aria-hidden="true"></span>
-          <p class="el-loading mono-label">carregando série…</p>
-        </div>
+          <div class="el-chartcard__head">
+            <span class="mono-label" data-i18n-key="portfolio.eleicoes.chart_mes">[ pesquisas por mês de divulgação ]</span>
+          </div>
+          <div class="el-barchart__svg" id="el-barchart-svg"><p class="el-loading mono-label">carregando série…</p></div>
+        </figure>
       </div>
     </section>
 
-    <!-- ═══════════════════════ [03] QUEM MEDE ═══════════════════════ -->
-    <section id="el-institutos" class="section" aria-labelledby="el-inst-title">
+    <!-- ═══════════════════════ [03] QUEM MEDE (tabela) ═══════════════════════ -->
+    <section id="el-institutos" class="section el-alt" aria-labelledby="el-inst-title">
       <div class="container">
         <div class="section-head">
           <span class="mono-label">03</span>
@@ -139,11 +205,23 @@ const base = import.meta.env.BASE_URL;
           </p>
         </div>
         <hr class="section-line" aria-hidden="true" />
-        <ol class="el-ranking card crop" id="el-ranking" aria-label="Ranking de institutos">
+        <div class="el-rank-wrap crop">
           <span class="crop-mark-bl" aria-hidden="true"></span>
           <span class="crop-mark-br" aria-hidden="true"></span>
-          <li class="el-loading mono-label">carregando ranking…</li>
-        </ol>
+          <table class="el-rank-table" aria-labelledby="el-inst-title">
+            <thead>
+              <tr>
+                <th class="el-rank-table__rank">#</th>
+                <th data-i18n-key="portfolio.eleicoes.th_instituto">Instituto</th>
+                <th class="el-rank-table__num" data-i18n-key="portfolio.eleicoes.th_pesquisas">Pesquisas</th>
+                <th class="el-rank-table__num" data-i18n-key="portfolio.eleicoes.th_investimento">Investimento</th>
+              </tr>
+            </thead>
+            <tbody id="el-rank-body">
+              <tr><td colspan="4"><p class="el-loading mono-label">carregando ranking…</p></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -158,19 +236,19 @@ const base = import.meta.env.BASE_URL;
           </p>
         </div>
         <hr class="section-line" aria-hidden="true" />
-        <div class="el-grid3">
-          <article class="card crop el-panel">
+        <div class="el-como-grid">
+          <article class="el-panel crop">
             <span class="crop-mark-bl" aria-hidden="true"></span>
-            <h3 class="el-panel__title mono-label" data-i18n-key="portfolio.eleicoes.nivel_title">Nível da disputa</h3>
+            <span class="el-panel__title mono-label" data-i18n-key="portfolio.eleicoes.origem_title">origem da encomenda</span>
+            <div class="el-donut-wrap" id="el-origem"><p class="el-loading mono-label">···</p></div>
+          </article>
+          <article class="el-panel crop">
+            <span class="el-panel__title mono-label" data-i18n-key="portfolio.eleicoes.nivel_title">nível da disputa</span>
             <div id="el-nivel" class="el-split"><p class="el-loading mono-label">···</p></div>
           </article>
-          <article class="card crop el-panel">
-            <h3 class="el-panel__title mono-label" data-i18n-key="portfolio.eleicoes.origem_title">Origem</h3>
-            <div id="el-origem" class="el-split"><p class="el-loading mono-label">···</p></div>
-          </article>
-          <article class="card crop el-panel">
+          <article class="el-panel crop">
             <span class="crop-mark-br" aria-hidden="true"></span>
-            <h3 class="el-panel__title mono-label" data-i18n-key="portfolio.eleicoes.amostra_title">Tamanho de amostra</h3>
+            <span class="el-panel__title mono-label" data-i18n-key="portfolio.eleicoes.amostra_title">tamanho de amostra</span>
             <div id="el-amostragem" class="el-bars"><p class="el-loading mono-label">···</p></div>
           </article>
         </div>
@@ -183,7 +261,7 @@ const base = import.meta.env.BASE_URL;
     </section>
 
     <!-- ═══════════════════════ [05] COBERTURA POR UF ═══════════════════════ -->
-    <section id="el-cobertura" class="section" aria-labelledby="el-uf-title">
+    <section id="el-cobertura" class="section el-alt" aria-labelledby="el-uf-title">
       <div class="container">
         <div class="section-head">
           <span class="mono-label">05</span>
@@ -193,7 +271,7 @@ const base = import.meta.env.BASE_URL;
           </p>
         </div>
         <hr class="section-line" aria-hidden="true" />
-        <div class="el-uf card crop" id="el-uf" aria-label="Pesquisas por estado">
+        <div class="el-ufchart crop" id="el-uf" aria-label="Pesquisas por estado">
           <span class="crop-mark-bl" aria-hidden="true"></span>
           <span class="crop-mark-br" aria-hidden="true"></span>
           <p class="el-loading mono-label">carregando cobertura…</p>
@@ -207,222 +285,322 @@ const base = import.meta.env.BASE_URL;
 </BaseLayout>
 
 <style>
-  .el-badge { color: var(--accent); }
+  /* ── Alterna fundos para dar profundidade (WC pattern) ── */
+  .el-alt { background: var(--paper-soft); }
 
-  .el-h2 { font-family: var(--font-display); font-size: var(--text-2xl); line-height: 1.05; margin: 0; }
-  .el-lead { color: var(--ink-soft); font-size: var(--text-base); max-width: 60ch; margin-top: var(--space-2); }
+  .el-badge { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--wc-gold-ink); }
+  .el-badge__dot { width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--wc-gold-ink); flex-shrink: 0; }
 
-  /* KPIs — mobile-first: 2 col no mobile, 4 no desktop */
-  .el-kpis {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4);
-    margin-top: var(--space-8);
-  }
-  .el-kpi { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-6); }
-  .el-kpi__value {
-    font-family: var(--font-display); font-size: var(--text-2xl); color: var(--ink);
-    line-height: 1; font-variant-numeric: tabular-nums;
-  }
-  .el-kpi__label { font-size: var(--text-sm); color: var(--ink-faint); }
+  .el-h2 { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 400; line-height: 1.02; letter-spacing: var(--tracking-tight); margin: 0; color: var(--ink); }
+  .el-lead { color: var(--ink-soft); font-size: var(--text-base); max-width: 60ch; margin-top: var(--space-3); line-height: var(--leading-normal); }
 
-  /* Timeline */
-  .el-timeline { padding: var(--space-8); margin-top: var(--space-8); }
-  .el-tl-row { display: grid; grid-template-columns: 5.5rem 1fr 3rem; align-items: center; gap: var(--space-3); padding: var(--space-1) 0; }
-  .el-tl-mes { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); }
-  .el-tl-track { height: 12px; background: var(--line-faint); border-radius: var(--radius-sm); overflow: hidden; }
-  .el-tl-fill { height: 100%; background: var(--accent); border-radius: var(--radius-sm); }
-  .el-tl-n { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); text-align: right; font-variant-numeric: tabular-nums; }
+  /* ── Faixa de progresso ── */
+  .el-progress { margin: var(--space-6) 0 var(--space-2); padding: var(--space-4) var(--space-5); background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--radius-md); }
+  .el-progress__head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-3); gap: var(--space-3); }
+  .el-progress__phase { color: var(--ink-soft); }
+  .el-progress__pct { font-family: var(--font-mono); font-size: var(--text-lg); font-weight: 600; color: var(--ink); font-variant-numeric: var(--num-tabular); }
+  .el-progress__bar { height: 8px; background: var(--line); border-radius: var(--radius-full); overflow: hidden; }
+  .el-progress__fill { height: 100%; background: linear-gradient(90deg, var(--ink-soft), var(--ink)); border-radius: var(--radius-full); transition: width 1.2s cubic-bezier(.16, 1, .3, 1); }
+  .el-progress__meta { display: flex; gap: var(--space-2); margin-top: var(--space-3); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); flex-wrap: wrap; align-items: baseline; }
+  .el-progress__sep { opacity: .4; }
+  @media (prefers-reduced-motion: reduce) { .el-progress__fill { transition: none; } }
 
-  /* Ranking */
-  .el-ranking { list-style: none; margin: var(--space-8) 0 0; padding: var(--space-6) var(--space-8); }
-  .el-rk-row { display: grid; grid-template-columns: 1.6rem 1fr auto; align-items: baseline; gap: var(--space-3); padding: var(--space-3) 0; border-top: 1px solid var(--line-faint); }
-  .el-ranking .el-rk-row:first-of-type { border-top: 0; }
-  .el-rk-pos { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); }
-  .el-rk-name { color: var(--ink); font-size: var(--text-sm); }
-  .el-rk-meta { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .el-rk-meta strong { color: var(--ink); }
+  /* ── Bento de KPIs ── */
+  .el-bento { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-8); }
+  .el-kpi { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-6); display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-6); min-height: 148px; transition: border-color var(--transition-normal); }
+  .el-kpi:hover { border-color: var(--line-strong); }
+  .el-kpi--hero { padding: var(--space-8); }
+  .el-kpi--star { border-color: var(--wc-gold-line); background: linear-gradient(180deg, var(--paper-card) 0%, var(--wc-gold-dim) 100%); }
+  .el-kpi__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+  .el-kpi__spark { font-family: var(--font-mono); font-size: var(--text-base); color: var(--ink-faint); line-height: 1; letter-spacing: .08em; }
+  .el-kpi__badge { padding: var(--space-1) var(--space-3); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-wide); color: var(--wc-gold-ink); background: var(--wc-gold-dim); border: 1px solid var(--wc-gold-line); border-radius: var(--radius-sm); }
+  .el-kpi__value { display: block; font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 400; color: var(--ink); line-height: .95; letter-spacing: var(--tracking-tight); font-variant-numeric: var(--num-tabular); }
+  .el-kpi__value--hero { font-size: var(--display-1); line-height: .88; }
+  .el-kpi__value--star { font-size: var(--text-2xl); color: var(--wc-gold-ink); }
+  .el-kpi__label { display: block; font-family: var(--font-sans); font-size: var(--text-sm); color: var(--ink-soft); margin-top: var(--space-2); line-height: var(--leading-normal); }
+  .el-kpi__star { display: flex; flex-direction: column; }
 
-  /* Como medem — mobile-first: empilhado no mobile, 3 col no desktop */
-  .el-grid3 { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-8); }
-  .el-panel { padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
-  .el-panel__title { color: var(--ink-faint); }
-  .el-split { display: flex; flex-direction: column; gap: var(--space-3); }
-  .el-split-row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); }
-  .el-split-row span:first-child { color: var(--ink); font-size: var(--text-sm); }
-  .el-split-row span:last-child { font-family: var(--font-mono); color: var(--ink-soft); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
-  .el-split-track { height: 8px; background: var(--line-faint); border-radius: var(--radius-sm); overflow: hidden; }
-  .el-split-fill { height: 100%; background: var(--accent); }
-  .el-split-fill--alt { background: var(--ink-soft); }
-  .el-bars { display: flex; flex-direction: column; gap: var(--space-2); }
-  .el-bar-row { display: grid; grid-template-columns: 5rem 1fr 2rem; gap: var(--space-2); align-items: center; }
-  .el-bar-lbl { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); }
-  .el-bar-track { height: 8px; background: var(--line-faint); border-radius: var(--radius-sm); overflow: hidden; }
-  .el-bar-fill { height: 100%; background: var(--accent); }
-  .el-bar-n { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); text-align: right; }
-
-  .el-nota { color: var(--ink-faint); font-size: var(--text-xs); margin-top: var(--space-8); max-width: 70ch; line-height: 1.5; }
-  .el-loading { color: var(--ink-faint); }
-  .el-error { color: var(--ink-faint); font-family: var(--font-mono); font-size: var(--text-sm); }
-
-  /* Cobertura por UF — mobile-first: 1 col no mobile, 2 col a partir de 640px */
-  .el-uf { padding: var(--space-8); margin-top: var(--space-8); display: grid; grid-template-columns: 1fr; gap: var(--space-2) var(--space-10); }
-
-  /* Breakpoints mobile-first (design-system.md: apenas min-width) */
   @media (min-width: 640px) {
-    .el-uf { grid-template-columns: 1fr 1fr; }
+    .el-bento { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+    .el-kpi--hero { grid-column: span 2; }
+    .el-kpi--star { grid-column: span 2; }
   }
   @media (min-width: 1024px) {
-    .el-kpis { grid-template-columns: repeat(4, 1fr); }
-    .el-grid3 { grid-template-columns: repeat(3, 1fr); }
+    .el-bento { grid-template-columns: repeat(12, 1fr); grid-auto-rows: minmax(150px, auto); gap: var(--space-5); }
+    .el-kpi--hero { grid-column: 1 / 8; grid-row: 1 / 3; }
+    .el-bento > .el-kpi:nth-child(2) { grid-column: 8 / 13; grid-row: 1 / 2; }
+    .el-bento > .el-kpi:nth-child(3) { grid-column: 8 / 13; grid-row: 2 / 3; }
+    .el-kpi--star { grid-column: 1 / 13; grid-row: 3 / 4; }
   }
+
+  /* ── Mini-stats ── */
+  .el-ministats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; margin-top: var(--space-5); background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+  .el-ministat { background: var(--paper-card); padding: var(--space-5) var(--space-6); display: flex; flex-direction: column; gap: var(--space-2); }
+  .el-ministat__label { color: var(--ink-faint); }
+  .el-ministat__value { font-family: var(--font-display); font-size: var(--text-xl); color: var(--ink); font-variant-numeric: var(--num-tabular); line-height: 1; }
+  @media (min-width: 1024px) { .el-ministats { grid-template-columns: repeat(4, 1fr); } }
+
+  /* ── Cards de gráfico ── */
+  .el-chartcard, .el-rank-wrap, .el-ufchart, .el-panel { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); }
+  .el-chartcard { padding: var(--space-6) var(--space-6) var(--space-5); margin-top: var(--space-8); }
+  .el-chartcard__head { margin-bottom: var(--space-5); }
+  .el-chartcard__head .mono-label { color: var(--ink-faint); }
+  .el-barchart__svg svg { width: 100%; height: auto; display: block; }
+  .el-axis { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-faint); }
+  .el-barval { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-soft); }
+
+  /* ── Tabela ranqueada ── */
+  .el-rank-wrap { overflow-x: auto; padding: var(--space-2) var(--space-3); margin-top: var(--space-8); }
+  .el-rank-table { width: 100%; min-width: 480px; border-collapse: collapse; font-family: var(--font-sans); font-size: var(--text-sm); }
+  .el-rank-table thead th { font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 500; text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--ink-faint); text-align: left; padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--line); }
+  .el-rank-table__rank { width: 68px; text-align: right !important; }
+  .el-rank-table__num { text-align: right !important; }
+  .el-rank-table tbody td { padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--line); color: var(--ink); vertical-align: middle; }
+  .el-rank-table tbody tr:last-child td { border-bottom: none; }
+  .el-rank-table tbody tr { transition: background var(--transition-fast); }
+  .el-rank-table tbody tr:hover { background: var(--paper-soft); }
+  .el-rk-rank { font-family: var(--font-mono); font-weight: 500; text-align: right; color: var(--ink-faint); font-variant-numeric: var(--num-tabular); white-space: nowrap; }
+  .el-rk-name { font-weight: 500; color: var(--ink); }
+  .el-rk-n { font-family: var(--font-mono); font-size: var(--text-lg); font-weight: 500; text-align: right; color: var(--ink); font-variant-numeric: var(--num-tabular); }
+  .el-rk-rs { font-family: var(--font-mono); font-size: var(--text-xs); text-align: right; color: var(--ink-faint); font-variant-numeric: var(--num-tabular); white-space: nowrap; }
+  .el-rank-table tr.is-leader td { background: var(--wc-gold-dim); border-bottom-color: var(--wc-gold-line); }
+  .el-rank-table tr.is-leader .el-rk-rank, .el-rank-table tr.is-leader .el-rk-n { color: var(--wc-gold-ink); }
+  .el-medal { display: inline-block; margin-left: var(--space-2); padding: 1px var(--space-2); font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wide); color: var(--wc-gold-ink); background: var(--paper-card); border: 1px solid var(--wc-gold-line); border-radius: var(--radius-sm); }
+
+  /* ── Como medem ── */
+  .el-como-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-8); }
+  .el-panel { padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5); }
+  .el-panel__title { color: var(--ink-faint); }
+  @media (min-width: 1024px) { .el-como-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .el-donut-wrap { display: flex; align-items: center; gap: var(--space-5); }
+  .el-donut { width: 132px; height: 132px; flex-shrink: 0; }
+  .el-donut-num { font-family: var(--font-display); font-size: 30px; fill: var(--ink); font-variant-numeric: var(--num-tabular); }
+  .el-donut-lbl { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-faint); text-transform: uppercase; letter-spacing: .05em; }
+  .el-legend { display: flex; flex-direction: column; gap: var(--space-2); font-size: var(--text-sm); }
+  .el-legend__row { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-soft); }
+  .el-legend__sw { width: 10px; height: 10px; border-radius: var(--radius-sm); flex-shrink: 0; }
+  .el-legend__n { margin-left: auto; font-family: var(--font-mono); color: var(--ink); font-variant-numeric: var(--num-tabular); }
+
+  .el-split { display: flex; flex-direction: column; gap: var(--space-4); }
+  .el-split-row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); }
+  .el-split-row span:first-child { color: var(--ink); font-size: var(--text-sm); }
+  .el-split-row span:last-child { font-family: var(--font-mono); color: var(--ink-soft); font-size: var(--text-sm); font-variant-numeric: var(--num-tabular); }
+  .el-split-track { height: 8px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; margin-top: var(--space-2); }
+  .el-split-fill { height: 100%; background: var(--ink); }
+  .el-split-fill--alt { background: var(--ink-faint); }
+
+  .el-bars { display: flex; flex-direction: column; gap: var(--space-3); }
+  .el-bar-row { display: grid; grid-template-columns: 5.5rem 1fr 2.5rem; gap: var(--space-2); align-items: center; }
+  .el-bar-lbl { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); }
+  .el-bar-track { height: 8px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  .el-bar-fill { height: 100%; background: var(--ink-soft); }
+  .el-bar-n { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); text-align: right; font-variant-numeric: var(--num-tabular); }
+
+  /* ── Cobertura UF (ranking horizontal com eixo) ── */
+  .el-ufchart { padding: var(--space-6) var(--space-6) var(--space-5); margin-top: var(--space-8); }
+  .el-uf-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-2) var(--space-10); }
+  @media (min-width: 640px) { .el-uf-grid { grid-template-columns: 1fr 1fr; } }
+  .el-uf-row { display: grid; grid-template-columns: 2.5rem 1fr 2.5rem; gap: var(--space-2); align-items: center; padding: var(--space-1) 0; }
+  .el-uf-uf { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); }
+  .el-uf-track { height: 10px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  .el-uf-fill { height: 100%; background: var(--ink-soft); }
+  .el-uf-row.is-leader .el-uf-fill { background: var(--wc-gold-ink); }
+  .el-uf-row.is-leader .el-uf-uf { color: var(--wc-gold-ink); }
+  .el-uf-n { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); text-align: right; font-variant-numeric: var(--num-tabular); }
+
+  .el-nota { color: var(--ink-faint); font-size: var(--text-xs); margin-top: var(--space-8); max-width: 72ch; line-height: 1.5; }
+  .el-loading { color: var(--ink-faint); }
+  .el-error { color: var(--ink-faint); font-family: var(--font-mono); font-size: var(--text-sm); }
 </style>
 
 <script>
-  // Observatório Eleições 2026 — carrega assets/data/eleicoes_pesquisas.json e
-  // hidrata as seções. Mesmo padrão de fetch das outras páginas (base do body,
-  // cache no-cache, AbortController, fail-soft).
+  // Observatório Eleições 2026 — hidrata as seções a partir de
+  // assets/data/eleicoes_pesquisas.json. Fetch runtime (base do body,
+  // cache no-cache, AbortController, fail-soft). i18n dinâmico via
+  // window.i18n.t() + re-render em `languageChanged`.
+  interface Records { maior_amostra?: number | null; pesquisa_mais_cara_rs?: number | null; instituto_mais_ativo?: { empresa: string; n: number; investimento_rs: number } | null; mes_pico?: { mes: string; n: number } | null; }
   interface ElPayload {
-    gerado_em?: string;
     janela?: { primeira_divulgacao?: string; ultima_divulgacao?: string };
-    kpis?: { total_pesquisas?: number; n_institutos?: number; investimento_total_rs?: number; mediana_entrevistados?: number; pct_presidencial?: number };
+    kpis?: { total_pesquisas?: number; n_institutos?: number; investimento_total_rs?: number; mediana_entrevistados?: number };
     por_mes?: { mes: string; n: number }[];
     por_nivel?: { presidencial?: number; estadual?: number };
     top_institutos?: { empresa: string; n: number; investimento_rs: number }[];
     por_uf?: { uf: string; n: number }[];
     propria_vs_contratada?: { propria?: number; contratada?: number };
     amostragem?: { faixa: string; n: number }[];
-    notas?: { escopo?: string };
+    records?: Records;
   }
 
   const nf = new Intl.NumberFormat('pt-BR');
   const el = (id: string) => document.getElementById(id);
-
+  const t = (key: string, fallback: string): string => {
+    const v = (window as unknown as { i18n?: { t?: (k: string) => string } }).i18n?.t?.(key);
+    return typeof v === 'string' && v ? v : fallback;
+  };
   function fmtRS(v: number): string {
     if (v >= 1_000_000) return `R$ ${(v / 1_000_000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mi`;
     if (v >= 1_000) return `R$ ${(v / 1_000).toLocaleString('pt-BR', { maximumFractionDigits: 0 })} mil`;
     return `R$ ${nf.format(Math.round(v))}`;
   }
-  function fmtMes(m: string): string {
-    const [y, mm] = m.split('-');
-    const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-    return `${meses[parseInt(mm, 10) - 1]}/${y.slice(2)}`;
-  }
-  function fmtDate(iso?: string): string {
-    if (!iso) return '—';
-    const [y, m, d] = iso.split('-');
-    return `${d}/${m}/${y}`;
-  }
-  function esc(s: string): string {
-    const d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
+  const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const fmtMes = (m: string): string => { const [y, mm] = m.split('-'); return `${MESES[parseInt(mm, 10) - 1]}/${y.slice(2)}`; };
+  const fmtMesLong = (m: string): string => { const [y, mm] = m.split('-'); return `${MESES[parseInt(mm, 10) - 1]} ${y}`; };
+  function fmtDate(iso?: string): string { if (!iso) return '—'; const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; }
+  function esc(s: string): string { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  // ── Faixa de progresso: contagem para o 1º turno (4/out/2026) ──
+  function renderProgress(p: ElPayload): void {
+    const ELECTION = Date.parse('2026-10-04T00:00:00-03:00');
+    const startISO = p.janela?.primeira_divulgacao ?? '2026-01-01';
+    const start = Date.parse(startISO + 'T00:00:00-03:00');
+    const now = Date.now();
+    const total = ELECTION - start;
+    const pct = Math.max(0, Math.min(100, Math.round(((now - start) / total) * 100)));
+    const days = Math.max(0, Math.ceil((ELECTION - now) / 86_400_000));
+    const fill = el('el-prog-fill'); if (fill) fill.style.width = pct + '%';
+    const bar = fill?.parentElement; if (bar) bar.setAttribute('aria-valuenow', String(pct));
+    if (el('el-prog-pct')) el('el-prog-pct')!.textContent = pct + '%';
+    if (el('el-prog-remaining')) el('el-prog-remaining')!.textContent = `${nf.format(days)} ${t('portfolio.eleicoes.prog_days', 'dias até o 1º turno')}`;
+    if (el('el-prog-next')) el('el-prog-next')!.textContent = t('portfolio.eleicoes.prog_date', '4 de outubro de 2026');
   }
 
-  // Rótulo traduzível em runtime: usa window.i18n.t() quando disponível
-  // (content-i18n.md), senão o fallback pt-BR. Re-render em `languageChanged`.
-  const t = (key: string, fallback: string): string => {
-    const v = (window as unknown as { i18n?: { t?: (k: string) => string } }).i18n?.t?.(key);
-    return typeof v === 'string' && v ? v : fallback;
-  };
-
-  function renderKpis(p: ElPayload): void {
+  function renderBento(p: ElPayload): void {
     const k = p.kpis ?? {};
     if (el('kpi-total')) el('kpi-total')!.textContent = nf.format(k.total_pesquisas ?? 0);
     if (el('kpi-institutos')) el('kpi-institutos')!.textContent = nf.format(k.n_institutos ?? 0);
     if (el('kpi-investimento')) el('kpi-investimento')!.textContent = fmtRS(k.investimento_total_rs ?? 0);
-    if (el('kpi-amostra')) el('kpi-amostra')!.textContent = k.mediana_entrevistados ? nf.format(k.mediana_entrevistados) : '—';
-    const dt = el('el-updated-date');
-    if (dt) dt.textContent = fmtDate(p.janela?.ultima_divulgacao);
+    const star = p.records?.instituto_mais_ativo;
+    if (el('kpi-star-name')) el('kpi-star-name')!.textContent = star?.empresa ?? '—';
+    if (el('kpi-star-meta') && star) el('kpi-star-meta')!.textContent =
+      `${nf.format(star.n)} ${t('portfolio.eleicoes.rk_pesq', 'pesq')} · ${fmtRS(star.investimento_rs)}`;
+    if (el('el-updated-date')) el('el-updated-date')!.textContent = fmtDate(p.janela?.ultima_divulgacao);
   }
 
-  function renderTimeline(p: ElPayload): void {
-    const box = el('el-timeline');
-    if (!box) return;
+  function renderMiniStats(p: ElPayload): void {
+    const r = p.records ?? {};
+    if (el('mini-amostra')) el('mini-amostra')!.textContent = r.maior_amostra ? nf.format(r.maior_amostra) : '—';
+    if (el('mini-mediana')) el('mini-mediana')!.textContent = p.kpis?.mediana_entrevistados ? nf.format(p.kpis.mediana_entrevistados) : '—';
+    if (el('mini-cara')) el('mini-cara')!.textContent = r.pesquisa_mais_cara_rs ? fmtRS(r.pesquisa_mais_cara_rs) : '—';
+    if (el('mini-pico')) el('mini-pico')!.textContent = r.mes_pico ? `${fmtMesLong(r.mes_pico.mes)}` : '—';
+  }
+
+  // ── Gráfico de barras vertical (SVG) ──
+  function renderBarChart(p: ElPayload): void {
+    const box = el('el-barchart-svg'); if (!box) return;
     const data = p.por_mes ?? [];
     if (!data.length) { box.innerHTML = '<p class="el-error">série indisponível</p>'; return; }
-    const max = Math.max(...data.map((d) => d.n), 1);
-    const rows = data.map((d) => `
-      <div class="el-tl-row">
-        <span class="el-tl-mes">${esc(fmtMes(d.mes))}</span>
-        <span class="el-tl-track"><span class="el-tl-fill" style="width:${(d.n / max) * 100}%"></span></span>
-        <span class="el-tl-n">${nf.format(d.n)}</span>
-      </div>`).join('');
-    box.innerHTML =
-      '<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>' + rows;
+    const peak = p.records?.mes_pico?.mes;
+    const W = 720, H = 240, padT = 22, padB = 30, padX = 6;
+    const maxN = Math.max(...data.map((d) => d.n), 1);
+    const cw = (W - padX * 2) / data.length;
+    const bw = Math.min(cw * 0.6, 64);
+    const bars = data.map((d) => {
+      const i = data.indexOf(d);
+      const h = (d.n / maxN) * (H - padT - padB);
+      const x = padX + i * cw + (cw - bw) / 2;
+      const y = H - padB - h;
+      const isPeak = d.mes === peak;
+      return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="var(${isPeak ? '--wc-gold-ink' : '--ink-soft'})"></rect>
+        <text x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle" class="el-barval">${nf.format(d.n)}</text>
+        <text x="${(x + bw / 2).toFixed(1)}" y="${H - padB + 16}" text-anchor="middle" class="el-axis">${esc(fmtMes(d.mes))}</text>`;
+    }).join('');
+    const baseline = `<line x1="${padX}" y1="${H - padB}" x2="${W - padX}" y2="${H - padB}" stroke="var(--line)" stroke-width="1"></line>`;
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pesquisas por mês">${baseline}${bars}</svg>`;
   }
 
-  function renderRanking(p: ElPayload): void {
-    const box = el('el-ranking');
-    if (!box) return;
+  // ── Tabela ranqueada ──
+  function renderRankTable(p: ElPayload): void {
+    const body = el('el-rank-body'); if (!body) return;
     const data = p.top_institutos ?? [];
-    if (!data.length) { box.innerHTML = '<li class="el-error">ranking indisponível</li>'; return; }
-    const rows = data.map((d, i) => `
-      <li class="el-rk-row">
-        <span class="el-rk-pos">${String(i + 1).padStart(2, '0')}</span>
-        <span class="el-rk-name">${esc(d.empresa)}</span>
-        <span class="el-rk-meta"><strong>${nf.format(d.n)}</strong> ${esc(t('portfolio.eleicoes.rk_pesq', 'pesq'))} · ${esc(fmtRS(d.investimento_rs))}</span>
-      </li>`).join('');
-    box.innerHTML =
-      '<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>' + rows;
+    if (!data.length) { body.innerHTML = '<tr><td colspan="4"><p class="el-error">ranking indisponível</p></td></tr>'; return; }
+    body.innerHTML = data.map((d, i) => {
+      const rank = i + 1, leader = rank === 1;
+      const medal = leader ? ` <span class="el-medal">🏆 ${esc(t('portfolio.eleicoes.leader', 'líder'))}</span>` : '';
+      return `<tr class="${leader ? 'is-leader' : ''}">
+        <td class="el-rk-rank">${String(rank).padStart(2, '0')}${medal}</td>
+        <td><span class="el-rk-name">${esc(d.empresa)}</span></td>
+        <td class="el-rk-n">${nf.format(d.n)}</td>
+        <td class="el-rk-rs">${esc(fmtRS(d.investimento_rs))}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Donut (própria × contratada) ──
+  function renderOrigem(p: ElPayload): void {
+    const box = el('el-origem'); if (!box) return;
+    const o = p.propria_vs_contratada ?? {};
+    const contr = o.contratada ?? 0, prop = o.propria ?? 0, total = contr + prop;
+    if (!total) { box.innerHTML = '<p class="el-error">indisponível</p>'; return; }
+    const r = 52, cx = 66, cy = 66, circ = 2 * Math.PI * r;
+    const fracC = contr / total;
+    const dash = `${(fracC * circ).toFixed(1)} ${circ.toFixed(1)}`;
+    const svg = `<svg viewBox="0 0 132 132" class="el-donut" role="img" aria-label="Origem das pesquisas">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--line)" stroke-width="16"></circle>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--ink)" stroke-width="16" stroke-dasharray="${dash}" transform="rotate(-90 ${cx} ${cy})"></circle>
+      <text x="${cx}" y="${cy - 2}" text-anchor="middle" class="el-donut-num">${Math.round(fracC * 100)}%</text>
+      <text x="${cx}" y="${cy + 16}" text-anchor="middle" class="el-donut-lbl">${esc(t('portfolio.eleicoes.origem_contratada', 'contratada'))}</text>
+    </svg>`;
+    const legend = `<div class="el-legend">
+      <div class="el-legend__row"><span class="el-legend__sw" style="background:var(--ink)"></span>${esc(t('portfolio.eleicoes.origem_contratada', 'Contratada'))}<span class="el-legend__n">${nf.format(contr)}</span></div>
+      <div class="el-legend__row"><span class="el-legend__sw" style="background:var(--line-strong)"></span>${esc(t('portfolio.eleicoes.origem_propria', 'Própria (do instituto)'))}<span class="el-legend__n">${nf.format(prop)}</span></div>
+    </div>`;
+    box.innerHTML = svg + legend;
   }
 
   function splitRow(label: string, n: number, total: number, alt = false): string {
     const pct = total ? (n / total) * 100 : 0;
-    return `
-      <div>
-        <div class="el-split-row"><span>${esc(label)}</span><span>${nf.format(n)} · ${pct.toFixed(0)}%</span></div>
-        <div class="el-split-track"><span class="el-split-fill${alt ? ' el-split-fill--alt' : ''}" style="width:${pct}%"></span></div>
-      </div>`;
+    return `<div>
+      <div class="el-split-row"><span>${esc(label)}</span><span>${nf.format(n)} · ${pct.toFixed(0)}%</span></div>
+      <div class="el-split-track"><span class="el-split-fill${alt ? ' el-split-fill--alt' : ''}" style="width:${pct}%"></span></div>
+    </div>`;
   }
-
-  function renderComo(p: ElPayload): void {
+  function renderNivel(p: ElPayload): void {
+    const box = el('el-nivel'); if (!box) return;
     const niv = p.por_nivel ?? {};
-    const nivTotal = (niv.presidencial ?? 0) + (niv.estadual ?? 0);
-    if (el('el-nivel')) el('el-nivel')!.innerHTML =
-      splitRow(t('portfolio.eleicoes.nivel_presidencial', 'Presidencial / nacional'), niv.presidencial ?? 0, nivTotal) +
-      splitRow(t('portfolio.eleicoes.nivel_estadual', 'Estadual'), niv.estadual ?? 0, nivTotal, true);
-
-    const org = p.propria_vs_contratada ?? {};
-    const orgTotal = (org.propria ?? 0) + (org.contratada ?? 0);
-    if (el('el-origem')) el('el-origem')!.innerHTML =
-      splitRow(t('portfolio.eleicoes.origem_contratada', 'Contratada'), org.contratada ?? 0, orgTotal) +
-      splitRow(t('portfolio.eleicoes.origem_propria', 'Própria (do instituto)'), org.propria ?? 0, orgTotal, true);
-
+    const total = (niv.presidencial ?? 0) + (niv.estadual ?? 0);
+    box.innerHTML =
+      splitRow(t('portfolio.eleicoes.nivel_presidencial', 'Presidencial / nacional'), niv.presidencial ?? 0, total) +
+      splitRow(t('portfolio.eleicoes.nivel_estadual', 'Estadual'), niv.estadual ?? 0, total, true);
+  }
+  function renderAmostragem(p: ElPayload): void {
+    const box = el('el-amostragem'); if (!box) return;
     const am = p.amostragem ?? [];
-    const amMax = Math.max(...am.map((a) => a.n), 1);
-    if (el('el-amostragem')) el('el-amostragem')!.innerHTML = am.map((a) => `
-      <div class="el-bar-row">
-        <span class="el-bar-lbl">${esc(a.faixa)}</span>
-        <span class="el-bar-track"><span class="el-bar-fill" style="width:${(a.n / amMax) * 100}%"></span></span>
-        <span class="el-bar-n">${nf.format(a.n)}</span>
-      </div>`).join('');
-    // A nota de escopo é texto de UI → fica no i18n (data-i18n-key estático),
-    // traduzido pelo i18n.js. Não sobrescrevemos com o texto do pipeline.
+    if (!am.length) { box.innerHTML = '<p class="el-error">indisponível</p>'; return; }
+    const max = Math.max(...am.map((a) => a.n), 1);
+    box.innerHTML = am.map((a) => `<div class="el-bar-row">
+      <span class="el-bar-lbl">${esc(a.faixa)}</span>
+      <span class="el-bar-track"><span class="el-bar-fill" style="width:${(a.n / max) * 100}%"></span></span>
+      <span class="el-bar-n">${nf.format(a.n)}</span>
+    </div>`).join('');
   }
 
+  // ── Cobertura por UF (ranking horizontal, #1 destacado) ──
   function renderUF(p: ElPayload): void {
-    const box = el('el-uf');
-    if (!box) return;
-    // Exclui 'BR' (disputa presidencial/nacional) — foco na cobertura estadual.
+    const box = el('el-uf'); if (!box) return;
     const data = (p.por_uf ?? []).filter((d) => d.uf && d.uf !== 'BR').slice(0, 14);
     if (!data.length) { box.innerHTML = '<p class="el-error">cobertura indisponível</p>'; return; }
     const max = Math.max(...data.map((d) => d.n), 1);
-    const rows = data.map((d) => `
-      <div class="el-bar-row">
-        <span class="el-bar-lbl">${esc(d.uf)}</span>
-        <span class="el-bar-track"><span class="el-bar-fill" style="width:${(d.n / max) * 100}%"></span></span>
-        <span class="el-bar-n">${nf.format(d.n)}</span>
-      </div>`).join('');
+    const rows = data.map((d, i) => `<div class="el-uf-row${i === 0 ? ' is-leader' : ''}">
+      <span class="el-uf-uf">${esc(d.uf)}</span>
+      <span class="el-uf-track"><span class="el-uf-fill" style="width:${(d.n / max) * 100}%"></span></span>
+      <span class="el-uf-n">${nf.format(d.n)}</span>
+    </div>`).join('');
     box.innerHTML =
-      '<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>' + rows;
+      '<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>' +
+      `<div class="el-uf-grid">${rows}</div>`;
   }
 
   let payload: ElPayload | null = null;
-
   function renderAll(data: ElPayload): void {
-    renderKpis(data);
-    renderTimeline(data);
-    renderRanking(data);
-    renderComo(data);
+    renderProgress(data);
+    renderBento(data);
+    renderMiniStats(data);
+    renderBarChart(data);
+    renderRankTable(data);
+    renderOrigem(data);
+    renderNivel(data);
+    renderAmostragem(data);
     renderUF(data);
   }
 
@@ -431,10 +609,7 @@ const base = import.meta.env.BASE_URL;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
-      const res = await fetch(`${base}assets/data/eleicoes_pesquisas.json`, {
-        cache: 'no-cache',
-        signal: controller.signal,
-      });
+      const res = await fetch(`${base}assets/data/eleicoes_pesquisas.json`, { cache: 'no-cache', signal: controller.signal });
       clearTimeout(timeoutId);
       if (!res.ok) throw new Error('fetch failed');
       const data: ElPayload = await res.json();
@@ -443,39 +618,31 @@ const base = import.meta.env.BASE_URL;
       renderAll(data);
     } catch {
       clearTimeout(timeoutId);
-      ['el-timeline', 'el-ranking', 'el-uf'].forEach((id) => {
-        const box = el(id);
-        if (box) box.innerHTML = '<p class="el-error">dados indisponíveis — tente recarregar</p>';
-      });
+      ['el-barchart-svg', 'el-uf'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">dados indisponíveis — tente recarregar</p>'; });
+      const body = el('el-rank-body'); if (body) body.innerHTML = '<tr><td colspan="4"><p class="el-error">dados indisponíveis — tente recarregar</p></td></tr>';
     }
   }
 
   document.addEventListener('DOMContentLoaded', loadEleicoes);
-  // Re-render dos rótulos traduzíveis ao trocar de idioma (content-i18n.md).
   window.addEventListener('languageChanged', () => { if (payload) renderAll(payload); });
 </script>
 
 <script>
-  // Motion — padrão nomeado `reveal-up` do site (GSAP + ScrollTrigger),
-  // guardado por motionOk (respeita prefers-reduced-motion). Revela o hero e,
-  // por seção, o cabeçalho e os cards com stagger. Mesmo padrão da página do
-  // Data Stack Radar. Só transform/opacity; sem layout thrash.
+  // Motion — padrão nomeado `reveal-up` (GSAP + ScrollTrigger), guardado por
+  // motionOk (respeita prefers-reduced-motion). Hero + por seção (head + cards).
   import { revealUp } from '../scripts/motion/reveal-up';
   import { motionOk, STAGGER } from '../scripts/motion/constants';
 
   function animateEleicoes(): void {
     if (!motionOk) return;
-
     const heroCard = document.querySelector('#eleicoes-hero .hero-card') as HTMLElement | null;
     if (heroCard) revealUp([heroCard], heroCard, 0);
-
     document.querySelectorAll<HTMLElement>('main section[id^="el-"]').forEach((sec) => {
       const head = sec.querySelector('.section-head') as HTMLElement | null;
       if (head) revealUp([head], sec, 0);
-      const cards = Array.from(sec.querySelectorAll<HTMLElement>('.card'));
+      const cards = Array.from(sec.querySelectorAll<HTMLElement>('.el-kpi, .el-ministat, .el-chartcard, .el-rank-wrap, .el-panel, .el-ufchart'));
       if (cards.length) revealUp(cards, sec, STAGGER.tight);
     });
   }
-
   document.addEventListener('DOMContentLoaded', animateEleicoes);
 </script>

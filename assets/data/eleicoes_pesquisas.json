@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-07-16T00:53:57.945894+00:00",
+  "gerado_em": "2026-07-16T01:45:39.504775+00:00",
   "fonte": "TSE — Portal de Dados Abertos (Pesquisas Eleitorais 2026)",
   "dataset_url": "https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026",
   "ano_eleicao": 2026,
@@ -250,6 +250,19 @@
       "n": 19
     }
   ],
+  "records": {
+    "maior_amostra": 40500,
+    "pesquisa_mais_cara_rs": 3118500.0,
+    "instituto_mais_ativo": {
+      "empresa": "Instituto Verita Ltda",
+      "n": 179,
+      "investimento_rs": 23375985.0
+    },
+    "mes_pico": {
+      "mes": "2026-05",
+      "n": 267
+    }
+  },
   "notas": {
     "escopo": "Dataset de REGISTRO do TSE: metadados das pesquisas (instituto, cargo, UF, amostra, custo, datas) — não os percentuais de intenção de voto, que constam nos questionários (PDF).",
     "qualidade": "Amostras com QT_ENTREVISTADO < 1 e custos negativos são descartados (erros de preenchimento no registro).",
