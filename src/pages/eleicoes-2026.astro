@@ -409,6 +409,7 @@ const base = import.meta.env.BASE_URL;
             </tbody>
           </table>
         </div>
+        <p class="el-nota" id="el-inst-nota"></p>
       </div>
     </section>
 
@@ -784,7 +785,12 @@ const base = import.meta.env.BASE_URL;
   .el-rank-table :global(.el-rk-rs) { font-family: var(--font-mono); font-size: var(--text-xs); text-align: right; color: var(--ink-faint); font-variant-numeric: var(--num-tabular); white-space: nowrap; }
   .el-rank-table :global(tr.is-leader td) { background: var(--wc-gold-dim); border-bottom-color: var(--wc-gold-line); }
   .el-rank-table :global(tr.is-leader .el-rk-rank), .el-rank-table :global(tr.is-leader .el-rk-n) { color: var(--wc-gold-ink); }
-  .el-rank-table :global(.el-medal) { display: inline-block; margin-left: var(--space-2); padding: 1px var(--space-2); font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wide); color: var(--wc-gold-ink); background: var(--paper-card); border: 1px solid var(--wc-gold-line); border-radius: var(--radius-sm); }
+  .el-rank-table :global(.el-medal) { display: inline-block; margin-left: var(--space-2); padding: 1px var(--space-2); font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wide); color: var(--wc-gold-ink); background: var(--paper-card); border: 1px solid var(--wc-gold-line); border-radius: var(--radius-sm); white-space: nowrap; }
+  .el-rank-table :global(.el-medal--eff) { color: var(--paper); background: var(--wc-gold-ink); border-color: var(--wc-gold-ink); }
+  .el-rank-table :global(tr.is-efficient td) { background: var(--wc-gold-dim); }
+  .el-rank-table :global(tr.is-efficient.is-leader td) { background: var(--wc-gold-dim); }
+  #el-inst-nota { color: var(--ink-faint); }
+  #el-inst-nota :global(strong) { color: var(--wc-gold-ink); font-weight: 600; }
 
   /* ── Como medem ── */
   .el-como-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-8); }
@@ -1339,18 +1345,31 @@ const base = import.meta.env.BASE_URL;
   // ── Tabela ranqueada ──
   function renderRankTable(p: ElPayload): void {
     const body = el('el-rank-body'); if (!body) return;
+    const nota = el('el-inst-nota');
     const data = p.top_institutos ?? [];
-    if (!data.length) { body.innerHTML = '<tr><td colspan="4"><p class="el-error">ranking indisponível</p></td></tr>'; return; }
+    if (!data.length) { body.innerHTML = '<tr><td colspan="4"><p class="el-error">ranking indisponível</p></td></tr>'; if (nota) nota.textContent = ''; return; }
+    // Instituto mais eficiente: mais pesquisas por real declarado (n ÷ investimento),
+    // entre os que declararam investimento. Eficiência de volume, não de acurácia.
+    let effIdx = -1, effBest = -1;
+    data.forEach((d, i) => { if (d.investimento_rs > 0) { const e = d.n / d.investimento_rs; if (e > effBest) { effBest = e; effIdx = i; } } });
     body.innerHTML = data.map((d, i) => {
-      const rank = i + 1, leader = rank === 1;
+      const rank = i + 1, leader = rank === 1, efficient = i === effIdx;
       const medal = leader ? ` <span class="el-medal">🏆 ${esc(t('portfolio.eleicoes.leader', 'líder'))}</span>` : '';
-      return `<tr class="${leader ? 'is-leader' : ''}">
-        <td class="el-rk-rank">${String(rank).padStart(2, '0')}${medal}</td>
+      const star = efficient ? ` <span class="el-medal el-medal--eff">★ ${esc(t('portfolio.eleicoes.eff_badge', 'mais eficiente'))}</span>` : '';
+      return `<tr class="${leader ? 'is-leader' : ''}${efficient ? ' is-efficient' : ''}">
+        <td class="el-rk-rank">${String(rank).padStart(2, '0')}${medal}${star}</td>
         <td><span class="el-rk-name">${esc(d.empresa)}</span></td>
         <td class="el-rk-n">${nf.format(d.n)}</td>
         <td class="el-rk-rs">${esc(fmtRS(d.investimento_rs))}</td>
       </tr>`;
     }).join('');
+    if (nota) {
+      if (effIdx >= 0) {
+        const d = data[effIdx];
+        const perMi = d.n / (d.investimento_rs / 1_000_000);
+        nota.innerHTML = `★ ${esc(t('portfolio.eleicoes.eff_note_a', 'Mais eficiente'))}: <strong>${esc(d.empresa)}</strong> — ${nf.format(d.n)} ${esc(t('portfolio.eleicoes.tip_pesquisas', 'pesquisas'))} · ${perMi.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} ${esc(t('portfolio.eleicoes.eff_per_mi', 'pesquisas por R$ mi declarado'))}. ${esc(t('portfolio.eleicoes.eff_note_b', 'Mede volume por real declarado ao TSE — não a acurácia nem o rigor das pesquisas.'))}`;
+      } else { nota.textContent = ''; }
+    }
   }
 
   // ── Donut (própria × contratada) ──
