@@ -238,8 +238,8 @@ const base = import.meta.env.BASE_URL;
         </div>
         <hr class="section-line" aria-hidden="true" />
 
-        <div class="el-explorar">
-          <div class="el-explorar__control">
+        <div class="el-est-wrap">
+          <div class="el-explorar__control el-est-ctl">
             <label class="el-explorar__caption mono-label" for="el-est-input" data-i18n-key="portfolio.eleicoes.est_pick">estado</label>
             <div class="el-combobox" id="el-est-combobox">
               <input type="text" id="el-est-input" class="el-combobox__input" role="combobox"
@@ -735,14 +735,14 @@ const base = import.meta.env.BASE_URL;
   .el-split :global(.el-split-row span:first-child) { color: var(--ink); font-size: var(--text-sm); }
   .el-split :global(.el-split-row span:last-child) { font-family: var(--font-mono); color: var(--ink-soft); font-size: var(--text-sm); font-variant-numeric: var(--num-tabular); }
   .el-split :global(.el-split-track) { height: 8px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; margin-top: var(--space-2); }
-  .el-split :global(.el-split-fill) { height: 100%; background: var(--ink); }
+  .el-split :global(.el-split-fill) { display: block; height: 100%; background: var(--ink); }
   .el-split :global(.el-split-fill--alt) { background: var(--ink-faint); }
 
   .el-bars { display: flex; flex-direction: column; gap: var(--space-3); }
   .el-bars :global(.el-bar-row) { display: grid; grid-template-columns: 5.5rem 1fr 2.5rem; gap: var(--space-2); align-items: center; }
   .el-bars :global(.el-bar-lbl) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); }
   .el-bars :global(.el-bar-track) { height: 8px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
-  .el-bars :global(.el-bar-fill) { height: 100%; background: var(--ink-soft); }
+  .el-bars :global(.el-bar-fill) { display: block; height: 100%; background: var(--ink-soft); }
   .el-bars :global(.el-bar-n) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); text-align: right; font-variant-numeric: var(--num-tabular); }
 
   /* ── Cobertura UF (ranking horizontal com eixo) ── */
@@ -752,7 +752,7 @@ const base = import.meta.env.BASE_URL;
   .el-ufchart :global(.el-uf-row) { display: grid; grid-template-columns: 2.5rem 1fr 2.5rem; gap: var(--space-2); align-items: center; padding: var(--space-1) 0; }
   .el-ufchart :global(.el-uf-uf) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); }
   .el-ufchart :global(.el-uf-track) { height: 10px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
-  .el-ufchart :global(.el-uf-fill) { height: 100%; background: var(--ink-soft); }
+  .el-ufchart :global(.el-uf-fill) { display: block; height: 100%; background: var(--ink-soft); }
   .el-ufchart :global(.el-uf-row.is-leader .el-uf-fill) { background: var(--wc-gold-ink); }
   .el-ufchart :global(.el-uf-row.is-leader .el-uf-uf) { color: var(--wc-gold-ink); }
   .el-ufchart :global(.el-uf-n) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); text-align: right; font-variant-numeric: var(--num-tabular); }
@@ -763,7 +763,7 @@ const base = import.meta.env.BASE_URL;
   .el-vote-ref { color: var(--ink-faint); font-size: var(--text-xs); margin-top: var(--space-2); }
   /* 1º turno — barras horizontais */
   .el-vote-bars { display: flex; flex-direction: column; gap: var(--space-3); }
-  .el-vote-bars :global(.el-vote-row) { display: grid; grid-template-columns: minmax(7rem, 9rem) 1fr auto; gap: var(--space-3); align-items: center; }
+  .el-vote-bars :global(.el-vote-row) { display: grid; grid-template-columns: minmax(6rem, 9rem) minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; }
   .el-vote-bars :global(.el-vote-name) { font-size: var(--text-sm); color: var(--ink); }
   .el-vote-bars :global(.el-vote-party) { color: var(--ink-faint); margin-left: var(--space-1); }
   .el-vote-bars :global(.el-vote-track) { height: 10px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
@@ -791,10 +791,12 @@ const base = import.meta.env.BASE_URL;
   .el-vote-chips :global(.el-chip) { padding: var(--space-1) var(--space-3); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-wide); color: var(--ink-soft); background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--radius-full); }
   .el-vote-chips :global(.el-chip .mono-label) { color: var(--ink-faint); }
 
-  /* ── [03] Intenção estadual — grid de painéis (gov 1t / gov 2t / senador) ── */
-  .el-est-panels { margin-top: var(--space-6); display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
+  /* ── [03] Intenção estadual — controle no topo + painéis em largura total ── */
+  .el-est-wrap { margin-top: var(--space-8); display: flex; flex-direction: column; gap: var(--space-6); }
+  .el-est-ctl { max-width: 340px; }
+  .el-est-panels { display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
   @media (min-width: 720px) { .el-est-panels { grid-template-columns: 1fr 1fr; } }
-  @media (min-width: 1080px) { .el-est-panels { grid-template-columns: 1fr 1fr 1fr; } }
+  @media (min-width: 1100px) { .el-est-panels { grid-template-columns: 1fr 1fr 1fr; } }
 
   .el-nota { color: var(--ink-faint); font-size: var(--text-xs); margin-top: var(--space-8); max-width: 72ch; line-height: 1.5; }
   .el-loading { color: var(--ink-faint); }
