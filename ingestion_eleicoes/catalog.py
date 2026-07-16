@@ -120,3 +120,81 @@ ELEITORADO_MEASURES = ["qt_eleitores", "qt_biometria", "qt_deficiencia"]
 # UFs válidas (exclui "ZZ" = exterior e "VT" = voto em trânsito, tratadas à parte).
 UF_EXTERIOR = "ZZ"
 UF_TRANSITO = "VT"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Pré-candidatos + Intenção de voto PRESIDENCIAL (agregador da Wikipedia PT)
+# ═══════════════════════════════════════════════════════════════════════════
+# O dataset de REGISTRO do TSE não traz percentuais de intenção de voto (ficam
+# nos PDFs de questionário). Para a v1 do módulo de pré-candidatos usamos a
+# Wikipedia PT como AGREGADORA das pesquisas presidenciais registradas — fonte
+# estruturada (wikitables de 1º/2º turno), citável e apartidária. Cada pesquisa
+# permanece atribuída ao seu instituto e data; nunca há previsão nem cor
+# partidária no runtime.
+#
+# ATENÇÃO (apartidarismo): exibimos instituto + data + margem sempre; o "líder"
+# é só um destaque visual (--wc-gold), não um prognóstico.
+WIKIPEDIA_API = "https://pt.wikipedia.org/w/api.php"
+WIKIPEDIA_PRESIDENCIAL_TITLE = (
+    "Pesquisas de opinião para a eleição presidencial no Brasil em 2026"
+)
+WIKIPEDIA_PRESIDENCIAL_URL = (
+    "https://pt.wikipedia.org/wiki/"
+    "Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2026"
+)
+ANO_ELEICAO_PRESIDENCIAL = 2026
+
+# Só consideram-se relevantes candidatos que atingem este piso de intenção em
+# alguma medição recente (a própria Wikipedia lista quem passou de ~3%).
+PCT_MIN_RELEVANTE = 3.0
+# Para entrar no painel de 1º turno, o candidato precisa aparecer em pelo menos
+# este nº de pesquisas na janela recente (descarta ruído de 1 pesquisa isolada,
+# ex.: cenários hipotéticos com nomes inelegíveis).
+MIN_PESQUISAS_RECENTES = 3
+# Janela "recente" para o snapshot/médias do 1º turno (dias).
+JANELA_RECENTE_DIAS = 90
+
+# Rótulos internos dos cenários.
+CENARIO_1T = "primeiro_turno"
+CENARIO_2T = "segundo_turno"
+
+# Cabeçalhos de coluna (nível meta) das wikitables — casados por substring, em
+# minúsculas. Tudo que não é meta nem coluna a ignorar é tratado como candidato.
+META_COL_KEYS = {
+    "inst": "contratante",
+    "data": "data",
+    "amostra": "amostra",
+    "margem": "margem",
+}
+# Colunas que NÃO são candidato (somatórios/residuais das wikitables).
+COL_IGNORAR = (
+    "outros", "indecisos", "absten", "branco", "nulo", "vantagem",
+    "ninguém", "nenhum", "não sab", "diferença", "líquido", "total",
+)
+
+# Meses PT abreviados → número (parsing das datas "10 jul - 13 jul").
+MESES_PT = {
+    "jan": 1, "fev": 2, "mar": 3, "abr": 4, "mai": 5, "jun": 6,
+    "jul": 7, "ago": 8, "set": 9, "out": 10, "nov": 11, "dez": 12,
+}
+
+# Normalização de nome do candidato (variações da Wikipedia → nome canônico).
+# A sigla do partido vem junto na wikitable ("Lula PT"); usamos o primeiro token
+# como nome curto e mapeamos aqui só os casos ambíguos/compostos.
+CANDIDATO_NORMALIZE = {
+    "Lula": "Lula",
+    "Flávio": "Flávio Bolsonaro",
+    "Bolsonaro": "Jair Bolsonaro",
+    "Michelle": "Michelle Bolsonaro",
+    "Eduardo": "Eduardo Bolsonaro",
+    "Tarcísio": "Tarcísio de Freitas",
+    "Haddad": "Fernando Haddad",
+    "Caiado": "Ronaldo Caiado",
+    "Zema": "Romeu Zema",
+    "Ratinho": "Ratinho Jr.",
+    "Leite": "Eduardo Leite",
+    "Ciro": "Ciro Gomes",
+    "Marçal": "Pablo Marçal",
+    "Moro": "Sergio Moro",
+    "Renan": "Renan (Missão)",
+}
