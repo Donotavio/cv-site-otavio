@@ -279,7 +279,52 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
+    <!-- ═══════════════════ [06] EXPLORAR POR ESTADO (interativo) ═══════════════════ -->
+    <section id="el-explorar" class="section el-alt" aria-labelledby="el-exp-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">06</span>
+          <h2 id="el-exp-title" class="el-h2" data-i18n-key="portfolio.eleicoes.explorar_title">Explore por estado</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.explorar_lead">
+            Escolha uma UF e veja o recorte local: volume de pesquisas, rigor amostral e os institutos que mais medem ali.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+        <div class="el-explorar">
+          <div class="el-explorar__control">
+            <label class="el-explorar__caption mono-label" for="el-uf-input" data-i18n-key="portfolio.eleicoes.explorar_pick">estado</label>
+            <div class="el-combobox" id="el-uf-combobox">
+              <input type="text" id="el-uf-input" class="el-combobox__input" role="combobox"
+                     aria-expanded="false" aria-autocomplete="list" aria-controls="el-uf-listbox"
+                     placeholder="Buscar estado…" data-i18n-attr="placeholder:portfolio.eleicoes.uf_search"
+                     autocomplete="off" spellcheck="false" />
+              <button type="button" class="el-combobox__btn" tabindex="-1" aria-label="Abrir lista de estados"
+                      data-i18n-aria="portfolio.eleicoes.uf_open"><span aria-hidden="true">▾</span></button>
+              <ul id="el-uf-listbox" class="el-combobox__list" role="listbox" aria-label="Estados" hidden></ul>
+            </div>
+          </div>
+          <div class="el-explorar__panel card crop" id="el-uf-detail" aria-live="polite">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <p class="el-loading mono-label">selecione um estado…</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <!-- Jump-nav: rail de pontos (desktop) + FAB/bottom-sheet (mobile). Lê main section[id]. -->
+  <button id="el-jumpnav-fab" class="el-jumpnav-fab" type="button" hidden
+          aria-expanded="false" aria-controls="el-jumpnav" aria-label="Navegar entre seções"
+          data-i18n-aria="portfolio.eleicoes.nav_aria">
+    <span class="el-jumpnav-fab__icon" aria-hidden="true"><span></span><span></span><span></span></span>
+    <span data-i18n-key="portfolio.eleicoes.nav_label">Seções</span>
+  </button>
+  <nav id="el-jumpnav" class="el-jumpnav" hidden aria-label="Navegação entre seções"
+       data-i18n-aria="portfolio.eleicoes.nav_aria">
+    <ul id="el-jumpnav-list" class="el-jumpnav__list"></ul>
+  </nav>
 
   <Footer />
 </BaseLayout>
@@ -413,6 +458,90 @@ const base = import.meta.env.BASE_URL;
   .el-nota { color: var(--ink-faint); font-size: var(--text-xs); margin-top: var(--space-8); max-width: 72ch; line-height: 1.5; }
   .el-loading { color: var(--ink-faint); }
   :global(.el-error) { color: var(--ink-faint); font-family: var(--font-mono); font-size: var(--text-sm); }
+
+  /* ── [06] Explorar por estado ── */
+  .el-explorar { display: grid; grid-template-columns: 1fr; gap: var(--space-6); margin-top: var(--space-8); align-items: start; }
+  @media (min-width: 1024px) { .el-explorar { grid-template-columns: 300px 1fr; gap: var(--space-8); } }
+  .el-explorar__control { display: flex; flex-direction: column; gap: var(--space-3); }
+  .el-explorar__caption { color: var(--ink-faint); }
+  .el-explorar__panel { padding: var(--space-6); min-height: 220px; }
+  .el-explorar__panel :global(.el-ufd-head) { display: flex; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-5); }
+  .el-explorar__panel :global(.el-ufd-uf) { color: var(--wc-gold-ink); }
+  .el-explorar__panel :global(.el-ufd-title) { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 400; color: var(--ink); margin: 0; }
+  .el-explorar__panel :global(.el-ufd-kpis) { display: flex; gap: var(--space-8); margin-bottom: var(--space-5); padding-bottom: var(--space-5); border-bottom: 1px solid var(--line); }
+  .el-explorar__panel :global(.el-ufd-kv) { display: block; font-family: var(--font-display); font-size: var(--text-2xl); color: var(--ink); font-variant-numeric: var(--num-tabular); line-height: 1; }
+  .el-explorar__panel :global(.el-ufd-kl) { display: block; color: var(--ink-faint); margin-top: var(--space-1); }
+  .el-explorar__panel :global(.el-ufd-list) { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .el-explorar__panel :global(.el-ufd-row) { display: grid; grid-template-columns: 1.8rem 1fr auto; align-items: baseline; gap: var(--space-3); padding: var(--space-3) 0; border-top: 1px solid var(--line); }
+  .el-explorar__panel :global(.el-ufd-row:first-child) { border-top: 0; }
+  .el-explorar__panel :global(.el-ufd-rank) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); }
+  .el-explorar__panel :global(.el-ufd-name) { color: var(--ink); font-size: var(--text-sm); }
+  .el-explorar__panel :global(.el-ufd-n) { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--ink-soft); font-variant-numeric: var(--num-tabular); }
+
+  /* ── Combobox acessível ── */
+  .el-combobox { position: relative; display: inline-flex; align-items: stretch; min-width: 280px; max-width: 100%; }
+  .el-combobox__input { flex: 1; min-width: 0; padding: var(--space-2) var(--space-3); padding-right: 36px; font-family: var(--font-mono); font-size: var(--text-sm); color: var(--ink); background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-sm); outline-offset: 2px; transition: border-color .15s ease-out, box-shadow .15s ease-out; }
+  .el-combobox__input:focus { border-color: var(--ink); box-shadow: 0 0 0 3px var(--wc-gold-dim); }
+  .el-combobox__input::placeholder { color: var(--ink-faint); opacity: .7; }
+  .el-combobox__btn { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: transparent; border: 0; color: var(--ink-soft); cursor: pointer; border-radius: var(--radius-sm); font-size: .8em; }
+  .el-combobox__btn:hover { background: var(--paper-soft); color: var(--ink); }
+  .el-combobox :global(.el-combobox__list) { position: absolute; top: calc(100% + 4px); left: 0; right: 0; max-height: 320px; overflow-y: auto; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(10,10,10,.12), 0 2px 6px rgba(10,10,10,.04); margin: 0; padding: var(--space-1); list-style: none; z-index: 50; overscroll-behavior: contain; }
+  .el-combobox :global(.el-combobox__option) { padding: var(--space-2) var(--space-3); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink); cursor: pointer; border-radius: var(--radius-sm); transition: background .08s ease-out; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .el-combobox :global(.el-combobox__option.is-highlighted), .el-combobox :global(.el-combobox__option:hover) { background: var(--paper-soft); }
+  .el-combobox :global(.el-combobox__option.is-selected) { background: var(--wc-gold-dim); color: var(--wc-gold-ink); font-weight: 600; }
+  .el-combobox :global(.el-combobox__empty) { padding: var(--space-3); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); text-align: center; }
+  @media (max-width: 640px) { .el-combobox { min-width: 0; width: 100%; } .el-combobox :global(.el-combobox__list) { max-height: 260px; } }
+  @media (prefers-reduced-motion: reduce) { .el-combobox__input, .el-combobox :global(.el-combobox__option) { transition: none !important; } }
+
+  /* ── Jump-nav (rail desktop + FAB/sheet mobile) ── */
+  :global(.el-jumpnav), :global(.el-jumpnav-fab) {
+    --jn-bullet: 10px; --jn-bullet-active: 28px;
+    --jn-rail-color: var(--line); --jn-ink: var(--ink-faint);
+    --jn-ink-active: var(--wc-gold-ink); --jn-fill: var(--wc-gold);
+  }
+  :global(.el-jumpnav-fab) { position: fixed; bottom: var(--space-4); right: var(--space-4); display: none; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--paper-card); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 12px rgba(10,10,10,.08), 0 1px 3px rgba(10,10,10,.04); z-index: 40; transition: transform .2s ease-out, box-shadow .2s ease-out; }
+  :global(.el-jumpnav-fab:hover) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(10,10,10,.12), 0 2px 4px rgba(10,10,10,.06); }
+  :global(.el-jumpnav-fab:active) { transform: translateY(0); }
+  :global(.el-jumpnav-fab__icon) { display: inline-flex; flex-direction: column; gap: 3px; width: 14px; }
+  :global(.el-jumpnav-fab__icon span) { display: block; height: 2px; background: currentColor; border-radius: 1px; }
+  :global(.el-jumpnav-fab__icon span:nth-child(2)) { width: 70%; align-self: flex-end; }
+  :global(.el-jumpnav-fab[aria-expanded="true"]) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  :global(.el-jumpnav-fab[aria-expanded="true"] .el-jumpnav-fab__icon span:nth-child(1)) { transform: translateY(5px) rotate(45deg); transition: transform .2s ease-out; }
+  :global(.el-jumpnav-fab[aria-expanded="true"] .el-jumpnav-fab__icon span:nth-child(2)) { opacity: 0; }
+  :global(.el-jumpnav-fab[aria-expanded="true"] .el-jumpnav-fab__icon span:nth-child(3)) { transform: translateY(-5px) rotate(-45deg); transition: transform .2s ease-out; }
+  :global(.el-jumpnav) { position: fixed; right: var(--space-5); top: 50%; transform: translateY(-50%); display: none; z-index: 35; }
+  :global(.el-jumpnav__list) { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; position: relative; }
+  :global(.el-jumpnav__list::before) { content: ""; position: absolute; left: 50%; top: 5px; bottom: 5px; width: 1px; background: var(--jn-rail-color); transform: translateX(-50%); z-index: 0; }
+  :global(.el-jumpnav__item) { position: relative; display: flex; align-items: center; justify-content: flex-end; gap: var(--space-3); margin: var(--space-2) 0; z-index: 1; }
+  :global(.el-jumpnav__link) { display: flex; align-items: center; gap: var(--space-3); text-decoration: none; color: var(--jn-ink); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: .02em; padding: 4px 0; cursor: pointer; background: transparent; border: 0; outline-offset: 4px; transition: color .2s ease-out; }
+  :global(.el-jumpnav__label) { display: inline-block; opacity: 0; transform: translateX(8px); transition: opacity .2s ease-out, transform .2s ease-out; pointer-events: none; padding: 2px var(--space-2); background: var(--paper-card); border-radius: var(--radius-sm); white-space: nowrap; box-shadow: 0 1px 2px rgba(10,10,10,.04); }
+  :global(.el-jumpnav__bullet) { display: block; width: var(--jn-bullet); height: var(--jn-bullet); border-radius: 50%; background: var(--paper-card); border: 1.5px solid var(--jn-ink); flex-shrink: 0; transition: all .25s cubic-bezier(.16,1,.3,1); }
+  :global(.el-jumpnav__link:hover .el-jumpnav__label), :global(.el-jumpnav__link:focus-visible .el-jumpnav__label) { opacity: 1; transform: translateX(0); }
+  :global(.el-jumpnav__link:hover .el-jumpnav__bullet) { border-color: var(--jn-fill); background: var(--jn-fill); transform: scale(1.2); }
+  :global(.el-jumpnav__link[aria-current="true"]) { color: var(--jn-ink-active); }
+  :global(.el-jumpnav__link[aria-current="true"] .el-jumpnav__bullet) { width: var(--jn-bullet-active); height: 8px; border-radius: 999px; border-color: var(--jn-fill); background: var(--jn-fill); }
+  :global(.el-jumpnav__link[aria-current="true"] .el-jumpnav__label) { opacity: 1; transform: translateX(0); font-weight: 600; }
+  :global(.el-jumpnav__num) { display: none; font-variant-numeric: tabular-nums; opacity: .5; min-width: 1.5em; }
+  @media (min-width: 1024px) { :global(.el-jumpnav) { display: block; } :global(.el-jumpnav-fab) { display: none; } }
+  @media (max-width: 1023px) {
+    :global(.el-jumpnav-fab) { display: inline-flex; }
+    :global(.el-jumpnav) { position: fixed; inset: auto 0 0 0; top: auto; transform: none; background: var(--paper-card); border-top: 1px solid var(--line); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: var(--space-4) var(--space-4) var(--space-6); box-shadow: 0 -8px 32px rgba(10,10,10,.12); max-height: 70vh; overflow-y: auto; z-index: 39; }
+    :global(.el-jumpnav[hidden]) { display: none; }
+    :global(.el-jumpnav__list::before) { display: none; }
+    :global(.el-jumpnav__item) { justify-content: flex-start; border-bottom: 1px solid var(--line); }
+    :global(.el-jumpnav__item:last-child) { border-bottom: 0; }
+    :global(.el-jumpnav__link) { width: 100%; padding: var(--space-3) var(--space-2); font-size: var(--text-sm); }
+    :global(.el-jumpnav__label) { opacity: 1; transform: none; box-shadow: none; background: transparent; padding: 0; flex: 1; text-align: left; }
+    :global(.el-jumpnav__num) { display: inline-block; font-family: var(--font-mono); color: var(--jn-ink); margin-right: var(--space-3); }
+    :global(.el-jumpnav__bullet) { display: none; }
+    :global(.el-jumpnav__link[aria-current="true"]) { background: var(--wc-gold-dim); color: var(--jn-ink-active); border-radius: var(--radius-sm); }
+    :global(.el-jumpnav__link[aria-current="true"] .el-jumpnav__num) { color: var(--jn-fill); opacity: 1; font-weight: 700; }
+  }
+  :global(.el-jumpnav-backdrop) { position: fixed; inset: 0; background: rgba(10,10,10,.32); z-index: 38; opacity: 0; pointer-events: none; transition: opacity .25s ease-out; }
+  :global(.el-jumpnav-backdrop.is-visible) { opacity: 1; pointer-events: auto; }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.el-jumpnav__bullet), :global(.el-jumpnav__label), :global(.el-jumpnav-fab), :global(.el-jumpnav-fab__icon span), :global(.el-jumpnav-backdrop) { transition: none !important; }
+  }
 </style>
 
 <script>
@@ -428,6 +557,7 @@ const base = import.meta.env.BASE_URL;
     por_nivel?: { presidencial?: number; estadual?: number };
     top_institutos?: { empresa: string; n: number; investimento_rs: number }[];
     por_uf?: { uf: string; n: number }[];
+    por_uf_detalhe?: Record<string, { n: number; mediana_amostra: number | null; top_institutos: { empresa: string; n: number }[] }>;
     propria_vs_contratada?: { propria?: number; contratada?: number };
     amostragem?: { faixa: string; n: number }[];
     records?: Records;
@@ -592,6 +722,96 @@ const base = import.meta.env.BASE_URL;
       `<div class="el-uf-grid">${rows}</div>`;
   }
 
+  // ── [06] Explorar por estado ──
+  const UF_NAME: Record<string, string> = {
+    AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará',
+    DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão',
+    MT: 'Mato Grosso', MS: 'Mato Grosso do Sul', MG: 'Minas Gerais', PA: 'Pará',
+    PB: 'Paraíba', PR: 'Paraná', PE: 'Pernambuco', PI: 'Piauí', RJ: 'Rio de Janeiro',
+    RN: 'Rio Grande do Norte', RS: 'Rio Grande do Sul', RO: 'Rondônia', RR: 'Roraima',
+    SC: 'Santa Catarina', SP: 'São Paulo', SE: 'Sergipe', TO: 'Tocantins',
+  };
+  let currentUf = '';
+
+  function renderUFDetail(uf: string): void {
+    const box = el('el-uf-detail'); if (!box) return;
+    currentUf = uf;
+    const crop = '<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>';
+    const d = payload?.por_uf_detalhe?.[uf];
+    const name = UF_NAME[uf] ?? uf;
+    if (!d) { box.innerHTML = crop + `<p class="el-error">${esc(t('portfolio.eleicoes.explorar_empty', 'Sem dados para este estado.'))}</p>`; return; }
+    const rows = (d.top_institutos ?? []).map((it, i) => `
+      <li class="el-ufd-row">
+        <span class="el-ufd-rank">${String(i + 1).padStart(2, '0')}</span>
+        <span class="el-ufd-name">${esc(it.empresa)}</span>
+        <span class="el-ufd-n">${nf.format(it.n)} ${esc(t('portfolio.eleicoes.rk_pesq', 'pesq'))}</span>
+      </li>`).join('');
+    box.innerHTML = crop + `
+      <header class="el-ufd-head">
+        <span class="el-ufd-uf mono-label">${esc(uf)}</span>
+        <h3 class="el-ufd-title">${esc(name)}</h3>
+      </header>
+      <div class="el-ufd-kpis">
+        <div><span class="el-ufd-kv">${nf.format(d.n)}</span><span class="el-ufd-kl mono-label">${esc(t('portfolio.eleicoes.kpi_total', 'pesquisas'))}</span></div>
+        <div><span class="el-ufd-kv">${d.mediana_amostra ? nf.format(d.mediana_amostra) : '—'}</span><span class="el-ufd-kl mono-label">${esc(t('portfolio.eleicoes.mini_amostra_med', 'amostra mediana'))}</span></div>
+      </div>
+      <ol class="el-ufd-list" aria-label="${esc(name)}">${rows}</ol>`;
+  }
+
+  interface CBItem { value: string; label: string; }
+  function buildCombobox(rootId: string, items: CBItem[], onSelect: (v: string) => void) {
+    const root = document.getElementById(rootId); if (!root) return null;
+    const input = root.querySelector('.el-combobox__input') as HTMLInputElement;
+    const btn = root.querySelector('.el-combobox__btn') as HTMLButtonElement;
+    const listbox = root.querySelector('.el-combobox__list') as HTMLElement;
+    let filtered: CBItem[] = items.slice(), hi = -1, open = false, current = '';
+    const norm = (s: string) => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    function render(): void {
+      if (!filtered.length) { listbox.innerHTML = `<li class="el-combobox__empty" role="status">${esc(t('portfolio.eleicoes.uf_none', 'Nenhum estado'))}</li>`; return; }
+      listbox.innerHTML = filtered.map((it, i) => {
+        const sel = it.value === current, hl = i === hi;
+        return `<li role="option" id="el-opt-${i}" data-value="${esc(it.value)}" aria-selected="${sel}" class="el-combobox__option${sel ? ' is-selected' : ''}${hl ? ' is-highlighted' : ''}">${esc(it.label)}</li>`;
+      }).join('');
+    }
+    function filter(q: string): void { const qn = norm(q.trim()); filtered = qn ? items.filter((it) => norm(it.label).includes(qn)) : items.slice(); hi = qn && filtered.length ? 0 : -1; render(); }
+    function openList(): void { if (open) return; open = true; listbox.hidden = false; input.setAttribute('aria-expanded', 'true'); filter(''); }
+    function closeList(): void { if (!open) return; open = false; listbox.hidden = true; input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); const it = items.find((i) => i.value === current); input.value = it ? it.label : ''; }
+    function setHi(i: number): void { hi = Math.max(-1, Math.min(i, filtered.length - 1)); Array.from(listbox.querySelectorAll('[role=option]')).forEach((li, j) => li.classList.toggle('is-highlighted', j === hi)); const elx = listbox.querySelector('.is-highlighted') as HTMLElement | null; if (elx) { elx.scrollIntoView({ block: 'nearest' }); input.setAttribute('aria-activedescendant', elx.id); } }
+    function choose(v: string): void { current = v; const it = items.find((i) => i.value === v); input.value = it ? it.label : ''; onSelect(v); closeList(); }
+    input.addEventListener('focus', openList);
+    input.addEventListener('input', () => { if (!open) openList(); filter(input.value); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') { e.preventDefault(); if (!open) { openList(); return; } setHi(hi + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setHi(hi - 1); }
+      else if (e.key === 'Home' && open) { e.preventDefault(); setHi(0); }
+      else if (e.key === 'End' && open) { e.preventDefault(); setHi(filtered.length - 1); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (hi >= 0 && filtered[hi]) choose(filtered[hi].value); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeList(); }
+      else if (e.key === 'Tab') { if (open) closeList(); }
+    });
+    btn.addEventListener('click', (e) => { e.preventDefault(); if (open) closeList(); else { input.focus(); openList(); } });
+    listbox.addEventListener('mousedown', (e) => e.preventDefault());
+    listbox.addEventListener('click', (e) => { const li = (e.target as HTMLElement).closest('[role=option]') as HTMLElement | null; if (li?.dataset.value) choose(li.dataset.value); });
+    document.addEventListener('mousedown', (e) => { if (!root.contains(e.target as Node) && open) closeList(); });
+    return { setValue(v: string) { current = v; const it = items.find((i) => i.value === v); if (it) input.value = it.label; } };
+  }
+
+  let explorarBuilt = false;
+  function initExplorar(data: ElPayload): void {
+    const det = data.por_uf_detalhe ?? {};
+    const ufs = Object.keys(det).filter((u) => u !== 'BR').sort((a, b) => (det[b]?.n ?? 0) - (det[a]?.n ?? 0));
+    if (!ufs.length) return;
+    if (!explorarBuilt) {
+      const items = ufs.map((u) => ({ value: u, label: `${UF_NAME[u] ?? u} (${u})` }));
+      const cb = buildCombobox('el-uf-combobox', items, renderUFDetail);
+      cb?.setValue(ufs[0]);
+      renderUFDetail(ufs[0]);
+      explorarBuilt = true;
+    } else if (currentUf) {
+      renderUFDetail(currentUf);
+    }
+  }
+
   let payload: ElPayload | null = null;
   function renderAll(data: ElPayload): void {
     renderProgress(data);
@@ -603,6 +823,7 @@ const base = import.meta.env.BASE_URL;
     renderNivel(data);
     renderAmostragem(data);
     renderUF(data);
+    initExplorar(data);
   }
 
   async function loadEleicoes(): Promise<void> {
@@ -646,4 +867,101 @@ const base = import.meta.env.BASE_URL;
     });
   }
   document.addEventListener('DOMContentLoaded', animateEleicoes);
+</script>
+
+<script>
+  // Jump-nav — rail de pontos (desktop) + FAB/bottom-sheet (mobile). Lê as
+  // seções desta página; labels vêm do i18n (re-render em `languageChanged`).
+  // Active via IntersectionObserver. Portado do world-cup-dashboard/jumpnav.js.
+  const NAV = [
+    { id: 'eleicoes-hero',  key: 'portfolio.eleicoes.nav_hero',        fb: 'Início' },
+    { id: 'el-panorama',    key: 'portfolio.eleicoes.nav_panorama',    fb: 'Panorama' },
+    { id: 'el-intensidade', key: 'portfolio.eleicoes.nav_intensidade', fb: 'Intensidade' },
+    { id: 'el-institutos',  key: 'portfolio.eleicoes.nav_institutos',  fb: 'Quem mede' },
+    { id: 'el-como',        key: 'portfolio.eleicoes.nav_como',        fb: 'Como medem' },
+    { id: 'el-cobertura',   key: 'portfolio.eleicoes.nav_cobertura',   fb: 'Cobertura' },
+    { id: 'el-explorar',    key: 'portfolio.eleicoes.nav_explorar',    fb: 'Explorar' },
+  ];
+  const jt = (k: string, fb: string): string => {
+    const v = (window as unknown as { i18n?: { t?: (k: string) => string } }).i18n?.t?.(k);
+    return typeof v === 'string' && v ? v : fb;
+  };
+  const jesc = (s: string): string => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+  const jReduce = (): boolean => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const jMobile = (): boolean => matchMedia('(max-width: 1023px)').matches;
+  let backdrop: HTMLElement | null = null;
+
+  function jRenderList(): void {
+    const list = document.getElementById('el-jumpnav-list'); if (!list) return;
+    const items = NAV.filter((n) => document.getElementById(n.id));
+    list.innerHTML = items.map((n, i) => `
+      <li class="el-jumpnav__item">
+        <a href="#${n.id}" class="el-jumpnav__link" data-target="${n.id}" aria-current="false">
+          <span class="el-jumpnav__label">${jesc(jt(n.key, n.fb))}</span>
+          <span class="el-jumpnav__bullet" aria-hidden="true"></span>
+          <span class="el-jumpnav__num">${String(i + 1).padStart(2, '0')}</span>
+        </a>
+      </li>`).join('');
+  }
+  function jSetActive(id: string): void {
+    document.querySelectorAll('.el-jumpnav__link').forEach((l) => {
+      const on = (l as HTMLElement).dataset.target === id;
+      if (l.getAttribute('aria-current') !== String(on)) l.setAttribute('aria-current', String(on));
+    });
+  }
+  function jEnsureBackdrop(): HTMLElement {
+    if (backdrop) return backdrop;
+    backdrop = document.createElement('div');
+    backdrop.className = 'el-jumpnav-backdrop';
+    backdrop.setAttribute('aria-hidden', 'true');
+    backdrop.addEventListener('click', jCloseSheet);
+    document.body.appendChild(backdrop);
+    return backdrop;
+  }
+  function jOpenSheet(): void {
+    const nav = document.getElementById('el-jumpnav'), fab = document.getElementById('el-jumpnav-fab');
+    if (!nav || !fab) return;
+    (nav as HTMLElement).hidden = false; fab.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(() => jEnsureBackdrop().classList.add('is-visible'));
+    document.body.style.overflow = 'hidden';
+  }
+  function jCloseSheet(): void {
+    const nav = document.getElementById('el-jumpnav'), fab = document.getElementById('el-jumpnav-fab');
+    if (!nav || !fab) return;
+    fab.setAttribute('aria-expanded', 'false');
+    backdrop?.classList.remove('is-visible');
+    setTimeout(() => { if (fab.getAttribute('aria-expanded') === 'false') (nav as HTMLElement).hidden = true; }, 250);
+    document.body.style.overflow = '';
+  }
+  function initJumpnav(): void {
+    const nav = document.getElementById('el-jumpnav'), fab = document.getElementById('el-jumpnav-fab');
+    if (!nav || !fab) return;
+    jRenderList();
+    document.getElementById('el-jumpnav-list')!.addEventListener('click', (e) => {
+      const link = (e.target as HTMLElement).closest('.el-jumpnav__link') as HTMLElement | null;
+      if (!link) return;
+      e.preventDefault();
+      const id = link.dataset.target!; const target = document.getElementById(id); if (!target) return;
+      const go = () => { target.scrollIntoView({ behavior: jReduce() ? 'auto' : 'smooth', block: 'start' }); history.replaceState(null, '', '#' + id); };
+      if (jMobile() && fab.getAttribute('aria-expanded') === 'true') { jCloseSheet(); setTimeout(go, jReduce() ? 0 : 260); } else go();
+      jSetActive(id);
+    });
+    fab.addEventListener('click', () => (fab.getAttribute('aria-expanded') === 'true' ? jCloseSheet() : jOpenSheet()));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && fab.getAttribute('aria-expanded') === 'true') { jCloseSheet(); fab.focus(); } });
+    matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
+      if (e.matches) { (nav as HTMLElement).hidden = false; fab.setAttribute('aria-expanded', 'false'); backdrop?.classList.remove('is-visible'); document.body.style.overflow = ''; }
+      else { fab.setAttribute('aria-expanded', 'false'); (nav as HTMLElement).hidden = true; }
+    });
+    const els = NAV.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[];
+    if (els[0]) jSetActive(els[0].id);
+    const obs = new IntersectionObserver((ents) => {
+      const vis = ents.filter((x) => x.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+      if (vis[0]) jSetActive(vis[0].target.id);
+    }, { rootMargin: '-30% 0px -50% 0px', threshold: [0, 0.1, 0.3, 0.5, 1] });
+    els.forEach((el) => obs.observe(el));
+    if (jMobile()) { (fab as HTMLElement).hidden = false; (nav as HTMLElement).hidden = true; }
+    else { (nav as HTMLElement).hidden = false; (fab as HTMLElement).hidden = true; }
+    window.addEventListener('languageChanged', jRenderList);
+  }
+  document.addEventListener('DOMContentLoaded', initJumpnav);
 </script>

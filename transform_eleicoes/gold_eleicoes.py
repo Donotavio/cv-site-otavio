@@ -97,6 +97,26 @@ def _agg(df) -> dict:
         df.groupby("uf").size().reset_index(name="n").sort_values("n", ascending=False)
     )
 
+    # detalhe por UF (alimenta o combobox interativo) — exclui BR (nacional)
+    uf_detalhe = {}
+    for uf_code, grp in df[df["uf"] != "BR"].groupby("uf"):
+        top = (
+            grp.groupby("empresa").size().reset_index(name="n")
+            .sort_values("n", ascending=False).head(5)
+        )
+        q_uf = grp["qt_entrevistado"].dropna()
+        uf_detalhe[str(uf_code)] = {
+            "n": int(len(grp)),
+            "mediana_amostra": int(q_uf.median()) if len(q_uf) else None,
+            "top_institutos": [
+                {
+                    "empresa": r["empresa"].title() if isinstance(r["empresa"], str) else r["empresa"],
+                    "n": int(r["n"]),
+                }
+                for _, r in top.iterrows()
+            ],
+        }
+
     # própria vs contratada
     propria = int((df["propria"].str.upper() == "S").sum())
     contratada = int((df["propria"].str.upper() == "N").sum())
@@ -165,6 +185,7 @@ def _agg(df) -> dict:
             for _, r in inst.iterrows()
         ],
         "por_uf": [{"uf": r["uf"], "n": int(r["n"])} for _, r in por_uf.iterrows()],
+        "por_uf_detalhe": uf_detalhe,
         "propria_vs_contratada": {"propria": propria, "contratada": contratada},
         "amostragem": amostragem,
         "records": {
