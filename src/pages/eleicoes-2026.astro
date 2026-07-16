@@ -1001,20 +1001,40 @@ const base = import.meta.env.BASE_URL;
   .el-jogo-card:hover { border-color: var(--line-strong); }
   .el-jogo-num { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 400; color: var(--ink); line-height: .95; letter-spacing: var(--tracking-tight); font-variant-numeric: var(--num-tabular); }
   .el-jogo-label { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--ink-soft); }
-  .el-jogo-sub { color: var(--wc-gold-ink); margin-top: var(--space-1); }
-  .el-fundo { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-8); margin-top: var(--space-5); display: grid; grid-template-columns: 1fr; gap: var(--space-6); }
-  @media (min-width: 768px) { .el-fundo { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; } }
-  .el-fundo__main { display: flex; flex-direction: column; gap: var(--space-2); }
+  .el-jogo-sub { color: var(--ink-faint); margin-top: var(--space-1); }
+  .el-jogo-card { justify-content: flex-start; }
+  .el-jogo-card--partial { border-color: var(--wc-gold-line); }
+  .el-jogo-renov { display: flex; flex-direction: column; gap: var(--space-2); margin-top: auto; padding-top: var(--space-4); }
+  .el-jogo-renov__track { height: 6px; background: var(--line); border-radius: var(--radius-full); overflow: hidden; }
+  .el-jogo-renov__fill { display: block; height: 100%; background: var(--ink-soft); border-radius: var(--radius-full); }
+  .el-jogo-renov__fill.is-partial { background: var(--wc-gold-ink); }
+  .el-jogo-renov__pct { color: var(--ink-faint); }
+
+  .el-fundo { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-8); margin-top: var(--space-5); display: grid; grid-template-columns: 1fr; gap: var(--space-8); }
+  @media (min-width: 768px) { .el-fundo { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; } }
+  .el-fundo__main { display: flex; flex-direction: column; gap: var(--space-3); }
   .el-fundo__val { color: var(--wc-gold-ink); font-size: var(--display-2); line-height: .9; }
-  .el-fundo__stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-5) var(--space-6); }
-  @media (min-width: 1024px) { .el-fundo__stats { grid-template-columns: repeat(4, 1fr); } }
-  .el-fundo__sv { display: block; font-family: var(--font-display); font-size: var(--text-2xl); color: var(--ink); font-variant-numeric: var(--num-tabular); line-height: 1; }
-  .el-fundo__sl { display: block; color: var(--ink-faint); margin-top: var(--space-2); }
+  .el-fundo__compare { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); }
+  .el-fundo__cmp { display: grid; grid-template-columns: 2.75rem 1fr auto; align-items: center; gap: var(--space-3); }
+  .el-fundo__cmp-yr { color: var(--ink-faint); }
+  .el-fundo__cmp-track { height: 10px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  .el-fundo__cmp-fill { display: block; height: 100%; background: var(--ink-faint); }
+  .el-fundo__cmp-fill.is-now { background: var(--wc-gold-ink); }
+  .el-fundo__cmp-v { color: var(--ink-soft); font-variant-numeric: var(--num-tabular); white-space: nowrap; }
+  .el-fundo__mult { font-family: var(--font-display); font-size: var(--text-2xl); color: var(--wc-gold-ink); margin-top: var(--space-2); line-height: 1; }
+  .el-fundo__mult .mono-label { color: var(--ink-faint); }
+  .el-fundo__stats { display: flex; flex-direction: column; gap: var(--space-5); }
+  .el-fundo__meter { display: flex; flex-direction: column; gap: var(--space-2); }
+  .el-fundo__meter-head { display: flex; align-items: baseline; gap: var(--space-3); }
+  .el-fundo__sv { font-family: var(--font-display); font-size: var(--text-2xl); color: var(--ink); font-variant-numeric: var(--num-tabular); line-height: 1; }
+  .el-fundo__sl { color: var(--ink-faint); }
+  .el-fundo__meter-track { height: 6px; background: var(--line); border-radius: var(--radius-full); overflow: hidden; }
+  .el-fundo__meter-fill { display: block; height: 100%; background: var(--ink-soft); border-radius: var(--radius-full); }
 
   /* ── [10] Relógio (timeline vertical) ── */
   .el-timeline { position: relative; margin: var(--space-8) 0 0; padding: var(--space-8) var(--space-6); background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); }
   .el-timeline__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
-  .el-tl-item { position: relative; display: grid; grid-template-columns: 1.2rem 6.5rem 1fr; align-items: baseline; gap: var(--space-3); padding: var(--space-4) 0; padding-left: var(--space-2); border-left: 2px solid var(--line); margin-left: 5px; }
+  .el-tl-item { position: relative; display: grid; grid-template-columns: 1.2rem 6.5rem 1fr auto; align-items: baseline; gap: var(--space-2) var(--space-3); padding: var(--space-4) 0; padding-left: var(--space-2); border-left: 2px solid var(--line); margin-left: 5px; }
   .el-tl-item:first-of-type { padding-top: 0; }
   .el-tl-item:last-of-type { padding-bottom: 0; }
   .el-tl-dot { position: absolute; left: -7px; top: var(--space-4); width: 10px; height: 10px; border-radius: var(--radius-full); background: var(--paper-card); border: 2px solid var(--ink-faint); }
@@ -1024,6 +1044,16 @@ const base = import.meta.env.BASE_URL;
   .el-tl-date { color: var(--ink-faint); font-variant-numeric: var(--num-tabular); grid-column: 2; }
   .el-tl-marco { color: var(--ink); font-size: var(--text-sm); grid-column: 3; }
   .el-tl-item.is-past .el-tl-marco { color: var(--ink-soft); }
+  .el-tl-rel { grid-column: 4; color: var(--ink-faint); font-variant-numeric: var(--num-tabular); white-space: nowrap; text-align: right; }
+  .el-tl-rel.is-done { color: var(--wc-gold-ink); }
+  .el-tl-item.is-key .el-tl-marco { font-weight: 600; color: var(--ink); }
+  .el-tl-item.is-key .el-tl-dot { width: 12px; height: 12px; left: -8px; top: calc(var(--space-4) - 1px); }
+  /* Marcador "HOJE" — ponto pulsante dourado, spine dourado até aqui */
+  .el-tl-now { border-left-color: var(--wc-gold-line); }
+  .el-tl-now .el-tl-dot { background: var(--wc-gold-ink); border-color: var(--wc-gold-ink); animation: el-badge-pulse 2.6s ease-out infinite; }
+  .el-tl-now .el-tl-date { color: var(--wc-gold-ink); }
+  .el-tl-now .el-tl-marco { grid-column: 3; color: var(--wc-gold-ink); font-family: var(--font-mono); font-weight: 700; letter-spacing: .08em; font-size: var(--text-xs); }
+  @media (prefers-reduced-motion: reduce) { .el-tl-now .el-tl-dot { animation: none; } }
 
   /* ── [11] Transparência & fontes ── */
   .el-tr-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-8); }
@@ -1835,53 +1865,92 @@ const base = import.meta.env.BASE_URL;
     if (fb && !c?.fundo_eleitoral) fb.innerHTML = '<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span><p class="el-error">Fundo Eleitoral indisponível</p>';
     if (grid && c?.cargos) {
       const g = c.cargos;
-      const cards: [number | undefined, string, string][] = [
-        [g.presidente, t('portfolio.eleicoes.jogo_presidente', 'presidente'), ''],
-        [g.governadores, t('portfolio.eleicoes.jogo_governadores', 'governadores'), ''],
-        [g.senadores, t('portfolio.eleicoes.jogo_senadores', 'senadores'), `${t('portfolio.eleicoes.jogo_de', 'de')} ${g.senado_total ?? 81} · 2/3`],
-        [g.deputados_federais, t('portfolio.eleicoes.jogo_deputados', 'deputados federais'), ''],
+      const senTotal = g.senado_total ?? 81;
+      const cards: { n?: number; label: string; scope: string; frac: number }[] = [
+        { n: g.presidente, label: t('portfolio.eleicoes.jogo_presidente', 'presidente'), scope: t('portfolio.eleicoes.jogo_scope_pres', 'executivo nacional'), frac: 1 },
+        { n: g.governadores, label: t('portfolio.eleicoes.jogo_governadores', 'governadores'), scope: t('portfolio.eleicoes.jogo_scope_gov', 'todos os estados + DF'), frac: 1 },
+        { n: g.senadores, label: t('portfolio.eleicoes.jogo_senadores', 'senadores'), scope: `${t('portfolio.eleicoes.jogo_de', 'de')} ${senTotal} · 2/3`, frac: (g.senadores ?? 54) / senTotal },
+        { n: g.deputados_federais, label: t('portfolio.eleicoes.jogo_deputados', 'deputados federais'), scope: t('portfolio.eleicoes.jogo_scope_dep', 'Câmara inteira'), frac: 1 },
       ];
-      grid.innerHTML = cards.map(([n, label, sub]) => `<article class="el-jogo-card crop">
-        <span class="crop-mark-br" aria-hidden="true"></span>
-        <span class="el-jogo-num">${n != null ? nf.format(n) : '—'}</span>
-        <span class="el-jogo-label">${esc(label)}</span>
-        ${sub ? `<span class="el-jogo-sub mono-label">${esc(sub)}</span>` : ''}
-      </article>`).join('');
+      const disputa = t('portfolio.eleicoes.jogo_emdisputa', 'em disputa');
+      grid.innerHTML = cards.map((cd) => {
+        const pct = Math.round(cd.frac * 100), partial = cd.frac < 0.999;
+        return `<article class="el-jogo-card crop${partial ? ' el-jogo-card--partial' : ''}">
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <span class="el-jogo-num">${cd.n != null ? nf.format(cd.n) : '—'}</span>
+          <span class="el-jogo-label">${esc(cd.label)}</span>
+          <span class="el-jogo-sub mono-label">${esc(cd.scope)}</span>
+          <span class="el-jogo-renov" role="img" aria-label="${pct}% ${esc(disputa)}">
+            <span class="el-jogo-renov__track"><span class="el-jogo-renov__fill${partial ? ' is-partial' : ''}" style="width:${pct}%"></span></span>
+            <span class="el-jogo-renov__pct mono-label">${pct}% ${esc(disputa)}</span>
+          </span>
+        </article>`;
+      }).join('');
     }
     const fbox = el('el-fundo');
     if (fbox && c?.fundo_eleitoral) {
       const f = c.fundo_eleitoral;
+      const v2026 = f.valor_rs ?? 0, v2018 = f.ref_2018_rs ?? 0, maxF = Math.max(v2026, v2018, 1);
       const val = f.valor_rs ? fmtRS(f.valor_rs) : '—';
       const mult = f.multiplo_vs_2018 ? `${f.multiplo_vs_2018.toLocaleString('pt-BR')}×` : '—';
+      const meter = (v: number | undefined, label: string): string => `<div class="el-fundo__meter">
+        <div class="el-fundo__meter-head"><span class="el-fundo__sv">${v != null ? v + '%' : '—'}</span><span class="el-fundo__sl mono-label">${esc(label)}</span></div>
+        <span class="el-fundo__meter-track"><span class="el-fundo__meter-fill" style="width:${v != null ? Math.min(100, v) : 0}%"></span></span>
+      </div>`;
+      const cmp = (yr: string, v: number, now: boolean): string => `<div class="el-fundo__cmp">
+        <span class="el-fundo__cmp-yr mono-label">${yr}</span>
+        <span class="el-fundo__cmp-track"><span class="el-fundo__cmp-fill${now ? ' is-now' : ''}" style="width:${(v / maxF) * 100}%"></span></span>
+        <span class="el-fundo__cmp-v mono-label">${esc(fmtRS(v))}</span>
+      </div>`;
       fbox.innerHTML = `<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>
         <div class="el-fundo__main">
           <span class="el-jogo-num el-fundo__val">${esc(val)}</span>
           <span class="el-jogo-label">${esc(t('portfolio.eleicoes.jogo_fundo', 'Fundo Eleitoral (público) para campanhas'))}</span>
+          <div class="el-fundo__compare" role="img" aria-label="${esc(mult)} ${esc(t('portfolio.eleicoes.jogo_vs2018', 'vs. 2018'))}">
+            ${cmp('2018', v2018, false)}${cmp('2026', v2026, true)}
+            <span class="el-fundo__mult">${esc(mult)} <span class="mono-label">${esc(t('portfolio.eleicoes.jogo_vs2018', 'vs. 2018'))}</span></span>
+          </div>
         </div>
         <div class="el-fundo__stats">
-          <div><span class="el-fundo__sv">${esc(mult)}</span><span class="el-fundo__sl mono-label">${esc(t('portfolio.eleicoes.jogo_vs2018', 'vs. 2018'))}</span></div>
-          <div><span class="el-fundo__sv">${f.top5_partidos_share_pct != null ? f.top5_partidos_share_pct + '%' : '—'}</span><span class="el-fundo__sl mono-label">${esc(t('portfolio.eleicoes.jogo_top5', 'nos 5 maiores partidos'))}</span></div>
-          <div><span class="el-fundo__sv">${f.cota_mulheres_pct != null ? f.cota_mulheres_pct + '%' : '—'}</span><span class="el-fundo__sl mono-label">${esc(t('portfolio.eleicoes.jogo_cotam', 'mín. mulheres'))}</span></div>
-          <div><span class="el-fundo__sv">${f.cota_negros_pct != null ? f.cota_negros_pct + '%' : '—'}</span><span class="el-fundo__sl mono-label">${esc(t('portfolio.eleicoes.jogo_cotan', 'mín. negros'))}</span></div>
+          ${meter(f.top5_partidos_share_pct, t('portfolio.eleicoes.jogo_top5', 'nos 5 maiores partidos'))}
+          ${meter(f.cota_mulheres_pct, t('portfolio.eleicoes.jogo_cotam', 'mín. mulheres'))}
+          ${meter(f.cota_negros_pct, t('portfolio.eleicoes.jogo_cotan', 'mín. negros'))}
         </div>`;
     }
   }
 
-  // ── [10] Relógio da democracia (calendário) ──
+  // ── [12] Relógio da democracia (calendário) — timeline com marcador "HOJE",
+  //    contagem relativa por marco e destaque dos turnos. Spine dourado até hoje. ──
   function renderRelogio(c: ContextoPayload | null): void {
     const box = el('el-timeline'); if (!box) return;
     const cal = c?.calendario ?? [];
     if (!cal.length) { box.innerHTML = '<li class="el-error">calendário indisponível</li>'; return; }
-    const now = Date.now();
-    box.innerHTML = cal.map((m) => {
-      const ts = Date.parse(m.data + 'T00:00:00-03:00');
-      const past = ts < now;
-      return `<li class="el-tl-item${past ? ' is-past' : ''}">
+    const now = Date.now(), DAY = 86_400_000;
+    const items = cal.map((m) => ({ ...m, ts: Date.parse(m.data + 'T00:00:00-03:00') })).sort((a, b) => a.ts - b.ts);
+    const rel = (ts: number): string => {
+      const d = Math.round((ts - now) / DAY);
+      if (d === 0) return t('portfolio.eleicoes.rel_hoje', 'hoje');
+      if (d < 0) return t('portfolio.eleicoes.rel_done', 'concluído');
+      return `${t('portfolio.eleicoes.rel_em', 'em')} ${d} ${d === 1 ? t('portfolio.eleicoes.rel_dia', 'dia') : t('portfolio.eleicoes.rel_dias', 'dias')}`;
+    };
+    const rows = items.map((it) => {
+      const past = it.ts < now, isKey = /turno/i.test(it.marco);
+      return `<li class="el-tl-item${past ? ' is-past' : ''}${isKey ? ' is-key' : ''}">
         <span class="el-tl-dot" aria-hidden="true"></span>
-        <time class="el-tl-date mono-label" datetime="${esc(m.data)}">${esc(fmtDate(m.data))}</time>
-        <span class="el-tl-marco">${esc(m.marco)}</span>
+        <time class="el-tl-date mono-label" datetime="${esc(it.data)}">${esc(fmtDate(it.data))}</time>
+        <span class="el-tl-marco">${esc(it.marco)}</span>
+        <span class="el-tl-rel mono-label${past ? ' is-done' : ''}">${esc(rel(it.ts))}</span>
       </li>`;
-    }).join('');
+    });
+    const td = new Date(now);
+    const nowISO = `${td.getFullYear()}-${String(td.getMonth() + 1).padStart(2, '0')}-${String(td.getDate()).padStart(2, '0')}`;
+    const nowMarker = `<li class="el-tl-item el-tl-now" aria-current="date">
+      <span class="el-tl-dot" aria-hidden="true"></span>
+      <time class="el-tl-date mono-label" datetime="${esc(nowISO)}">${esc(fmtDate(nowISO))}</time>
+      <span class="el-tl-marco">${esc(t('portfolio.eleicoes.rel_hoje', 'hoje').toUpperCase())}</span>
+    </li>`;
+    const idx = items.findIndex((it) => it.ts > now);
+    box.innerHTML = (idx < 0 ? [...rows, nowMarker] : [...rows.slice(0, idx), nowMarker, ...rows.slice(idx)]).join('');
   }
 
   // ── [11] Fontes ──
