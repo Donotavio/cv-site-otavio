@@ -1,0 +1,89 @@
+name: Observatório Eleições 2026 — Pesquisas (TSE)
+
+# Diariamente às 15:05 UTC (~12h05 BRT), escalonado para não colidir com os
+# demais pipelines de dados. Também pode ser disparado via workflow_dispatch.
+# Fonte: TSE Dados Abertos — Pesquisas Eleitorais 2026 (republicado diariamente).
+on:
+  schedule:
+    - cron: '5 15 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  actions: write   # necessário para o createWorkflowDispatch (build-and-deploy.yml)
+
+jobs:
+  collect-pesquisas:
+    name: Coleta TSE → gold → JSON
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: ingestion_eleicoes/requirements.txt
+
+      - name: Instalar dependências Python
+        run: pip install -r ingestion_eleicoes/requirements.txt
+
+      - name: Criar diretórios de dados
+        run: mkdir -p data/bronze/eleicoes_pesquisas data/gold
+
+      - name: Coletar pesquisas registradas (TSE)
+        run: python ingestion_eleicoes/collect_pesquisas.py
+
+      - name: Gold — agregações do observatório
+        run: python transform_eleicoes/gold_eleicoes.py
+
+      - name: Commit dados atualizados
+        run: |
+          git config user.name "eleicoes-pipeline[bot]"
+          git config user.email "eleicoes-pipeline@users.noreply.github.com"
+
+          git add data/bronze/eleicoes_pesquisas/ data/gold/ \
+                  assets/data/eleicoes_pesquisas.json || true
+
+          if git diff --staged --quiet; then
+            echo "ℹ Sem mudanças nos dados — nada a commitar."
+          else
+            TODAY=$(date +%Y-%m-%d)
+            git commit -m "data: coleta de pesquisas — Observatório Eleições 2026 ${TODAY}"
+            # Push resiliente: reconcilia com origin/main preferindo os dados
+            # recém-gerados (resolve até parquet binário) e re-tenta.
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD:main; then
+                echo "✅ Dados enviados (tentativa ${attempt})."
+                break
+              fi
+              if [ "${attempt}" = "5" ]; then
+                echo "✗ Push falhou após 5 tentativas."; exit 1
+              fi
+              echo "↻ Push rejeitado — reconciliando com origin/main (tentativa ${attempt})."
+              git fetch origin main
+              git merge -X ours --no-edit FETCH_HEAD || {
+                git checkout --ours . && git add -A && GIT_EDITOR=true git commit --no-edit || true
+              }
+              sleep $(( attempt * 3 ))
+            done
+          fi
+
+      - name: Disparar deploy do site
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build-and-deploy.yml',
+              ref: 'main'
+            });
+            console.log('✅ Deploy disparado.');

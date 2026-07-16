@@ -1,0 +1,131 @@
+---
+/**
+ * EleicoesCard.astro — Seção Portfólio (card irmão do PIX Observatory)
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Card "real" para o quarto projeto de dados ao vivo: o Observatório Eleições
+ * 2026. Renderizado via <slot /> dentro de PixObservatoryCard.astro.
+ *
+ * A mini-stat (nº de pesquisas + institutos) é hidratada em runtime via fetch
+ * de assets/data/eleicoes_pesquisas.json — mesmo padrão de dado real do site.
+ * Texto literal + data-i18n-key: renderiza em pt-BR sem depender de chave;
+ * i18n.js sobrescreve quando a chave existir (en-US/es-ES).
+ */
+
+const base = import.meta.env.BASE_URL;
+---
+
+<div class="el-card card crop" role="group" aria-labelledby="el-card-title">
+  <span class="crop-mark-bl" aria-hidden="true"></span>
+  <span class="crop-mark-br" aria-hidden="true"></span>
+
+  <div class="el-card__label-row">
+    <span class="mono-label" data-i18n-key="portfolio.eleicoes.live_label">Observatório Eleições 2026</span>
+    <span class="mono-label el-card__badge" data-i18n-key="portfolio.eleicoes.updated_daily">atualizado diariamente</span>
+  </div>
+
+  <h3 id="el-card-title" class="el-card__title" data-i18n-key="portfolio.eleicoes.title">
+    A máquina de medição da eleição
+  </h3>
+
+  <p class="el-card__desc" data-i18n-key="portfolio.eleicoes.description">
+    Pipeline sobre o dataset oficial do TSE (Pesquisas Eleitorais 2026): quem
+    mede o eleitorado, onde, com que rigor amostral e a que custo. Dado de
+    registro, apartidário por construção.
+  </p>
+
+  <div class="el-card__tags">
+    <span class="tag tag--el" data-i18n-key="portfolio.eleicoes.tag_1">TSE Dados Abertos</span>
+    <span class="tag tag--el" data-i18n-key="portfolio.eleicoes.tag_2">Python · pandas</span>
+    <span class="tag" data-i18n-key="portfolio.eleicoes.tag_open_source">Open Source</span>
+  </div>
+
+  <ul class="el-card__stats" id="el-card-stats" role="list" aria-label="Estatísticas do observatório">
+    <li class="el-card__stat">
+      <span class="el-card__stat-value" data-stat="pesquisas">···</span>
+      <span class="el-card__stat-label mono-label" data-i18n-key="portfolio.eleicoes.stat_pesquisas">pesquisas</span>
+    </li>
+    <li class="el-card__stat">
+      <span class="el-card__stat-value" data-stat="institutos">···</span>
+      <span class="el-card__stat-label mono-label" data-i18n-key="portfolio.eleicoes.stat_institutos">institutos</span>
+    </li>
+    <li class="el-card__stat">
+      <span class="el-card__stat-value" data-stat="investimento">···</span>
+      <span class="el-card__stat-label mono-label" data-i18n-key="portfolio.eleicoes.stat_investimento">investidos</span>
+    </li>
+  </ul>
+
+  <div class="el-card__actions">
+    <a href={`${base}eleicoes-2026/`} class="btn-primary el-card__cta" data-i18n-key="portfolio.eleicoes.cta_ver">
+      Ver observatório →
+    </a>
+    <a
+      href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion_eleicoes"
+      class="btn-secondary" target="_blank" rel="noopener noreferrer"
+      data-i18n-key="portfolio.eleicoes.cta_github"
+    >Código</a>
+  </div>
+</div>
+
+<style>
+  .el-card { position: relative; display: flex; flex-direction: column; gap: var(--space-5); margin-block-end: var(--space-6); }
+  .el-card:hover { border-color: var(--line-accent); }
+  .el-card__label-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+  .el-card__badge { color: var(--ink-faint); }
+  .el-card__title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 400; color: var(--ink); margin: 0; }
+  .el-card__desc { font-family: var(--font-sans); font-size: var(--text-base); color: var(--ink-soft); margin: 0; max-width: 68ch; }
+  .el-card__tags { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .tag--el { color: var(--accent); border-color: var(--line-accent); background: var(--accent-dim); }
+
+  .el-card__stats {
+    display: flex; flex-wrap: wrap; gap: var(--space-8); margin: 0;
+    padding: var(--space-4) 0; list-style: none;
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  }
+  .el-card__stat { display: flex; flex-direction: column; gap: var(--space-1); }
+  .el-card__stat-value { font-family: var(--font-display); font-size: var(--text-xl); color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+  .el-card__stat-label { color: var(--ink-faint); }
+
+  .el-card__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+  .el-card__cta:hover { transform: translateY(-1px); }
+</style>
+
+<script>
+  // Mini-stats reais vindas de eleicoes_pesquisas.json. Falha silenciosa:
+  // mantém "···" se o fetch não completar (card continua funcional).
+  interface ElStatsPayload {
+    kpis?: { total_pesquisas?: number; n_institutos?: number; investimento_total_rs?: number };
+  }
+
+  async function loadEleicoesCardStats(): Promise<void> {
+    const card = document.getElementById('el-card-stats');
+    if (!card) return;
+    const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    try {
+      const res = await fetch(`${base}assets/data/eleicoes_pesquisas.json`, {
+        cache: 'no-cache',
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('fetch failed');
+      const data: ElStatsPayload = await res.json();
+      const k = data.kpis ?? {};
+      const nf = new Intl.NumberFormat('pt-BR');
+      const set = (name: string, txt: string) => {
+        const elx = card.querySelector(`[data-stat="${name}"]`);
+        if (elx) elx.textContent = txt;
+      };
+      set('pesquisas', nf.format(k.total_pesquisas ?? 0));
+      set('institutos', nf.format(k.n_institutos ?? 0));
+      const rs = k.investimento_total_rs ?? 0;
+      set('investimento', rs >= 1_000_000 ? `R$ ${(rs / 1_000_000).toLocaleString('pt-BR', { maximumFractionDigits: 0 })} mi` : `R$ ${nf.format(Math.round(rs))}`);
+    } catch {
+      clearTimeout(timeoutId);
+      // mantém "···"
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadEleicoesCardStats);
+</script>
