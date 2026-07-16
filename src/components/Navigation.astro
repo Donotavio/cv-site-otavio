@@ -255,17 +255,20 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
   }
 
   /* ── Desktop: hamburguer some, lista inline ───────────
-     Breakpoint 1100px: a partir daqui os 8 links mono compactos + logo +
-     lang-switcher cabem      numa linha sem corte, mesmo nos idiomas verbosos (pt-BR/es-ES, ex.:
-     "Recomendações"/"Recomendaciones"). Abaixo disso, drawer hamburger
-     (evita o lang-switcher estourar para fora da viewport).
+     Breakpoint 1280px: com 11 links verbosos (pt-BR/es-ES, ex.:
+     "Recomendações", "Repositórios", "Competências") + logo + lang-switcher,
+     este é o menor width em que o conjunto cabe numa linha sem corte dentro do
+     container (max 1280). Abaixo disso → drawer hamburger.
 
-     Os links inline ficam mais enxutos que no drawer: sem os colchetes [ ]
-     (que no drawer dão a assinatura blueprint) e com tracking levemente menor,
-     porque 8 labels verbosos (ex.: "Recomendações") não cabem de outra forma.
-     A assinatura de colchetes segue presente no logo [ OR ] e nos labels de
-     seção [ 01 ]…, então a coesão visual é mantida. */
-  @media (min-width: 1200px) {
+     Os links inline ficam bem mais enxutos que no drawer: sem os colchetes [ ]
+     (assinatura blueprint que fica no drawer), tracking neutro e padding/gap
+     mínimos — senão 11 labels verbosos estouram a largura (o "CONTATO" some).
+     A assinatura de colchetes segue no logo [ OR ] e nos labels de seção
+     [ 01 ]…, então a coesão visual é mantida.
+     min-width: 0 no <nav> permite o flex encolher em vez de transbordar. */
+  .site-nav { min-width: 0; }
+
+  @media (min-width: 1280px) {
     .nav-toggle {
       display: none;
     }
@@ -275,6 +278,7 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
       display: flex;
       flex-direction: row;
       align-items: center;
+      flex-wrap: nowrap;
       gap: var(--space-1);
 
       position: static;
@@ -291,13 +295,13 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
     }
 
     .nav-link {
-      padding: var(--space-2);
+      padding: var(--space-2) var(--space-1);
       white-space: nowrap;
-      /* Nav inline mais compacto: tracking menor que o mono-label padrão */
-      letter-spacing: var(--tracking-wide);
+      /* Nav inline compacto: tracking neutro (o mono-label usa wider = incha) */
+      letter-spacing: var(--tracking-normal);
     }
 
-    /* Inline não usa colchetes — economia de ~32 chars no conjunto.
+    /* Inline não usa colchetes — economia de ~44 chars no conjunto.
        Os colchetes seguem no drawer mobile e no logo/section labels. */
     .nav-link.mono-label::before,
     .nav-link.mono-label::after {
@@ -305,13 +309,13 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
     }
   }
 
-  /* ── Widescreen: respiro extra entre links ──────────── */
-  @media (min-width: 1440px) {
+  /* ── Widescreen: respiro extra entre links (sem inchar tracking) ──── */
+  @media (min-width: 1536px) {
     .nav-list {
       gap: var(--space-2);
     }
     .nav-link {
-      letter-spacing: var(--tracking-wider);
+      letter-spacing: var(--tracking-wide);
     }
   }
 

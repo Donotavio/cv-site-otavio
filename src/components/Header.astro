@@ -98,6 +98,10 @@ const logoHref = isHome ? '#hero' : `${base}#hero`;
     justify-content: space-between;
     gap: var(--space-4);
     height: var(--space-16);
+    /* Barra mais larga que o conteúdo (1280) para os 11 links do nav caberem
+       inline em telas grandes sem cortar "CONTATO". O corpo segue centrado em
+       --container-xl; só o header respira até --container-max. */
+    max-width: var(--container-max);
   }
 
   /* ── Logo ───────────────────────────────────────────── */
