@@ -1,0 +1,274 @@
+---
+/**
+ * EnrichmentMachine.astro — Seção [ 05 ] — Direção Blueprint
+ * Máquinas de enriquecimento de dados a partir de dados PÚBLICOS da web
+ * (scraping + LLM). Ênfase na FORÇA da máquina e no COMO é construída —
+ * domínio e fontes mantidos abstratos (constraint do dono).
+ *
+ * Números = capacidade/engenharia reais (registry de fontes, schemas tipados,
+ * bake-off de modelos, camadas de matching). NÃO são resultados de produção
+ * inventados — o repo não tem artefatos de run commitados.
+ *
+ * Estrutura: stat strip (capacidade) → pipeline da máquina (estágios) →
+ * 2 cards de engenharia (scraping resiliente · LLM sem alucinação).
+ * Motion: revealUp + hairlineDraw + count-up. Zero hex, CSS scoped,
+ * mobile-first, i18n, legível sem JS (SSG).
+ */
+import { t } from '../lib/i18n';
+
+const stats = [
+  { key: 'sources',  to: '11', suffix: ''  },
+  { key: 'attrs',    to: '70', suffix: '+' },
+  { key: 'models',   to: '10', suffix: ''  },
+  { key: 'identity', to: '3',  suffix: ''  },
+];
+
+const stages = ['seed', 'identity', 'scrape', 'llm', 'dq', 'load'];
+const cards = ['scrape', 'llm'];
+---
+
+<section id="enrichment" class="section enr" aria-labelledby="enr-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">05</span>
+      <h2 id="enr-title" class="enr-display" data-i18n-key="enrich.title">{t('enrich.title')}</h2>
+      <p class="enr-lead" data-i18n-key="enrich.subtitle">{t('enrich.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <!-- Capacidade da máquina -->
+    <ul class="enr-stats" aria-label={t('enrich.stats_aria')} data-i18n-aria="enrich.stats_aria">
+      {stats.map((s, i) => (
+        <li class="stat">
+          <span class="stat-idx mono-label">{String(i).padStart(2, '0')}</span>
+          <span class="stat-num" data-count-to={s.to} data-count-suffix={s.suffix}>{s.to}{s.suffix}</span>
+          <span class="stat-lab" data-i18n-key={`enrich.stat_${s.key}`}>{t(`enrich.stat_${s.key}`)}</span>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Pipeline da máquina (estágios) -->
+    <div class="enr-pipeline">
+      <p class="pipeline-title mono-label" data-i18n-key="enrich.stages_title">{t('enrich.stages_title')}</p>
+      <ol class="pipeline-flow">
+        {stages.map((st, i) => (
+          <>
+            <li class="stage-chip">
+              <span class="chip-n mono-label">{String(i + 1).padStart(2, '0')}</span>
+              <span class="chip-label" data-i18n-key={`enrich.stage_${st}`}>{t(`enrich.stage_${st}`)}</span>
+            </li>
+            {i < stages.length - 1 && <span class="chip-arrow" aria-hidden="true">▸</span>}
+          </>
+        ))}
+      </ol>
+    </div>
+
+    <!-- Como a máquina é construída -->
+    <div class="enr-cards">
+      {cards.map((c) => (
+        <article class="enr-card crop">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <h3 class="enr-card-title" data-i18n-key={`enrich.card_${c}_title`}>{t(`enrich.card_${c}_title`)}</h3>
+          <p class="enr-card-desc" data-i18n-key={`enrich.card_${c}_desc`}>{t(`enrich.card_${c}_desc`)}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .enr {
+    background: var(--paper);
+  }
+
+  .enr-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .enr-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 64ch;
+  }
+
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
+  /* ── Stat strip (capacidade) ─────────────────────────────── */
+  .enr-stats {
+    list-style: none;
+    margin: 0 0 var(--space-16);
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6) var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .enr-stats { grid-template-columns: repeat(4, 1fr); gap: var(--space-8); }
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-inline-start: var(--space-4);
+    border-inline-start: 1px solid var(--line);
+  }
+  .stat-idx { color: var(--ink-faint); }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: var(--num-tabular);
+  }
+  .stat-lab {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-snug);
+    max-width: 22ch;
+  }
+
+  /* ── Pipeline (estágios da máquina) ──────────────────────── */
+  .enr-pipeline {
+    margin-block-end: var(--space-12);
+  }
+  .pipeline-title {
+    color: var(--ink-faint);
+    margin: 0 0 var(--space-5);
+  }
+  .pipeline-flow {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  @media (min-width: 768px) {
+    .pipeline-flow {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+  }
+
+  .stage-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    flex: 0 1 auto;
+  }
+  .chip-n { color: var(--accent); }
+  .chip-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    white-space: nowrap;
+  }
+
+  .chip-arrow {
+    align-self: center;
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    /* mobile: aponta para baixo */
+    transform: rotate(90deg);
+  }
+  @media (min-width: 768px) {
+    .chip-arrow { transform: none; }
+  }
+
+  /* ── Cards de engenharia ─────────────────────────────────── */
+  .enr-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .enr-cards { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+  }
+
+  .enr-card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--accent);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    transition: border-color var(--transition-normal);
+  }
+  .enr-card:hover {
+    border-color: var(--line-strong);
+    border-top-color: var(--accent);
+  }
+  .enr-card-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+  .enr-card-desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { countUp } from '../scripts/motion/count-up';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const section = document.getElementById('enrichment');
+  if (section) {
+    const line     = section.querySelector('.section-line') as Element;
+    const head     = section.querySelector('.section-head') as Element;
+    const stats    = section.querySelectorAll('.stat');
+    const nums     = section.querySelectorAll<HTMLElement>('.stat-num[data-count-to]');
+    const pipeline = section.querySelector('.enr-pipeline') as Element;
+    const chips    = section.querySelectorAll('.stage-chip');
+    const cards    = section.querySelectorAll('.enr-card');
+
+    if (line) hairlineDraw(line, section);
+
+    if (motionOk) {
+      revealUp([head], section, 0);
+      revealUp(stats, section, 0.08);
+      if (pipeline) revealUp([pipeline], section, 0);
+      revealUp(chips, section, 0.06);
+      revealUp(cards, section, 0.1);
+    }
+
+    nums.forEach((n) => countUp(n, section));
+  }
+</script>
