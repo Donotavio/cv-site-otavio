@@ -1416,11 +1416,18 @@ const base = import.meta.env.BASE_URL;
     // entre os que declararam investimento. Eficiência de volume, não de acurácia.
     let effIdx = -1, effBest = -1;
     data.forEach((d, i) => { if (d.investimento_rs > 0) { const e = d.n / d.investimento_rs; if (e > effBest) { effBest = e; effIdx = i; } } });
+    const totalPesq = p.kpis?.total_pesquisas ?? data.reduce((s, x) => s + x.n, 0);
     body.innerHTML = data.map((d, i) => {
       const rank = i + 1, leader = rank === 1, efficient = i === effIdx;
       const medal = leader ? ` <span class="el-medal">🏆 ${esc(t('portfolio.eleicoes.leader', 'líder'))}</span>` : '';
       const star = efficient ? ` <span class="el-medal el-medal--eff">★ ${esc(t('portfolio.eleicoes.eff_badge', 'mais eficiente'))}</span>` : '';
-      return `<tr class="${leader ? 'is-leader' : ''}${efficient ? ' is-efficient' : ''}">
+      const rows: [string, string][] = [
+        [t('portfolio.eleicoes.tip_pesquisas', 'pesquisas'), nf.format(d.n)],
+        [t('portfolio.eleicoes.tip_percentual', 'percentual'), totalPesq ? `${((d.n / totalPesq) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%` : '—'],
+        [t('portfolio.eleicoes.tip_investimento', 'investimento'), fmtRS(d.investimento_rs)],
+      ];
+      if (d.investimento_rs > 0) rows.push([t('portfolio.eleicoes.tip_eficiencia', 'eficiência (pesq/R$ mi)'), (d.n / (d.investimento_rs / 1_000_000)).toLocaleString('pt-BR', { maximumFractionDigits: 0 })]);
+      return `<tr class="${leader ? 'is-leader' : ''}${efficient ? ' is-efficient' : ''}"${barTip(d.empresa, rows)}>
         <td class="el-rk-rank">${String(rank).padStart(2, '0')}${medal}${star}</td>
         <td><span class="el-rk-name">${esc(d.empresa)}</span></td>
         <td class="el-rk-n">${nf.format(d.n)}</td>
