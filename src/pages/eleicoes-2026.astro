@@ -219,10 +219,11 @@ const base = import.meta.env.BASE_URL;
           <span class="crop-mark-bl" aria-hidden="true"></span>
           <span class="crop-mark-br" aria-hidden="true"></span>
           <div class="el-chartcard__head el-serie__head">
-            <span class="mono-label" id="el-serie-t" data-i18n-key="portfolio.eleicoes.serie_title">[ evolução da média — 1º turno ]</span>
+            <span class="mono-label" id="el-serie-t" data-i18n-key="portfolio.eleicoes.serie_title">evolução da média — 1º turno</span>
             <div class="el-serie__legend" id="el-serie-legend" aria-hidden="true"></div>
           </div>
           <div class="el-band__svg" id="el-serie-svg"><p class="el-loading mono-label">···</p></div>
+          <div class="el-chart-tip" id="el-serie-tip" role="status" aria-hidden="true" hidden></div>
         </figure>
 
         <div class="el-vote-panorama">
@@ -346,9 +347,10 @@ const base = import.meta.env.BASE_URL;
           <span class="crop-mark-bl" aria-hidden="true"></span>
           <span class="crop-mark-br" aria-hidden="true"></span>
           <div class="el-chartcard__head">
-            <span class="mono-label" data-i18n-key="portfolio.eleicoes.chart_mes">[ pesquisas por mês de divulgação ]</span>
+            <span class="mono-label" data-i18n-key="portfolio.eleicoes.chart_mes">pesquisas por mês de divulgação</span>
           </div>
           <div class="el-barchart__svg el-band__svg" id="el-barchart-svg"><p class="el-loading mono-label">carregando série…</p></div>
+          <div class="el-chart-tip" id="el-barchart-tip" role="status" aria-hidden="true" hidden></div>
         </figure>
       </div>
     </section>
@@ -728,6 +730,21 @@ const base = import.meta.env.BASE_URL;
   .el-band__svg :global(.el-band-line--gold) { stroke: var(--wc-gold-ink); stroke-width: 2; }
   .el-band__svg :global(.el-band-marker) { stroke: var(--paper-card); stroke-width: 1.5; }
   .el-band__svg :global(.el-band-markerval) { font-family: var(--font-mono); font-size: 10px; font-weight: 500; fill: var(--ink); font-variant-numeric: var(--num-tabular); }
+  /* Camada de hover (guia vertical + pontos) e área de captura transparente */
+  .el-band__svg :global(.el-band-capture) { fill: transparent; }
+  .el-band__svg :global(.el-band-guide) { stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
+  .el-band__svg :global(.el-band-hoverdot) { stroke: var(--paper-card); stroke-width: 1.5; pointer-events: none; }
+
+  /* Tooltip de gráfico — segue o cartão de papel; nunca depende só de cor */
+  .el-chart-tip { position: absolute; z-index: 6; pointer-events: none; min-width: 132px; max-width: 260px; padding: var(--space-3) var(--space-4); background: var(--paper-card); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink); line-height: 1.5; }
+  .el-chart-tip[hidden] { display: none; }
+  .el-chart-tip :global(.el-tip-head) { color: var(--ink-faint); text-transform: uppercase; letter-spacing: var(--tracking-wide); margin-bottom: var(--space-2); }
+  .el-chart-tip :global(.el-tip-row) { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
+  .el-chart-tip :global(.el-tip-row + .el-tip-row) { margin-top: 2px; }
+  .el-chart-tip :global(.el-tip-name) { color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .el-chart-tip :global(.el-tip-row.is-leader .el-tip-name), .el-chart-tip :global(.el-tip-row.is-leader .el-tip-val) { color: var(--wc-gold-ink); }
+  .el-chart-tip :global(.el-tip-name .mono-label) { color: var(--ink-faint); }
+  .el-chart-tip :global(.el-tip-val) { color: var(--ink); font-variant-numeric: var(--num-tabular); }
 
   /* ── [02] Série temporal — card + legenda ── */
   .el-seriecard { margin-top: var(--space-6); }
@@ -1131,6 +1148,51 @@ const base = import.meta.env.BASE_URL;
     if (inline) inline.textContent = p.concentracao?.top1_share_pct != null ? `${p.concentracao.top1_share_pct}%` : '—';
   }
 
+  // ── Hover interativo (guia vertical + pontos no SVG + tooltip HTML) para os
+  //    gráficos com eixo — série [02] e barras [05]. Pointer-only, sem libs. ──
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  interface HoverDot { x: number; y: number; color: string }
+  interface HoverProbe { gx: number; dots: HoverDot[]; html: string }
+  function attachChartHover(
+    box: HTMLElement, fig: HTMLElement | null, tip: HTMLElement | null,
+    W: number, yTop: number, yBot: number,
+    xToIdx: (vx: number) => number, probe: (idx: number) => HoverProbe | null,
+  ): void {
+    const svg = box.querySelector('svg'); if (!svg || !fig || !tip) return;
+    const guide = document.createElementNS(SVG_NS, 'g');
+    const vline = document.createElementNS(SVG_NS, 'line');
+    vline.setAttribute('class', 'el-band-guide');
+    guide.appendChild(vline); guide.style.display = 'none';
+    svg.appendChild(guide);
+    const hide = (): void => { guide.style.display = 'none'; tip.hidden = true; };
+    const move = (e: PointerEvent): void => {
+      const r = svg.getBoundingClientRect(); if (!r.width) return;
+      const res = probe(xToIdx(((e.clientX - r.left) / r.width) * W));
+      if (!res || !res.dots.length) { hide(); return; }
+      vline.setAttribute('x1', res.gx.toFixed(1)); vline.setAttribute('x2', res.gx.toFixed(1));
+      vline.setAttribute('y1', String(yTop)); vline.setAttribute('y2', String(yBot));
+      guide.querySelectorAll('circle').forEach((c) => c.remove());
+      res.dots.forEach((d) => {
+        const c = document.createElementNS(SVG_NS, 'circle');
+        c.setAttribute('class', 'el-band-hoverdot');
+        c.setAttribute('cx', d.x.toFixed(1)); c.setAttribute('cy', d.y.toFixed(1));
+        c.setAttribute('r', '3.5'); c.setAttribute('fill', d.color);
+        guide.appendChild(c);
+      });
+      guide.style.display = '';
+      tip.innerHTML = res.html; tip.hidden = false;
+      const fr = fig.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
+      let left = e.clientX - fr.left + 14, top = e.clientY - fr.top + 14;
+      if (left + tw > fr.width) left = e.clientX - fr.left - tw - 14;
+      if (top + th > fr.height) top = e.clientY - fr.top - th - 14;
+      tip.style.left = Math.max(2, left) + 'px';
+      tip.style.top = Math.max(2, top) + 'px';
+    };
+    svg.style.touchAction = 'pan-y';
+    svg.addEventListener('pointermove', move);
+    svg.addEventListener('pointerleave', hide);
+  }
+
   // ── Gráfico de barras vertical (SVG) — com eixo Y (niceTicks), grade e
   //    moldura, no padrão bandChart do brasil-cockpit. Pico em --wc-gold-ink. ──
   function renderBarChart(p: ElPayload): void {
@@ -1161,7 +1223,18 @@ const base = import.meta.env.BASE_URL;
         <text x="${(x + bw / 2).toFixed(1)}" y="${H - PAD.b + 15}" text-anchor="middle" class="el-band-axislabel">${esc(fmtMes(d.mes))}</text>`;
     }).join('');
     const baseline = `<line class="el-band-axisline" x1="${PAD.l}" y1="${(H - PAD.b).toFixed(1)}" x2="${W - PAD.r}" y2="${(H - PAD.b).toFixed(1)}"></line>`;
-    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('portfolio.eleicoes.chart_mes_aria', 'Pesquisas por mês de divulgação'))}">${tickEls}${bars}${baseline}</svg>`;
+    const capture = `<rect class="el-band-capture" x="0" y="0" width="${W}" height="${H}"></rect>`;
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('portfolio.eleicoes.chart_mes_aria', 'Pesquisas por mês de divulgação'))}">${tickEls}${bars}${baseline}${capture}</svg>`;
+
+    attachChartHover(box, el('el-barchart'), el('el-barchart-tip'), W, PAD.t, H - PAD.b,
+      (vx) => Math.max(0, Math.min(data.length - 1, Math.floor((vx - PAD.l) / cw))),
+      (idx) => {
+        const d = data[idx]; if (!d) return null;
+        const gx = PAD.l + idx * cw + cw / 2, isPeak = d.mes === peak;
+        const head = `<div class="el-tip-head">${esc(fmtMesLong(d.mes))}</div>`;
+        const body = `<div class="el-tip-row${isPeak ? ' is-leader' : ''}"><span class="el-tip-name">${esc(t('portfolio.eleicoes.kpi_total', 'pesquisas'))}</span><span class="el-tip-val">${nf.format(d.n)}</span></div>`;
+        return { gx, dots: [{ x: gx, y: yAt(d.n), color: isPeak ? 'var(--wc-gold-ink)' : 'var(--ink-soft)' }], html: head + body };
+      });
   }
 
   // ── Tabela ranqueada ──
@@ -1479,10 +1552,25 @@ const base = import.meta.env.BASE_URL;
       return poly + marker;
     }).join('');
 
-    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('portfolio.eleicoes.serie_aria', 'Evolução da intenção de voto no 1º turno'))}">${tickEls}${yearEls}${baseline}${lines}</svg>`;
+    const capture = `<rect class="el-band-capture" x="0" y="0" width="${W}" height="${H}"></rect>`;
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('portfolio.eleicoes.serie_aria', 'Evolução da intenção de voto no 1º turno'))}">${tickEls}${yearEls}${baseline}${lines}${capture}</svg>`;
     if (legendBox) legendBox.innerHTML = series.map((s) =>
       `<span class="el-serie__lg${s.cand.lider ? ' is-leader' : ''}"><span class="el-serie__sw" aria-hidden="true"></span>${esc(s.cand.nome)} <span class="mono-label">${esc(s.cand.partido)}</span></span>`
     ).join('');
+
+    attachChartHover(box, el('el-serie'), el('el-serie-tip'), W, PAD.t, H - PAD.b,
+      (vx) => Math.max(0, Math.min(meses.length - 1, Math.round(((vx - PAD.l) / plotW) * (meses.length - 1)))),
+      (idx) => {
+        const rows = series
+          .map((s) => ({ cand: s.cand, v: s.vals[idx] }))
+          .filter((r): r is { cand: VoteCand; v: number } => r.v != null)
+          .sort((a, b) => b.v - a.v);
+        if (!rows.length) return null;
+        const dots: HoverDot[] = rows.map((r) => ({ x: xAt(idx), y: yAt(r.v), color: r.cand.lider ? 'var(--wc-gold-ink)' : 'var(--ink-soft)' }));
+        const head = `<div class="el-tip-head">${esc(fmtMesLong(meses[idx]))}</div>`;
+        const body = rows.map((r) => `<div class="el-tip-row${r.cand.lider ? ' is-leader' : ''}"><span class="el-tip-name">${esc(r.cand.nome)} <span class="mono-label">${esc(r.cand.partido)}</span></span><span class="el-tip-val">${r.v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span></div>`).join('');
+        return { gx: xAt(idx), dots, html: head + body };
+      });
   }
 
   // ── [02] Intenção de voto presidencial (pré-candidatos) ──
