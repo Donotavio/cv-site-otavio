@@ -1,0 +1,513 @@
+---
+/**
+ * ArchitectureFlow.astro — Seção [ 02 ] — Direção Blueprint
+ * "Diagrama vivo" da arquitetura medalhão orientada a domínio.
+ *
+ * Fluxo (spine): Fontes → Landing Zone (lago de petróleo, append-only) →
+ * Bronze (pré-tratamento) → Prata (enriquecimento + qualificação + quarentena
+ * de DQ) → Ouro (OBTs por domínio: fatos + dimensões + grão por visão).
+ *
+ * Motion:
+ *  - Entrada: revealUp (estações) + hairlineDraw (linha da seção) — padrões
+ *    aprovados (GSAP), auto-gated por motionOk.
+ *  - Fluxo contínuo dos pacotes de dados: CSS @keyframes (transform-only, GPU)
+ *    ligado APENAS em `prefers-reduced-motion: no-preference`. Sob reduced-motion
+ *    os pacotes somem e a direção fica indicada por setas estáticas (▸/▾).
+ *  - Eixo do fluxo: vertical no mobile, horizontal ≥900px (container query units
+ *    cqw/cqh — os pacotes atravessam a extensão real do trilho, responsivo).
+ *
+ * Regras: zero hex (só tokens.css Blueprint — família --medallion-*), CSS scoped,
+ *         mobile-first, texto UI via data-i18n-key. Conteúdo legível sem JS (SSG).
+ */
+import { t } from '../lib/i18n';
+---
+
+<section id="architecture" class="section arch" aria-labelledby="arch-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">02</span>
+      <h2 id="arch-title" class="arch-display" data-i18n-key="arch.title">{t('arch.title')}</h2>
+      <p class="arch-lead" data-i18n-key="arch.subtitle">{t('arch.subtitle')}</p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <div class="flow" role="group" aria-label={t('arch.aria')} data-i18n-aria="arch.aria">
+      <!-- ── 00 · Fontes ─────────────────────────────────── -->
+      <article class="stage stage--sources crop" style="--tone: var(--accent);">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="stage-head">
+          <span class="stage-idx mono-label">00</span>
+          <span class="stage-dot" aria-hidden="true"></span>
+        </header>
+        <h3 class="stage-name" data-i18n-key="arch.s_sources_label">{t('arch.s_sources_label')}</h3>
+        <p class="stage-desc" data-i18n-key="arch.s_sources_desc">{t('arch.s_sources_desc')}</p>
+        <span class="src-fan" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </span>
+      </article>
+
+      <div class="rail rail--raw" aria-hidden="true">
+        <span class="rail-line"></span>
+        <span class="rail-arrow">▸</span>
+        <i class="pkt"></i><i class="pkt"></i><i class="pkt"></i>
+      </div>
+
+      <!-- ── 01 · Landing Zone ───────────────────────────── -->
+      <article class="stage stage--landing crop" style="--tone: var(--accent);">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="stage-head">
+          <span class="stage-idx mono-label">01</span>
+          <span class="stage-dot" aria-hidden="true"></span>
+        </header>
+        <h3 class="stage-name" data-i18n-key="arch.s_landing_label">{t('arch.s_landing_label')}</h3>
+        <p class="stage-desc" data-i18n-key="arch.s_landing_desc">{t('arch.s_landing_desc')}</p>
+        <span class="landing-strata" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i>
+        </span>
+      </article>
+
+      <div class="rail rail--bronze" aria-hidden="true">
+        <span class="rail-line"></span>
+        <span class="rail-arrow">▸</span>
+        <i class="pkt"></i><i class="pkt"></i><i class="pkt"></i>
+      </div>
+
+      <!-- ── 02 · Bronze ─────────────────────────────────── -->
+      <article class="stage stage--bronze crop" style="--tone: var(--medallion-bronze);">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="stage-head">
+          <span class="stage-idx mono-label">02</span>
+          <span class="stage-dot" aria-hidden="true"></span>
+        </header>
+        <h3 class="stage-name" data-i18n-key="arch.s_bronze_label">{t('arch.s_bronze_label')}</h3>
+        <p class="stage-desc" data-i18n-key="arch.s_bronze_desc">{t('arch.s_bronze_desc')}</p>
+      </article>
+
+      <div class="rail rail--silver" aria-hidden="true">
+        <span class="rail-line"></span>
+        <span class="rail-arrow">▸</span>
+        <i class="pkt"></i><i class="pkt"></i><i class="pkt"></i>
+      </div>
+
+      <!-- ── 03 · Prata (com quarentena de DQ) ───────────── -->
+      <article class="stage stage--silver crop" style="--tone: var(--medallion-silver);">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="stage-head">
+          <span class="stage-idx mono-label">03</span>
+          <span class="stage-dot" aria-hidden="true"></span>
+        </header>
+        <h3 class="stage-name" data-i18n-key="arch.s_silver_label">{t('arch.s_silver_label')}</h3>
+        <p class="stage-desc" data-i18n-key="arch.s_silver_desc">{t('arch.s_silver_desc')}</p>
+        <span class="quarantine">
+          <span class="quarantine-dot" aria-hidden="true"></span>
+          <span class="quarantine-label mono-label" data-i18n-key="arch.quarantine">{t('arch.quarantine')}</span>
+        </span>
+      </article>
+
+      <div class="rail rail--gold" aria-hidden="true">
+        <span class="rail-line"></span>
+        <span class="rail-arrow">▸</span>
+        <i class="pkt"></i><i class="pkt"></i><i class="pkt"></i>
+      </div>
+
+      <!-- ── 04 · Ouro (OBTs por domínio) ────────────────── -->
+      <article class="stage stage--gold crop" style="--tone: var(--medallion-gold);">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="stage-head">
+          <span class="stage-idx mono-label">04</span>
+          <span class="stage-dot" aria-hidden="true"></span>
+        </header>
+        <h3 class="stage-name" data-i18n-key="arch.s_gold_label">{t('arch.s_gold_label')}</h3>
+        <p class="stage-desc" data-i18n-key="arch.s_gold_desc">{t('arch.s_gold_desc')}</p>
+        <ul class="obt-fan" aria-hidden="true">
+          <li class="obt-chip"><span data-i18n-key="arch.obt_1">{t('arch.obt_1')}</span></li>
+          <li class="obt-chip"><span data-i18n-key="arch.obt_2">{t('arch.obt_2')}</span></li>
+          <li class="obt-chip"><span data-i18n-key="arch.obt_3">{t('arch.obt_3')}</span></li>
+        </ul>
+      </article>
+    </div>
+
+    <!-- Legenda / nota -->
+    <div class="flow-legend crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <span class="legend-swatches" aria-hidden="true">
+        <span class="sw sw--bronze"></span>
+        <span class="sw sw--silver"></span>
+        <span class="sw sw--gold"></span>
+      </span>
+      <span class="legend-flow mono-label" data-i18n-key="arch.legend_flow">{t('arch.legend_flow')}</span>
+      <p class="legend-note" data-i18n-key="arch.legend_note">{t('arch.legend_note')}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .arch {
+    background: var(--paper);
+  }
+
+  .arch-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .arch-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  .section-line {
+    margin-block-end: var(--space-16);
+  }
+
+  /* ── Spine do fluxo ──────────────────────────────────────
+     Mobile: coluna (estação / trilho / estação …).
+     Desktop ≥900px: linha, estações e trilhos com alturas iguais. */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .flow {
+      flex-direction: row;
+      align-items: stretch;
+    }
+  }
+
+  /* ── Estação ─────────────────────────────────────────────── */
+  .stage {
+    position: relative;
+    flex: 0 0 auto;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--tone);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    transition: border-color var(--transition-normal);
+  }
+
+  @media (min-width: 1024px) {
+    .stage {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: var(--space-6) var(--space-5);
+    }
+  }
+
+  .stage:hover {
+    border-color: var(--line-strong);
+    border-top-color: var(--tone);
+  }
+
+  .stage-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .stage-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--tone);
+    flex-shrink: 0;
+  }
+
+  .stage-name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .stage-desc {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-wide);
+    margin: 0;
+  }
+
+  /* ── Fontes: leque de origens convergindo ─────────────────── */
+  .src-fan {
+    display: flex;
+    gap: 3px;
+    margin-block-start: var(--space-2);
+  }
+  .src-fan i {
+    display: block;
+    width: 100%;
+    height: 6px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-dim);
+    border-left: 2px solid var(--accent);
+  }
+
+  /* ── Landing: estratos empilhados (append-only) ───────────── */
+  .landing-strata {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-block-start: var(--space-2);
+  }
+  .landing-strata i {
+    display: block;
+    height: 3px;
+    border-radius: var(--radius-full);
+    background: var(--line);
+  }
+  .landing-strata i:last-child { background: var(--line-accent); }
+
+  /* ── Prata: quarentena de DQ ──────────────────────────────── */
+  .quarantine {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block-start: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border: 1px dashed var(--warning-line);
+    border-radius: var(--radius-sm);
+    background: var(--warning-dim);
+    align-self: flex-start;
+  }
+  .quarantine-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--warning);
+    flex-shrink: 0;
+  }
+  .quarantine-label {
+    color: var(--warning-ink);
+  }
+
+  /* ── Ouro: leque de OBTs por domínio ──────────────────────── */
+  .obt-fan {
+    list-style: none;
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .obt-chip {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--medallion-gold-ink);
+    padding: 2px var(--space-2);
+    border: 1px solid var(--medallion-gold-line);
+    border-radius: var(--radius-sm);
+    background: var(--medallion-gold-dim);
+    white-space: nowrap;
+  }
+
+  /* ── Trilho (rail) + pacotes de dados ─────────────────────── */
+  .rail {
+    position: relative;
+    container-type: size;
+    /* Mobile: lane vertical entre estações */
+    inline-size: 100%;
+    block-size: 46px;
+    flex: 0 0 auto;
+  }
+
+  @media (min-width: 1024px) {
+    .rail {
+      /* Desktop: conector horizontal fino; estações (flex:1) tomam o resto.
+         Altura = linha do flex (align-self:stretch → block-size definido). */
+      inline-size: clamp(2.5rem, 5vw, 5rem);
+      block-size: auto;
+      flex: 0 0 auto;
+      align-self: stretch;
+    }
+  }
+
+  /* Hairline central do trilho */
+  .rail-line {
+    position: absolute;
+    background: var(--line-strong);
+  }
+  .rail-line {
+    /* mobile: linha vertical centrada */
+    inset-block: 6px;
+    inset-inline-start: 50%;
+    inline-size: 1px;
+    transform: translateX(-0.5px);
+  }
+  @media (min-width: 1024px) {
+    .rail-line {
+      inset-block: auto;
+      inset-block-start: 50%;
+      inset-inline: 6px;
+      inline-size: auto;
+      block-size: 1px;
+      transform: translateY(-0.5px);
+    }
+  }
+
+  /* Seta de direção (sempre visível — indica o sentido do fluxo,
+     inclusive sob reduced-motion) */
+  .rail-arrow {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: 1;
+    color: var(--ink-faint);
+    inset-inline-start: 50%;
+    inset-block-end: 2px;
+    transform: translateX(-50%) rotate(90deg);
+  }
+  @media (min-width: 1024px) {
+    .rail-arrow {
+      inset-inline-start: auto;
+      inset-inline-end: 2px;
+      inset-block-start: 50%;
+      inset-block-end: auto;
+      transform: translateY(-50%);
+    }
+  }
+
+  /* Pacotes de dados (diamantes) — cor por segmento (--pkt) */
+  .rail--raw    { --pkt: var(--accent); }
+  .rail--bronze { --pkt: var(--medallion-bronze); }
+  .rail--silver { --pkt: var(--medallion-silver); }
+  .rail--gold   { --pkt: var(--medallion-gold); }
+
+  .pkt {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background: var(--pkt);
+    border-radius: 1px;
+    /* diamante */
+    inset-inline-start: 50%;
+    inset-block-start: 0;
+    display: none; /* aparece só quando motion é permitido (regra abaixo) */
+  }
+
+  /* Fluxo contínuo — SOMENTE quando o usuário aceita motion.
+     Mobile: desce (translateY 0 → 100cqh). Desktop: anda (translateX 0 → 100cqw). */
+  @media (prefers-reduced-motion: no-preference) {
+    .pkt {
+      display: block;
+      animation: flowY 3s linear infinite;
+    }
+    .pkt:nth-child(3) { animation-delay: -1s; }
+    .pkt:nth-child(4) { animation-delay: -2s; }
+
+    @media (min-width: 1024px) {
+      .pkt { animation-name: flowX; }
+    }
+  }
+
+  @keyframes flowY {
+    0%   { transform: translate(-50%, -4px) rotate(45deg); opacity: 0; }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { transform: translate(-50%, calc(100cqh + 4px)) rotate(45deg); opacity: 0; }
+  }
+
+  @keyframes flowX {
+    0%   { transform: translate(-4px, -50%) rotate(45deg); opacity: 0; }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { transform: translate(calc(100cqw + 4px), -50%) rotate(45deg); opacity: 0; }
+  }
+
+  /* No desktop os pacotes partem do topo-central; reancoramos para o meio
+     vertical (a translação horizontal cuida do resto). */
+  @media (min-width: 1024px) {
+    .pkt { inset-block-start: 50%; inset-inline-start: 0; }
+  }
+
+  /* ── Legenda ─────────────────────────────────────────────── */
+  .flow-legend {
+    position: relative;
+    margin-block-start: var(--space-12);
+    padding: var(--space-5) var(--space-6);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--paper-soft);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .legend-swatches {
+    display: inline-flex;
+    gap: var(--space-1);
+  }
+  .sw {
+    width: 12px;
+    height: 12px;
+    border-radius: 1px;
+    transform: rotate(45deg);
+  }
+  .sw--bronze { background: var(--medallion-bronze); }
+  .sw--silver { background: var(--medallion-silver); }
+  .sw--gold   { background: var(--medallion-gold); }
+
+  .legend-flow {
+    color: var(--ink-faint);
+  }
+
+  .legend-note {
+    flex: 1 1 24ch;
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    min-width: 0;
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
+
+  const section = document.getElementById('architecture');
+  if (section) {
+    const line   = section.querySelector('.section-line') as Element;
+    const head   = section.querySelector('.section-head') as Element;
+    const stages = section.querySelectorAll('.stage');
+    const legend = section.querySelector('.flow-legend') as Element;
+
+    if (line) hairlineDraw(line, section);
+
+    if (motionOk) {
+      revealUp([head], section, 0);
+      revealUp(stages, section, 0.1);
+      if (legend) revealUp([legend], section, 0);
+    }
+  }
+</script>
