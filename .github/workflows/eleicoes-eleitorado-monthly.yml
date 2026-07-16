@@ -1,0 +1,87 @@
+name: Observatório Eleições 2026 — Eleitorado (TSE)
+
+# Mensal (dia 3, 06:20 UTC) + workflow_dispatch. Job PESADO: baixa o perfil do
+# eleitorado do TSE (~85 MB zip / ~2,3 GB CSV) e agrega em stream. O eleitorado
+# muda pouco entre meses, então não roda no cron diário das pesquisas.
+# Fonte: TSE Dados Abertos — Estatísticas de Eleitorado (perfil ATUAL).
+on:
+  schedule:
+    - cron: '20 6 3 * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  actions: write   # necessário para o createWorkflowDispatch (build-and-deploy.yml)
+
+jobs:
+  collect-eleitorado:
+    name: Coleta perfil do eleitorado → gold → JSON
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: ingestion_eleicoes/requirements.txt
+
+      - name: Instalar dependências Python
+        run: pip install -r ingestion_eleicoes/requirements.txt
+
+      - name: Criar diretórios de dados
+        run: mkdir -p data/bronze/eleitorado data/gold
+
+      - name: Coletar perfil do eleitorado (TSE, stream-aggregate)
+        run: python ingestion_eleicoes/collect_eleitorado.py
+
+      - name: Gold — recortes demográficos do eleitorado
+        run: python transform_eleicoes/gold_eleitorado.py
+
+      - name: Commit dados atualizados
+        run: |
+          git config user.name "eleicoes-pipeline[bot]"
+          git config user.email "eleicoes-pipeline@users.noreply.github.com"
+
+          git add data/bronze/eleitorado/ assets/data/eleicoes_eleitorado.json || true
+
+          if git diff --staged --quiet; then
+            echo "ℹ Sem mudanças no eleitorado — nada a commitar."
+          else
+            TODAY=$(date +%Y-%m-%d)
+            git commit -m "data: perfil do eleitorado — Observatório Eleições 2026 ${TODAY}"
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD:main; then
+                echo "✅ Dados enviados (tentativa ${attempt})."
+                break
+              fi
+              if [ "${attempt}" = "5" ]; then
+                echo "✗ Push falhou após 5 tentativas."; exit 1
+              fi
+              echo "↻ Push rejeitado — reconciliando com origin/main (tentativa ${attempt})."
+              git fetch origin main
+              git merge -X ours --no-edit FETCH_HEAD || {
+                git checkout --ours . && git add -A && GIT_EDITOR=true git commit --no-edit || true
+              }
+              sleep $(( attempt * 3 ))
+            done
+          fi
+
+      - name: Disparar deploy do site
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build-and-deploy.yml',
+              ref: 'main'
+            });
+            console.log('✅ Deploy disparado.');

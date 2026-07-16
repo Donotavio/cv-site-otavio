@@ -78,3 +78,45 @@ FAIXAS_AMOSTRA = [
     ("2.001–5.000", 2001, 5000),
     ("5.000+", 5001, 10**9),
 ]
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Perfil do Eleitorado (TSE — Estatísticas de Eleitorado, snapshot ATUAL)
+# ═══════════════════════════════════════════════════════════════════════════
+# Contraparte demográfica das pesquisas: quem é o eleitorado que os institutos
+# tentam medir. Fonte oficial, apartidária (só contagem de eleitores por
+# atributo — sexo, faixa etária, escolaridade, cor/raça, biometria, UF).
+#
+# ATENÇÃO: o CSV descompactado tem ~2,3 GB (uma linha por seção × combinação de
+# atributos). O collector faz stream direto do ZIP em chunks e agrega para um
+# bronze compacto (nunca grava o CSV cru em disco). Job pesado → roda mensal,
+# separado do cron diário das pesquisas (o eleitorado muda pouco).
+TSE_ELEITORADO_ZIP_URL = (
+    "https://cdn.tse.jus.br/estatistica/sead/odsele/perfil_eleitorado/"
+    "perfil_eleitorado_ATUAL.zip"
+)
+TSE_ELEITORADO_CSV = "perfil_eleitorado_ATUAL.csv"
+DATASET_PAGE_ELEITORADO = "https://dadosabertos.tse.jus.br/dataset/eleitorado-atual"
+
+# Colunas do CSV de perfil que interessam à agregação (as demais são
+# descartadas na leitura — usecols — para caber em memória em stream).
+COLUNAS_ELEITORADO = {
+    "SG_UF": "uf",
+    "DS_GENERO": "genero",
+    "DS_FAIXA_ETARIA": "faixa_etaria",
+    "DS_GRAU_INSTRUCAO": "grau_instrucao",
+    "DS_COR_RACA": "cor_raca",
+    "TP_OBRIGATORIEDADE_VOTO": "obrigatoriedade",
+    "QT_ELEITORES": "qt_eleitores",
+    "QT_ELEITORES_BIOMETRIA": "qt_biometria",
+    "QT_ELEITORES_DEFICIENCIA": "qt_deficiencia",
+}
+# Chaves de agrupamento do bronze agregado (colapsa 2,3 GB → milhares de linhas).
+ELEITORADO_GROUP_KEYS = [
+    "uf", "genero", "faixa_etaria", "grau_instrucao", "cor_raca", "obrigatoriedade",
+]
+ELEITORADO_MEASURES = ["qt_eleitores", "qt_biometria", "qt_deficiencia"]
+
+# UFs válidas (exclui "ZZ" = exterior e "VT" = voto em trânsito, tratadas à parte).
+UF_EXTERIOR = "ZZ"
+UF_TRANSITO = "VT"

@@ -133,6 +133,22 @@ def _agg(df) -> dict:
     invest_total = float(df["vr_pesquisa"].fillna(0).sum())
     mediana_amostra = q.median()
 
+    # ── Custo médio por pesquisa (só custos declarados > 0) ──
+    custos = df["vr_pesquisa"].dropna()
+    custos = custos[custos > 0]
+    custo_medio = round(float(custos.mean()), 2) if len(custos) else None
+
+    # ── Concentração de mercado (sobre TODOS os institutos, por nº de pesquisas) ──
+    # top-1 / top-5 share + HHI (Herfindahl–Hirschman, 0–10.000). Diz se a
+    # "medição do eleitorado" é pulverizada ou capturada por poucos institutos.
+    inst_all = df.groupby("empresa").size().sort_values(ascending=False)
+    n_all = int(inst_all.sum())
+    concentracao = {
+        "top1_share_pct": round(100 * int(inst_all.iloc[0]) / n_all, 1) if n_all else 0,
+        "top5_share_pct": round(100 * int(inst_all.head(5).sum()) / n_all, 1) if n_all else 0,
+        "hhi": int(round(((inst_all / n_all) ** 2).sum() * 10000)) if n_all else 0,
+    }
+
     # ── Recordes (card estrela do bento + linha de mini-stats) ──
     inst_top = None
     if len(inst):
@@ -170,7 +186,9 @@ def _agg(df) -> dict:
             "investimento_total_rs": round(invest_total, 2),
             "mediana_entrevistados": int(mediana_amostra) if pd.notna(mediana_amostra) else None,
             "pct_presidencial": round(100 * por_nivel.get("presidencial", 0) / total, 1) if total else 0,
+            "custo_medio_rs": custo_medio,
         },
+        "concentracao": concentracao,
         "por_mes": por_mes.to_dict(orient="records"),
         "por_nivel": {
             "presidencial": int(por_nivel.get("presidencial", 0)),

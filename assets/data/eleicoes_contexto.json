@@ -1,0 +1,68 @@
+{
+  "_curadoria": true,
+  "_nota": "Dados de CONTEXTO curados manualmente de fontes oficiais (TSE, Senado, Câmara). Diferente de eleicoes_pesquisas.json e eleicoes_eleitorado.json, que são gerados por pipeline. Cada bloco traz sua fonte e URL. Atualizar quando o TSE publicar números novos.",
+  "atualizado_em": "2026-07-16",
+  "eleicao": {
+    "primeiro_turno": "2026-10-04",
+    "segundo_turno": "2026-10-25"
+  },
+  "cargos": {
+    "presidente": 1,
+    "governadores": 27,
+    "senadores": 54,
+    "senado_total": 81,
+    "deputados_federais": 513,
+    "nota_senado": "2/3 do Senado renovados de uma só vez (54 de 81 cadeiras)",
+    "nota_estaduais": "Além destes, deputados estaduais e distritais nas 27 assembleias/câmara legislativa.",
+    "fonte": "TSE — Confira quais cargos estarão em disputa nas Eleições 2026",
+    "fonte_url": "https://www.tse.jus.br/comunicacao/noticias/2026/Janeiro/confira-quais-cargos-estarao-em-disputa-nas-eleicoes-2026"
+  },
+  "fundo_eleitoral": {
+    "valor_rs": 4900000000,
+    "ref_2018_rs": 1700000000,
+    "multiplo_vs_2018": 2.9,
+    "top5_partidos_share_pct": 57.6,
+    "top3_partidos_share_pct": 40.8,
+    "cota_mulheres_pct": 30,
+    "cota_negros_pct": 30,
+    "nota_dobro": "Votos dados a mulheres e a candidatos negros à Câmara contam em dobro na divisão dos recursos (2022–2030).",
+    "fonte": "TSE — Distribuição do Fundo Especial de Financiamento de Campanha (jun/2026)",
+    "fonte_url": "https://www.tse.jus.br/comunicacao/noticias/2026/Junho/tse-divulga-distribuicao-do-fundo-especial-de-financiamento-de-campanha-para-as-eleicoes-2026"
+  },
+  "infraestrutura": {
+    "secoes": 496856,
+    "zonas": 2637,
+    "mesarios_por_secao": 4,
+    "urna_anos": 30,
+    "nota": "A maior operação civil do país em um único domingo — uma urna por seção; urna eletrônica completa 30 anos em out/2026.",
+    "fonte": "TSE / Poder360 — zonas e seções eleitorais 2026",
+    "fonte_url": "https://www.poder360.com.br/podereleitoral/saiba-quantas-zonas-e-secoes-eleitorais-ha-no-brasil/"
+  },
+  "exterior": {
+    "crescimento_2010_2022_pct": 247.9,
+    "abstencao_2022_pct": 56,
+    "nota": "Eleitorado no exterior cresceu 247,9% entre 2010 e 2022; mesmo assim, mais da metade não votou em 2022 (custo e distância até consulados). Contagem atual em eleicoes_eleitorado.json (ZZ).",
+    "fonte": "TSE — Painel do eleitorado no exterior (jul/2026)",
+    "fonte_url": "https://www.tse.jus.br/comunicacao/noticias/2026/Julho/tse-lanca-ferramenta-para-analise-da-participacao-do-eleitorado-brasileiro-no-exterior"
+  },
+  "renovacao": {
+    "reeleicao_camara_2022_pct": 57,
+    "renovacao_camara_2022_pct": 39,
+    "candidatos_dep_federal_2022": 10482,
+    "vagas_dep_federal": 513,
+    "nota": "Em 2022, 10.482 candidatos disputaram 513 cadeiras (funil de ~20:1); a Câmara renovou só 39%.",
+    "fonte": "Câmara dos Deputados — renovação de 39% em 2022",
+    "fonte_url": "https://www.camara.leg.br/noticias/911393-com-mais-deputados-reeleitos-e-menos-novatos-renovacao-da-camara-sera-de-39/"
+  },
+  "calendario": [
+    { "data": "2026-08-05", "marco": "Convenções partidárias (escolha de candidatos)" },
+    { "data": "2026-08-15", "marco": "Prazo final para registro de candidaturas" },
+    { "data": "2026-08-16", "marco": "Início da propaganda eleitoral" },
+    { "data": "2026-10-04", "marco": "1º turno" },
+    { "data": "2026-10-25", "marco": "2º turno (onde houver)" },
+    { "data": "2026-12-19", "marco": "Prazo de diplomação dos eleitos" },
+    { "data": "2027-01-01", "marco": "Posse de presidente e governadores eleitos" }
+  ],
+  "calendario_fonte": "TSE — Calendário Eleitoral 2026",
+  "calendario_fonte_url": "https://www.tse.jus.br/eleicoes/calendario-eleitoral"
+}

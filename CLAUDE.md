@@ -92,3 +92,25 @@ python transform_macro/gold_cockpit.py       # Silver → Gold + assets/data/coc
 - Gold writes **Parquet to `data/gold/` AND JSON to `assets/data/`** (Astro fetches the JSON at runtime; zero LLM in runtime).
 - Status tokens `--ck-verde/amarelo/vermelho/neutro` (+ `-ink` text variants) in `src/styles/tokens.css`.
 - CI: `.github/workflows/macro-cockpit-{daily,monthly,caged,quarterly}.yml` → collect → silver → gold → commit `data:` → dispatch `build-and-deploy.yml`.
+
+---
+
+## Sub-projeto: Observatório Eleições 2026
+
+Painel apartidário sobre a *máquina de medição* da eleição (quem mede o
+eleitorado, onde, com que rigor, a que custo) + o perfil real do eleitorado.
+Página `src/pages/eleicoes-2026.astro` (11 seções). Três JSONs em `assets/data/`,
+todos consumidos por fetch em runtime (zero LLM):
+
+```bash
+pip install -r ingestion_eleicoes/requirements.txt
+python ingestion_eleicoes/collect_pesquisas.py    # TSE Pesquisas 2026 → bronze
+python transform_eleicoes/gold_eleicoes.py         # → eleicoes_pesquisas.json (métricas + concentração/custo)
+python ingestion_eleicoes/collect_eleitorado.py    # TSE perfil eleitorado ATUAL (~2,3 GB, stream) → bronze
+python transform_eleicoes/gold_eleitorado.py       # → eleicoes_eleitorado.json (perfil por sexo/idade/escolaridade/UF)
+```
+
+- `ingestion_eleicoes/catalog.py` — fonte única (URLs TSE, mapa de colunas, regras). Nunca hardcodar fora daqui.
+- `assets/data/eleicoes_contexto.json` — **curado à mão** de fontes oficiais (cargos, Fundo Eleitoral, calendário, exterior, renovação). Cada bloco traz `fonte`/`fonte_url`. Atualizar quando o TSE publicar números novos (não é pipeline).
+- Cor: monocromático `--ink*` para dados + `--wc-gold*` para líder/destaque (sem cor partidária). Sem hex hardcoded.
+- CI: `.github/workflows/eleicoes-pipeline.yml` (pesquisas, diário) + `eleicoes-eleitorado-monthly.yml` (eleitorado, mensal — job pesado).

@@ -10,16 +10,24 @@
  * Apartidário por construção: mede quem mede o eleitorado. Cor: monocromático
  * (--ink) para os dados + --wc-gold-* para líder/estrela (sem cor partidária).
  *
- * Seções (mono-labels [01]…[05]):
+ * Seções (mono-labels [01]…[11]):
  *  0. Header + Hero + faixa de progresso (contagem para 4/out)
- *  1. [01] Panorama — bento de KPIs (dominante + secundárias + estrela) + mini-stats
- *  2. [02] Intensidade — gráfico de barras: pesquisas por mês (rampa)
- *  3. [03] Quem mede — tabela ranqueada de institutos (medalha no líder)
- *  4. [04] Como medem — donut (própria×contratada) + nível + amostra
- *  5. [05] Cobertura — ranking horizontal por UF com eixo
+ *  1. [01] Panorama — bento de KPIs + mini-stats (inclui custo médio + concentração)
+ *  2. [02] O eleitorado — perfil real do Cadastro (sexo/faixa/escolaridade/biometria)
+ *  3. [03] Intensidade — barras: pesquisas por mês (rampa)
+ *  4. [04] Intensidade real por UF — índice = pesquisas ÷ eleitores (por milhão)
+ *  5. [05] Quem mede — tabela ranqueada de institutos (medalha no líder)
+ *  6. [06] Como medem — donut (própria×contratada) + nível + amostra
+ *  7. [07] Cobertura — ranking horizontal por UF (contagem bruta)
+ *  8. [08] Explorar por estado — combobox acessível + recorte por UF
+ *  9. [09] O que está em jogo — cargos em disputa + Fundo Eleitoral
+ * 10. [10] Relógio da democracia — marcos do calendário eleitoral
+ * 11. [11] Transparência & fontes — o que temos / o que não temos
  *
- * Dado real: ingestion_eleicoes → gold_eleicoes.py → fetch runtime de
- * assets/data/eleicoes_pesquisas.json. Zero LLM em runtime.
+ * Dados reais (fetch runtime, zero LLM):
+ *   assets/data/eleicoes_pesquisas.json   ← ingestion_eleicoes → gold_eleicoes.py
+ *   assets/data/eleicoes_eleitorado.json  ← collect_eleitorado → gold_eleitorado.py
+ *   assets/data/eleicoes_contexto.json    ← curadoria de fontes oficiais (cited)
  * i18n: data-i18n-key estático + window.i18n.t() nos rótulos dinâmicos.
  * Motion: padrão nomeado `reveal-up` (motionOk). Breakpoints mobile-first.
  */
@@ -168,15 +176,64 @@ const base = import.meta.env.BASE_URL;
             <span class="el-ministat__label mono-label" data-i18n-key="portfolio.eleicoes.mini_pico">mês de pico</span>
             <span class="el-ministat__value" id="mini-pico">···</span>
           </div>
+          <div class="el-ministat" role="listitem">
+            <span class="el-ministat__label mono-label" data-i18n-key="portfolio.eleicoes.mini_custo">custo médio / pesquisa</span>
+            <span class="el-ministat__value" id="mini-custo">···</span>
+          </div>
+          <div class="el-ministat" role="listitem">
+            <span class="el-ministat__label mono-label" data-i18n-key="portfolio.eleicoes.mini_conc">top-5 dos institutos</span>
+            <span class="el-ministat__value" id="mini-conc">···</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══════════════════════ [02] INTENSIDADE (bar chart) ═══════════════════════ -->
-    <section id="el-intensidade" class="section" aria-labelledby="el-int-title">
+    <!-- ═══════════════════════ [02] O ELEITORADO ═══════════════════════ -->
+    <section id="el-eleitorado" class="section" aria-labelledby="el-elt-title">
       <div class="container">
         <div class="section-head">
           <span class="mono-label">02</span>
+          <h2 id="el-elt-title" class="el-h2" data-i18n-key="portfolio.eleicoes.elt_title">Quem é o eleitorado</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.elt_lead">
+            O corpo que os institutos tentam medir — perfil real do Cadastro Nacional de Eleitores (TSE), agregado de 11 milhões de linhas por seção.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="el-elt-bento">
+          <article class="el-elt-hero crop" aria-labelledby="el-elt-total">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <span class="el-kpi__label" data-i18n-key="portfolio.eleicoes.elt_total_label">eleitores aptos a votar</span>
+            <span class="el-elt-total" id="el-elt-total">···</span>
+            <div class="el-elt-chips" id="el-elt-chips"></div>
+          </article>
+          <article class="el-panel crop" aria-labelledby="el-elt-genero-t">
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <span class="el-panel__title mono-label" id="el-elt-genero-t" data-i18n-key="portfolio.eleicoes.elt_genero">por sexo</span>
+            <div id="el-elt-genero" class="el-split"><p class="el-loading mono-label">···</p></div>
+          </article>
+          <article class="el-panel crop" aria-labelledby="el-elt-faixa-t">
+            <span class="el-panel__title mono-label" id="el-elt-faixa-t" data-i18n-key="portfolio.eleicoes.elt_faixa">por faixa etária</span>
+            <div id="el-elt-faixa" class="el-bars"><p class="el-loading mono-label">···</p></div>
+          </article>
+          <article class="el-panel crop" aria-labelledby="el-elt-escol-t">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="el-panel__title mono-label" id="el-elt-escol-t" data-i18n-key="portfolio.eleicoes.elt_escol">por escolaridade</span>
+            <div id="el-elt-escol" class="el-bars"><p class="el-loading mono-label">···</p></div>
+          </article>
+        </div>
+        <p class="el-nota mono-label" data-i18n-key="portfolio.eleicoes.elt_nota">
+          Fonte: TSE — Estatísticas de Eleitorado (snapshot atual). Números facultativos: voto é opcional para 16–17 anos, 70+ e analfabetos.
+        </p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ [03] INTENSIDADE (bar chart) ═══════════════════════ -->
+    <section id="el-intensidade" class="section el-alt" aria-labelledby="el-int-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">03</span>
           <h2 id="el-int-title" class="el-h2" data-i18n-key="portfolio.eleicoes.timeline_title">A rampa das pesquisas</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.timeline_lead">
             Pesquisas divulgadas por mês. A intensidade acelera conforme a eleição se aproxima.
@@ -194,14 +251,39 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [03] QUEM MEDE (tabela) ═══════════════════════ -->
+    <!-- ═══════════════ [04] INTENSIDADE REAL POR UF (índice normalizado) ═══════════════ -->
+    <section id="el-intensidade-uf" class="section" aria-labelledby="el-iuf-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">04</span>
+          <h2 id="el-iuf-title" class="el-h2" data-i18n-key="portfolio.eleicoes.iuf_title">Onde a disputa está quente de verdade</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.iuf_lead">
+            Contagem bruta favorece estados grandes. Aqui, pesquisas por milhão de eleitores — cruzando o registro do TSE com o Cadastro de Eleitores. Revela onde se mede com mais intensidade, independentemente do tamanho.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+        <figure class="el-ufchart crop" id="el-iuf" aria-label="Intensidade de pesquisas por milhão de eleitores, por estado">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <div class="el-chartcard__head">
+            <span class="mono-label" data-i18n-key="portfolio.eleicoes.iuf_axis">[ pesquisas estaduais por milhão de eleitores ]</span>
+          </div>
+          <div id="el-iuf-body"><p class="el-loading mono-label">carregando índice…</p></div>
+        </figure>
+        <p class="el-nota mono-label" data-i18n-key="portfolio.eleicoes.iuf_nota">
+          Índice = pesquisas estaduais registradas ÷ eleitores do estado (em milhões). Exclui a disputa nacional/presidencial.
+        </p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ [05] QUEM MEDE (tabela) ═══════════════════════ -->
     <section id="el-institutos" class="section el-alt" aria-labelledby="el-inst-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">03</span>
+          <span class="mono-label">05</span>
           <h2 id="el-inst-title" class="el-h2" data-i18n-key="portfolio.eleicoes.institutos_title">Quem mede o eleitorado</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.institutos_lead">
-            Institutos por volume de pesquisas registradas e investimento declarado (R$).
+            Institutos por volume de pesquisas registradas e investimento declarado (R$). Mercado pulverizado — o líder detém <span id="el-conc-inline">···</span> do total.
           </p>
         </div>
         <hr class="section-line" aria-hidden="true" />
@@ -225,11 +307,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [04] COMO MEDEM ═══════════════════════ -->
+    <!-- ═══════════════════════ [06] COMO MEDEM ═══════════════════════ -->
     <section id="el-como" class="section" aria-labelledby="el-como-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">04</span>
+          <span class="mono-label">06</span>
           <h2 id="el-como-title" class="el-h2" data-i18n-key="portfolio.eleicoes.como_title">Como medem</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.como_lead">
             Nível da disputa, origem da encomenda e rigor amostral.
@@ -260,11 +342,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [05] COBERTURA POR UF ═══════════════════════ -->
+    <!-- ═══════════════════════ [07] COBERTURA POR UF ═══════════════════════ -->
     <section id="el-cobertura" class="section el-alt" aria-labelledby="el-uf-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">05</span>
+          <span class="mono-label">07</span>
           <h2 id="el-uf-title" class="el-h2" data-i18n-key="portfolio.eleicoes.uf_title">Onde se mede mais</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.uf_lead">
             Pesquisas estaduais por UF (exclui a disputa presidencial/nacional).
@@ -279,11 +361,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════ [06] EXPLORAR POR ESTADO (interativo) ═══════════════════ -->
+    <!-- ═══════════════════ [08] EXPLORAR POR ESTADO (interativo) ═══════════════════ -->
     <section id="el-explorar" class="section el-alt" aria-labelledby="el-exp-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">06</span>
+          <span class="mono-label">08</span>
           <h2 id="el-exp-title" class="el-h2" data-i18n-key="portfolio.eleicoes.explorar_title">Explore por estado</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.explorar_lead">
             Escolha uma UF e veja o recorte local: volume de pesquisas, rigor amostral e os institutos que mais medem ali.
@@ -309,6 +391,78 @@ const base = import.meta.env.BASE_URL;
             <p class="el-loading mono-label">selecione um estado…</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ [09] O QUE ESTÁ EM JOGO ═══════════════════════ -->
+    <section id="el-jogo" class="section" aria-labelledby="el-jogo-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">09</span>
+          <h2 id="el-jogo-title" class="el-h2" data-i18n-key="portfolio.eleicoes.jogo_title">O que está em jogo</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.jogo_lead">
+            Os cargos em disputa e o dinheiro público de campanha — o tamanho da aposta de 2026.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+        <div class="el-jogo-grid" id="el-jogo-cargos"></div>
+        <div class="el-fundo crop" id="el-fundo">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <p class="el-loading mono-label">···</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ [10] RELÓGIO DA DEMOCRACIA ═══════════════════════ -->
+    <section id="el-relogio" class="section el-alt" aria-labelledby="el-rel-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">10</span>
+          <h2 id="el-rel-title" class="el-h2" data-i18n-key="portfolio.eleicoes.rel_title">O relógio da democracia</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.rel_lead">
+            Os marcos oficiais do calendário eleitoral de 2026 — da convenção à posse.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+        <div class="el-timeline crop">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <ol class="el-timeline__list" id="el-timeline" aria-label="Calendário eleitoral 2026">
+            <li class="el-loading mono-label">carregando calendário…</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ [11] TRANSPARÊNCIA & FONTES ═══════════════════════ -->
+    <section id="el-transparencia" class="section" aria-labelledby="el-tr-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">11</span>
+          <h2 id="el-tr-title" class="el-h2" data-i18n-key="portfolio.eleicoes.tr_title">Por que este painel não diz quem está ganhando</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.tr_lead">
+            Um recorte honesto do que o dado público permite — e do que ele não permite.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+        <div class="el-tr-grid">
+          <article class="el-panel crop">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="el-panel__title mono-label" data-i18n-key="portfolio.eleicoes.tr_have">o que temos</span>
+            <p class="el-tr-text" data-i18n-key="portfolio.eleicoes.tr_have_text">
+              Metadados de cada pesquisa registrada no TSE (instituto, cargo, UF, amostra, custo, datas) e o perfil demográfico completo do eleitorado. Tudo agregado por pipeline reprodutível — Python · pandas · Parquet — sem LLM em runtime.
+            </p>
+          </article>
+          <article class="el-panel crop">
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <span class="el-panel__title mono-label" data-i18n-key="portfolio.eleicoes.tr_havenot">o que não temos</span>
+            <p class="el-tr-text" data-i18n-key="portfolio.eleicoes.tr_havenot_text">
+              Os percentuais de intenção de voto: eles vivem nos questionários em PDF, fora do dataset estruturado. Por isso o painel mede <em>quem mede o eleitorado</em>, não quem vence — um recorte apartidário por construção.
+            </p>
+          </article>
+        </div>
+        <ul class="el-sources" id="el-sources" aria-label="Fontes de dados"></ul>
       </div>
     </section>
 
@@ -383,7 +537,8 @@ const base = import.meta.env.BASE_URL;
   .el-ministat { background: var(--paper-card); padding: var(--space-5) var(--space-6); display: flex; flex-direction: column; gap: var(--space-2); }
   .el-ministat__label { color: var(--ink-faint); }
   .el-ministat__value { font-family: var(--font-display); font-size: var(--text-xl); color: var(--ink); font-variant-numeric: var(--num-tabular); line-height: 1; }
-  @media (min-width: 1024px) { .el-ministats { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 640px)  { .el-ministats { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 1024px) { .el-ministats { grid-template-columns: repeat(6, 1fr); } }
 
   /* ── Cards de gráfico ── */
   .el-chartcard, .el-rank-wrap, .el-ufchart, .el-panel { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); }
@@ -459,7 +614,7 @@ const base = import.meta.env.BASE_URL;
   .el-loading { color: var(--ink-faint); }
   :global(.el-error) { color: var(--ink-faint); font-family: var(--font-mono); font-size: var(--text-sm); }
 
-  /* ── [06] Explorar por estado ── */
+  /* ── [08] Explorar por estado ── */
   .el-explorar { display: grid; grid-template-columns: 1fr; gap: var(--space-6); margin-top: var(--space-8); align-items: start; }
   @media (min-width: 1024px) { .el-explorar { grid-template-columns: 300px 1fr; gap: var(--space-8); } }
   .el-explorar__control { display: flex; flex-direction: column; gap: var(--space-3); }
@@ -542,6 +697,55 @@ const base = import.meta.env.BASE_URL;
   @media (prefers-reduced-motion: reduce) {
     :global(.el-jumpnav__bullet), :global(.el-jumpnav__label), :global(.el-jumpnav-fab), :global(.el-jumpnav-fab__icon span), :global(.el-jumpnav-backdrop) { transition: none !important; }
   }
+
+  /* ── [02] O eleitorado ── */
+  .el-elt-bento { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-8); }
+  @media (min-width: 640px)  { .el-elt-bento { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); } }
+  @media (min-width: 1024px) { .el-elt-bento { grid-template-columns: repeat(3, 1fr); grid-auto-rows: minmax(150px, auto); } .el-elt-hero { grid-column: 1 / 2; grid-row: 1 / 3; } }
+  .el-elt-hero { position: relative; background: linear-gradient(180deg, var(--paper-card) 0%, var(--wc-gold-dim) 100%); border: 1px solid var(--wc-gold-line); border-radius: var(--radius-md); padding: var(--space-8); display: flex; flex-direction: column; gap: var(--space-3); }
+  .el-elt-total { font-family: var(--font-display); font-size: var(--display-2); font-weight: 400; color: var(--wc-gold-ink); line-height: .9; letter-spacing: var(--tracking-tight); font-variant-numeric: var(--num-tabular); }
+  .el-elt-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+  .el-chip { padding: var(--space-1) var(--space-3); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-wide); color: var(--ink-soft); background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--radius-full); }
+
+  /* ── [09] O que está em jogo ── */
+  .el-jogo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); margin-top: var(--space-8); }
+  @media (min-width: 1024px) { .el-jogo-grid { grid-template-columns: repeat(4, 1fr); } }
+  .el-jogo-card { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-1); transition: border-color var(--transition-normal); }
+  .el-jogo-card:hover { border-color: var(--line-strong); }
+  .el-jogo-num { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 400; color: var(--ink); line-height: .95; letter-spacing: var(--tracking-tight); font-variant-numeric: var(--num-tabular); }
+  .el-jogo-label { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--ink-soft); }
+  .el-jogo-sub { color: var(--wc-gold-ink); margin-top: var(--space-1); }
+  .el-fundo { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-8); margin-top: var(--space-5); display: grid; grid-template-columns: 1fr; gap: var(--space-6); }
+  @media (min-width: 768px) { .el-fundo { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; } }
+  .el-fundo__main { display: flex; flex-direction: column; gap: var(--space-2); }
+  .el-fundo__val { color: var(--wc-gold-ink); font-size: var(--display-2); line-height: .9; }
+  .el-fundo__stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-5) var(--space-6); }
+  @media (min-width: 1024px) { .el-fundo__stats { grid-template-columns: repeat(4, 1fr); } }
+  .el-fundo__sv { display: block; font-family: var(--font-display); font-size: var(--text-2xl); color: var(--ink); font-variant-numeric: var(--num-tabular); line-height: 1; }
+  .el-fundo__sl { display: block; color: var(--ink-faint); margin-top: var(--space-2); }
+
+  /* ── [10] Relógio (timeline vertical) ── */
+  .el-timeline { position: relative; margin: var(--space-8) 0 0; padding: var(--space-8) var(--space-6); background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); }
+  .el-timeline__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+  .el-tl-item { position: relative; display: grid; grid-template-columns: 1.2rem 6.5rem 1fr; align-items: baseline; gap: var(--space-3); padding: var(--space-4) 0; padding-left: var(--space-2); border-left: 2px solid var(--line); margin-left: 5px; }
+  .el-tl-item:first-of-type { padding-top: 0; }
+  .el-tl-item:last-of-type { padding-bottom: 0; }
+  .el-tl-dot { position: absolute; left: -7px; top: var(--space-4); width: 10px; height: 10px; border-radius: var(--radius-full); background: var(--paper-card); border: 2px solid var(--ink-faint); }
+  .el-tl-item:first-of-type .el-tl-dot { top: 2px; }
+  .el-tl-item.is-past { border-left-color: var(--wc-gold-line); }
+  .el-tl-item.is-past .el-tl-dot { background: var(--wc-gold-ink); border-color: var(--wc-gold-ink); }
+  .el-tl-date { color: var(--ink-faint); font-variant-numeric: var(--num-tabular); grid-column: 2; }
+  .el-tl-marco { color: var(--ink); font-size: var(--text-sm); grid-column: 3; }
+  .el-tl-item.is-past .el-tl-marco { color: var(--ink-soft); }
+
+  /* ── [11] Transparência & fontes ── */
+  .el-tr-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-8); }
+  @media (min-width: 768px) { .el-tr-grid { grid-template-columns: repeat(2, 1fr); } }
+  .el-tr-text { color: var(--ink-soft); font-size: var(--text-base); line-height: var(--leading-normal); margin: 0; }
+  .el-sources { list-style: none; margin: var(--space-8) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .el-source-link { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-full); text-decoration: none; transition: border-color var(--transition-fast), color var(--transition-fast); }
+  .el-source-link:hover { border-color: var(--wc-gold-line); color: var(--wc-gold-ink); }
+  .el-source-link:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 2px; }
 </style>
 
 <script>
@@ -552,7 +756,8 @@ const base = import.meta.env.BASE_URL;
   interface Records { maior_amostra?: number | null; pesquisa_mais_cara_rs?: number | null; instituto_mais_ativo?: { empresa: string; n: number; investimento_rs: number } | null; mes_pico?: { mes: string; n: number } | null; }
   interface ElPayload {
     janela?: { primeira_divulgacao?: string; ultima_divulgacao?: string };
-    kpis?: { total_pesquisas?: number; n_institutos?: number; investimento_total_rs?: number; mediana_entrevistados?: number };
+    kpis?: { total_pesquisas?: number; n_institutos?: number; investimento_total_rs?: number; mediana_entrevistados?: number; custo_medio_rs?: number | null };
+    concentracao?: { top1_share_pct?: number; top5_share_pct?: number; hhi?: number };
     por_mes?: { mes: string; n: number }[];
     por_nivel?: { presidencial?: number; estadual?: number };
     top_institutos?: { empresa: string; n: number; investimento_rs: number }[];
@@ -561,6 +766,28 @@ const base = import.meta.env.BASE_URL;
     propria_vs_contratada?: { propria?: number; contratada?: number };
     amostragem?: { faixa: string; n: number }[];
     records?: Records;
+  }
+
+  interface Dist { label: string; n: number; pct: number }
+  interface EleitoradoPayload {
+    total_eleitores?: number;
+    biometria?: { n: number; pct: number };
+    genero?: Dist[];
+    faixa_etaria?: Dist[];
+    escolaridade?: Dist[];
+    obrigatoriedade?: Dist[];
+    por_uf?: { uf: string; eleitores: number; pct: number }[];
+    exterior?: { eleitores: number };
+    destaques?: {
+      feminino_pct?: number; jovens_16_17?: number; idosos_70mais?: number;
+      analfabetos?: { n: number; pct: number }; facultativo_pct?: number;
+    };
+  }
+  interface ContextoPayload {
+    cargos?: { presidente?: number; governadores?: number; senadores?: number; senado_total?: number; deputados_federais?: number; nota_senado?: string };
+    fundo_eleitoral?: { valor_rs?: number; ref_2018_rs?: number; multiplo_vs_2018?: number; top5_partidos_share_pct?: number; cota_mulheres_pct?: number; cota_negros_pct?: number; nota_dobro?: string };
+    calendario?: { data: string; marco: string }[];
+    calendario_fonte_url?: string;
   }
 
   const nf = new Intl.NumberFormat('pt-BR');
@@ -614,6 +841,10 @@ const base = import.meta.env.BASE_URL;
     if (el('mini-mediana')) el('mini-mediana')!.textContent = p.kpis?.mediana_entrevistados ? nf.format(p.kpis.mediana_entrevistados) : '—';
     if (el('mini-cara')) el('mini-cara')!.textContent = r.pesquisa_mais_cara_rs ? fmtRS(r.pesquisa_mais_cara_rs) : '—';
     if (el('mini-pico')) el('mini-pico')!.textContent = r.mes_pico ? `${fmtMesLong(r.mes_pico.mes)}` : '—';
+    if (el('mini-custo')) el('mini-custo')!.textContent = p.kpis?.custo_medio_rs ? fmtRS(p.kpis.custo_medio_rs) : '—';
+    if (el('mini-conc')) el('mini-conc')!.textContent = p.concentracao?.top5_share_pct != null ? `${p.concentracao.top5_share_pct}%` : '—';
+    const inline = el('el-conc-inline');
+    if (inline) inline.textContent = p.concentracao?.top1_share_pct != null ? `${p.concentracao.top1_share_pct}%` : '—';
   }
 
   // ── Gráfico de barras vertical (SVG) ──
@@ -722,7 +953,7 @@ const base = import.meta.env.BASE_URL;
       `<div class="el-uf-grid">${rows}</div>`;
   }
 
-  // ── [06] Explorar por estado ──
+  // ── [08] Explorar por estado ──
   const UF_NAME: Record<string, string> = {
     AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará',
     DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão',
@@ -812,6 +1043,146 @@ const base = import.meta.env.BASE_URL;
     }
   }
 
+  // ── [02] O eleitorado + [04] intensidade/UF + [09][10][11] ──
+  let eleitorado: EleitoradoPayload | null = null;
+  let contexto: ContextoPayload | null = null;
+
+  function fmtNum(v: number): string {
+    if (v >= 1_000_000) return `${(v / 1_000_000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mi`;
+    if (v >= 1_000) return `${(v / 1_000).toLocaleString('pt-BR', { maximumFractionDigits: 0 })} mil`;
+    return nf.format(v);
+  }
+  function distBars(boxId: string, raw: Dist[]): void {
+    const box = el(boxId); if (!box) return;
+    const items = (raw ?? []).filter((d) => d.n > 0);
+    if (!items.length) { box.innerHTML = '<p class="el-error">indisponível</p>'; return; }
+    const max = Math.max(...items.map((d) => d.pct), 1);
+    box.innerHTML = items.map((d) => `<div class="el-bar-row">
+      <span class="el-bar-lbl">${esc(d.label)}</span>
+      <span class="el-bar-track"><span class="el-bar-fill" style="width:${(d.pct / max) * 100}%"></span></span>
+      <span class="el-bar-n">${d.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
+    </div>`).join('');
+  }
+
+  function renderEleitorado(e: EleitoradoPayload | null): void {
+    if (!e) {
+      if (el('el-elt-total')) el('el-elt-total')!.textContent = '—';
+      ['el-elt-genero', 'el-elt-faixa', 'el-elt-escol'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">perfil indisponível</p>'; });
+      return;
+    }
+    if (el('el-elt-total')) el('el-elt-total')!.textContent = e.total_eleitores ? fmtNum(e.total_eleitores) : '—';
+    const d = e.destaques ?? {};
+    const chips: string[] = [];
+    if (d.feminino_pct != null) chips.push(`${d.feminino_pct}% ${t('portfolio.eleicoes.elt_chip_mulheres', 'mulheres')}`);
+    if (e.biometria?.pct != null) chips.push(`${e.biometria.pct}% ${t('portfolio.eleicoes.elt_chip_bio', 'com biometria')}`);
+    if (d.jovens_16_17) chips.push(`${fmtNum(d.jovens_16_17)} ${t('portfolio.eleicoes.elt_chip_jovens', 'jovens 16–17')}`);
+    if (d.idosos_70mais) chips.push(`${fmtNum(d.idosos_70mais)} ${t('portfolio.eleicoes.elt_chip_idosos', 'com 70+')}`);
+    if (d.analfabetos?.pct != null) chips.push(`${d.analfabetos.pct}% ${t('portfolio.eleicoes.elt_chip_analf', 'analfabetos')}`);
+    if (e.exterior?.eleitores) chips.push(`${fmtNum(e.exterior.eleitores)} ${t('portfolio.eleicoes.elt_chip_exterior', 'no exterior')}`);
+    const chipsBox = el('el-elt-chips');
+    if (chipsBox) chipsBox.innerHTML = chips.map((c) => `<span class="el-chip">${esc(c)}</span>`).join('');
+    // sexo → split (feminino vs masculino)
+    const gbox = el('el-elt-genero');
+    if (gbox && e.genero?.length) {
+      const total = e.genero.reduce((s, x) => s + x.n, 0);
+      gbox.innerHTML = e.genero.filter((g) => g.n > 0)
+        .map((g, i) => splitRow(g.label, g.n, total, i > 0)).join('');
+    }
+    distBars('el-elt-faixa', e.faixa_etaria ?? []);
+    distBars('el-elt-escol', e.escolaridade ?? []);
+  }
+
+  // ── [04] Índice de intensidade por UF (pesquisas ÷ eleitores em milhões) ──
+  function renderIntensidadeUF(p: ElPayload, e: EleitoradoPayload | null): void {
+    const box = el('el-iuf-body'); if (!box) return;
+    const elt = e?.por_uf ?? [];
+    if (!elt.length || !(p.por_uf ?? []).length) { box.innerHTML = '<p class="el-error">índice indisponível</p>'; return; }
+    const pop: Record<string, number> = {};
+    elt.forEach((u) => { pop[u.uf] = u.eleitores; });
+    const rows = (p.por_uf ?? [])
+      .filter((d) => d.uf && d.uf !== 'BR' && pop[d.uf])
+      .map((d) => ({ uf: d.uf, idx: d.n / (pop[d.uf] / 1_000_000) }))
+      .sort((a, b) => b.idx - a.idx)
+      .slice(0, 14);
+    if (!rows.length) { box.innerHTML = '<p class="el-error">índice indisponível</p>'; return; }
+    const max = Math.max(...rows.map((r) => r.idx), 1);
+    box.innerHTML = `<div class="el-uf-grid">` + rows.map((r, i) => `<div class="el-uf-row${i === 0 ? ' is-leader' : ''}">
+      <span class="el-uf-uf">${esc(r.uf)}</span>
+      <span class="el-uf-track"><span class="el-uf-fill" style="width:${(r.idx / max) * 100}%"></span></span>
+      <span class="el-uf-n">${r.idx.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</span>
+    </div>`).join('') + `</div>`;
+  }
+
+  // ── [09] O que está em jogo ──
+  function renderJogo(c: ContextoPayload | null): void {
+    const grid = el('el-jogo-cargos');
+    if (grid && !c?.cargos) grid.innerHTML = '<p class="el-error">cargos indisponíveis</p>';
+    const fb = el('el-fundo');
+    if (fb && !c?.fundo_eleitoral) fb.innerHTML = '<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span><p class="el-error">Fundo Eleitoral indisponível</p>';
+    if (grid && c?.cargos) {
+      const g = c.cargos;
+      const cards: [number | undefined, string, string][] = [
+        [g.presidente, t('portfolio.eleicoes.jogo_presidente', 'presidente'), ''],
+        [g.governadores, t('portfolio.eleicoes.jogo_governadores', 'governadores'), ''],
+        [g.senadores, t('portfolio.eleicoes.jogo_senadores', 'senadores'), `${t('portfolio.eleicoes.jogo_de', 'de')} ${g.senado_total ?? 81} · 2/3`],
+        [g.deputados_federais, t('portfolio.eleicoes.jogo_deputados', 'deputados federais'), ''],
+      ];
+      grid.innerHTML = cards.map(([n, label, sub]) => `<article class="el-jogo-card crop">
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <span class="el-jogo-num">${n != null ? nf.format(n) : '—'}</span>
+        <span class="el-jogo-label">${esc(label)}</span>
+        ${sub ? `<span class="el-jogo-sub mono-label">${esc(sub)}</span>` : ''}
+      </article>`).join('');
+    }
+    const fbox = el('el-fundo');
+    if (fbox && c?.fundo_eleitoral) {
+      const f = c.fundo_eleitoral;
+      const val = f.valor_rs ? fmtRS(f.valor_rs) : '—';
+      const mult = f.multiplo_vs_2018 ? `${f.multiplo_vs_2018.toLocaleString('pt-BR')}×` : '—';
+      fbox.innerHTML = `<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>
+        <div class="el-fundo__main">
+          <span class="el-jogo-num el-fundo__val">${esc(val)}</span>
+          <span class="el-jogo-label">${esc(t('portfolio.eleicoes.jogo_fundo', 'Fundo Eleitoral (público) para campanhas'))}</span>
+        </div>
+        <div class="el-fundo__stats">
+          <div><span class="el-fundo__sv">${esc(mult)}</span><span class="el-fundo__sl mono-label">${esc(t('portfolio.eleicoes.jogo_vs2018', 'vs. 2018'))}</span></div>
+          <div><span class="el-fundo__sv">${f.top5_partidos_share_pct != null ? f.top5_partidos_share_pct + '%' : '—'}</span><span class="el-fundo__sl mono-label">${esc(t('portfolio.eleicoes.jogo_top5', 'nos 5 maiores partidos'))}</span></div>
+          <div><span class="el-fundo__sv">${f.cota_mulheres_pct != null ? f.cota_mulheres_pct + '%' : '—'}</span><span class="el-fundo__sl mono-label">${esc(t('portfolio.eleicoes.jogo_cotam', 'mín. mulheres'))}</span></div>
+          <div><span class="el-fundo__sv">${f.cota_negros_pct != null ? f.cota_negros_pct + '%' : '—'}</span><span class="el-fundo__sl mono-label">${esc(t('portfolio.eleicoes.jogo_cotan', 'mín. negros'))}</span></div>
+        </div>`;
+    }
+  }
+
+  // ── [10] Relógio da democracia (calendário) ──
+  function renderRelogio(c: ContextoPayload | null): void {
+    const box = el('el-timeline'); if (!box) return;
+    const cal = c?.calendario ?? [];
+    if (!cal.length) { box.innerHTML = '<li class="el-error">calendário indisponível</li>'; return; }
+    const now = Date.now();
+    box.innerHTML = cal.map((m) => {
+      const ts = Date.parse(m.data + 'T00:00:00-03:00');
+      const past = ts < now;
+      return `<li class="el-tl-item${past ? ' is-past' : ''}">
+        <span class="el-tl-dot" aria-hidden="true"></span>
+        <time class="el-tl-date mono-label" datetime="${esc(m.data)}">${esc(fmtDate(m.data))}</time>
+        <span class="el-tl-marco">${esc(m.marco)}</span>
+      </li>`;
+    }).join('');
+  }
+
+  // ── [11] Fontes ──
+  function renderSources(): void {
+    const box = el('el-sources'); if (!box) return;
+    const srcs: [string, string][] = [
+      [t('portfolio.eleicoes.src_pesquisas', 'Pesquisas Eleitorais 2026 — TSE Dados Abertos'), 'https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026'],
+      [t('portfolio.eleicoes.src_eleitorado', 'Estatísticas de Eleitorado — TSE'), 'https://dadosabertos.tse.jus.br/dataset/eleitorado-atual'],
+    ];
+    if (contexto?.calendario_fonte_url) srcs.push([t('portfolio.eleicoes.src_calendario', 'Calendário Eleitoral 2026 — TSE'), contexto.calendario_fonte_url]);
+    box.innerHTML = srcs.map(([label, url]) =>
+      `<li><a href="${esc(url)}" target="_blank" rel="noopener noreferrer" class="el-source-link">${esc(label)} <span aria-hidden="true">↗</span></a></li>`
+    ).join('');
+  }
+
   let payload: ElPayload | null = null;
   function renderAll(data: ElPayload): void {
     renderProgress(data);
@@ -824,24 +1195,41 @@ const base = import.meta.env.BASE_URL;
     renderAmostragem(data);
     renderUF(data);
     initExplorar(data);
+    renderEleitorado(eleitorado);
+    renderIntensidadeUF(data, eleitorado);
+    renderJogo(contexto);
+    renderRelogio(contexto);
+    renderSources();
+  }
+
+  async function fetchJSON<T>(base: string, file: string, ms = 8000): Promise<T | null> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), ms);
+    try {
+      const res = await fetch(`${base}assets/data/${file}`, { cache: 'no-cache', signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!res.ok) return null;
+      return (await res.json()) as T;
+    } catch { clearTimeout(timeoutId); return null; }
   }
 
   async function loadEleicoes(): Promise<void> {
     const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-    try {
-      const res = await fetch(`${base}assets/data/eleicoes_pesquisas.json`, { cache: 'no-cache', signal: controller.signal });
-      clearTimeout(timeoutId);
-      if (!res.ok) throw new Error('fetch failed');
-      const data: ElPayload = await res.json();
-      if (!data.kpis) throw new Error('empty payload');
-      payload = data;
-      renderAll(data);
-    } catch {
-      clearTimeout(timeoutId);
-      ['el-barchart-svg', 'el-uf'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">dados indisponíveis — tente recarregar</p>'; });
+    const [pdata, edata, cdata] = await Promise.all([
+      fetchJSON<ElPayload>(base, 'eleicoes_pesquisas.json'),
+      fetchJSON<EleitoradoPayload>(base, 'eleicoes_eleitorado.json'),
+      fetchJSON<ContextoPayload>(base, 'eleicoes_contexto.json'),
+    ]);
+    eleitorado = edata;
+    contexto = cdata;
+    if (pdata && pdata.kpis) {
+      payload = pdata;
+      renderAll(pdata);
+    } else {
+      ['el-barchart-svg', 'el-uf', 'el-iuf-body'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">dados indisponíveis — tente recarregar</p>'; });
       const body = el('el-rank-body'); if (body) body.innerHTML = '<tr><td colspan="4"><p class="el-error">dados indisponíveis — tente recarregar</p></td></tr>';
+      // seções independentes ainda renderizam se vieram
+      renderEleitorado(eleitorado); renderJogo(contexto); renderRelogio(contexto); renderSources();
     }
   }
 
@@ -862,7 +1250,7 @@ const base = import.meta.env.BASE_URL;
     document.querySelectorAll<HTMLElement>('main section[id^="el-"]').forEach((sec) => {
       const head = sec.querySelector('.section-head') as HTMLElement | null;
       if (head) revealUp([head], sec, 0);
-      const cards = Array.from(sec.querySelectorAll<HTMLElement>('.el-kpi, .el-ministat, .el-chartcard, .el-rank-wrap, .el-panel, .el-ufchart'));
+      const cards = Array.from(sec.querySelectorAll<HTMLElement>('.el-kpi, .el-ministat, .el-chartcard, .el-rank-wrap, .el-panel, .el-ufchart, .el-elt-hero, .el-jogo-card, .el-fundo, .el-timeline'));
       if (cards.length) revealUp(cards, sec, STAGGER.tight);
     });
   }
@@ -874,13 +1262,18 @@ const base = import.meta.env.BASE_URL;
   // seções desta página; labels vêm do i18n (re-render em `languageChanged`).
   // Active via IntersectionObserver. Portado do world-cup-dashboard/jumpnav.js.
   const NAV = [
-    { id: 'eleicoes-hero',  key: 'portfolio.eleicoes.nav_hero',        fb: 'Início' },
-    { id: 'el-panorama',    key: 'portfolio.eleicoes.nav_panorama',    fb: 'Panorama' },
-    { id: 'el-intensidade', key: 'portfolio.eleicoes.nav_intensidade', fb: 'Intensidade' },
-    { id: 'el-institutos',  key: 'portfolio.eleicoes.nav_institutos',  fb: 'Quem mede' },
-    { id: 'el-como',        key: 'portfolio.eleicoes.nav_como',        fb: 'Como medem' },
-    { id: 'el-cobertura',   key: 'portfolio.eleicoes.nav_cobertura',   fb: 'Cobertura' },
-    { id: 'el-explorar',    key: 'portfolio.eleicoes.nav_explorar',    fb: 'Explorar' },
+    { id: 'eleicoes-hero',     key: 'portfolio.eleicoes.nav_hero',          fb: 'Início' },
+    { id: 'el-panorama',       key: 'portfolio.eleicoes.nav_panorama',      fb: 'Panorama' },
+    { id: 'el-eleitorado',     key: 'portfolio.eleicoes.nav_eleitorado',    fb: 'Eleitorado' },
+    { id: 'el-intensidade',    key: 'portfolio.eleicoes.nav_intensidade',   fb: 'Intensidade' },
+    { id: 'el-intensidade-uf', key: 'portfolio.eleicoes.nav_intensidade_uf', fb: 'Por estado' },
+    { id: 'el-institutos',     key: 'portfolio.eleicoes.nav_institutos',    fb: 'Quem mede' },
+    { id: 'el-como',           key: 'portfolio.eleicoes.nav_como',          fb: 'Como medem' },
+    { id: 'el-cobertura',      key: 'portfolio.eleicoes.nav_cobertura',     fb: 'Cobertura' },
+    { id: 'el-explorar',       key: 'portfolio.eleicoes.nav_explorar',      fb: 'Explorar' },
+    { id: 'el-jogo',           key: 'portfolio.eleicoes.nav_jogo',          fb: 'Em jogo' },
+    { id: 'el-relogio',        key: 'portfolio.eleicoes.nav_relogio',       fb: 'Calendário' },
+    { id: 'el-transparencia',  key: 'portfolio.eleicoes.nav_transparencia', fb: 'Transparência' },
   ];
   const jt = (k: string, fb: string): string => {
     const v = (window as unknown as { i18n?: { t?: (k: string) => string } }).i18n?.t?.(k);
