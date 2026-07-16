@@ -261,6 +261,7 @@ const base = import.meta.env.BASE_URL;
                       data-i18n-aria="portfolio.eleicoes.uf_open"><span aria-hidden="true">▾</span></button>
               <ul id="el-est-listbox" class="el-combobox__list" role="listbox" aria-label="Estados" hidden></ul>
             </div>
+            <div class="el-mapwrap" id="el-est-map"></div>
           </div>
 
           <div class="el-est-panels" id="el-est-panels" aria-live="polite">
@@ -488,6 +489,7 @@ const base = import.meta.env.BASE_URL;
                       data-i18n-aria="portfolio.eleicoes.uf_open"><span aria-hidden="true">▾</span></button>
               <ul id="el-uf-listbox" class="el-combobox__list" role="listbox" aria-label="Estados" hidden></ul>
             </div>
+            <div class="el-mapwrap" id="el-uf-map"></div>
           </div>
           <div class="el-explorar__panel card crop" id="el-uf-detail" aria-live="polite">
             <span class="crop-mark-bl" aria-hidden="true"></span>
@@ -914,6 +916,24 @@ const base = import.meta.env.BASE_URL;
   .el-combobox :global(.el-combobox__empty) { padding: var(--space-3); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); text-align: center; }
   @media (max-width: 640px) { .el-combobox { min-width: 0; width: 100%; } .el-combobox :global(.el-combobox__list) { max-height: 260px; } }
   @media (prefers-reduced-motion: reduce) { .el-combobox__input, .el-combobox :global(.el-combobox__option) { transition: none !important; } }
+
+  /* ── Mapa tile-cartograma (§03 e §10) ── */
+  .el-mapwrap { margin-top: var(--space-5); }
+  .el-mapwrap :global(.el-map) { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; max-width: 288px; }
+  .el-mapwrap :global(.el-map-tile) {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center; padding: 0;
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: .01em; color: var(--ink-soft);
+    background: var(--paper-card);
+    background: color-mix(in srgb, var(--ink) calc(var(--tile-shade, 0) * 100%), var(--paper-card));
+    border: 1px solid var(--line); border-radius: var(--radius-sm); cursor: pointer;
+    transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+  }
+  .el-mapwrap :global(.el-map-tile:hover) { border-color: var(--wc-gold-line); color: var(--ink); }
+  .el-mapwrap :global(.el-map-tile.is-selected) { background: var(--wc-gold-ink); border-color: var(--wc-gold-ink); color: var(--paper); font-weight: 600; }
+  .el-mapwrap :global(.el-map-tile.is-off) { background: var(--paper-soft); color: var(--ink-faint); opacity: .5; cursor: default; border-style: dashed; }
+  .el-mapwrap :global(.el-map-tile.is-off:hover) { border-color: var(--line); color: var(--ink-faint); }
+  .el-mapwrap :global(.el-map-tile:focus-visible) { outline: 2px solid var(--wc-gold-ink); outline-offset: 1px; }
+  @media (prefers-reduced-motion: reduce) { .el-mapwrap :global(.el-map-tile) { transition: none; } }
 
   /* ── Jump-nav (rail desktop + FAB/sheet mobile) ── */
   :global(.el-jumpnav), :global(.el-jumpnav-fab) {
@@ -1404,6 +1424,47 @@ const base = import.meta.env.BASE_URL;
       <ol class="el-ufd-list" aria-label="${esc(name)}">${rows}</ol>`;
   }
 
+  // ── Mapa tile-cartograma do Brasil (geofacet br_states_grid1: 8×6, 27 UFs).
+  //    Reusado por [03] intenção estadual e [10] explorar. Cada UF é um <button>
+  //    posicionado por grid-row/col; seleção sincroniza com o combobox. Tiles
+  //    indisponíveis ficam esmaecidos e não-focáveis. Sombra opcional = volume. ──
+  const BR_TILES: [number, number, string][] = [
+    [1, 2, 'RR'], [1, 3, 'AP'], [2, 2, 'AM'], [2, 3, 'PA'], [2, 4, 'MA'], [2, 5, 'CE'],
+    [3, 1, 'AC'], [3, 2, 'RO'], [3, 3, 'TO'], [3, 4, 'PI'], [3, 5, 'PB'], [3, 6, 'RN'],
+    [4, 2, 'MT'], [4, 3, 'GO'], [4, 4, 'BA'], [4, 5, 'PE'], [4, 6, 'AL'],
+    [5, 2, 'MS'], [5, 3, 'DF'], [5, 4, 'MG'], [5, 5, 'SE'],
+    [6, 3, 'SP'], [6, 4, 'RJ'], [6, 5, 'ES'],
+    [7, 3, 'PR'], [7, 4, 'SC'], [8, 3, 'RS'],
+  ];
+  interface UfMapOpts { available: Set<string>; values?: Record<string, number>; valueLabel?: string; onSelect: (uf: string) => void; ariaLabel: string }
+  function buildUfMap(containerId: string, opts: UfMapOpts): { setValue(uf: string): void } | null {
+    const root = el(containerId); if (!root) return null;
+    const maxVal = opts.values ? Math.max(...Object.values(opts.values), 1) : 1;
+    const tiles = BR_TILES.map(([r, c, code]) => {
+      const avail = opts.available.has(code);
+      const v = opts.values?.[code];
+      const shade = (avail && v != null) ? (0.14 + 0.46 * (v / maxVal)) : 0;
+      const tip = avail ? barTip(UF_NAME[code] ?? code, (v != null && opts.valueLabel) ? [[opts.valueLabel, nf.format(v)]] : []) : '';
+      return `<button type="button" class="el-map-tile${avail ? '' : ' is-off'}" data-uf="${code}" style="grid-column:${c};grid-row:${r};--tile-shade:${shade.toFixed(3)}"${avail ? '' : ' aria-disabled="true" tabindex="-1"'} aria-pressed="false" aria-label="${esc(UF_NAME[code] ?? code)}"${tip}>${code}</button>`;
+    }).join('');
+    root.innerHTML = `<div class="el-map" role="group" aria-label="${esc(opts.ariaLabel)}">${tiles}</div>`;
+    const map = root.querySelector('.el-map') as HTMLElement;
+    const setValue = (uf: string): void => {
+      map.querySelectorAll('.el-map-tile').forEach((tEl) => {
+        const on = (tEl as HTMLElement).dataset.uf === uf;
+        tEl.classList.toggle('is-selected', on);
+        tEl.setAttribute('aria-pressed', String(on));
+      });
+    };
+    map.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest('.el-map-tile') as HTMLButtonElement | null;
+      if (!b || b.classList.contains('is-off') || !b.dataset.uf) return;
+      setValue(b.dataset.uf);
+      opts.onSelect(b.dataset.uf);
+    });
+    return { setValue };
+  }
+
   interface CBItem { value: string; label: string; }
   function buildCombobox(rootId: string, items: CBItem[], onSelect: (v: string) => void) {
     const root = document.getElementById(rootId); if (!root) return null;
@@ -1443,15 +1504,20 @@ const base = import.meta.env.BASE_URL;
   }
 
   let explorarBuilt = false;
+  let ufCb: { setValue(v: string): void } | null = null;
+  let ufMap: { setValue(v: string): void } | null = null;
   function initExplorar(data: ElPayload): void {
     const det = data.por_uf_detalhe ?? {};
     const ufs = Object.keys(det).filter((u) => u !== 'BR').sort((a, b) => (det[b]?.n ?? 0) - (det[a]?.n ?? 0));
     if (!ufs.length) return;
     if (!explorarBuilt) {
       const items = ufs.map((u) => ({ value: u, label: `${UF_NAME[u] ?? u} (${u})` }));
-      const cb = buildCombobox('el-uf-combobox', items, renderUFDetail);
-      cb?.setValue(ufs[0]);
-      renderUFDetail(ufs[0]);
+      const values: Record<string, number> = {};
+      ufs.forEach((u) => { values[u] = det[u]?.n ?? 0; });
+      const selectUf = (uf: string): void => { renderUFDetail(uf); ufCb?.setValue(uf); ufMap?.setValue(uf); };
+      ufCb = buildCombobox('el-uf-combobox', items, selectUf) ?? null;
+      ufMap = buildUfMap('el-uf-map', { available: new Set(ufs), values, valueLabel: t('portfolio.eleicoes.tip_pesquisas', 'pesquisas'), onSelect: selectUf, ariaLabel: t('portfolio.eleicoes.map_aria', 'Mapa de estados — clique para selecionar') });
+      selectUf(ufs[0]);
       explorarBuilt = true;
     } else if (currentUf) {
       renderUFDetail(currentUf);
@@ -1676,6 +1742,8 @@ const base = import.meta.env.BASE_URL;
   let estaduais: EstaduaisPayload | null = null;
   let estBuilt = false;
   let currentEstUf = '';
+  let estCb: { setValue(v: string): void } | null = null;
+  let estMap: { setValue(v: string): void } | null = null;
   function renderEstadoDetail(uf: string): void {
     currentEstUf = uf;
     const est = estaduais?.estados?.[uf];
@@ -1694,9 +1762,12 @@ const base = import.meta.env.BASE_URL;
     if (!ufs.length) { fail(t('portfolio.eleicoes.est_unavailable', 'intenção estadual indisponível — tente recarregar')); return; }
     if (!estBuilt) {
       const items = ufs.map((u) => ({ value: u, label: `${UF_NAME[u] ?? u} (${u})` }));
-      const cb = buildCombobox('el-est-combobox', items, renderEstadoDetail);
-      cb?.setValue(ufs[0]);
-      renderEstadoDetail(ufs[0]);
+      const values: Record<string, number> = {};
+      ufs.forEach((u) => { const e = pc!.estados?.[u]; const n = e?.governador_1t?.n_pesquisas ?? e?.senador?.n_pesquisas; if (n != null) values[u] = n; });
+      const selectEst = (uf: string): void => { renderEstadoDetail(uf); estCb?.setValue(uf); estMap?.setValue(uf); };
+      estCb = buildCombobox('el-est-combobox', items, selectEst) ?? null;
+      estMap = buildUfMap('el-est-map', { available: new Set(ufs), values, valueLabel: t('portfolio.eleicoes.tip_pesquisas', 'pesquisas'), onSelect: selectEst, ariaLabel: t('portfolio.eleicoes.map_aria', 'Mapa de estados — clique para selecionar') });
+      selectEst(ufs[0]);
       estBuilt = true;
     } else if (currentEstUf) {
       renderEstadoDetail(currentEstUf);
