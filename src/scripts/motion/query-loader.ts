@@ -1,16 +1,15 @@
 /**
  * query-loader.ts — Query Loader (Blueprint)
  *
- * Mostra um overlay de "terminal SQL/Python" sobre uma seção: digita a query,
- * executa (efeito ÚNICO por seção) e revela o conteúdo real como resultado.
+ * Mostra um overlay de "terminal SQL/Python" full-screen: digita a query,
+ * executa e revela a página como resultado.
  *
- * Disparado por:
- *  - clique no menu (navegação para a seção) → fireQueryLoader(id)
- *  - primeira vez que a seção entra no viewport via scroll → ScrollTrigger
+ * Disparado como TRANSIÇÃO DE PÁGINA (ver firePageLoader):
+ *  - no 1º carregamento do site
+ *  - a cada navegação SPA (Astro ClientRouter → astro:page-load, no BaseLayout)
  *
- * Roda em TODO carregamento solicitado: a cada clique no menu (force) e
- * toda vez que a seção (re)entra no viewport (com cooldown anti-spam).
- * Um guard `running` impede sobreposição na mesma seção.
+ * NÃO dispara mais por scroll de seção nem por clique de menu (ficava cansativo
+ * ver o overlay em cada seção). Uma execução por carregamento de página.
  *
  * Os 9 effects (um por seção) são visualmente DISTINTOS:
  *   type      (hero)            — typewriter char-by-char + cursor piscando
@@ -41,16 +40,11 @@
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { QUERIES, type QuerySpec } from './queries';
+import { PAGE_QUERIES, type QuerySpec } from './queries';
 import { motionOk, EASINGS, LOADER } from './constants';
 import { registerCleaner } from './cleanup';
 
 gsap.registerPlugin(ScrollTrigger);
-
-// Guard por seção: evita dois loaders sobrepostos na MESMA seção.
-const running = new Set<string>();
-// Seções já vistas por scroll: o loader por scroll roda só na 1ª vez.
-const seenByScroll = new Set<string>();
 
 interface CancelToken { cancelled: boolean }
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -390,15 +384,15 @@ async function effectAggregate(pre: HTMLElement, spec: QuerySpec, status: HTMLEl
  * Orquestração
  * ──────────────────────────────────────────────────────────────────────── */
 
-/** Executa a sequência completa de loader para uma seção. */
-async function run(section: HTMLElement, spec: QuerySpec) {
+/** Executa a sequência completa de loader (identificada por `id`). */
+async function run(id: string, spec: QuerySpec) {
   const token = makeToken();
-  sectionTokens.set(section.id, token);
+  sectionTokens.set(id, token);
 
   const overlay = buildOverlay(spec);
   // buildOverlay retorna null só em falha de markup — remove token e sai.
   if (!overlay) {
-    sectionTokens.delete(section.id);
+    sectionTokens.delete(id);
     return;
   }
   const { root, pre, status } = overlay;
@@ -487,7 +481,7 @@ async function run(section: HTMLElement, spec: QuerySpec) {
     // throw/cancelamento. Idempotente (parentNode check + ctx.revert safe).
     ctx.revert();
     if (root.parentNode) root.remove();
-    sectionTokens.delete(section.id);
+    sectionTokens.delete(id);
   }
 
   if (token.cancelled) return;
@@ -497,7 +491,7 @@ async function run(section: HTMLElement, spec: QuerySpec) {
   // animação aqui — caso contrário o motion roda escondido sob o overlay e o
   // usuário nunca o vê ("seção sem animação").
   window.dispatchEvent(
-    new CustomEvent('queryLoaderDone', { detail: { id: section.id } }),
+    new CustomEvent('queryLoaderDone', { detail: { id } }),
   );
 
   // Conteúdo dinâmico injetado depois do reveal (count-ups, heatmaps, barras)
@@ -515,68 +509,47 @@ function scheduleScrollRefresh() {
   }, LOADER.refreshMs);
 }
 
-/**
- * Registra o query loader numa seção.
- *  - Scroll: dispara SÓ na primeira vez que a seção entra no viewport.
- *  - Menu (fireQueryLoader): dispara SEMPRE (force).
- * Um guard `running` impede sobrepor dois loaders na mesma seção.
- * Idempotente: se já registrado (re-init / troca de idioma), no-op.
- */
-export function registerQueryLoader(section: HTMLElement): void {
-  if (!motionOk) return; // reduced-motion / SSR → sem overlay, conteúdo direto
-  const id = section.id;
-  const spec = QUERIES[id];
-  if (!spec) return;
-  // Idempotência: não re-registra ScrollTrigger nem __qlFire em re-init.
-  const flagged = section as HTMLElement & { __qlRegistered?: boolean };
-  if (flagged.__qlRegistered) return;
-  flagged.__qlRegistered = true;
+/* ────────────────────────────────────────────────────────────────────────
+ * Page loader — o terminal roda como TRANSIÇÃO DE PÁGINA, não por seção.
+ *
+ * Dispara uma única vez por carregamento de página: no 1º open do site e a
+ * cada navegação SPA (Astro ClientRouter → evento astro:page-load, wired no
+ * BaseLayout). NÃO dispara mais no scroll (ficava cansativo) nem por menu.
+ * ──────────────────────────────────────────────────────────────────────── */
 
-  const fire = async (opts?: { force?: boolean }) => {
-    if (running.has(id)) return;     // já tem um loader rodando nesta seção
-    // Scroll dispara SÓ na primeira vez que a seção aparece (não a cada scroll —
-    // ficava cansativo). Menu (force:true) dispara sempre.
-    if (!opts?.force) {
-      if (seenByScroll.has(id)) return;
-      seenByScroll.add(id);
-    }
-    running.add(id);
-    try {
-      await run(section, spec);
-    } finally {
-      running.delete(id);
-    }
-  };
+const PAGE_ID = '__page__';
 
-  // Scroll: dispara apenas na primeira entrada (once). Subir de volta não
-  // re-dispara — o guard seenByScroll garante "só primeiro carregamento".
-  ScrollTrigger.create({
-    trigger: section,
-    start: 'top 70%',
-    once: true,
-    onEnter: () => fire(),
-  });
-
-  // expõe trigger manual para navegação por menu (force: ignora cooldown)
-  (section as HTMLElement & { __qlFire?: (o?: { force?: boolean }) => void })
-    .__qlFire = fire;
-
-  // Teardown: cancela um loader em curso (para de escrever no overlay) e mata
-  // o ScrollTrigger de entrada. O overlay em si é removido pelo finally do run.
-  registerCleaner(() => {
-    const token = sectionTokens.get(id);
-    if (token) cancel(token);
-    ScrollTrigger.getAll()
-      .filter((st) => st.trigger === section && st.vars.once)
-      .forEach((st) => st.kill());
-  });
+/** Escolhe a query temática da página pelo slug do pathname (fallback: home). */
+function pickPageSpec(): QuerySpec {
+  const p = typeof location !== 'undefined' ? location.pathname : '';
+  if (p.includes('/eleicoes-2026')) return PAGE_QUERIES.eleicoes;
+  if (p.includes('/brasil-cockpit')) return PAGE_QUERIES.cockpit;
+  if (p.includes('/pix-observatory')) return PAGE_QUERIES.pix;
+  if (p.includes('/data-stack-radar-br')) return PAGE_QUERIES.radar;
+  return PAGE_QUERIES.home;
 }
 
-/** Dispara o loader de uma seção imediatamente (navegação por menu).
- *  force: true → ignora o cooldown (clique sempre roda). */
-export function fireQueryLoader(id: string): void {
-  const section = document.getElementById(id) as
-    | (HTMLElement & { __qlFire?: (o?: { force?: boolean }) => void })
-    | null;
-  section?.__qlFire?.({ force: true });
+/**
+ * Dispara o loader de transição de página. Idempotente por carregamento:
+ * cancela/limpa qualquer loader anterior (ex.: navegação disparada no meio de
+ * um loader em curso) antes de iniciar o novo.
+ */
+export function firePageLoader(): void {
+  if (!motionOk) return; // reduced-motion / SSR → sem overlay, conteúdo direto
+
+  // Cancela loader anterior e remove overlays órfãos (navegação rápida).
+  const prev = sectionTokens.get(PAGE_ID);
+  if (prev) cancel(prev);
+  document.querySelectorAll('.ql-overlay').forEach((n) => n.remove());
+
+  const spec = pickPageSpec();
+
+  // Teardown em astro:before-swap / pagehide (destroyAllMotion) → cancela o
+  // loader em curso para não escrever num overlay prestes a ser trocado.
+  const unregister = registerCleaner(() => {
+    const token = sectionTokens.get(PAGE_ID);
+    if (token) cancel(token);
+  });
+
+  run(PAGE_ID, spec).finally(unregister);
 }

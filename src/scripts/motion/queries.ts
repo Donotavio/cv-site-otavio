@@ -32,9 +32,14 @@ export interface QuerySpec {
   counters?: number[];
 }
 
-/** Mapa seção(id) → query. */
-export const QUERIES: Record<string, QuerySpec> = {
-  hero: {
+/**
+ * Queries por PÁGINA — usadas pelo page-loader (transição de página).
+ * Mesmo efeito de "código digitando" (type) em todas para coesão visual;
+ * o conteúdo é temático de cada página. Chaveado por slug do pathname.
+ * Fallback → 'home'.
+ */
+export const PAGE_QUERIES: Record<string, QuerySpec> = {
+  home: {
     lang: 'sql',
     effect: 'type',
     code: [
@@ -44,132 +49,44 @@ export const QUERIES: Record<string, QuerySpec> = {
     ],
     result: '1 row · 0.012s',
   },
-
-  about: {
+  eleicoes: {
     lang: 'sql',
-    effect: 'fetch',
+    effect: 'type',
     code: [
-      'SELECT summary, focus, philosophy',
-      'FROM profile',
-      'LIMIT 1;',
+      'SELECT instituto, uf, contratante',
+      'FROM tse.pesquisas_2026',
+      'ORDER BY registro_dt DESC;',
     ],
-    result: '1 row fetched · 0.008s',
+    result: 'observatório carregado · TSE',
   },
-
-  impact: {
+  cockpit: {
     lang: 'sql',
-    effect: 'aggregate',
+    effect: 'type',
     code: [
-      'SELECT',
-      '  COUNT(DISTINCT year)   AS years,',
-      '  COUNT(team_id)         AS teams,',
-      '  SUM(data_processed_pb) AS petabytes',
-      'FROM career;',
+      'SELECT kpi, valor, status',
+      'FROM macro.cockpit_brasil',
+      'WHERE vigente = TRUE;',
     ],
-    /** Números rolam até estes alvos (mesma ordem dos COUNT/SUM acima). */
-    counters: [12, 6, 480],
-    result: 'aggregated · 0.021s',
+    result: 'cockpit carregado · BACEN · IBGE',
   },
-
-  timeline: {
+  pix: {
     lang: 'sql',
-    effect: 'plan',
+    effect: 'type',
     code: [
-      'SELECT role, company, period',
-      'FROM timeline',
-      'ORDER BY start_date DESC;',
+      'SELECT mes, volume, valor',
+      'FROM bacen.pix',
+      'ORDER BY mes DESC;',
     ],
-    result: 'query plan · seq scan on timeline',
+    result: 'observatório carregado · BACEN',
   },
-
-  skills: {
+  radar: {
     lang: 'python',
-    effect: 'stream',
+    effect: 'type',
     code: [
-      'import pandas as pd',
+      'import radar',
       '',
-      'skills = pd.read_parquet("skills.parquet")',
-      'skills.sort_values("level", ascending=False)',
+      'radar.load("data_stack_radar_br")',
     ],
-    result: '>>> 8 competencies loaded',
-  },
-
-  'tech-stack': {
-    lang: 'python',
-    effect: 'import',
-    code: [
-      'from pyspark.sql import SparkSession',
-      '',
-      'spark = SparkSession.builder.getOrCreate()',
-      'spark.catalog.listTables()',
-    ],
-    result: 'packages loaded · 14 technologies',
-  },
-
-  portfolio: {
-    lang: 'sql',
-    effect: 'fetch',
-    code: [
-      'SELECT project, status, impact',
-      'FROM portfolio',
-      "WHERE featured = TRUE",
-      'ORDER BY impact DESC;',
-    ],
-    result: '4 rows fetched · 0.016s',
-  },
-
-  projects: {
-    lang: 'sql',
-    effect: 'sort',
-    code: [
-      'SELECT name, language, stars',
-      'FROM repositories',
-      'ORDER BY stars DESC;',
-    ],
-    result: 'sorted · 0.014s',
-  },
-
-  stats: {
-    lang: 'sql',
-    effect: 'aggregate',
-    code: [
-      'SELECT lang, SUM(bytes) AS total',
-      'FROM github.languages',
-      'GROUP BY lang ORDER BY total DESC;',
-    ],
-    result: 'aggregated · 6 languages',
-  },
-
-  recommendations: {
-    lang: 'sql',
-    effect: 'scan',
-    code: [
-      'SELECT author, role, text',
-      'FROM recommendations r',
-      'JOIN people p ON p.id = r.author_id;',
-    ],
-    result: 'join scan complete · 6 rows',
-  },
-
-  blog: {
-    lang: 'python',
-    effect: 'paginate',
-    code: [
-      'import requests',
-      '',
-      'feed = requests.get("/api/articles?lang=pt")',
-      'articles = feed.json()["items"]',
-    ],
-    result: 'feed loaded · 10 articles',
-  },
-
-  contact: {
-    lang: 'sql',
-    effect: 'insert',
-    code: [
-      'INSERT INTO opportunities (sender, intent)',
-      "VALUES ('you', 'let''s talk');",
-    ],
-    result: '1 row affected · committed',
+    result: 'radar carregado · stack BR',
   },
 };

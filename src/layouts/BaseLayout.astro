@@ -138,25 +138,30 @@ const personSchema = {
     <script src={`${base}assets/js/i18n.js`} is:inline defer></script>
 
     <!--
-      Motion init — Lenis + GSAP ScrollTrigger (web-motion.md padrão 4).
-      Executa uma única vez, no layout root.
+      Motion init — Lenis + GSAP ScrollTrigger (web-motion.md padrão 4) +
+      page loader (terminal "código rodando") como TRANSIÇÃO DE PÁGINA.
+
+      astro:page-load dispara no 1º carregamento E após cada navegação SPA
+      (ClientRouter). O listener é registrado uma única vez (o `document`
+      persiste entre navegações; guard __pageBootWired evita duplicar se o
+      script for reavaliado numa view transition) e a cada page-load:
+        1. initMotion() — idempotente; recria o Lenis após o teardown que o
+           astro:before-swap dispara (destroyAllMotion).
+        2. firePageLoader() — o terminal roda como intro da página.
+      O loader NÃO dispara mais no scroll de seções (ficava cansativo).
     -->
     <script>
       import { initMotion } from '../scripts/motion-init';
-      import { registerQueryLoader } from '../scripts/motion/query-loader';
+      import { firePageLoader } from '../scripts/motion/query-loader';
 
-      document.addEventListener('DOMContentLoaded', () => {
-        initMotion();
-
-        // Query Loader: efeito de "terminal" APENAS no hero, no primeiro load.
-        // Antes rodava em toda seção (scroll) e na navegação por menu — o overlay
-        // full-screen opaco cobria o conteúdo e dava aparência de site quebrado.
-        // Agora fica restrito ao #hero: dispara uma única vez ao carregar e nunca
-        // mais (nem no scroll de outras seções, nem em navegação).
-        // registerQueryLoader retorna cedo se reduced-motion / sem query.
-        const hero = document.querySelector<HTMLElement>('main section#hero');
-        if (hero) registerQueryLoader(hero);
-      });
+      const w = window as Window & { __pageBootWired?: boolean };
+      if (!w.__pageBootWired) {
+        w.__pageBootWired = true;
+        document.addEventListener('astro:page-load', () => {
+          initMotion();
+          firePageLoader();
+        });
+      }
     </script>
   </body>
 </html>
