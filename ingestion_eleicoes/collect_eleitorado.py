@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import io
 import sys
+import time
 import zipfile
 from datetime import date
 from pathlib import Path
@@ -39,16 +40,32 @@ from ingestion_eleicoes.catalog import (  # noqa: E402
 
 BRONZE_DIR = Path("data/bronze/eleitorado")
 CHUNK = 500_000  # linhas por chunk (leitura em stream)
+MAX_RETRIES = 4
 
 
 def _download_zip() -> bytes:
     import requests
 
     print(f"  • baixando {TSE_ELEITORADO_ZIP_URL} …")
-    resp = requests.get(TSE_ELEITORADO_ZIP_URL, timeout=180)
-    resp.raise_for_status()
-    print(f"    {len(resp.content) / 1e6:.1f} MB (zip)")
-    return resp.content
+    last_exc: Exception | None = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = requests.get(TSE_ELEITORADO_ZIP_URL, timeout=180)
+            if resp.status_code in (429, 503):
+                wait = int(resp.headers.get("Retry-After", 0) or 0) or attempt * 10
+                print(f"    TSE {resp.status_code} — aguardando {wait}s ({attempt}/{MAX_RETRIES})")
+                time.sleep(wait)
+                continue
+            resp.raise_for_status()
+            print(f"    {len(resp.content) / 1e6:.1f} MB (zip)")
+            return resp.content
+        except requests.RequestException as e:  # noqa: BLE001
+            last_exc = e
+            if attempt < MAX_RETRIES:
+                wait = attempt * 10
+                print(f"    falha de rede ({attempt}/{MAX_RETRIES}): {e.__class__.__name__} — retry em {wait}s")
+                time.sleep(wait)
+    raise last_exc if last_exc else RuntimeError("download do eleitorado falhou após retries")
 
 
 def _aggregate(zip_bytes: bytes):
