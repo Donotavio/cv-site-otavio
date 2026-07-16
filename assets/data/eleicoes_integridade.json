@@ -1,19 +1,46 @@
 {
-  "gerado_em": "2026-07-16",
+  "gerado_em": "2026-07-16T18:31:20.123405+00:00",
   "metodologia": "Reúne a situação jurídica pública dos pré-candidatos a partir de fontes oficiais (TSE, STF/STJ). Cada item traz o órgão, o estágio processual e a fonte. Passa a exibir dados por candidato conforme o registro das candidaturas (a partir de 15/08/2026), quando o TSE publica certidões e condições de elegibilidade.",
   "disclaimer": "Estágio processual não é condenação. Todos são presumidos inocentes até decisão final (trânsito em julgado). Sem juízo de valor nem cor partidária — apenas o que o registro público permite.",
   "estagios": [
-    { "id": "investigacao", "label": "investigação" },
-    { "id": "denuncia", "label": "denúncia recebida" },
-    { "id": "reu", "label": "réu (ação penal)" },
-    { "id": "condenacao_1a", "label": "condenação em 1ª instância" },
-    { "id": "transito", "label": "trânsito em julgado" },
-    { "id": "ficha_limpa", "label": "Ficha Limpa · elegível" }
+    {
+      "id": "investigacao",
+      "label": "investigação"
+    },
+    {
+      "id": "denuncia",
+      "label": "denúncia recebida"
+    },
+    {
+      "id": "reu",
+      "label": "réu (ação penal)"
+    },
+    {
+      "id": "condenacao_1a",
+      "label": "condenação em 1ª instância"
+    },
+    {
+      "id": "transito",
+      "label": "trânsito em julgado"
+    },
+    {
+      "id": "ficha_limpa",
+      "label": "Ficha Limpa · elegível"
+    }
   ],
   "fontes": [
-    { "label": "TSE · DivulgaCand", "url": "https://divulgacandcontas.tse.jus.br/divulga/" },
-    { "label": "STF · consulta processual", "url": "https://portal.stf.jus.br/processos/" },
-    { "label": "STJ · consulta processual", "url": "https://processo.stj.jus.br/processo/pesquisa/" }
+    {
+      "label": "TSE · DivulgaCand",
+      "url": "https://divulgacandcontas.tse.jus.br/divulga/"
+    },
+    {
+      "label": "STF · consulta processual",
+      "url": "https://portal.stf.jus.br/processos/"
+    },
+    {
+      "label": "STJ · consulta processual",
+      "url": "https://processo.stj.jus.br/processo/pesquisa/"
+    }
   ],
   "itens_por_candidato": {}
 }

@@ -281,3 +281,49 @@ def split_nome_partido(coluna: str) -> tuple[str, str] | None:
     if len(parts) == 2 and parts[1]:
         return parts[0].strip(), parts[1].strip()
     return None
+
+
+# ══════════════════════════ INTEGRIDADE (situação jurídica) ══════════════════════════
+# Seção [13] do painel. Enquadramento neutro: estágio processual, presunção de
+# inocência, fontes oficiais. Dados POR CANDIDATO passam a existir após o
+# registro das candidaturas (TSE DivulgaCand publica certidões/elegibilidade a
+# partir de 15/08/2026). Até lá, o coletor roda fail-soft e o envelope sai com
+# itens_por_candidato vazio. Nunca inferir/alegar sem fonte oficial citável.
+
+INTEGRIDADE_METODOLOGIA = (
+    "Reúne a situação jurídica pública dos pré-candidatos a partir de fontes "
+    "oficiais (TSE, STF/STJ). Cada item traz o órgão, o estágio processual e a "
+    "fonte. Passa a exibir dados por candidato conforme o registro das "
+    "candidaturas (a partir de 15/08/2026), quando o TSE publica certidões e "
+    "condições de elegibilidade."
+)
+INTEGRIDADE_DISCLAIMER = (
+    "Estágio processual não é condenação. Todos são presumidos inocentes até "
+    "decisão final (trânsito em julgado). Sem juízo de valor nem cor partidária "
+    "— apenas o que o registro público permite."
+)
+# Estágios (ordem crescente de gravidade). Os ids batem com o data-stage do CSS
+# e com estagios[].id lidos pelo frontend.
+INTEGRIDADE_ESTAGIOS = [
+    {"id": "investigacao", "label": "investigação"},
+    {"id": "denuncia", "label": "denúncia recebida"},
+    {"id": "reu", "label": "réu (ação penal)"},
+    {"id": "condenacao_1a", "label": "condenação em 1ª instância"},
+    {"id": "transito", "label": "trânsito em julgado"},
+    {"id": "ficha_limpa", "label": "Ficha Limpa · elegível"},
+]
+INTEGRIDADE_FONTES = [
+    {"label": "TSE · DivulgaCand", "url": "https://divulgacandcontas.tse.jus.br/divulga/"},
+    {"label": "STF · consulta processual", "url": "https://portal.stf.jus.br/processos/"},
+    {"label": "STJ · consulta processual", "url": "https://processo.stj.jus.br/processo/pesquisa/"},
+]
+
+# TSE DivulgaCand — API pública oficial. O código da eleição ordinária 2026 é
+# atribuído no sistema durante o registro; enquanto vazio aqui, o coletor NÃO
+# consulta (produz itens vazios). Preencher após 15/08/2026.
+TSE_DIVULGACAND_API = "https://divulgacandcontas.tse.jus.br/divulga/rest/v1"
+TSE_DIVULGACAND_COD_ELEICAO = ""  # ex.: "2040602026" (definir no registro)
+
+# Rosters canônicos já produzidos por outros coletores (join por nome do painel).
+INTEGRIDADE_ROSTER_PRESIDENCIAL = "assets/data/eleicoes_precandidatos.json"
+INTEGRIDADE_ROSTER_ESTADUAL = "assets/data/eleicoes_estaduais.json"
