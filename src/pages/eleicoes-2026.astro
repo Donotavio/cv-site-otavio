@@ -55,18 +55,18 @@ const base = import.meta.env.BASE_URL;
           <span class="crop-mark-br" aria-hidden="true"></span>
 
           <header class="hero-card__header">
-            <span class="mono-label" data-i18n-key="portfolio.eleicoes.hero_label">Observatório Eleições 2026</span>
-            <span class="mono-label el-badge" id="el-updated" aria-live="polite">
+            <span class="mono-label" data-hero-eyebrow data-i18n-key="portfolio.eleicoes.hero_label">Observatório Eleições 2026</span>
+            <span class="mono-label el-badge" id="el-updated" data-hero-detail aria-live="polite">
               <span class="el-badge__dot" aria-hidden="true"></span>
               <span data-i18n-key="portfolio.eleicoes.updated_label">atualizado</span> · <span id="el-updated-date">···</span>
             </span>
           </header>
 
-          <h1 id="el-hero-title" class="hero-display" data-i18n-key="portfolio.eleicoes.hero_title">
+          <h1 id="el-hero-title" class="hero-display" data-hero-title data-i18n-key="portfolio.eleicoes.hero_title">
             Quem está medindo o Brasil antes de 4 de outubro?
           </h1>
 
-          <p class="hero-lead" data-i18n-key="portfolio.eleicoes.hero_lead">
+          <p class="hero-lead" data-hero-subtitle data-i18n-key="portfolio.eleicoes.hero_lead">
             Toda pesquisa eleitoral precisa ser registrada no TSE. Este observatório
             lê esse registro oficial e mostra a <em>máquina de medição</em> da eleição —
             quem mede, onde, com que rigor amostral e a que custo. Sem palpite de quem
@@ -74,7 +74,7 @@ const base = import.meta.env.BASE_URL;
           </p>
 
           <!-- Faixa de progresso — contagem para o 1º turno -->
-          <div class="el-progress" role="region" aria-label="Contagem para a eleição">
+          <div class="el-progress" data-hero-detail role="region" aria-label="Contagem para a eleição">
             <div class="el-progress__head">
               <span class="el-progress__phase mono-label" id="el-prog-phase" data-i18n-key="portfolio.eleicoes.prog_phase">rumo ao 1º turno</span>
               <span class="el-progress__pct" id="el-prog-pct">···</span>
@@ -90,7 +90,7 @@ const base = import.meta.env.BASE_URL;
             </div>
           </div>
 
-          <div class="hero-actions">
+          <div class="hero-actions" data-hero-ctas>
             <a href="#el-panorama" class="btn-primary" data-i18n-key="portfolio.eleicoes.cta_dados">Ver os dados</a>
             <a
               href="https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026"
@@ -215,6 +215,16 @@ const base = import.meta.env.BASE_URL;
           </article>
         </div>
 
+        <figure class="el-chartcard el-seriecard crop" id="el-serie" aria-labelledby="el-serie-t">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <div class="el-chartcard__head el-serie__head">
+            <span class="mono-label" id="el-serie-t" data-i18n-key="portfolio.eleicoes.serie_title">[ evolução da média — 1º turno ]</span>
+            <div class="el-serie__legend" id="el-serie-legend" aria-hidden="true"></div>
+          </div>
+          <div class="el-band__svg" id="el-serie-svg"><p class="el-loading mono-label">···</p></div>
+        </figure>
+
         <div class="el-vote-panorama">
           <span class="el-panel__title mono-label" data-i18n-key="portfolio.eleicoes.vote_panorama">quem já se colocou</span>
           <div id="el-vote-chips" class="el-vote-chips"></div>
@@ -338,7 +348,7 @@ const base = import.meta.env.BASE_URL;
           <div class="el-chartcard__head">
             <span class="mono-label" data-i18n-key="portfolio.eleicoes.chart_mes">[ pesquisas por mês de divulgação ]</span>
           </div>
-          <div class="el-barchart__svg" id="el-barchart-svg"><p class="el-loading mono-label">carregando série…</p></div>
+          <div class="el-barchart__svg el-band__svg" id="el-barchart-svg"><p class="el-loading mono-label">carregando série…</p></div>
         </figure>
       </div>
     </section>
@@ -580,7 +590,13 @@ const base = import.meta.env.BASE_URL;
   .el-alt { background: var(--paper-soft); }
 
   .el-badge { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--wc-gold-ink); }
-  .el-badge__dot { width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--wc-gold-ink); flex-shrink: 0; }
+  .el-badge__dot { width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--wc-gold-ink); flex-shrink: 0; animation: el-badge-pulse 2.6s ease-out infinite; }
+  @keyframes el-badge-pulse {
+    0%   { box-shadow: 0 0 0 0 var(--wc-gold-dim); }
+    70%  { box-shadow: 0 0 0 5px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+  @media (prefers-reduced-motion: reduce) { .el-badge__dot { animation: none; } }
 
   /* ── Hero ──────────────────────────────────────────────────
      Mesma assinatura tipográfica das páginas-irmãs (brasil-cockpit,
@@ -697,6 +713,32 @@ const base = import.meta.env.BASE_URL;
   .el-barchart__svg :global(.el-axis) { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-faint); }
   .el-barchart__svg :global(.el-barval) { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-soft); }
 
+  /* ── Elementos SVG de gráfico com eixo (bar chart [05] + série [02]) ──
+     Espelha a família .ck-band-* do brasil-cockpit. Classes (não var() em
+     atributo) garantem render consistente; linhas com non-scaling-stroke. */
+  .el-band__svg :global(svg) { width: 100%; height: auto; display: block; }
+  .el-band__svg :global(.el-band-tickline) { stroke: var(--line); stroke-width: 1; }
+  .el-band__svg :global(.el-band-axisline) { stroke: var(--line-strong); stroke-width: 1; }
+  .el-band__svg :global(.el-band-ticklabel),
+  .el-band__svg :global(.el-band-axislabel) { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-faint); }
+  .el-band__svg :global(.el-band-val) { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-soft); font-variant-numeric: var(--num-tabular); }
+  .el-band__svg :global(.el-band-line) { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .el-band__svg :global(.el-band-line--soft) { stroke: var(--ink-soft); stroke-width: 1.25; }
+  .el-band__svg :global(.el-band-line--faint) { stroke: var(--ink-faint); stroke-width: 1.25; }
+  .el-band__svg :global(.el-band-line--gold) { stroke: var(--wc-gold-ink); stroke-width: 2; }
+  .el-band__svg :global(.el-band-marker) { stroke: var(--paper-card); stroke-width: 1.5; }
+  .el-band__svg :global(.el-band-markerval) { font-family: var(--font-mono); font-size: 10px; font-weight: 500; fill: var(--ink); font-variant-numeric: var(--num-tabular); }
+
+  /* ── [02] Série temporal — card + legenda ── */
+  .el-seriecard { margin-top: var(--space-6); }
+  .el-serie__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+  .el-serie__legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
+  .el-serie__legend :global(.el-serie__lg) { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); }
+  .el-serie__legend :global(.el-serie__sw) { width: 14px; height: 0; border-top: 2px solid var(--ink-soft); flex-shrink: 0; }
+  .el-serie__legend :global(.el-serie__lg.is-leader) { color: var(--wc-gold-ink); }
+  .el-serie__legend :global(.el-serie__lg.is-leader .el-serie__sw) { border-top-color: var(--wc-gold-ink); border-top-width: 2px; }
+  .el-serie__legend :global(.el-serie__lg .mono-label) { color: var(--ink-faint); }
+
   /* ── Tabela ranqueada ── */
   .el-rank-wrap { overflow-x: auto; padding: var(--space-2) var(--space-3); margin-top: var(--space-8); }
   .el-rank-table { width: 100%; min-width: 480px; border-collapse: collapse; font-family: var(--font-sans); font-size: var(--text-sm); }
@@ -764,6 +806,11 @@ const base = import.meta.env.BASE_URL;
   /* 1º turno — barras horizontais */
   .el-vote-bars { display: flex; flex-direction: column; gap: var(--space-3); }
   .el-vote-bars :global(.el-vote-row) { display: grid; grid-template-columns: minmax(6rem, 9rem) minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; }
+  .el-vote-bars :global(.el-vote-row--spark) { grid-template-columns: minmax(6rem, 9rem) minmax(0, 1fr) 64px auto; }
+  .el-vote-bars :global(.el-vote-spark) { display: inline-flex; align-items: center; justify-content: center; }
+  .el-vote-bars :global(.el-spark) { display: block; width: 60px; height: 18px; }
+  .el-vote-bars :global(.el-spark-line) { fill: none; stroke: var(--ink-faint); stroke-width: 1.25; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .el-vote-bars :global(.el-spark-line--gold) { stroke: var(--wc-gold-ink); stroke-width: 1.5; }
   .el-vote-bars :global(.el-vote-name) { font-size: var(--text-sm); color: var(--ink); }
   .el-vote-bars :global(.el-vote-party) { color: var(--ink-faint); margin-left: var(--space-1); }
   .el-vote-bars :global(.el-vote-track) { height: 10px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
@@ -771,7 +818,12 @@ const base = import.meta.env.BASE_URL;
   .el-vote-bars :global(.el-vote-row.is-leader .el-vote-fill) { background: var(--wc-gold-ink); }
   .el-vote-bars :global(.el-vote-row.is-leader .el-vote-name) { color: var(--wc-gold-ink); font-weight: 600; }
   .el-vote-bars :global(.el-vote-pct) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink); text-align: right; font-variant-numeric: var(--num-tabular); white-space: nowrap; }
-  .el-vote-bars :global(.el-vote-delta) { color: var(--ink-faint); margin-left: var(--space-2); }
+  .el-vote-bars :global(.el-vote-delta) { color: var(--ink-faint); margin-left: var(--space-2); font-variant-numeric: var(--num-tabular); }
+  .el-vote-bars :global(.el-vote-delta.is-up) { color: var(--ink); }
+  @media (max-width: 640px) {
+    .el-vote-bars :global(.el-vote-row--spark) { grid-template-columns: minmax(5rem, 8rem) minmax(0, 1fr) auto; }
+    .el-vote-bars :global(.el-vote-row--spark .el-vote-spark) { display: none; }
+  }
   /* 2º turno — confrontos */
   .el-vote-duels { display: flex; flex-direction: column; gap: var(--space-4); }
   .el-vote-duels :global(.el-vote-duel) { display: flex; flex-direction: column; gap: var(--space-1); padding-bottom: var(--space-3); border-bottom: 1px solid var(--line); }
@@ -931,9 +983,12 @@ const base = import.meta.env.BASE_URL;
   @media (min-width: 768px) { .el-tr-grid { grid-template-columns: repeat(2, 1fr); } }
   .el-tr-text { color: var(--ink-soft); font-size: var(--text-base); line-height: var(--leading-normal); margin: 0; }
   .el-sources { list-style: none; margin: var(--space-8) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
-  .el-source-link { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-full); text-decoration: none; transition: border-color var(--transition-fast), color var(--transition-fast); }
-  .el-source-link:hover { border-color: var(--wc-gold-line); color: var(--wc-gold-ink); }
+  /* hover-glow (padrão CSS): halo suave --wc-gold-dim, mesmo idioma do foco do combobox. */
+  .el-source-link { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-full); text-decoration: none; transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast); }
+  .el-source-link:hover { border-color: var(--wc-gold-line); color: var(--wc-gold-ink); box-shadow: 0 0 0 3px var(--wc-gold-dim); }
   .el-source-link:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 2px; }
+  @media (hover: none) { .el-source-link:hover { box-shadow: none; } }
+  @media (prefers-reduced-motion: reduce) { .el-source-link { transition: none; } }
 </style>
 
 <script>
@@ -982,7 +1037,9 @@ const base = import.meta.env.BASE_URL;
     panorama?: { nome: string; partido: string; n_pesquisas: number; ultima: string }[];
     primeiro_turno?: { data_ref?: string; janela_dias?: number; n_pesquisas?: number; candidatos: VoteCand[] } | null;
     segundo_turno?: VoteDuel[];
+    serie_temporal?: SerieTemporal;
   }
+  interface SerieTemporal { meses: string[]; candidatos: Record<string, (number | null)[]> }
   interface VoteSnapshot { data_ref?: string; janela_dias?: number; n_pesquisas?: number; candidatos: VoteCand[] }
   interface EstadoIntencao { governador_1t: VoteSnapshot | null; governador_2t: VoteDuel[]; senador: VoteSnapshot | null }
   interface EstaduaisPayload {
@@ -1013,6 +1070,26 @@ const base = import.meta.env.BASE_URL;
   const fmtMesLong = (m: string): string => { const [y, mm] = m.split('-'); return `${MESES[parseInt(mm, 10) - 1]} ${y}`; };
   function fmtDate(iso?: string): string { if (!iso) return '—'; const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; }
   function esc(s: string): string { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  // ── Escala de eixo com ticks arredondados (Heckbert) — portado do
+  //    brasil-cockpit (bandChart). Usado pelo bar chart mensal [05] e pela
+  //    série temporal presidencial [02]. Fonte única: mesma lógica, sem lib. ──
+  function niceNum(range: number, round: boolean): number {
+    const exp = Math.floor(Math.log10(range));
+    const frac = range / Math.pow(10, exp);
+    let n: number;
+    if (round) { if (frac < 1.5) n = 1; else if (frac < 3) n = 2; else if (frac < 7) n = 5; else n = 10; }
+    else { if (frac <= 1) n = 1; else if (frac <= 2) n = 2; else if (frac <= 5) n = 5; else n = 10; }
+    return n * Math.pow(10, exp);
+  }
+  function niceTicks(min: number, max: number, n = 5): { ticks: number[]; niceMax: number } {
+    if (max <= min) max = min + 1;
+    const step = niceNum((max - min) / (n - 1), true);
+    const niceMax = Math.ceil(max / step) * step;
+    const ticks: number[] = [];
+    for (let v = 0; v <= niceMax + step * 0.5; v += step) ticks.push(Math.round(v * 100) / 100);
+    return { ticks, niceMax };
+  }
 
   // ── Faixa de progresso: contagem para o 1º turno (4/out/2026) ──
   function renderProgress(p: ElPayload): void {
@@ -1054,28 +1131,37 @@ const base = import.meta.env.BASE_URL;
     if (inline) inline.textContent = p.concentracao?.top1_share_pct != null ? `${p.concentracao.top1_share_pct}%` : '—';
   }
 
-  // ── Gráfico de barras vertical (SVG) ──
+  // ── Gráfico de barras vertical (SVG) — com eixo Y (niceTicks), grade e
+  //    moldura, no padrão bandChart do brasil-cockpit. Pico em --wc-gold-ink. ──
   function renderBarChart(p: ElPayload): void {
     const box = el('el-barchart-svg'); if (!box) return;
     const data = p.por_mes ?? [];
-    if (!data.length) { box.innerHTML = '<p class="el-error">série indisponível</p>'; return; }
+    if (!data.length) { box.innerHTML = '<p class="el-error mono-label">série indisponível</p>'; return; }
     const peak = p.records?.mes_pico?.mes;
-    const W = 720, H = 240, padT = 22, padB = 30, padX = 6;
-    const maxN = Math.max(...data.map((d) => d.n), 1);
-    const cw = (W - padX * 2) / data.length;
-    const bw = Math.min(cw * 0.6, 64);
-    const bars = data.map((d) => {
-      const i = data.indexOf(d);
-      const h = (d.n / maxN) * (H - padT - padB);
-      const x = padX + i * cw + (cw - bw) / 2;
-      const y = H - padB - h;
-      const isPeak = d.mes === peak;
-      return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="var(${isPeak ? '--wc-gold-ink' : '--ink-soft'})"></rect>
-        <text x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle" class="el-barval">${nf.format(d.n)}</text>
-        <text x="${(x + bw / 2).toFixed(1)}" y="${H - padB + 16}" text-anchor="middle" class="el-axis">${esc(fmtMes(d.mes))}</text>`;
+    const W = 720, H = 260, PAD = { l: 40, r: 12, t: 20, b: 34 };
+    const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b;
+    const { ticks, niceMax } = niceTicks(0, Math.max(...data.map((d) => d.n), 1) * 1.08, 5);
+    const yMax = niceMax || 1;
+    const yAt = (v: number) => PAD.t + (1 - v / yMax) * plotH;
+    const cw = plotW / data.length;
+    const bw = Math.min(cw * 0.62, 60);
+
+    const tickEls = ticks.map((v) => {
+      const yy = yAt(v);
+      return `<line class="el-band-tickline" x1="${PAD.l}" y1="${yy.toFixed(1)}" x2="${W - PAD.r}" y2="${yy.toFixed(1)}"></line>`
+        + `<text class="el-band-ticklabel" x="${PAD.l - 6}" y="${(yy + 3).toFixed(1)}" text-anchor="end">${nf.format(v)}</text>`;
     }).join('');
-    const baseline = `<line x1="${padX}" y1="${H - padB}" x2="${W - padX}" y2="${H - padB}" stroke="var(--line)" stroke-width="1"></line>`;
-    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pesquisas por mês">${baseline}${bars}</svg>`;
+
+    const bars = data.map((d, i) => {
+      const y = yAt(d.n), h = (H - PAD.b) - y;
+      const x = PAD.l + i * cw + (cw - bw) / 2;
+      const isPeak = d.mes === peak;
+      return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="2" fill="var(${isPeak ? '--wc-gold-ink' : '--ink-soft'})"></rect>
+        <text x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle" class="el-band-val">${nf.format(d.n)}</text>
+        <text x="${(x + bw / 2).toFixed(1)}" y="${H - PAD.b + 15}" text-anchor="middle" class="el-band-axislabel">${esc(fmtMes(d.mes))}</text>`;
+    }).join('');
+    const baseline = `<line class="el-band-axisline" x1="${PAD.l}" y1="${(H - PAD.b).toFixed(1)}" x2="${W - PAD.r}" y2="${(H - PAD.b).toFixed(1)}"></line>`;
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('portfolio.eleicoes.chart_mes_aria', 'Pesquisas por mês de divulgação'))}">${tickEls}${bars}${baseline}</svg>`;
   }
 
   // ── Tabela ranqueada ──
@@ -1272,16 +1358,35 @@ const base = import.meta.env.BASE_URL;
     </div>`).join('');
   }
 
+  // ── Sparkline compacta (trajetória) a partir da série temporal ──
+  function sparkSVG(vals: (number | null)[] | undefined, leader: boolean): string {
+    if (!vals) return '';
+    const pts = vals.map((v, i) => ({ v, i })).filter((p): p is { v: number; i: number } => p.v != null);
+    if (pts.length < 2) return '';
+    const W = 60, H = 18, P = 2;
+    const xs = pts.map((p) => p.i), vs = pts.map((p) => p.v);
+    const minX = Math.min(...xs), rangeX = (Math.max(...xs) - minX) || 1;
+    const minV = Math.min(...vs), rangeV = (Math.max(...vs) - minV) || 1;
+    const coords = pts.map((p) =>
+      `${(P + ((p.i - minX) / rangeX) * (W - 2 * P)).toFixed(1)},${(P + (1 - (p.v - minV) / rangeV) * (H - 2 * P)).toFixed(1)}`
+    ).join(' ');
+    return `<svg class="el-spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline class="el-spark-line${leader ? ' el-spark-line--gold' : ''}" points="${coords}"></polyline></svg>`;
+  }
+
   // ── Helpers de intenção (reusados por presidencial [02] e estadual [03]) ──
-  function voteBarsHTML(cands: VoteCand[]): string {
+  // `series` só é passada no presidencial → habilita a coluna de sparkline.
+  function voteBarsHTML(cands: VoteCand[], series?: SerieTemporal): string {
     const max = Math.max(...cands.map((c) => c.media_recente), 1);
+    const withSpark = !!series;
     return cands.map((c) => {
       const d = c.delta;
       const deltaHtml = d == null ? '' :
         `<span class="el-vote-delta ${d > 0 ? 'is-up' : d < 0 ? 'is-down' : ''}">${d > 0 ? '▲' : d < 0 ? '▼' : '–'} ${Math.abs(d).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</span>`;
-      return `<div class="el-vote-row${c.lider ? ' is-leader' : ''}">
+      const sparkHtml = withSpark ? `<span class="el-vote-spark">${sparkSVG(series!.candidatos?.[c.nome], c.lider)}</span>` : '';
+      return `<div class="el-vote-row${withSpark ? ' el-vote-row--spark' : ''}${c.lider ? ' is-leader' : ''}">
         <span class="el-vote-name">${esc(c.nome)} <span class="el-vote-party mono-label">${esc(c.partido)}</span></span>
         <span class="el-vote-track"><span class="el-vote-fill" style="width:${(c.media_recente / max) * 100}%"></span></span>
+        ${sparkHtml}
         <span class="el-vote-pct">${c.media_recente.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%${deltaHtml}</span>
       </div>`;
     }).join('');
@@ -1307,19 +1412,94 @@ const base = import.meta.env.BASE_URL;
     return `${t('portfolio.eleicoes.vote_ref', 'média dos últimos')} ${s.janela_dias ?? 90} ${t('portfolio.eleicoes.vote_ref_dias', 'dias · até')} ${fmtDate(s.data_ref)} · ${nf.format(s.n_pesquisas ?? 0)} ${t('portfolio.eleicoes.vote_ref_pesq', 'pesquisas')}`;
   }
 
+  // ── [02] Série temporal — evolução da média do 1º turno (multi-linha SVG) ──
+  // Segue o scaffolding do bandChart (brasil-cockpit): niceTicks no eixo Y,
+  // grade (ticks + virada de ano), linha de base, uma polyline por candidato
+  // (quebrada onde o valor é null). Líder em --wc-gold-ink; o "campo" em ink.
+  function renderSerie(pc: PrecandPayload | null): void {
+    const box = el('el-serie-svg'); const legendBox = el('el-serie-legend');
+    if (!box) return;
+    const st = pc?.serie_temporal;
+    const cands = pc?.primeiro_turno?.candidatos ?? [];
+    const fail = () => {
+      box.innerHTML = `<p class="el-error mono-label">${esc(t('portfolio.eleicoes.serie_unavailable', 'série indisponível'))}</p>`;
+      if (legendBox) legendBox.innerHTML = '';
+    };
+    if (!st || !st.meses?.length || !st.candidatos || !cands.length) { fail(); return; }
+    const meses = st.meses;
+    // Ordena pelo ranking do leaderboard; mantém só quem tem série com algum ponto.
+    const series = cands
+      .map((c) => ({ cand: c, vals: st.candidatos[c.nome] }))
+      .filter((s) => Array.isArray(s.vals) && s.vals.some((v) => v != null))
+      .slice(0, 5);
+    if (!series.length) { fail(); return; }
+
+    const W = 720, H = 300, PAD = { l: 40, r: 18, t: 18, b: 40 };
+    const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b;
+    const allVals = series.flatMap((s) => s.vals.filter((v): v is number => v != null));
+    const { ticks, niceMax } = niceTicks(0, Math.max(...allVals, 1) * 1.1, 5);
+    const yMax = niceMax || 1;
+    const xAt = (i: number) => PAD.l + (meses.length <= 1 ? 0 : (i / (meses.length - 1)) * plotW);
+    const yAt = (v: number) => PAD.t + (1 - v / yMax) * plotH;
+
+    const tickEls = ticks.map((v) => {
+      const yy = yAt(v);
+      return `<line class="el-band-tickline" x1="${PAD.l}" y1="${yy.toFixed(1)}" x2="${W - PAD.r}" y2="${yy.toFixed(1)}"></line>`
+        + `<text class="el-band-ticklabel" x="${PAD.l - 6}" y="${(yy + 3).toFixed(1)}" text-anchor="end">${v}%</text>`;
+    }).join('');
+
+    const yearMarks: { i: number; yr: string }[] = [];
+    let lastYear = '';
+    meses.forEach((m, i) => { const yr = m.slice(0, 4); if (yr !== lastYear) { yearMarks.push({ i, yr }); lastYear = yr; } });
+    const yearEls = yearMarks.map(({ i, yr }) => {
+      const xx = xAt(i);
+      return `<line class="el-band-tickline" x1="${xx.toFixed(1)}" y1="${PAD.t}" x2="${xx.toFixed(1)}" y2="${(H - PAD.b).toFixed(1)}"></line>`
+        + `<text class="el-band-axislabel" x="${xx.toFixed(1)}" y="${H - PAD.b + 16}" text-anchor="middle">${esc(yr)}</text>`;
+    }).join('');
+    const baseline = `<line class="el-band-axisline" x1="${PAD.l}" y1="${(H - PAD.b).toFixed(1)}" x2="${W - PAD.r}" y2="${(H - PAD.b).toFixed(1)}"></line>`;
+
+    const lines = series.map((s) => {
+      const cls = s.cand.lider ? 'el-band-line--gold' : 'el-band-line--soft';
+      // Quebra a linha em segmentos contíguos onde há valor (null → interrompe).
+      const segs: string[] = []; let cur: string[] = [];
+      s.vals.forEach((v, i) => {
+        if (v == null) { if (cur.length > 1) segs.push(cur.join(' ')); cur = []; }
+        else cur.push(`${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`);
+      });
+      if (cur.length > 1) segs.push(cur.join(' '));
+      const poly = segs.map((pts) => `<polyline class="el-band-line ${cls}" points="${pts}"></polyline>`).join('');
+      let lastI = -1; for (let i = s.vals.length - 1; i >= 0; i--) if (s.vals[i] != null) { lastI = i; break; }
+      let marker = '';
+      if (lastI >= 0) {
+        const v = s.vals[lastI] as number, mx = xAt(lastI), my = yAt(v);
+        const fillc = s.cand.lider ? 'var(--wc-gold-ink)' : 'var(--ink-soft)';
+        marker = `<circle class="el-band-marker" cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="3.5" fill="${fillc}"></circle>`;
+        if (s.cand.lider) marker += `<text class="el-band-markerval" x="${(mx - 6).toFixed(1)}" y="${(my - 8).toFixed(1)}" text-anchor="end" fill="var(--wc-gold-ink)">${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</text>`;
+      }
+      return poly + marker;
+    }).join('');
+
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('portfolio.eleicoes.serie_aria', 'Evolução da intenção de voto no 1º turno'))}">${tickEls}${yearEls}${baseline}${lines}</svg>`;
+    if (legendBox) legendBox.innerHTML = series.map((s) =>
+      `<span class="el-serie__lg${s.cand.lider ? ' is-leader' : ''}"><span class="el-serie__sw" aria-hidden="true"></span>${esc(s.cand.nome)} <span class="mono-label">${esc(s.cand.partido)}</span></span>`
+    ).join('');
+  }
+
   // ── [02] Intenção de voto presidencial (pré-candidatos) ──
   function voteFail(): void {
     ['el-vote-1t', 'el-vote-2t'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">intenção indisponível — tente recarregar</p>'; });
     const chips = el('el-vote-chips'); if (chips) chips.innerHTML = '';
     const ref = el('el-vote-1t-ref'); if (ref) ref.textContent = '';
+    renderSerie(null);
   }
   function renderPrecandidatos(pc: PrecandPayload | null): void {
     if (!pc || !pc.primeiro_turno || !pc.primeiro_turno.candidatos?.length) { voteFail(); return; }
     const pt = pc.primeiro_turno;
     const box1 = el('el-vote-1t');
-    if (box1) box1.innerHTML = voteBarsHTML(pt.candidatos);
+    if (box1) box1.innerHTML = voteBarsHTML(pt.candidatos, pc.serie_temporal);
     const ref = el('el-vote-1t-ref');
     if (ref) ref.textContent = voteRefText(pt);
+    renderSerie(pc);
     const box2 = el('el-vote-2t');
     if (box2) {
       const duels = (pc.segundo_turno ?? []).slice(0, 5);
@@ -1543,18 +1723,23 @@ const base = import.meta.env.BASE_URL;
 </script>
 
 <script>
-  // Motion — padrão nomeado `reveal-up` (GSAP + ScrollTrigger), guardado por
-  // motionOk (respeita prefers-reduced-motion). Hero + por seção (head + cards).
+  // Motion — padrões nomeados (GSAP + ScrollTrigger), guardados por motionOk
+  // (respeita prefers-reduced-motion): `resolve` no herói, `reveal-up` por seção
+  // (head + cards), `hairline-draw` nas divisórias de seção.
   import { revealUp } from '../scripts/motion/reveal-up';
+  import { resolveHero } from '../scripts/motion/resolve';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
   import { motionOk, STAGGER } from '../scripts/motion/constants';
 
   function animateEleicoes(): void {
     if (!motionOk) return;
     const heroCard = document.querySelector('#eleicoes-hero .hero-card') as HTMLElement | null;
-    if (heroCard) revealUp([heroCard], heroCard, 0);
+    if (heroCard) resolveHero(heroCard);
     document.querySelectorAll<HTMLElement>('main section[id^="el-"]').forEach((sec) => {
       const head = sec.querySelector('.section-head') as HTMLElement | null;
       if (head) revealUp([head], sec, 0);
+      const line = sec.querySelector('.section-line') as HTMLElement | null;
+      if (line && head) hairlineDraw(line, head);
       const cards = Array.from(sec.querySelectorAll<HTMLElement>('.el-kpi, .el-ministat, .el-chartcard, .el-rank-wrap, .el-panel, .el-ufchart, .el-elt-hero, .el-jogo-card, .el-fundo, .el-timeline'));
       if (cards.length) revealUp(cards, sec, STAGGER.tight);
     });
