@@ -35,7 +35,7 @@ jobs:
         run: pip install -r ingestion_eleicoes/requirements.txt
 
       - name: Criar diretórios de dados
-        run: mkdir -p data/bronze/eleicoes_pesquisas data/bronze/eleicoes_precandidatos data/gold
+        run: mkdir -p data/bronze/eleicoes_pesquisas data/bronze/eleicoes_precandidatos data/bronze/eleicoes_estaduais data/gold
 
       - name: Coletar pesquisas registradas (TSE)
         run: python ingestion_eleicoes/collect_pesquisas.py
@@ -53,13 +53,23 @@ jobs:
         continue-on-error: true
         run: python transform_eleicoes/gold_precandidatos.py
 
+      - name: Coletar intenção estadual (Wikipedia por UF → agrega TSE)
+        continue-on-error: true
+        run: python ingestion_eleicoes/collect_estaduais.py
+
+      - name: Gold — intenção estadual (governador + senador)
+        continue-on-error: true
+        run: python transform_eleicoes/gold_estaduais.py
+
       - name: Commit dados atualizados
         run: |
           git config user.name "eleicoes-pipeline[bot]"
           git config user.email "eleicoes-pipeline@users.noreply.github.com"
 
-          git add data/bronze/eleicoes_pesquisas/ data/bronze/eleicoes_precandidatos/ data/gold/ \
-                  assets/data/eleicoes_pesquisas.json assets/data/eleicoes_precandidatos.json || true
+          git add data/bronze/eleicoes_pesquisas/ data/bronze/eleicoes_precandidatos/ \
+                  data/bronze/eleicoes_estaduais/ data/gold/ \
+                  assets/data/eleicoes_pesquisas.json assets/data/eleicoes_precandidatos.json \
+                  assets/data/eleicoes_estaduais.json || true
 
           if git diff --staged --quiet; then
             echo "ℹ Sem mudanças nos dados — nada a commitar."

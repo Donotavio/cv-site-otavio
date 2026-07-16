@@ -198,3 +198,86 @@ CANDIDATO_NORMALIZE = {
     "Moro": "Sergio Moro",
     "Renan": "Renan (Missão)",
 }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Intenção de voto ESTADUAL — governador + senador (Fase 2)
+# ═══════════════════════════════════════════════════════════════════════════
+# Um artigo por UF na Wikipedia PT ("Pesquisas eleitorais para a eleição
+# estadual de 2026 {sufixo}"). Mesma natureza da Fase 1: agrega pesquisas
+# registradas no TSE, é citável e apartidária. Confirmado: 24 das 27 UFs têm
+# artigo (faltam DF, MS, MT) → coletor fail-soft por estado.
+#
+# ATENÇÃO (rate limit): baixar 24 artigos em série rápida provoca HTTP 429.
+# O coletor faz throttle entre estados (ver ESTADUAL_THROTTLE_S) e usa
+# User-Agent descritivo.
+WIKIPEDIA_ESTADUAL_TITLE_FMT = "Pesquisas eleitorais para a eleição estadual de 2026 {suf}"
+ESTADUAL_THROTTLE_S = 2.0
+
+# UF → sufixo do título (com a preposição correta). DF/MS/MT omitidos: sem
+# artigo hoje. Se forem publicados, basta acrescentar aqui.
+UF_ARTIGO_SUFIXO = {
+    "SP": "em São Paulo",
+    "RJ": "no Rio de Janeiro",
+    "MG": "em Minas Gerais",
+    "PR": "no Paraná",
+    "RS": "no Rio Grande do Sul",
+    "BA": "na Bahia",
+    "CE": "no Ceará",
+    "PE": "em Pernambuco",
+    "SC": "em Santa Catarina",
+    "GO": "em Goiás",
+    "PA": "no Pará",
+    "MA": "no Maranhão",
+    "AM": "no Amazonas",
+    "ES": "no Espírito Santo",
+    "PB": "na Paraíba",
+    "RN": "no Rio Grande do Norte",
+    "PI": "no Piauí",
+    "AL": "em Alagoas",
+    "SE": "em Sergipe",
+    "RO": "em Rondônia",
+    "TO": "no Tocantins",
+    "AC": "no Acre",
+    "AP": "no Amapá",
+    "RR": "em Roraima",
+}
+
+# Cenários estaduais.
+CENARIO_GOV_1T = "governador_1t"
+CENARIO_GOV_2T = "governador_2t"
+CENARIO_SEN = "senador"
+
+
+def cargo_do_heading(texto: str) -> str | None:
+    """Classifica a tabela pelo H2/H3 mais próximo (texto).
+
+    'Segundo Turno' (sob a seção Governador) → governador_2t;
+    'Governador' → governador_1t; 'Senador' → senador.
+    """
+    t = (texto or "").lower()
+    if "senador" in t or "senado" in t:
+        return CENARIO_SEN
+    if "segundo turno" in t or "2º turno" in t or "2° turno" in t:
+        return CENARIO_GOV_2T
+    if "governador" in t or "primeiro turno" in t or "1º turno" in t:
+        return CENARIO_GOV_1T
+    return None
+
+
+def split_nome_partido(coluna: str) -> tuple[str, str] | None:
+    """Separa 'Nome (PARTIDO)' OU 'Nome PARTIDO' → (nome_curto, partido).
+
+    Governador 1º turno usa parênteses ('Tarcísio (REP)'); 2º turno e senador
+    usam sufixo ('Tarcísio REP', 'Simone Tebet PSB'). Devolve None se não casar.
+    """
+    import re as _re
+
+    s = (coluna or "").strip()
+    m = _re.match(r"^(.*?)\s*\(([^)]+)\)\s*$", s)  # Nome (PARTIDO)
+    if m:
+        return m.group(1).strip(), m.group(2).strip()
+    parts = s.rsplit(" ", 1)  # Nome PARTIDO
+    if len(parts) == 2 and parts[1]:
+        return parts[0].strip(), parts[1].strip()
+    return None
