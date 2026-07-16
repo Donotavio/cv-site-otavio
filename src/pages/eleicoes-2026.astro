@@ -212,9 +212,9 @@ const base = import.meta.env.BASE_URL;
   .el-h2 { font-family: var(--font-display); font-size: var(--text-2xl); line-height: 1.05; margin: 0; }
   .el-lead { color: var(--ink-soft); font-size: var(--text-base); max-width: 60ch; margin-top: var(--space-2); }
 
-  /* KPIs */
+  /* KPIs — mobile-first: 2 col no mobile, 4 no desktop */
   .el-kpis {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4);
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4);
     margin-top: var(--space-8);
   }
   .el-kpi { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-6); }
@@ -241,8 +241,8 @@ const base = import.meta.env.BASE_URL;
   .el-rk-meta { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); white-space: nowrap; font-variant-numeric: tabular-nums; }
   .el-rk-meta strong { color: var(--ink); }
 
-  /* Como medem */
-  .el-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin-top: var(--space-8); }
+  /* Como medem — mobile-first: empilhado no mobile, 3 col no desktop */
+  .el-grid3 { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-8); }
   .el-panel { padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
   .el-panel__title { color: var(--ink-faint); }
   .el-split { display: flex; flex-direction: column; gap: var(--space-3); }
@@ -263,13 +263,16 @@ const base = import.meta.env.BASE_URL;
   .el-loading { color: var(--ink-faint); }
   .el-error { color: var(--ink-faint); font-family: var(--font-mono); font-size: var(--text-sm); }
 
-  /* Cobertura por UF */
-  .el-uf { padding: var(--space-8); margin-top: var(--space-8); display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2) var(--space-10); }
+  /* Cobertura por UF — mobile-first: 1 col no mobile, 2 col a partir de 640px */
+  .el-uf { padding: var(--space-8); margin-top: var(--space-8); display: grid; grid-template-columns: 1fr; gap: var(--space-2) var(--space-10); }
 
-  @media (max-width: 720px) {
-    .el-kpis { grid-template-columns: repeat(2, 1fr); }
-    .el-grid3 { grid-template-columns: 1fr; }
-    .el-uf { grid-template-columns: 1fr; }
+  /* Breakpoints mobile-first (design-system.md: apenas min-width) */
+  @media (min-width: 640px) {
+    .el-uf { grid-template-columns: 1fr 1fr; }
+  }
+  @media (min-width: 1024px) {
+    .el-kpis { grid-template-columns: repeat(4, 1fr); }
+    .el-grid3 { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
 
@@ -314,6 +317,13 @@ const base = import.meta.env.BASE_URL;
     return d.innerHTML;
   }
 
+  // Rótulo traduzível em runtime: usa window.i18n.t() quando disponível
+  // (content-i18n.md), senão o fallback pt-BR. Re-render em `languageChanged`.
+  const t = (key: string, fallback: string): string => {
+    const v = (window as unknown as { i18n?: { t?: (k: string) => string } }).i18n?.t?.(key);
+    return typeof v === 'string' && v ? v : fallback;
+  };
+
   function renderKpis(p: ElPayload): void {
     const k = p.kpis ?? {};
     if (el('kpi-total')) el('kpi-total')!.textContent = nf.format(k.total_pesquisas ?? 0);
@@ -349,7 +359,7 @@ const base = import.meta.env.BASE_URL;
       <li class="el-rk-row">
         <span class="el-rk-pos">${String(i + 1).padStart(2, '0')}</span>
         <span class="el-rk-name">${esc(d.empresa)}</span>
-        <span class="el-rk-meta"><strong>${nf.format(d.n)}</strong> pesq · ${esc(fmtRS(d.investimento_rs))}</span>
+        <span class="el-rk-meta"><strong>${nf.format(d.n)}</strong> ${esc(t('portfolio.eleicoes.rk_pesq', 'pesq'))} · ${esc(fmtRS(d.investimento_rs))}</span>
       </li>`).join('');
     box.innerHTML =
       '<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>' + rows;
@@ -368,14 +378,14 @@ const base = import.meta.env.BASE_URL;
     const niv = p.por_nivel ?? {};
     const nivTotal = (niv.presidencial ?? 0) + (niv.estadual ?? 0);
     if (el('el-nivel')) el('el-nivel')!.innerHTML =
-      splitRow('Presidencial / nacional', niv.presidencial ?? 0, nivTotal) +
-      splitRow('Estadual', niv.estadual ?? 0, nivTotal, true);
+      splitRow(t('portfolio.eleicoes.nivel_presidencial', 'Presidencial / nacional'), niv.presidencial ?? 0, nivTotal) +
+      splitRow(t('portfolio.eleicoes.nivel_estadual', 'Estadual'), niv.estadual ?? 0, nivTotal, true);
 
     const org = p.propria_vs_contratada ?? {};
     const orgTotal = (org.propria ?? 0) + (org.contratada ?? 0);
     if (el('el-origem')) el('el-origem')!.innerHTML =
-      splitRow('Contratada', org.contratada ?? 0, orgTotal) +
-      splitRow('Própria (do instituto)', org.propria ?? 0, orgTotal, true);
+      splitRow(t('portfolio.eleicoes.origem_contratada', 'Contratada'), org.contratada ?? 0, orgTotal) +
+      splitRow(t('portfolio.eleicoes.origem_propria', 'Própria (do instituto)'), org.propria ?? 0, orgTotal, true);
 
     const am = p.amostragem ?? [];
     const amMax = Math.max(...am.map((a) => a.n), 1);
@@ -385,11 +395,8 @@ const base = import.meta.env.BASE_URL;
         <span class="el-bar-track"><span class="el-bar-fill" style="width:${(a.n / amMax) * 100}%"></span></span>
         <span class="el-bar-n">${nf.format(a.n)}</span>
       </div>`).join('');
-
-    if (p.notas?.escopo && el('el-nota')) {
-      el('el-nota')!.textContent = 'Escopo: ' + p.notas.escopo;
-      el('el-nota')!.removeAttribute('data-i18n-key');
-    }
+    // A nota de escopo é texto de UI → fica no i18n (data-i18n-key estático),
+    // traduzido pelo i18n.js. Não sobrescrevemos com o texto do pipeline.
   }
 
   function renderUF(p: ElPayload): void {
@@ -409,6 +416,16 @@ const base = import.meta.env.BASE_URL;
       '<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>' + rows;
   }
 
+  let payload: ElPayload | null = null;
+
+  function renderAll(data: ElPayload): void {
+    renderKpis(data);
+    renderTimeline(data);
+    renderRanking(data);
+    renderComo(data);
+    renderUF(data);
+  }
+
   async function loadEleicoes(): Promise<void> {
     const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
     const controller = new AbortController();
@@ -422,11 +439,8 @@ const base = import.meta.env.BASE_URL;
       if (!res.ok) throw new Error('fetch failed');
       const data: ElPayload = await res.json();
       if (!data.kpis) throw new Error('empty payload');
-      renderKpis(data);
-      renderTimeline(data);
-      renderRanking(data);
-      renderComo(data);
-      renderUF(data);
+      payload = data;
+      renderAll(data);
     } catch {
       clearTimeout(timeoutId);
       ['el-timeline', 'el-ranking', 'el-uf'].forEach((id) => {
@@ -437,6 +451,8 @@ const base = import.meta.env.BASE_URL;
   }
 
   document.addEventListener('DOMContentLoaded', loadEleicoes);
+  // Re-render dos rótulos traduzíveis ao trocar de idioma (content-i18n.md).
+  window.addEventListener('languageChanged', () => { if (payload) renderAll(payload); });
 </script>
 
 <script>
