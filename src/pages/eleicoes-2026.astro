@@ -1003,63 +1003,64 @@ const base = import.meta.env.BASE_URL;
   /* ── [09] O que está em jogo ── */
   .el-jogo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); margin-top: var(--space-8); }
   @media (min-width: 1024px) { .el-jogo-grid { grid-template-columns: repeat(4, 1fr); } }
-  .el-jogo-card { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-1); transition: border-color var(--transition-normal); }
-  .el-jogo-card:hover { border-color: var(--line-strong); }
-  .el-jogo-num { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 400; color: var(--ink); line-height: .95; letter-spacing: var(--tracking-tight); font-variant-numeric: var(--num-tabular); }
-  .el-jogo-label { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--ink-soft); }
-  .el-jogo-sub { color: var(--ink-faint); margin-top: var(--space-1); }
-  .el-jogo-card { justify-content: flex-start; }
-  .el-jogo-card--partial { border-color: var(--wc-gold-line); }
-  .el-jogo-renov { display: flex; flex-direction: column; gap: var(--space-2); margin-top: auto; padding-top: var(--space-4); }
-  .el-jogo-renov__track { height: 6px; background: var(--line); border-radius: var(--radius-full); overflow: hidden; }
-  .el-jogo-renov__fill { display: block; height: 100%; background: var(--ink-soft); border-radius: var(--radius-full); }
-  .el-jogo-renov__fill.is-partial { background: var(--wc-gold-ink); }
-  .el-jogo-renov__pct { color: var(--ink-faint); }
+  /* Cards injetados via JS → :global() sob a section estática #el-jogo */
+  #el-jogo :global(.el-jogo-card) { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-6); display: flex; flex-direction: column; justify-content: flex-start; gap: var(--space-1); transition: border-color var(--transition-normal); }
+  #el-jogo :global(.el-jogo-card:hover) { border-color: var(--line-strong); }
+  #el-jogo :global(.el-jogo-card--partial) { border-color: var(--wc-gold-line); }
+  #el-jogo :global(.el-jogo-num) { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 400; color: var(--ink); line-height: .95; letter-spacing: var(--tracking-tight); font-variant-numeric: var(--num-tabular); }
+  #el-jogo :global(.el-jogo-label) { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--ink-soft); }
+  #el-jogo :global(.el-jogo-sub) { color: var(--ink-faint); margin-top: var(--space-1); }
+  #el-jogo :global(.el-jogo-renov) { display: flex; flex-direction: column; gap: var(--space-2); margin-top: auto; padding-top: var(--space-4); }
+  #el-jogo :global(.el-jogo-renov__track) { height: 6px; background: var(--line); border-radius: var(--radius-full); overflow: hidden; }
+  #el-jogo :global(.el-jogo-renov__fill) { display: block; height: 100%; background: var(--ink-soft); border-radius: var(--radius-full); }
+  #el-jogo :global(.el-jogo-renov__fill.is-partial) { background: var(--wc-gold-ink); }
+  #el-jogo :global(.el-jogo-renov__pct) { color: var(--ink-faint); }
 
   .el-fundo { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-8); margin-top: var(--space-5); display: grid; grid-template-columns: 1fr; gap: var(--space-8); }
   @media (min-width: 768px) { .el-fundo { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; } }
-  .el-fundo__main { display: flex; flex-direction: column; gap: var(--space-3); }
-  .el-fundo__val { color: var(--wc-gold-ink); font-size: var(--display-2); line-height: .9; }
-  .el-fundo__compare { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); }
-  .el-fundo__cmp { display: grid; grid-template-columns: 2.75rem 1fr auto; align-items: center; gap: var(--space-3); }
-  .el-fundo__cmp-yr { color: var(--ink-faint); }
-  .el-fundo__cmp-track { height: 10px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
-  .el-fundo__cmp-fill { display: block; height: 100%; background: var(--ink-faint); }
-  .el-fundo__cmp-fill.is-now { background: var(--wc-gold-ink); }
-  .el-fundo__cmp-v { color: var(--ink-soft); font-variant-numeric: var(--num-tabular); white-space: nowrap; }
-  .el-fundo__mult { font-family: var(--font-display); font-size: var(--text-2xl); color: var(--wc-gold-ink); margin-top: var(--space-2); line-height: 1; }
-  .el-fundo__mult .mono-label { color: var(--ink-faint); }
-  .el-fundo__stats { display: flex; flex-direction: column; gap: var(--space-5); }
-  .el-fundo__meter { display: flex; flex-direction: column; gap: var(--space-2); }
-  .el-fundo__meter-head { display: flex; align-items: baseline; gap: var(--space-3); }
-  .el-fundo__sv { font-family: var(--font-display); font-size: var(--text-2xl); color: var(--ink); font-variant-numeric: var(--num-tabular); line-height: 1; }
-  .el-fundo__sl { color: var(--ink-faint); }
-  .el-fundo__meter-track { height: 6px; background: var(--line); border-radius: var(--radius-full); overflow: hidden; }
-  .el-fundo__meter-fill { display: block; height: 100%; background: var(--ink-soft); border-radius: var(--radius-full); }
+  #el-jogo :global(.el-fundo__main) { display: flex; flex-direction: column; gap: var(--space-3); }
+  #el-jogo :global(.el-fundo__val) { color: var(--wc-gold-ink); font-size: var(--display-2); line-height: .9; }
+  #el-jogo :global(.el-fundo__compare) { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); }
+  #el-jogo :global(.el-fundo__cmp) { display: grid; grid-template-columns: 2.75rem 1fr auto; align-items: center; gap: var(--space-3); }
+  #el-jogo :global(.el-fundo__cmp-yr) { color: var(--ink-faint); }
+  #el-jogo :global(.el-fundo__cmp-track) { height: 10px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  #el-jogo :global(.el-fundo__cmp-fill) { display: block; height: 100%; background: var(--ink-faint); }
+  #el-jogo :global(.el-fundo__cmp-fill.is-now) { background: var(--wc-gold-ink); }
+  #el-jogo :global(.el-fundo__cmp-v) { color: var(--ink-soft); font-variant-numeric: var(--num-tabular); white-space: nowrap; }
+  #el-jogo :global(.el-fundo__mult) { font-family: var(--font-display); font-size: var(--text-2xl); color: var(--wc-gold-ink); margin-top: var(--space-2); line-height: 1; }
+  #el-jogo :global(.el-fundo__mult .mono-label) { color: var(--ink-faint); }
+  #el-jogo :global(.el-fundo__stats) { display: flex; flex-direction: column; gap: var(--space-5); }
+  #el-jogo :global(.el-fundo__meter) { display: flex; flex-direction: column; gap: var(--space-2); }
+  #el-jogo :global(.el-fundo__meter-head) { display: flex; align-items: baseline; gap: var(--space-3); }
+  #el-jogo :global(.el-fundo__sv) { font-family: var(--font-display); font-size: var(--text-2xl); color: var(--ink); font-variant-numeric: var(--num-tabular); line-height: 1; }
+  #el-jogo :global(.el-fundo__sl) { color: var(--ink-faint); }
+  #el-jogo :global(.el-fundo__meter-track) { height: 6px; background: var(--line); border-radius: var(--radius-full); overflow: hidden; }
+  #el-jogo :global(.el-fundo__meter-fill) { display: block; height: 100%; background: var(--ink-soft); border-radius: var(--radius-full); }
 
   /* ── [10] Relógio (timeline vertical) ── */
   .el-timeline { position: relative; margin: var(--space-8) 0 0; padding: var(--space-8) var(--space-6); background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); }
   .el-timeline__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
-  .el-tl-item { position: relative; display: grid; grid-template-columns: 1.2rem 6.5rem 1fr auto; align-items: baseline; gap: var(--space-2) var(--space-3); padding: var(--space-4) 0; padding-left: var(--space-2); border-left: 2px solid var(--line); margin-left: 5px; }
-  .el-tl-item:first-of-type { padding-top: 0; }
-  .el-tl-item:last-of-type { padding-bottom: 0; }
-  .el-tl-dot { position: absolute; left: -7px; top: var(--space-4); width: 10px; height: 10px; border-radius: var(--radius-full); background: var(--paper-card); border: 2px solid var(--ink-faint); }
-  .el-tl-item:first-of-type .el-tl-dot { top: 2px; }
-  .el-tl-item.is-past { border-left-color: var(--wc-gold-line); }
-  .el-tl-item.is-past .el-tl-dot { background: var(--wc-gold-ink); border-color: var(--wc-gold-ink); }
-  .el-tl-date { color: var(--ink-faint); font-variant-numeric: var(--num-tabular); grid-column: 2; }
-  .el-tl-marco { color: var(--ink); font-size: var(--text-sm); grid-column: 3; }
-  .el-tl-item.is-past .el-tl-marco { color: var(--ink-soft); }
-  .el-tl-rel { grid-column: 4; color: var(--ink-faint); font-variant-numeric: var(--num-tabular); white-space: nowrap; text-align: right; }
-  .el-tl-rel.is-done { color: var(--wc-gold-ink); }
-  .el-tl-item.is-key .el-tl-marco { font-weight: 600; color: var(--ink); }
-  .el-tl-item.is-key .el-tl-dot { width: 12px; height: 12px; left: -8px; top: calc(var(--space-4) - 1px); }
+  /* Itens injetados via JS → :global() sob a section estática #el-relogio */
+  #el-relogio :global(.el-tl-item) { position: relative; display: grid; grid-template-columns: 1.2rem 6.5rem 1fr auto; align-items: baseline; gap: var(--space-2) var(--space-3); padding: var(--space-4) 0; padding-left: var(--space-2); border-left: 2px solid var(--line); margin-left: 5px; }
+  #el-relogio :global(.el-tl-item:first-of-type) { padding-top: 0; }
+  #el-relogio :global(.el-tl-item:last-of-type) { padding-bottom: 0; }
+  #el-relogio :global(.el-tl-dot) { position: absolute; left: -7px; top: var(--space-4); width: 10px; height: 10px; border-radius: var(--radius-full); background: var(--paper-card); border: 2px solid var(--ink-faint); }
+  #el-relogio :global(.el-tl-item:first-of-type .el-tl-dot) { top: 2px; }
+  #el-relogio :global(.el-tl-item.is-past) { border-left-color: var(--wc-gold-line); }
+  #el-relogio :global(.el-tl-item.is-past .el-tl-dot) { background: var(--wc-gold-ink); border-color: var(--wc-gold-ink); }
+  #el-relogio :global(.el-tl-date) { color: var(--ink-faint); font-variant-numeric: var(--num-tabular); grid-column: 2; }
+  #el-relogio :global(.el-tl-marco) { color: var(--ink); font-size: var(--text-sm); grid-column: 3; }
+  #el-relogio :global(.el-tl-item.is-past .el-tl-marco) { color: var(--ink-soft); }
+  #el-relogio :global(.el-tl-rel) { grid-column: 4; color: var(--ink-faint); font-variant-numeric: var(--num-tabular); white-space: nowrap; text-align: right; }
+  #el-relogio :global(.el-tl-rel.is-done) { color: var(--wc-gold-ink); }
+  #el-relogio :global(.el-tl-item.is-key .el-tl-marco) { font-weight: 600; color: var(--ink); }
+  #el-relogio :global(.el-tl-item.is-key .el-tl-dot) { width: 12px; height: 12px; left: -8px; top: calc(var(--space-4) - 1px); }
   /* Marcador "HOJE" — ponto pulsante dourado, spine dourado até aqui */
-  .el-tl-now { border-left-color: var(--wc-gold-line); }
-  .el-tl-now .el-tl-dot { background: var(--wc-gold-ink); border-color: var(--wc-gold-ink); animation: el-badge-pulse 2.6s ease-out infinite; }
-  .el-tl-now .el-tl-date { color: var(--wc-gold-ink); }
-  .el-tl-now .el-tl-marco { grid-column: 3; color: var(--wc-gold-ink); font-family: var(--font-mono); font-weight: 700; letter-spacing: .08em; font-size: var(--text-xs); }
-  @media (prefers-reduced-motion: reduce) { .el-tl-now .el-tl-dot { animation: none; } }
+  #el-relogio :global(.el-tl-now) { border-left-color: var(--wc-gold-line); }
+  #el-relogio :global(.el-tl-now .el-tl-dot) { background: var(--wc-gold-ink); border-color: var(--wc-gold-ink); animation: el-badge-pulse 2.6s ease-out infinite; }
+  #el-relogio :global(.el-tl-now .el-tl-date) { color: var(--wc-gold-ink); }
+  #el-relogio :global(.el-tl-now .el-tl-marco) { grid-column: 3; color: var(--wc-gold-ink); font-family: var(--font-mono); font-weight: 700; letter-spacing: .08em; font-size: var(--text-xs); }
+  @media (prefers-reduced-motion: reduce) { #el-relogio :global(.el-tl-now .el-tl-dot) { animation: none; } }
 
   /* ── [11] Transparência & fontes ── */
   .el-tr-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-8); }
