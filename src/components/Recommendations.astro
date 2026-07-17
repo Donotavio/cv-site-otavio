@@ -2,13 +2,14 @@
 /**
  * Recommendations.astro — Seção [ 11 ] — Direção Blueprint (fundo --paper-soft)
  *
- * Renderização 100% Astro/SSR (sem innerHTML/DOM): os dados vêm de
- * `assets/data/profile.json` importado em build-time (consolidado de
- * `linkedin_recommendations.json` por `build_profile_data.py`). O texto/data/
- * relação de cada card saem de `recommendations.items.<id>` no i18n — default
- * pt-BR via t() + `data-i18n-key` para troca de idioma em runtime (sem
- * re-render manual). Isso também elimina a defasagem de cache do antigo fetch
- * client-side (uma recomendação nova aparecia só após limpar o cache).
+ * Renderização 100% Astro/SSR (sem innerHTML/DOM): dados de `profile.json`
+ * importado em build-time; texto/data/relação de `recommendations.items.<id>`
+ * no i18n (default pt-BR via t() + data-i18n-key p/ troca de idioma).
+ *
+ * Cada card mostra uma PRÉVIA (citação recortada em N linhas → altura
+ * uniforme) e abre um <dialog> nativo com a recomendação completa ao clicar
+ * (acessível: focus-trap + Esc nativos, backdrop, botão fechar). O <dialog> de
+ * cada card também é SSR — o JS só alterna open/close.
  *
  * Motion: hairlineDraw (linha) + revealUp (cabeçalho + cards).
  */
@@ -38,7 +39,8 @@ const initialsOf = (name: string) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-// Pré-resolve cada card em build-time (texto/data/relação via i18n).
+const readLabel = t('recommendations.read');
+
 const cards = recs.map((r, i) => ({
   ...r,
   num: String(i + 1).padStart(2, '0'),
@@ -51,6 +53,9 @@ const cards = recs.map((r, i) => ({
   date: t(`recommendations.items.${r.id}.date`),
   relationship: t(`recommendations.items.${r.id}.relationship`),
 }));
+
+const LINKEDIN_PATH =
+  'M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z';
 ---
 
 <section id="recommendations" class="section recommendations" aria-labelledby="recommendations-title">
@@ -69,8 +74,18 @@ const cards = recs.map((r, i) => ({
           <article class="rec-card crop">
             <span class="crop-mark-bl" aria-hidden="true"></span>
             <span class="crop-mark-br" aria-hidden="true"></span>
-
             <span class="rec-card__index mono-label" aria-hidden="true">{r.num}</span>
+
+            <!-- Botão-gatilho cobre o card inteiro (único elemento interativo
+                 da prévia → sem interativos aninhados). -->
+            <button
+              type="button"
+              class="rec-card__trigger"
+              aria-haspopup="dialog"
+              aria-controls={`rec-modal-${r.id}`}
+              aria-label={`${readLabel}: ${r.author}`}
+              data-modal={`rec-modal-${r.id}`}
+            ></button>
 
             <div class="rec-card__quote">
               <p data-i18n-key={r.textKey}>{r.text}</p>
@@ -80,41 +95,16 @@ const cards = recs.map((r, i) => ({
               <span class="rec-card__avatar" role="img" aria-label={r.author}>
                 <span class="rec-card__initials" aria-hidden="true">{r.initials}</span>
                 {r.photoSrc && (
-                  <img
-                    class="rec-card__photo"
-                    src={r.photoSrc}
-                    alt={r.author}
-                    loading="lazy"
-                    decoding="async"
-                    onerror="this.remove()"
-                  />
+                  <img class="rec-card__photo" src={r.photoSrc} alt={r.author} loading="lazy" decoding="async" onerror="this.remove()" />
                 )}
               </span>
-
               <div class="rec-card__author-info">
-                <div class="rec-card__author-header">
-                  <span class="rec-card__name">{r.author}</span>
-                  {r.linkedin && (
-                    <a
-                      class="rec-card__linkedin"
-                      href={r.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`LinkedIn de ${r.author}`}
-                    >
-                      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                      </svg>
-                    </a>
-                  )}
-                </div>
+                <span class="rec-card__name">{r.author}</span>
                 <p class="rec-card__role">
                   {r.role}{r.role && r.date && <span aria-hidden="true"> · </span>}<span data-i18n-key={r.dateKey}>{r.date}</span>
                 </p>
-                {r.relationship && (
-                  <p class="rec-card__rel" data-i18n-key={r.relKey}>{r.relationship}</p>
-                )}
               </div>
+              <span class="rec-card__more mono-label" aria-hidden="true">→</span>
             </div>
           </article>
         ))}
@@ -123,6 +113,48 @@ const cards = recs.map((r, i) => ({
       <p class="empty-state" data-i18n-key="recommendations.empty">{t('recommendations.empty')}</p>
     )}
   </div>
+
+  <!-- Modais (um <dialog> por recomendação, SSR) -->
+  {cards.map((r) => (
+    <dialog class="rec-modal" id={`rec-modal-${r.id}`} aria-labelledby={`rec-modal-name-${r.id}`}>
+      <div class="rec-modal__inner">
+        <button type="button" class="rec-modal__close" data-close aria-label={t('recommendations.close')} data-i18n-aria="recommendations.close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div class="rec-modal__quote">
+          <p data-i18n-key={r.textKey}>{r.text}</p>
+        </div>
+
+        <div class="rec-modal__author">
+          <span class="rec-modal__avatar" role="img" aria-label={r.author}>
+            <span class="rec-card__initials" aria-hidden="true">{r.initials}</span>
+            {r.photoSrc && (
+              <img class="rec-card__photo" src={r.photoSrc} alt={r.author} loading="lazy" decoding="async" onerror="this.remove()" />
+            )}
+          </span>
+          <div class="rec-modal__author-info">
+            <div class="rec-modal__author-header">
+              <span class="rec-modal__name" id={`rec-modal-name-${r.id}`}>{r.author}</span>
+              {r.linkedin && (
+                <a class="rec-card__linkedin" href={r.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`LinkedIn de ${r.author}`}>
+                  <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d={LINKEDIN_PATH} /></svg>
+                </a>
+              )}
+            </div>
+            <p class="rec-modal__role">
+              {r.role}{r.role && r.date && <span aria-hidden="true"> · </span>}<span data-i18n-key={r.dateKey}>{r.date}</span>
+            </p>
+            {r.relationship && (
+              <p class="rec-modal__rel" data-i18n-key={r.relKey}>{r.relationship}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </dialog>
+  ))}
 </section>
 
 <style>
@@ -163,9 +195,10 @@ const cards = recs.map((r, i) => ({
     .rec-grid { grid-template-columns: repeat(3, 1fr); }
   }
 
-  /* ── Card ─────────────────────────────────────────────────── */
+  /* ── Card (prévia) ────────────────────────────────────────── */
   .rec-card {
     position: relative;
+    min-width: 0; /* permite ao track 1fr encolher (corrige estouro à direita) */
     background: var(--paper-card);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
@@ -173,13 +206,16 @@ const cards = recs.map((r, i) => ({
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
-    transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+    transition: border-color var(--transition-normal), box-shadow var(--transition-normal), transform var(--transition-normal);
   }
 
   .rec-card:hover {
     border-color: var(--line-strong);
     box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
   }
+
+  .rec-card:focus-within { border-color: var(--line-accent); }
 
   .rec-card__index {
     position: absolute;
@@ -189,11 +225,29 @@ const cards = recs.map((r, i) => ({
     font-size: var(--text-xs);
   }
 
-  /* ── Quote ───────────────────────────────────────────────── */
+  /* gatilho invisível cobrindo o card */
+  .rec-card__trigger {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+  }
+  .rec-card__trigger:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: 2px;
+  }
+
+  /* ── Citação (prévia recortada) ──────────────────────────── */
   .rec-card__quote {
     flex: 1;
     position: relative;
     padding-top: var(--space-8);
+    min-width: 0;
   }
 
   .rec-card__quote::before {
@@ -213,17 +267,22 @@ const cards = recs.map((r, i) => ({
     color: var(--ink-soft);
     line-height: var(--leading-loose);
     margin: 0;
-    /* preserva as quebras de parágrafo (\n\n) dos depoimentos */
-    white-space: pre-line;
+    /* prévia: colapsa parágrafos e recorta em 6 linhas (altura uniforme) */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 6;
+    line-clamp: 6;
+    overflow: hidden;
   }
 
-  /* ── Author ──────────────────────────────────────────────── */
+  /* ── Autor ───────────────────────────────────────────────── */
   .rec-card__author {
     display: flex;
     align-items: center;
     gap: var(--space-3);
     padding-top: var(--space-5);
     border-top: 1px solid var(--line);
+    min-width: 0;
   }
 
   .rec-card__avatar {
@@ -245,15 +304,12 @@ const cards = recs.map((r, i) => ({
     border-radius: var(--radius-full);
     object-fit: cover;
     z-index: 1;
-    /* P&B → cor no hover/focus do card (agora SSR: escopo normal, sem :global) */
     filter: grayscale(0.99);
     transition: filter var(--transition-slow);
   }
 
   .rec-card:hover .rec-card__photo,
-  .rec-card:focus-within .rec-card__photo {
-    filter: grayscale(0);
-  }
+  .rec-card:focus-within .rec-card__photo { filter: grayscale(0); }
 
   .rec-card__initials {
     position: absolute;
@@ -272,13 +328,8 @@ const cards = recs.map((r, i) => ({
 
   .rec-card__author-info { flex: 1; min-width: 0; }
 
-  .rec-card__author-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
   .rec-card__name {
+    display: block;
     font-family: var(--font-sans);
     font-size: var(--text-sm);
     font-weight: 600;
@@ -286,22 +337,6 @@ const cards = recs.map((r, i) => ({
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .rec-card__linkedin {
-    display: inline-flex;
-    align-items: center;
-    color: var(--ink-faint);
-    transition: color var(--transition-fast);
-    flex-shrink: 0;
-  }
-
-  .rec-card__linkedin:hover { color: var(--accent); }
-
-  .rec-card__linkedin:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: var(--focus-ring-offset);
-    border-radius: var(--radius-sm);
   }
 
   .rec-card__role {
@@ -312,17 +347,157 @@ const cards = recs.map((r, i) => ({
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin: 0;
+    margin: var(--space-1) 0 0;
   }
 
-  .rec-card__rel {
+  .rec-card__more {
+    flex-shrink: 0;
+    color: var(--ink-faint);
+    transition: color var(--transition-fast), transform var(--transition-fast);
+  }
+  .rec-card:hover .rec-card__more {
+    color: var(--accent);
+    transform: translateX(2px);
+  }
+
+  .rec-card__linkedin {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ink-faint);
+    transition: color var(--transition-fast);
+    flex-shrink: 0;
+  }
+  .rec-card__linkedin:hover { color: var(--accent); }
+  .rec-card__linkedin:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── Modal (<dialog>) ─────────────────────────────────────── */
+  .rec-modal {
+    width: min(92vw, 40rem);
+    max-height: min(86vh, 44rem);
+    padding: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md);
+    background: var(--paper-card);
+    color: var(--ink);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .rec-modal::backdrop {
+    background: rgba(10, 10, 10, 0.55);
+    backdrop-filter: blur(2px);
+  }
+
+  .rec-modal__inner {
+    position: relative;
+    padding: var(--space-10);
+    max-height: min(86vh, 44rem);
+    overflow-y: auto;
+  }
+
+  .rec-modal__close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: var(--paper);
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+  }
+  .rec-modal__close:hover { border-color: var(--line-strong); color: var(--ink); }
+  .rec-modal__close:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: 2px;
+  }
+
+  .rec-modal__quote {
+    position: relative;
+    padding-top: var(--space-10);
+    padding-right: var(--space-8);
+  }
+  .rec-modal__quote::before {
+    content: '\201C';
+    position: absolute;
+    top: 0;
+    left: -0.02em;
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    color: var(--accent);
+    line-height: 0.8;
+  }
+  .rec-modal__quote p {
     font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink);
+    line-height: var(--leading-loose);
+    margin: 0;
+    white-space: pre-line; /* preserva os parágrafos do depoimento */
+  }
+
+  .rec-modal__author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--line);
+  }
+  .rec-modal__avatar {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background: var(--accent-dim);
+    border: 1px solid var(--line);
+  }
+  .rec-modal__author-info { min-width: 0; }
+  .rec-modal__author-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .rec-modal__name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: var(--tracking-tight);
+  }
+  .rec-modal__role {
+    font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
     margin: var(--space-1) 0 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  }
+  .rec-modal__rel {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    margin: var(--space-2) 0 0;
+  }
+
+  /* entrada sutil do modal (composited) */
+  .rec-modal[open] { animation: rec-modal-in 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes rec-modal-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rec-modal[open] { animation: none; }
+    .rec-card { transition: none; }
   }
 
   /* ── Empty state ─────────────────────────────────────────── */
@@ -340,11 +515,10 @@ const cards = recs.map((r, i) => ({
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
   import { motionOk, STAGGER } from '../scripts/motion/constants';
 
-  // Cards são SSR (existem no load) — nada de fetch/innerHTML. Só motion.
-  // Troca de idioma é feita pelo i18n.js sobre [data-i18n-key] (sem re-render).
   document.addEventListener('astro:page-load', () => {
     const section = document.getElementById('recommendations');
     if (!section) return;
+
     const line = section.querySelector('.section-line') as Element | null;
     const head = section.querySelector('.section-head') as Element | null;
     const grid = section.querySelector('.rec-grid') as Element | null;
@@ -355,5 +529,23 @@ const cards = recs.map((r, i) => ({
       const cards = grid.querySelectorAll('.rec-card');
       if (cards.length) revealUp(cards, grid, STAGGER.tight);
     }
+
+    // ── Modais: abrir/fechar (<dialog> nativo: Esc + focus-trap grátis) ──
+    section.querySelectorAll<HTMLButtonElement>('.rec-card__trigger').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const id = trigger.dataset.modal;
+        const dlg = id ? (document.getElementById(id) as HTMLDialogElement | null) : null;
+        dlg?.showModal();
+      });
+    });
+
+    section.querySelectorAll<HTMLDialogElement>('.rec-modal').forEach((dlg) => {
+      // botão fechar
+      dlg.querySelector<HTMLButtonElement>('[data-close]')?.addEventListener('click', () => dlg.close());
+      // clique no backdrop (fora do conteúdo) fecha
+      dlg.addEventListener('click', (e) => {
+        if (e.target === dlg) dlg.close();
+      });
+    });
   });
 </script>
