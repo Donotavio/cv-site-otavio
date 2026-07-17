@@ -262,7 +262,15 @@ const base = import.meta.env.BASE_URL;
                       data-i18n-aria="portfolio.eleicoes.uf_open"><span aria-hidden="true">▾</span></button>
               <ul id="el-est-listbox" class="el-combobox__list" role="listbox" aria-label="Estados" hidden></ul>
             </div>
-            <div class="el-mapwrap" id="el-est-map"></div>
+            <div class="el-mapwrap el-geowrap" id="el-est-map"></div>
+            <div class="el-geo-legend" id="el-est-legend" hidden aria-hidden="true">
+              <span class="el-geo-legend__grad" aria-hidden="true"></span>
+              <div class="el-geo-legend__ends mono-label">
+                <span data-i18n-key="portfolio.eleicoes.map_leg_lo">disputa acirrada</span>
+                <span data-i18n-key="portfolio.eleicoes.map_leg_hi">líder folgado</span>
+              </div>
+            </div>
+            <p class="el-est-mapnote mono-label" id="el-est-mapnote" aria-live="polite"></p>
           </div>
 
           <div class="el-est-panels" id="el-est-panels" aria-live="polite">
@@ -975,6 +983,20 @@ const base = import.meta.env.BASE_URL;
   .el-mapwrap :global(.el-map-tile:focus-visible) { outline: 2px solid var(--wc-gold-ink); outline-offset: 1px; }
   @media (prefers-reduced-motion: reduce) { .el-mapwrap :global(.el-map-tile) { transition: none; } }
 
+  /* Mapa de calor geográfico (choropleth) — corrida a governador por UF.
+     Cor = margem do líder (gold, sem cor partidária); tooltip traz o resto. */
+  #el-est-map :global(.el-geo__svg) { display: block; width: 100%; max-width: 360px; height: auto; }
+  #el-est-map :global(.br-state) { fill: var(--paper-soft); stroke: var(--paper); stroke-width: 1; transition: stroke var(--transition-fast), fill var(--transition-fast); }
+  #el-est-map :global(.br-state.is-off) { fill: var(--paper-soft); opacity: .4; }
+  #el-est-map :global(.br-state.is-avail) { cursor: pointer; }
+  #el-est-map :global(.br-state.is-avail:hover), #el-est-map :global(.br-state.is-avail:focus-visible) { stroke: var(--wc-gold-ink); stroke-width: 1.8; outline: none; }
+  #el-est-map :global(.br-state.is-selected) { stroke: var(--ink); stroke-width: 2.2; }
+  @media (prefers-reduced-motion: reduce) { #el-est-map :global(.br-state) { transition: none; } }
+  .el-geo-legend { display: flex; flex-direction: column; gap: var(--space-1); max-width: 360px; margin-top: var(--space-3); }
+  .el-geo-legend__grad { height: 8px; border-radius: var(--radius-sm); background: linear-gradient(90deg, color-mix(in oklab, var(--wc-gold-ink) 12%, var(--paper-soft)), var(--wc-gold-ink)); }
+  .el-geo-legend__ends { display: flex; justify-content: space-between; color: var(--ink-faint); }
+  .el-est-mapnote { margin-top: var(--space-3); color: var(--ink-faint); max-width: 360px; }
+
   /* ── Jump-nav (rail desktop + FAB/sheet mobile) ── */
   :global(.el-jumpnav), :global(.el-jumpnav-fab) {
     --jn-bullet: 10px; --jn-bullet-active: 28px;
@@ -1601,6 +1623,64 @@ const base = import.meta.env.BASE_URL;
     return { setValue };
   }
 
+  // ── Mapa de calor geográfico (choropleth) do Brasil — corrida a governador.
+  //    Busca o SVG (27 UF paths com data-uf), pinta cada UF por intensidade da
+  //    margem do líder (gold, apartidário) e injeta data-tip (o tooltip flutuante
+  //    global cuida do hover). Clique/Enter seleciona → sincroniza os painéis. ──
+  interface GeoInfo { heat: number; tip: { t: string; r: [string, string][] }; aria: string }
+  interface GeoMapOpts { info: Record<string, GeoInfo>; onSelect: (uf: string) => void; ariaLabel: string }
+  function buildGeoMap(containerId: string, opts: GeoMapOpts): { setValue(uf: string): void } | null {
+    const root = el(containerId); if (!root) return null;
+    const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+    let svg: SVGSVGElement | null = null;
+    let pending = '';
+    const applySel = (uf: string): void => {
+      if (!svg) return;
+      svg.querySelectorAll<SVGPathElement>('.br-state').forEach((p) => {
+        const on = p.getAttribute('data-uf') === uf;
+        p.classList.toggle('is-selected', on);
+        if (p.classList.contains('is-avail')) p.setAttribute('aria-pressed', String(on));
+      });
+    };
+    fetch(`${base}assets/img/maps/brazil-states.svg`, { cache: 'force-cache' })
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error('svg'))))
+      .then((txt) => {
+        root.innerHTML = txt;
+        svg = root.querySelector('svg');
+        if (svg) { svg.classList.add('el-geo__svg'); svg.setAttribute('role', 'group'); svg.setAttribute('aria-label', opts.ariaLabel); }
+        root.querySelectorAll<SVGPathElement>('.br-state').forEach((p) => {
+          const uf = p.getAttribute('data-uf'); if (!uf) return;
+          const info = opts.info[uf];
+          if (info) {
+            p.classList.add('is-avail');
+            p.style.fill = `color-mix(in oklab, var(--wc-gold-ink) ${Math.round(info.heat * 100)}%, var(--paper-soft))`;
+            p.setAttribute('tabindex', '0');
+            p.setAttribute('role', 'button');
+            p.setAttribute('aria-pressed', 'false');
+            p.setAttribute('aria-label', info.aria);
+            p.setAttribute('data-tip', JSON.stringify(info.tip));
+          } else {
+            p.classList.add('is-off');
+          }
+        });
+        const legend = el('el-est-legend'); if (legend) { legend.hidden = false; legend.removeAttribute('aria-hidden'); }
+        if (pending) applySel(pending);
+      })
+      .catch(() => { root.innerHTML = `<p class="el-error mono-label">${esc(t('portfolio.eleicoes.map_unavailable', 'mapa indisponível'))}</p>`; });
+    const pick = (target: EventTarget | null): void => {
+      const p = (target as Element)?.closest?.('.br-state.is-avail') as SVGPathElement | null;
+      const uf = p?.getAttribute('data-uf'); if (!uf) return;
+      applySel(uf); opts.onSelect(uf);
+    };
+    root.addEventListener('click', (e) => pick(e.target));
+    root.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      if (!(e.target as Element)?.closest?.('.br-state.is-avail')) return;
+      e.preventDefault(); pick(e.target);
+    });
+    return { setValue(uf: string) { pending = uf; applySel(uf); } };
+  }
+
   interface CBItem { value: string; label: string; }
   function buildCombobox(rootId: string, items: CBItem[], onSelect: (v: string) => void) {
     const root = document.getElementById(rootId); if (!root) return null;
@@ -1901,11 +1981,50 @@ const base = import.meta.env.BASE_URL;
     if (!ufs.length) { fail(t('portfolio.eleicoes.est_unavailable', 'intenção estadual indisponível — tente recarregar')); return; }
     if (!estBuilt) {
       const items = ufs.map((u) => ({ value: u, label: `${UF_NAME[u] ?? u} (${u})` }));
-      const values: Record<string, number> = {};
-      ufs.forEach((u) => { const e = pc!.estados?.[u]; const n = e?.governador_1t?.n_pesquisas ?? e?.senador?.n_pesquisas; if (n != null) values[u] = n; });
+      // Calor por UF = margem do líder na corrida a governador (1º turno). Sem
+      // cor partidária: intensidade em gold; o tooltip carrega quem/quanto/volume.
+      const HEAT_SCALE = 25; // pts de margem p/ saturação máxima
+      const info: Record<string, GeoInfo> = {};
+      let maxVol = 0, maxVolUf = '', tight = Infinity, tightUf = '';
+      ufs.forEach((u) => {
+        const g = pc!.estados?.[u]?.governador_1t;
+        const cands = g?.candidatos ?? [];
+        if (!cands.length) return;
+        const sorted = [...cands].sort((a, b) => (b.media_recente ?? 0) - (a.media_recente ?? 0));
+        const L = sorted.find((c) => c.lider) ?? sorted[0];
+        const second = sorted.find((c) => c !== L);
+        const margin = second ? Math.max(0, L.media_recente - second.media_recente) : L.media_recente;
+        const vol = g?.n_pesquisas ?? 0;
+        const d = L.delta;
+        const trend = d == null ? '—' : `${d > 0 ? '▲' : d < 0 ? '▼' : '–'} ${Math.abs(d).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}`;
+        const pct = L.media_recente.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+        info[u] = {
+          heat: 0.12 + 0.76 * Math.min(1, margin / HEAT_SCALE),
+          aria: `${UF_NAME[u] ?? u}: ${L.nome} ${t('portfolio.eleicoes.map_lidera', 'lidera com')} ${pct}%`,
+          tip: {
+            t: `${UF_NAME[u] ?? u} · ${t('portfolio.eleicoes.est_gov_1t', 'governador · 1º turno')}`,
+            r: [
+              [t('portfolio.eleicoes.map_lider', 'líder'), `${L.nome} · ${L.partido}`],
+              [t('portfolio.eleicoes.map_int', 'intenção'), `${pct}%`],
+              [t('portfolio.eleicoes.map_margem', 'margem s/ 2º'), second ? `+${margin.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} pts` : '—'],
+              [t('portfolio.eleicoes.map_tend', 'tendência'), trend],
+              [t('portfolio.eleicoes.tip_pesquisas', 'pesquisas'), nf.format(vol)],
+            ],
+          },
+        };
+        if (vol > maxVol) { maxVol = vol; maxVolUf = u; }
+        if (second && margin < tight) { tight = margin; tightUf = u; }
+      });
+      const note = el('el-est-mapnote');
+      if (note) {
+        const parts: string[] = [];
+        if (maxVolUf) parts.push(`${t('portfolio.eleicoes.map_mais_medido', 'mais medido')}: ${maxVolUf} (${nf.format(maxVol)} ${t('portfolio.eleicoes.tip_pesquisas', 'pesquisas')})`);
+        if (tightUf) parts.push(`${t('portfolio.eleicoes.map_acirrada', 'disputa mais acirrada')}: ${tightUf} (+${tight.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} pts)`);
+        note.textContent = parts.join('  ·  ');
+      }
       const selectEst = (uf: string): void => { renderEstadoDetail(uf); estCb?.setValue(uf); estMap?.setValue(uf); };
       estCb = buildCombobox('el-est-combobox', items, selectEst) ?? null;
-      estMap = buildUfMap('el-est-map', { available: new Set(ufs), values, valueLabel: t('portfolio.eleicoes.tip_pesquisas', 'pesquisas'), onSelect: selectEst, ariaLabel: t('portfolio.eleicoes.map_aria', 'Mapa de estados — clique para selecionar') });
+      estMap = buildGeoMap('el-est-map', { info, onSelect: selectEst, ariaLabel: t('portfolio.eleicoes.map_aria', 'Mapa de estados — clique para selecionar') });
       selectEst(ufs[0]);
       estBuilt = true;
     } else if (currentEstUf) {
