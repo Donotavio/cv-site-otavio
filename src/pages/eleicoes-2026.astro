@@ -2362,6 +2362,15 @@ const base = import.meta.env.BASE_URL;
   }
 
   async function loadEleicoes(): Promise<void> {
+    // Reset dos guards one-time: astro:page-load recria o DOM a cada navegação
+    // SPA (<ClientRouter/>), mas estas flags/refs são de escopo de módulo e
+    // sobreviviam entre navegações — ao re-entrar na página, os widgets (mapas
+    // de calor + comboboxes) não eram reconstruídos e ficavam vazios. Resetar
+    // aqui (só no page-load, não no languageChanged) garante DOM novo → widget
+    // novo, sem reconstruir à toa na troca de idioma.
+    explorarBuilt = false; ufCb = null; ufMap = null; currentUf = '';
+    estBuilt = false; estCb = null; estMap = null; currentEstUf = '';
+    presRegBuilt = false; integBuilt = false;
     const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
     const [pdata, edata, cdata, prdata, estdata, intdata, fipca, fregdata] = await Promise.all([
       fetchJSON<ElPayload>(base, 'eleicoes_pesquisas.json'),
