@@ -1055,14 +1055,18 @@ const base = import.meta.env.BASE_URL;
   #el-jogo :global(.el-fundo__main) { display: flex; flex-direction: column; gap: var(--space-3); }
   #el-jogo :global(.el-fundo__val) { color: var(--wc-gold-ink); font-size: var(--display-2); line-height: .9; }
   #el-jogo :global(.el-fundo__compare) { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); }
-  #el-jogo :global(.el-fundo__cmp) { display: grid; grid-template-columns: 2.75rem 1fr auto; align-items: center; gap: var(--space-3); }
+  #el-jogo :global(.el-fundo__cmp) { display: grid; grid-template-columns: 3.5rem 1fr auto; align-items: center; gap: var(--space-3); }
   #el-jogo :global(.el-fundo__cmp-yr) { color: var(--ink-faint); }
   #el-jogo :global(.el-fundo__cmp-track) { height: 10px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
   #el-jogo :global(.el-fundo__cmp-fill) { display: block; height: 100%; background: var(--ink-faint); }
   #el-jogo :global(.el-fundo__cmp-fill.is-now) { background: var(--wc-gold-ink); }
+  /* Barra do valor de 2018 corrigido pelo IPCA: hachura sutil = referência, não real */
+  #el-jogo :global(.el-fundo__cmp-fill.is-infl) { background: repeating-linear-gradient(45deg, var(--ink-faint), var(--ink-faint) 3px, transparent 3px, transparent 6px); opacity: 0.8; }
   #el-jogo :global(.el-fundo__cmp-v) { color: var(--ink-soft); font-variant-numeric: var(--num-tabular); white-space: nowrap; }
   #el-jogo :global(.el-fundo__mult) { font-family: var(--font-display); font-size: var(--text-2xl); color: var(--wc-gold-ink); margin-top: var(--space-2); line-height: 1; }
+  #el-jogo :global(.el-fundo__mult--real) { font-size: var(--text-xl); color: var(--ink-soft); margin-top: var(--space-1); }
   #el-jogo :global(.el-fundo__mult .mono-label) { color: var(--ink-faint); }
+  #el-jogo :global(.el-fundo__ipca-note) { margin: var(--space-2) 0 0; color: var(--ink-faint); }
   #el-jogo :global(.el-fundo__stats) { display: flex; flex-direction: column; gap: var(--space-5); }
   #el-jogo :global(.el-fundo__meter) { display: flex; flex-direction: column; gap: var(--space-2); }
   #el-jogo :global(.el-fundo__meter-head) { display: flex; align-items: baseline; gap: var(--space-3); }
@@ -1191,9 +1195,14 @@ const base = import.meta.env.BASE_URL;
   }
   interface ContextoPayload {
     cargos?: { presidente?: number; governadores?: number; senadores?: number; senado_total?: number; deputados_federais?: number; nota_senado?: string };
-    fundo_eleitoral?: { valor_rs?: number; ref_2018_rs?: number; multiplo_vs_2018?: number; top5_partidos_share_pct?: number; cota_mulheres_pct?: number; cota_negros_pct?: number; nota_dobro?: string };
+    fundo_eleitoral?: { valor_rs?: number; ref_2018_rs?: number; multiplo_vs_2018?: number; top5_partidos_share_pct?: number; cota_mulheres_pct?: number; cota_negros_pct?: number; nota_dobro?: string;
+      ref_2018_corrigido_rs?: number; multiplo_real?: number; ipca_acumulado_pct?: number; ipca_ref_ano?: number; ipca_acima_pct?: number; ipca_fonte_url?: string };
     calendario?: { data: string; marco: string }[];
     calendario_fonte_url?: string;
+  }
+  interface FundoIpcaPayload {
+    ref_2018_corrigido_rs?: number; multiplo_real?: number; ipca_acumulado_pct?: number;
+    ref_ano?: number; acima_inflacao_pct?: number; fonte_url?: string;
   }
   interface IntegItem { estagio: string; tipo?: string; descricao: string; orgao?: string; fonte?: string; fonte_url?: string; data?: string }
   interface IntegridadePayload {
@@ -1997,18 +2006,22 @@ const base = import.meta.env.BASE_URL;
         <div class="el-fundo__meter-head"><span class="el-fundo__sv">${v != null ? v + '%' : '—'}</span><span class="el-fundo__sl mono-label">${esc(label)}</span></div>
         <span class="el-fundo__meter-track"><span class="el-fundo__meter-fill" style="width:${v != null ? Math.min(100, v) : 0}%"></span></span>
       </div>`;
-      const cmp = (yr: string, v: number, now: boolean): string => `<div class="el-fundo__cmp">
-        <span class="el-fundo__cmp-yr mono-label">${yr}</span>
-        <span class="el-fundo__cmp-track"><span class="el-fundo__cmp-fill${now ? ' is-now' : ''}" style="width:${(v / maxF) * 100}%"></span></span>
+      const cmp = (yr: string, v: number, cls: string): string => `<div class="el-fundo__cmp">
+        <span class="el-fundo__cmp-yr mono-label">${esc(yr)}</span>
+        <span class="el-fundo__cmp-track"><span class="el-fundo__cmp-fill${cls ? ' ' + cls : ''}" style="width:${(v / maxF) * 100}%"></span></span>
         <span class="el-fundo__cmp-v mono-label">${esc(fmtRS(v))}</span>
       </div>`;
+      const realMult = f.multiplo_real ? `${f.multiplo_real.toLocaleString('pt-BR')}×` : '';
+      const corr = f.ref_2018_corrigido_rs;
       fbox.innerHTML = `<span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>
         <div class="el-fundo__main">
           <span class="el-jogo-num el-fundo__val">${esc(val)}</span>
           <span class="el-jogo-label">${esc(t('portfolio.eleicoes.jogo_fundo', 'Fundo Eleitoral (público) para campanhas'))}</span>
-          <div class="el-fundo__compare" role="img" aria-label="${esc(mult)} ${esc(t('portfolio.eleicoes.jogo_vs2018', 'vs. 2018'))}">
-            ${cmp('2018', v2018, false)}${cmp('2026', v2026, true)}
-            <span class="el-fundo__mult">${esc(mult)} <span class="mono-label">${esc(t('portfolio.eleicoes.jogo_vs2018', 'vs. 2018'))}</span></span>
+          <div class="el-fundo__compare" role="img" aria-label="${esc(mult)} ${esc(t('portfolio.eleicoes.jogo_nominal', 'nominal'))}${realMult ? ` · ${esc(realMult)} ${esc(t('portfolio.eleicoes.jogo_real', 'real'))}` : ''} ${esc(t('portfolio.eleicoes.jogo_vs2018', 'vs. 2018'))}">
+            ${cmp('2018', v2018, '')}${corr ? cmp('+ IPCA', corr, 'is-infl') : ''}${cmp('2026', v2026, 'is-now')}
+            <span class="el-fundo__mult">${esc(mult)} <span class="mono-label">${esc(t('portfolio.eleicoes.jogo_vs2018', 'vs. 2018'))} · ${esc(t('portfolio.eleicoes.jogo_nominal', 'nominal'))}</span></span>
+            ${realMult ? `<span class="el-fundo__mult el-fundo__mult--real">${esc(realMult)} <span class="mono-label">${esc(t('portfolio.eleicoes.jogo_real', 'real'))} · ${esc(t('portfolio.eleicoes.jogo_emreais', 'em R$ de'))} ${esc(String(f.ipca_ref_ano ?? ''))}</span></span>` : ''}
+            ${f.ipca_acima_pct != null ? `<p class="el-fundo__ipca-note mono-label" title="${esc(t('portfolio.eleicoes.jogo_ipcaacum', 'IPCA acumulado'))} +${esc(String(f.ipca_acumulado_pct ?? ''))}%">+${esc(String(f.ipca_acima_pct))}% ${esc(t('portfolio.eleicoes.jogo_acima', 'acima da inflação'))}</p>` : ''}
           </div>
         </div>
         <div class="el-fundo__stats">
@@ -2111,6 +2124,7 @@ const base = import.meta.env.BASE_URL;
     if (precand?.fonte_url) srcs.push([t('portfolio.eleicoes.src_precand', 'Pesquisas presidenciais 2026 — Wikipedia (agrega TSE)'), precand.fonte_url]);
     if (estaduais?.ufs_disponiveis?.length) srcs.push([t('portfolio.eleicoes.src_estaduais', 'Pesquisas estaduais 2026 — Wikipedia (agrega TSE)'), 'https://pt.wikipedia.org/wiki/Categoria:Pesquisas_eleitorais_para_as_elei%C3%A7%C3%B5es_estaduais_no_Brasil_em_2026']);
     if (contexto?.calendario_fonte_url) srcs.push([t('portfolio.eleicoes.src_calendario', 'Calendário Eleitoral 2026 — TSE'), contexto.calendario_fonte_url]);
+    if (contexto?.fundo_eleitoral?.ipca_fonte_url) srcs.push([t('portfolio.eleicoes.src_ipca', 'IPCA (deflator do Fundo Eleitoral) — Banco Central, série SGS 433'), contexto.fundo_eleitoral.ipca_fonte_url]);
     box.innerHTML = srcs.map(([label, url]) =>
       `<li><a href="${esc(url)}" target="_blank" rel="noopener noreferrer" class="el-source-link">${esc(label)} <span aria-hidden="true">↗</span></a></li>`
     ).join('');
@@ -2151,16 +2165,29 @@ const base = import.meta.env.BASE_URL;
 
   async function loadEleicoes(): Promise<void> {
     const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
-    const [pdata, edata, cdata, prdata, estdata, intdata] = await Promise.all([
+    const [pdata, edata, cdata, prdata, estdata, intdata, fipca] = await Promise.all([
       fetchJSON<ElPayload>(base, 'eleicoes_pesquisas.json'),
       fetchJSON<EleitoradoPayload>(base, 'eleicoes_eleitorado.json'),
       fetchJSON<ContextoPayload>(base, 'eleicoes_contexto.json'),
       fetchJSON<PrecandPayload>(base, 'eleicoes_precandidatos.json'),
       fetchJSON<EstaduaisPayload>(base, 'eleicoes_estaduais.json'),
       fetchJSON<IntegridadePayload>(base, 'eleicoes_integridade.json'),
+      fetchJSON<FundoIpcaPayload>(base, 'eleicoes_fundo_ipca.json'),
     ]);
     eleitorado = edata;
     contexto = cdata;
+    // Companion do deflator IPCA (pipeline reprodutível, fonte BACEN) — funde a
+    // correção real no bloco curado do fundo. Ausente → card fica só no nominal.
+    if (cdata?.fundo_eleitoral && fipca) {
+      Object.assign(cdata.fundo_eleitoral, {
+        ref_2018_corrigido_rs: fipca.ref_2018_corrigido_rs,
+        multiplo_real: fipca.multiplo_real,
+        ipca_acumulado_pct: fipca.ipca_acumulado_pct,
+        ipca_ref_ano: fipca.ref_ano,
+        ipca_acima_pct: fipca.acima_inflacao_pct,
+        ipca_fonte_url: fipca.fonte_url,
+      });
+    }
     precand = prdata;
     estaduais = estdata;
     integridade = intdata;

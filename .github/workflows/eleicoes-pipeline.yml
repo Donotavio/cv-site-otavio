@@ -79,6 +79,11 @@ jobs:
         continue-on-error: true
         run: python transform_eleicoes/gold_integridade.py
 
+      # Deflator IPCA do Fundo Eleitoral (BACEN SGS 433): múltiplo real vs. nominal.
+      - name: Gold — deflator IPCA do Fundo Eleitoral
+        continue-on-error: true
+        run: python transform_eleicoes/gold_fundo_ipca.py
+
       - name: Commit dados atualizados
         run: |
           git config user.name "eleicoes-pipeline[bot]"
@@ -87,7 +92,8 @@ jobs:
           git add data/bronze/eleicoes_pesquisas/ data/bronze/eleicoes_precandidatos/ \
                   data/bronze/eleicoes_estaduais/ data/bronze/eleicoes_integridade/ data/gold/ \
                   assets/data/eleicoes_pesquisas.json assets/data/eleicoes_precandidatos.json \
-                  assets/data/eleicoes_estaduais.json assets/data/eleicoes_integridade.json || true
+                  assets/data/eleicoes_estaduais.json assets/data/eleicoes_integridade.json \
+                  assets/data/eleicoes_fundo_ipca.json || true
 
           if git diff --staged --quiet; then
             echo "ℹ Sem mudanças nos dados — nada a commitar."
