@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from datetime import datetime, timedelta
 from urllib.request import Request, urlopen
 
@@ -29,9 +30,27 @@ def request_graphql(query, variables, token):
         payload["variables"] = variables
     
     data = json.dumps(payload).encode("utf-8")
-    request = Request(url, headers=headers, data=data, method="POST")
-    with urlopen(request) as response:
-        return json.loads(response.read().decode("utf-8"))
+
+    # As queries de contributionsCollection são caras; várias em sequência
+    # estouram o orçamento de pontos por minuto do GraphQL (RESOURCE_LIMITS_
+    # EXCEEDED) — sempre no último ano (o ano corrente). Retenta com backoff
+    # para o orçamento reabastecer, senão o ano corrente some da telemetria.
+    max_retries = 4
+    result = {}
+    for attempt in range(max_retries):
+        request = Request(url, headers=headers, data=data, method="POST")
+        with urlopen(request) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        errors = result.get("errors") or []
+        limited = any(e.get("type") == "RESOURCE_LIMITS_EXCEEDED" for e in errors)
+        if limited and attempt < max_retries - 1:
+            wait = 20 * (attempt + 1)
+            print(f"RESOURCE_LIMITS_EXCEEDED — aguardando {wait}s e tentando novamente "
+                  f"(tentativa {attempt + 1}/{max_retries})...")
+            time.sleep(wait)
+            continue
+        return result
+    return result
 
 
 def fetch_activity_breakdown_by_year(username, token, year):
@@ -40,8 +59,12 @@ def fetch_activity_breakdown_by_year(username, token, year):
         return None
     
     from_date = f"{year}-01-01T00:00:00Z"
-    to_date = f"{year}-12-31T23:59:59Z"
-    
+    # A API contributionsCollection do GitHub rejeita `to` no futuro. Para o
+    # ano corrente, 31/12 ainda não chegou → limita `to` ao agora (UTC),
+    # senão o ano corrente (ex.: 2026) volta erro e some do breakdown.
+    now = datetime.utcnow()
+    to_date = now.strftime("%Y-%m-%dT%H:%M:%SZ") if year >= now.year else f"{year}-12-31T23:59:59Z"
+
     query = """
     query($username: String!, $from: DateTime!, $to: DateTime!) {
       user(login: $username) {
@@ -105,9 +128,11 @@ def fetch_contributions_calendar(username, token, year=None):
     current_year = datetime.utcnow().year
     target_year = year or current_year
     
-    # Calcular datas de início e fim do ano
+    # Calcular datas de início e fim do ano. Para o ano corrente, 31/12 está
+    # no futuro e a API rejeita `to` futuro → limita ao agora (UTC).
     from_date = f"{target_year}-01-01T00:00:00Z"
-    to_date = f"{target_year}-12-31T23:59:59Z"
+    now = datetime.utcnow()
+    to_date = now.strftime("%Y-%m-%dT%H:%M:%SZ") if target_year >= now.year else f"{target_year}-12-31T23:59:59Z"
     
     query = """
     query($username: String!, $from: DateTime!, $to: DateTime!) {
@@ -307,7 +332,10 @@ def main():
     contributions_by_year = {}
     breakdown_by_year = {}
     
-    for year in range(current_year - 4, current_year + 1):
+    # Do ano mais recente para o mais antigo: o ano corrente roda com o
+    # orçamento de pontos cheio (as queries são caras e estouram o limite no
+    # fim do lote); se algo faltar, sobra num ano antigo/estável, não em 2026.
+    for year in range(current_year, current_year - 5, -1):
         calendar_data = fetch_contributions_calendar(username, token, year)
         if calendar_data:
             contributions_by_year[str(year)] = calendar_data
