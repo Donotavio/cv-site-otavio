@@ -84,6 +84,12 @@ jobs:
         continue-on-error: true
         run: python transform_eleicoes/gold_fundo_ipca.py
 
+      # Monitor do bloco presidencial por região (curado à mão): valida schema e
+      # avisa (não bloqueia) quando o recorte está velho — hora de atualizar à mão.
+      - name: Check — frescor + schema do mapa presidencial por região
+        continue-on-error: true
+        run: python transform_eleicoes/check_regioes_freshness.py
+
       - name: Commit dados atualizados
         run: |
           git config user.name "eleicoes-pipeline[bot]"
