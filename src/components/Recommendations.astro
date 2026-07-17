@@ -1,11 +1,56 @@
 ---
 /**
- * Recommendations.astro — Seção [ 07 ] — Direção Blueprint (fundo --paper-soft)
- * Cards: foto, author, role, company, texto via i18n.
- * Foto path = baseUrl + rec.photo. Dados: fetch profile.json → recommendations[].
- * Motion: hairlineDraw + revealUp (cards).
+ * Recommendations.astro — Seção [ 11 ] — Direção Blueprint (fundo --paper-soft)
+ *
+ * Renderização 100% Astro/SSR (sem innerHTML/DOM): os dados vêm de
+ * `assets/data/profile.json` importado em build-time (consolidado de
+ * `linkedin_recommendations.json` por `build_profile_data.py`). O texto/data/
+ * relação de cada card saem de `recommendations.items.<id>` no i18n — default
+ * pt-BR via t() + `data-i18n-key` para troca de idioma em runtime (sem
+ * re-render manual). Isso também elimina a defasagem de cache do antigo fetch
+ * client-side (uma recomendação nova aparecia só após limpar o cache).
+ *
+ * Motion: hairlineDraw (linha) + revealUp (cabeçalho + cards).
  */
 import { t } from '../lib/i18n';
+import profileData from '../../assets/data/profile.json';
+
+const base = import.meta.env.BASE_URL;
+
+interface Rec {
+  id: string;
+  author: string;
+  role?: string;
+  company?: string;
+  linkedin?: string;
+  photo?: string;
+}
+
+const recs: Rec[] = (profileData as { recommendations?: Rec[] }).recommendations ?? [];
+
+const joinUrl = (b: string, p: string) =>
+  !p ? '' : b.replace(/\/+$/, '') + '/' + p.replace(/^\/+/, '');
+
+const initialsOf = (name: string) => {
+  const parts = (name ?? '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '·';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+// Pré-resolve cada card em build-time (texto/data/relação via i18n).
+const cards = recs.map((r, i) => ({
+  ...r,
+  num: String(i + 1).padStart(2, '0'),
+  initials: initialsOf(r.author),
+  photoSrc: r.photo ? joinUrl(base, r.photo) : '',
+  textKey: `recommendations.items.${r.id}.text`,
+  dateKey: `recommendations.items.${r.id}.date`,
+  relKey: `recommendations.items.${r.id}.relationship`,
+  text: t(`recommendations.items.${r.id}.text`),
+  date: t(`recommendations.items.${r.id}.date`),
+  relationship: t(`recommendations.items.${r.id}.relationship`),
+}));
 ---
 
 <section id="recommendations" class="section recommendations" aria-labelledby="recommendations-title">
@@ -18,21 +63,70 @@ import { t } from '../lib/i18n';
 
     <hr class="section-line" aria-hidden="true" />
 
-    <div id="recommendations-grid" class="rec-grid"></div>
+    {cards.length > 0 ? (
+      <div class="rec-grid">
+        {cards.map((r) => (
+          <article class="rec-card crop">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
 
-    <p
-      id="recommendations-empty"
-      class="empty-state"
-      data-i18n-key="recommendations.empty"
-      hidden
-    ></p>
+            <span class="rec-card__index mono-label" aria-hidden="true">{r.num}</span>
+
+            <div class="rec-card__quote">
+              <p data-i18n-key={r.textKey}>{r.text}</p>
+            </div>
+
+            <div class="rec-card__author">
+              <span class="rec-card__avatar" role="img" aria-label={r.author}>
+                <span class="rec-card__initials" aria-hidden="true">{r.initials}</span>
+                {r.photoSrc && (
+                  <img
+                    class="rec-card__photo"
+                    src={r.photoSrc}
+                    alt={r.author}
+                    loading="lazy"
+                    decoding="async"
+                    onerror="this.remove()"
+                  />
+                )}
+              </span>
+
+              <div class="rec-card__author-info">
+                <div class="rec-card__author-header">
+                  <span class="rec-card__name">{r.author}</span>
+                  {r.linkedin && (
+                    <a
+                      class="rec-card__linkedin"
+                      href={r.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`LinkedIn de ${r.author}`}
+                    >
+                      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                      </svg>
+                    </a>
+                  )}
+                </div>
+                <p class="rec-card__role">
+                  {r.role}{r.role && r.date && <span aria-hidden="true"> · </span>}<span data-i18n-key={r.dateKey}>{r.date}</span>
+                </p>
+                {r.relationship && (
+                  <p class="rec-card__rel" data-i18n-key={r.relKey}>{r.relationship}</p>
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    ) : (
+      <p class="empty-state" data-i18n-key="recommendations.empty">{t('recommendations.empty')}</p>
+    )}
   </div>
 </section>
 
 <style>
-  .recommendations {
-    background: var(--paper-soft);
-  }
+  .recommendations { background: var(--paper-soft); }
 
   .rec-display {
     font-family: var(--font-display);
@@ -53,9 +147,7 @@ import { t } from '../lib/i18n';
     max-width: 56ch;
   }
 
-  .section-line {
-    margin-block-end: var(--space-16);
-  }
+  .section-line { margin-block-end: var(--space-16); }
 
   .rec-grid {
     display: grid;
@@ -73,6 +165,7 @@ import { t } from '../lib/i18n';
 
   /* ── Card ─────────────────────────────────────────────────── */
   .rec-card {
+    position: relative;
     background: var(--paper-card);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
@@ -80,29 +173,38 @@ import { t } from '../lib/i18n';
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
-    transition: border-color var(--transition-normal);
+    transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
   }
 
-  .rec-card:hover { border-color: var(--line-strong); }
+  .rec-card:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-md);
+  }
 
+  .rec-card__index {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-5);
+    color: var(--ink-faint);
+    font-size: var(--text-xs);
+  }
+
+  /* ── Quote ───────────────────────────────────────────────── */
   .rec-card__quote {
     flex: 1;
     position: relative;
     padding-top: var(--space-8);
-    --quote-scale: 1;
   }
 
   .rec-card__quote::before {
     content: '\201C';
     position: absolute;
-    top: 0;
-    left: 0;
+    top: -0.15em;
+    left: -0.02em;
     font-family: var(--font-display);
-    font-size: var(--text-3xl);
+    font-size: var(--text-4xl);
     color: var(--accent);
     line-height: 1;
-    transform: scale(var(--quote-scale));
-    transform-origin: top left;
   }
 
   .rec-card__quote p {
@@ -111,6 +213,8 @@ import { t } from '../lib/i18n';
     color: var(--ink-soft);
     line-height: var(--leading-loose);
     margin: 0;
+    /* preserva as quebras de parágrafo (\n\n) dos depoimentos */
+    white-space: pre-line;
   }
 
   /* ── Author ──────────────────────────────────────────────── */
@@ -124,16 +228,13 @@ import { t } from '../lib/i18n';
 
   .rec-card__avatar {
     position: relative;
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     flex-shrink: 0;
     border-radius: var(--radius-full);
     overflow: hidden;
-    /* placeholder blueprint visível ANTES da foto carregar */
     background: var(--accent-dim);
     border: 1px solid var(--line);
-    /* máscara cinematográfica de entrada da foto */
-    clip-path: inset(0 round var(--radius-full));
   }
 
   .rec-card__photo {
@@ -143,24 +244,17 @@ import { t } from '../lib/i18n';
     height: 100%;
     border-radius: var(--radius-full);
     object-fit: cover;
-    border: 1px solid var(--line-strong);
-    /* sobre o placeholder de iniciais */
     z-index: 1;
+    /* P&B → cor no hover/focus do card (agora SSR: escopo normal, sem :global) */
+    filter: grayscale(0.99);
     transition: filter var(--transition-slow);
   }
 
-  /* P&B → cor no hover. :global porque as fotos são injetadas via JS
-     (innerHTML) e não recebem o atributo de scoping do Astro.
-     grayscale(.99): o minificador transforma 1/100% em "" (inválido). */
-  :global(.rec-card__photo) {
-    filter: grayscale(0.99);
-  }
-  :global(.rec-card:hover .rec-card__photo),
-  :global(.rec-card:focus-within .rec-card__photo) {
+  .rec-card:hover .rec-card__photo,
+  .rec-card:focus-within .rec-card__photo {
     filter: grayscale(0);
   }
 
-  /* fallback iniciais — círculo blueprint, mono sobre accent-dim */
   .rec-card__initials {
     position: absolute;
     inset: 0;
@@ -221,6 +315,16 @@ import { t } from '../lib/i18n';
     margin: 0;
   }
 
+  .rec-card__rel {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    margin: var(--space-1) 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   /* ── Empty state ─────────────────────────────────────────── */
   .empty-state {
     font-family: var(--font-mono);
@@ -232,192 +336,24 @@ import { t } from '../lib/i18n';
 </style>
 
 <script>
-  import gsap from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
-  import { motionOk, DURATIONS, EASINGS, STAGGER } from '../scripts/motion/constants';
+  import { motionOk, STAGGER } from '../scripts/motion/constants';
 
-  gsap.registerPlugin(ScrollTrigger);
-
-  const baseUrl: string = (document.body as HTMLElement).dataset.baseurl ?? '';
-  let entrancePlayed = false;
-
-  interface Recommendation {
-    id: string;
-    author: string;
-    role: string;
-    company: string;
-    linkedin: string;
-    photo: string;
-  }
-
-  /**
-   * Normaliza join de baseUrl (trailing slash) + path (leading slash)
-   * evitando barra dupla (//) que quebra no serve estático do GitHub Pages.
-   */
-  function joinUrl(base: string, path: string): string {
-    if (!path) return '';
-    return base.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '');
-  }
-
-  /** Iniciais do autor para o placeholder blueprint (máx. 2). */
-  function initialsOf(name: string): string {
-    const parts = (name ?? '').trim().split(/\s+/).filter(Boolean);
-    if (!parts.length) return '·';
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
-
-  const LINKEDIN_SVG = `
-    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-    </svg>
-  `;
-
-  async function renderRecommendations() {
-    const grid = document.getElementById('recommendations-grid') as HTMLElement;
-    const emptyEl = document.getElementById('recommendations-empty') as HTMLElement;
-    if (!grid) return;
-
-    let data: { recommendations?: Recommendation[] } = {};
-    try {
-      const res = await fetch(`${baseUrl}assets/data/profile.json`);
-      if (!res.ok) throw new Error('fetch failed');
-      data = await res.json();
-    } catch {
-      emptyEl.hidden = false;
-      return;
-    }
-
-    const recs: Recommendation[] = data.recommendations ?? [];
-    grid.innerHTML = '';
-
-    if (!recs.length) {
-      emptyEl.hidden = false;
-      return;
-    }
-    emptyEl.hidden = true;
-
-    recs.forEach((rec) => {
-      const text = window.i18n?.t(`recommendations.items.${rec.id}.text`) ?? '';
-      const date = window.i18n?.t(`recommendations.items.${rec.id}.date`) ?? '';
-
-      const photoSrc = joinUrl(baseUrl, rec.photo);
-      const initials = initialsOf(rec.author);
-      // placeholder de iniciais sempre presente sob a foto;
-      // se a foto falhar (404/erro), onerror remove a <img> e expõe o placeholder.
-      const photoImg = photoSrc
-        ? `<img class="rec-card__photo" src="${photoSrc}" alt="${rec.author}" loading="lazy" onerror="this.remove()">`
-        : '';
-      const photoHtml = `
-        <span class="rec-card__avatar" role="img" aria-label="${rec.author}">
-          <span class="rec-card__initials" aria-hidden="true">${initials}</span>
-          ${photoImg}
-        </span>`;
-
-      const linkedinHtml = rec.linkedin
-        ? `<a
-             class="rec-card__linkedin"
-             href="${rec.linkedin}"
-             target="_blank"
-             rel="noopener noreferrer"
-             aria-label="LinkedIn de ${rec.author}"
-           >${LINKEDIN_SVG}</a>`
-        : '';
-
-      const roleDate = [rec.role, date].filter(Boolean).join(' · ');
-
-      const article = document.createElement('article');
-      article.className = 'rec-card';
-      article.innerHTML = `
-        <div class="rec-card__quote">
-          <p>${text}</p>
-        </div>
-        <div class="rec-card__author">
-          ${photoHtml}
-          <div class="rec-card__author-info">
-            <div class="rec-card__author-header">
-              <span class="rec-card__name">${rec.author ?? ''}</span>
-              ${linkedinHtml}
-            </div>
-            <p class="rec-card__role">${roleDate}</p>
-          </div>
-        </div>
-      `;
-
-      grid.appendChild(article);
-    });
-
-    // Entrada só na 1ª render. Em re-render (languageChanged) o conteúdo
-    // aparece direto — evita cards/fotos presos no estado `from` (invisíveis)
-    // quando a seção já foi vista e o ScrollTrigger once:true não re-dispara.
-    if (!entrancePlayed) {
-      entrancePlayed = true;
-      const cards = grid.querySelectorAll<Element>('.rec-card');
-      revealUp(cards, grid, STAGGER.tight);
-      revealPortraits(grid);
-    }
-  }
-
-  /**
-   * Entrada cinematográfica dos retratos: a máscara circular (clip-path)
-   * abre de baixo→cima enquanto a foto faz scale 1.08→1. Aspa serif cresce.
-   * Só transform/opacity/clip-path. once:true. prefers-reduced-motion = direto.
-   */
-  function revealPortraits(grid: HTMLElement) {
-    if (!motionOk) return;
-
-    const trigger = { trigger: grid, start: 'top 88%', once: true } as const;
-
-    const avatars = grid.querySelectorAll<Element>('.rec-card__avatar');
-    gsap.from(avatars, {
-      clipPath: 'inset(100% 0 0 0 round 50%)',
-      duration: DURATIONS.slow,
-      ease: EASINGS.out,
-      stagger: STAGGER.tight,
-      scrollTrigger: { ...trigger },
-    });
-
-    const photos = grid.querySelectorAll<Element>('.rec-card__photo');
-    gsap.from(photos, {
-      scale: 1.08,
-      duration: DURATIONS.entrance,
-      ease: EASINGS.out,
-      stagger: STAGGER.tight,
-      transformOrigin: 'center center',
-      scrollTrigger: { ...trigger },
-    });
-
-    const quotes = grid.querySelectorAll<Element>('.rec-card__quote');
-    gsap.from(quotes, {
-      '--quote-scale': 0,
-      opacity: 0,
-      duration: DURATIONS.slow,
-      ease: EASINGS.out,
-      stagger: STAGGER.tight,
-      scrollTrigger: { ...trigger },
-    });
-  }
-
-  // ─── Section line hairline + head reveal ─────────────────────
-  // astro:page-load: re-anima o cabeçalho a cada navegação SPA (o render dos
-  // cards é reaplicado via languageChanged; ver assets/js/i18n.js).
+  // Cards são SSR (existem no load) — nada de fetch/innerHTML. Só motion.
+  // Troca de idioma é feita pelo i18n.js sobre [data-i18n-key] (sem re-render).
   document.addEventListener('astro:page-load', () => {
     const section = document.getElementById('recommendations');
     if (!section) return;
-    const line = section.querySelector('.section-line') as Element;
-    const head = section.querySelector('.section-head') as Element;
+    const line = section.querySelector('.section-line') as Element | null;
+    const head = section.querySelector('.section-head') as Element | null;
+    const grid = section.querySelector('.rec-grid') as Element | null;
+
     if (line) hairlineDraw(line, section);
     if (motionOk && head) revealUp([head], section, 0);
+    if (motionOk && grid) {
+      const cards = grid.querySelectorAll('.rec-card');
+      if (cards.length) revealUp(cards, grid, STAGGER.tight);
+    }
   });
-
-  // ─── i18n ────────────────────────────────────────────────────
-  window.addEventListener('languageChanged', () => renderRecommendations());
-
-  if (window.i18n) {
-    renderRecommendations();
-  } else {
-    window.addEventListener('languageChanged', () => renderRecommendations(), { once: true });
-  }
 </script>
