@@ -376,6 +376,11 @@ const LINKEDIN_PATH =
 
   /* ── Modal (<dialog>) ─────────────────────────────────────── */
   .rec-modal {
+    /* Centraliza: o reset global zera o `margin:auto` que o navegador usa p/
+       centrar um <dialog> modal → reforçamos posição/inset/margin aqui. */
+    position: fixed;
+    inset: 0;
+    margin: auto;
     width: min(92vw, 40rem);
     max-height: min(86vh, 44rem);
     padding: 0;

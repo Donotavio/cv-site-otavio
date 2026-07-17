@@ -319,6 +319,11 @@ const FORK_ICON = 'M5 3.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0m0 2.122A2.25 2.
 
   /* ── Modal (<dialog>) ─────────────────────────────────────── */
   .proj-modal {
+    /* Centraliza: o reset global zera o `margin:auto` que o navegador usa p/
+       centrar um <dialog> modal → reforçamos posição/inset/margin aqui. */
+    position: fixed;
+    inset: 0;
+    margin: auto;
     width: min(92vw, 40rem);
     max-height: min(86vh, 44rem);
     padding: 0;
