@@ -400,6 +400,7 @@ const accentStyle = (a: { base: string; ink: string; line: string; dim: string }
 
     const line  = section.querySelector('.section-line') as Element | null;
     const head  = section.querySelector('.section-head') as Element | null;
+    const indexEl = section.querySelector('.pf-index') as Element | null;
     const visor = section.querySelector('.pf-visor') as Element | null;
     const tabs  = Array.from(
       section.querySelectorAll<HTMLButtonElement>('.pf-index__row[role="tab"]'),
@@ -410,9 +411,12 @@ const accentStyle = (a: { base: string; ink: string; line: string; dim: string }
     if (!tabs.length) return;
 
     // ── Motion de entrada (padrões nomeados) ──────────────────
+    // Revela as COLUNAS como blocos (índice + visor), não linha a linha: um
+    // stagger por-linha deixava o último item preso em translateY(32px) (o
+    // tween `from` não completava), sobrepondo a linha "próximo projeto".
     if (line) hairlineDraw(line, section);
     if (motionOk && head) revealUp([head], section, 0);
-    if (motionOk && tabs.length) revealUp(tabs, section, 0.06);
+    if (motionOk && indexEl) revealUp([indexEl], section, 0.08);
     if (motionOk && visor) revealUp([visor], section, 0.12);
 
     // Conta as métricas do painel ativo no load (idempotente via data-counted).
