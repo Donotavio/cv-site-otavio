@@ -227,6 +227,23 @@ const base = import.meta.env.BASE_URL;
           <div class="el-chart-tip" id="el-serie-tip" role="status" aria-hidden="true" hidden></div>
         </figure>
 
+        <div class="el-reg-map__wrap" id="el-reg" hidden>
+          <div class="el-chartcard__head">
+            <span class="mono-label" id="el-reg-t" data-i18n-key="portfolio.eleicoes.reg_title">1º turno por região</span>
+          </div>
+          <p class="el-reg-map__meta mono-label" id="el-reg-meta"></p>
+          <div class="el-mapwrap el-geowrap" id="el-reg-map" aria-describedby="el-reg-disclaimer"></div>
+          <div class="el-geo-legend" id="el-reg-legend" hidden aria-hidden="true">
+            <span class="el-geo-legend__grad" aria-hidden="true"></span>
+            <div class="el-geo-legend__ends mono-label">
+              <span data-i18n-key="portfolio.eleicoes.map_leg_lo">disputa acirrada</span>
+              <span data-i18n-key="portfolio.eleicoes.map_leg_hi">líder folgado</span>
+            </div>
+          </div>
+          <p class="el-reg-mapnote mono-label" id="el-reg-mapnote"></p>
+          <p class="el-reg-disclaimer mono-label" id="el-reg-disclaimer"></p>
+        </div>
+
         <div class="el-vote-panorama">
           <span class="el-panel__title mono-label" data-i18n-key="portfolio.eleicoes.vote_panorama">quem já se colocou</span>
           <div id="el-vote-chips" class="el-vote-chips"></div>
@@ -985,17 +1002,21 @@ const base = import.meta.env.BASE_URL;
 
   /* Mapa de calor geográfico (choropleth) — corrida a governador por UF.
      Cor = margem do líder (gold, sem cor partidária); tooltip traz o resto. */
-  #el-est-map :global(.el-geo__svg) { display: block; width: 100%; max-width: 360px; height: auto; }
-  #el-est-map :global(.br-state) { fill: var(--paper-soft); stroke: var(--paper); stroke-width: 1; transition: stroke var(--transition-fast), fill var(--transition-fast); }
-  #el-est-map :global(.br-state.is-off) { fill: var(--paper-soft); opacity: .4; }
+  .el-geowrap :global(.el-geo__svg) { display: block; width: 100%; max-width: 360px; height: auto; }
+  .el-geowrap :global(.br-state) { fill: var(--paper-soft); stroke: var(--paper); stroke-width: 1; transition: stroke var(--transition-fast), fill var(--transition-fast); }
+  .el-geowrap :global(.br-state.is-off) { fill: var(--paper-soft); opacity: .4; }
+  .el-geowrap :global(.br-state.is-avail) { cursor: help; }
   #el-est-map :global(.br-state.is-avail) { cursor: pointer; }
-  #el-est-map :global(.br-state.is-avail:hover), #el-est-map :global(.br-state.is-avail:focus-visible) { stroke: var(--wc-gold-ink); stroke-width: 1.8; outline: none; }
-  #el-est-map :global(.br-state.is-selected) { stroke: var(--ink); stroke-width: 2.2; }
-  @media (prefers-reduced-motion: reduce) { #el-est-map :global(.br-state) { transition: none; } }
+  .el-geowrap :global(.br-state.is-avail:hover), .el-geowrap :global(.br-state.is-avail:focus-visible) { stroke: var(--wc-gold-ink); stroke-width: 1.8; outline: none; }
+  .el-geowrap :global(.br-state.is-selected) { stroke: var(--ink); stroke-width: 2.2; }
+  @media (prefers-reduced-motion: reduce) { .el-geowrap :global(.br-state) { transition: none; } }
   .el-geo-legend { display: flex; flex-direction: column; gap: var(--space-1); max-width: 360px; margin-top: var(--space-3); }
   .el-geo-legend__grad { height: 8px; border-radius: var(--radius-sm); background: linear-gradient(90deg, color-mix(in oklab, var(--wc-gold-ink) 12%, var(--paper-soft)), var(--wc-gold-ink)); }
   .el-geo-legend__ends { display: flex; justify-content: space-between; color: var(--ink-faint); }
-  .el-est-mapnote { margin-top: var(--space-3); color: var(--ink-faint); max-width: 360px; }
+  .el-est-mapnote, .el-reg-mapnote { margin-top: var(--space-3); color: var(--ink-faint); max-width: 360px; }
+  .el-reg-disclaimer { margin-top: var(--space-2); color: var(--ink-faint); max-width: 52ch; }
+  .el-reg-map__wrap { margin-top: var(--space-6); }
+  .el-reg-map__meta { color: var(--ink-soft); margin-bottom: var(--space-2); }
 
   /* ── Jump-nav (rail desktop + FAB/sheet mobile) ── */
   :global(.el-jumpnav), :global(.el-jumpnav-fab) {
@@ -1225,6 +1246,14 @@ const base = import.meta.env.BASE_URL;
   interface FundoIpcaPayload {
     ref_2018_corrigido_rs?: number; multiplo_real?: number; ipca_acumulado_pct?: number;
     ref_ano?: number; acima_inflacao_pct?: number; fonte_url?: string;
+  }
+  interface RegCand { nome: string; partido: string; pct: number }
+  interface PresRegioesPayload {
+    instituto?: string; contratante?: string; periodo?: string; data_ref?: string;
+    amostra?: number; registro_tse?: string; cenario?: string; margem_erro_pp?: number;
+    fonte?: string; fonte_url?: string; disclaimer?: string;
+    ufs_por_regiao?: Record<string, string[]>;
+    regioes?: Record<string, { nome: string; agrupada?: boolean; candidatos: RegCand[] }>;
   }
   interface IntegItem { estagio: string; tipo?: string; descricao: string; orgao?: string; fonte?: string; fonte_url?: string; data?: string }
   interface IntegridadePayload {
@@ -1628,8 +1657,9 @@ const base = import.meta.env.BASE_URL;
   //    margem do líder (gold, apartidário) e injeta data-tip (o tooltip flutuante
   //    global cuida do hover). Clique/Enter seleciona → sincroniza os painéis. ──
   interface GeoInfo { heat: number; tip: { t: string; r: [string, string][] }; aria: string }
-  interface GeoMapOpts { info: Record<string, GeoInfo>; onSelect: (uf: string) => void; ariaLabel: string }
+  interface GeoMapOpts { info: Record<string, GeoInfo>; onSelect?: (uf: string) => void; ariaLabel: string; legendId?: string; selectable?: boolean }
   function buildGeoMap(containerId: string, opts: GeoMapOpts): { setValue(uf: string): void } | null {
+    const selectable = opts.selectable !== false;
     const root = el(containerId); if (!root) return null;
     const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
     let svg: SVGSVGElement | null = null;
@@ -1654,30 +1684,30 @@ const base = import.meta.env.BASE_URL;
           if (info) {
             p.classList.add('is-avail');
             p.style.fill = `color-mix(in oklab, var(--wc-gold-ink) ${Math.round(info.heat * 100)}%, var(--paper-soft))`;
-            p.setAttribute('tabindex', '0');
-            p.setAttribute('role', 'button');
-            p.setAttribute('aria-pressed', 'false');
             p.setAttribute('aria-label', info.aria);
             p.setAttribute('data-tip', JSON.stringify(info.tip));
+            if (selectable) { p.setAttribute('tabindex', '0'); p.setAttribute('role', 'button'); p.setAttribute('aria-pressed', 'false'); }
           } else {
             p.classList.add('is-off');
           }
         });
-        const legend = el('el-est-legend'); if (legend) { legend.hidden = false; legend.removeAttribute('aria-hidden'); }
+        if (opts.legendId) { const legend = el(opts.legendId); if (legend) { legend.hidden = false; legend.removeAttribute('aria-hidden'); } }
         if (pending) applySel(pending);
       })
       .catch(() => { root.innerHTML = `<p class="el-error mono-label">${esc(t('portfolio.eleicoes.map_unavailable', 'mapa indisponível'))}</p>`; });
-    const pick = (target: EventTarget | null): void => {
-      const p = (target as Element)?.closest?.('.br-state.is-avail') as SVGPathElement | null;
-      const uf = p?.getAttribute('data-uf'); if (!uf) return;
-      applySel(uf); opts.onSelect(uf);
-    };
-    root.addEventListener('click', (e) => pick(e.target));
-    root.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      if (!(e.target as Element)?.closest?.('.br-state.is-avail')) return;
-      e.preventDefault(); pick(e.target);
-    });
+    if (selectable) {
+      const pick = (target: EventTarget | null): void => {
+        const p = (target as Element)?.closest?.('.br-state.is-avail') as SVGPathElement | null;
+        const uf = p?.getAttribute('data-uf'); if (!uf) return;
+        applySel(uf); opts.onSelect?.(uf);
+      };
+      root.addEventListener('click', (e) => pick(e.target));
+      root.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        if (!(e.target as Element)?.closest?.('.br-state.is-avail')) return;
+        e.preventDefault(); pick(e.target);
+      });
+    }
     return { setValue(uf: string) { pending = uf; applySel(uf); } };
   }
 
@@ -1744,6 +1774,7 @@ const base = import.meta.env.BASE_URL;
   let eleitorado: EleitoradoPayload | null = null;
   let contexto: ContextoPayload | null = null;
   let precand: PrecandPayload | null = null;
+  let presReg: PresRegioesPayload | null = null;
 
   function fmtNum(v: number): string {
     if (v >= 1_000_000) return `${(v / 1_000_000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mi`;
@@ -1939,6 +1970,46 @@ const base = import.meta.env.BASE_URL;
     const ref = el('el-vote-1t-ref'); if (ref) ref.textContent = '';
     renderSerie(null);
   }
+  // ── [02b] Mapa presidencial por REGIÃO (bloco curado — 1 pesquisa citável).
+  //    Reusa o choropleth: cada UF é pintada pela margem do líder na SUA região
+  //    (4 macrorregiões — Norte+CO agrupados pela fonte). Só hover, sem seleção. ──
+  let presRegBuilt = false;
+  function renderPresRegioes(d: PresRegioesPayload | null): void {
+    const wrap = el('el-reg'); if (!wrap) return;
+    if (presRegBuilt || !d?.regioes || !d.ufs_por_regiao) return; // sem dado → fica hidden
+    const HEAT_SCALE = 30; // pts de margem p/ saturação máxima
+    const info: Record<string, GeoInfo> = {};
+    Object.entries(d.ufs_por_regiao).forEach(([rk, ufs]) => {
+      const r = d.regioes![rk]; if (!r?.candidatos?.length) return;
+      const sorted = [...r.candidatos].sort((a, b) => b.pct - a.pct);
+      const L = sorted[0], second = sorted[1];
+      const margin = second ? Math.max(0, L.pct - second.pct) : L.pct;
+      const heat = 0.12 + 0.76 * Math.min(1, margin / HEAT_SCALE);
+      const rows: [string, string][] = sorted.slice(0, 5)
+        .map((c) => [`${c.nome}${c.partido && c.partido !== '—' ? ` · ${c.partido}` : ''}`, `${c.pct}%`]);
+      const tipTitle = `${r.nome}${r.agrupada ? ' *' : ''}${d.cenario ? ` · ${d.cenario}` : ''}`;
+      ufs.forEach((u) => {
+        info[u] = {
+          heat,
+          aria: `${UF_NAME[u] ?? u} — ${r.nome}: ${L.nome} ${t('portfolio.eleicoes.map_lidera', 'lidera com')} ${L.pct}%`,
+          tip: { t: tipTitle, r: rows },
+        };
+      });
+    });
+    if (!Object.keys(info).length) return;
+    buildGeoMap('el-reg-map', { info, ariaLabel: t('portfolio.eleicoes.reg_aria', 'Mapa presidencial por região'), legendId: 'el-reg-legend', selectable: false });
+    const meta = el('el-reg-meta');
+    if (meta) meta.textContent = [d.instituto, d.periodo, d.amostra ? `n=${nf.format(d.amostra)}` : '', d.registro_tse ? `TSE ${d.registro_tse}` : '']
+      .filter(Boolean).join('  ·  ');
+    const note = el('el-reg-mapnote');
+    if (note) note.textContent = Object.values(d.regioes).some((r) => r.agrupada)
+      ? `* ${t('portfolio.eleicoes.reg_agrupada', 'Norte e Centro-Oeste agrupados pela fonte — 4 macrorregiões, não 5.')}` : '';
+    const disc = el('el-reg-disclaimer');
+    if (disc && d.disclaimer) disc.textContent = d.disclaimer;
+    wrap.hidden = false;
+    presRegBuilt = true;
+  }
+
   function renderPrecandidatos(pc: PrecandPayload | null): void {
     if (!pc || !pc.primeiro_turno || !pc.primeiro_turno.candidatos?.length) { voteFail(); return; }
     const pt = pc.primeiro_turno;
@@ -2024,7 +2095,7 @@ const base = import.meta.env.BASE_URL;
       }
       const selectEst = (uf: string): void => { renderEstadoDetail(uf); estCb?.setValue(uf); estMap?.setValue(uf); };
       estCb = buildCombobox('el-est-combobox', items, selectEst) ?? null;
-      estMap = buildGeoMap('el-est-map', { info, onSelect: selectEst, ariaLabel: t('portfolio.eleicoes.map_aria', 'Mapa de estados — clique para selecionar') });
+      estMap = buildGeoMap('el-est-map', { info, onSelect: selectEst, legendId: 'el-est-legend', ariaLabel: t('portfolio.eleicoes.map_aria', 'Mapa de estados — clique para selecionar') });
       selectEst(ufs[0]);
       estBuilt = true;
     } else if (currentEstUf) {
@@ -2243,6 +2314,7 @@ const base = import.meta.env.BASE_URL;
     if (precand?.fonte_url) srcs.push([t('portfolio.eleicoes.src_precand', 'Pesquisas presidenciais 2026 — Wikipedia (agrega TSE)'), precand.fonte_url]);
     if (estaduais?.ufs_disponiveis?.length) srcs.push([t('portfolio.eleicoes.src_estaduais', 'Pesquisas estaduais 2026 — Wikipedia (agrega TSE)'), 'https://pt.wikipedia.org/wiki/Categoria:Pesquisas_eleitorais_para_as_elei%C3%A7%C3%B5es_estaduais_no_Brasil_em_2026']);
     if (contexto?.calendario_fonte_url) srcs.push([t('portfolio.eleicoes.src_calendario', 'Calendário Eleitoral 2026 — TSE'), contexto.calendario_fonte_url]);
+    if (presReg?.fonte_url) srcs.push([presReg.fonte || t('portfolio.eleicoes.src_pres_reg', 'Presidencial por região — Genial/Quaest'), presReg.fonte_url]);
     if (contexto?.fundo_eleitoral?.ipca_fonte_url) srcs.push([t('portfolio.eleicoes.src_ipca', 'IPCA (deflator do Fundo Eleitoral) — Banco Central, série SGS 433'), contexto.fundo_eleitoral.ipca_fonte_url]);
     box.innerHTML = srcs.map(([label, url]) =>
       `<li><a href="${esc(url)}" target="_blank" rel="noopener noreferrer" class="el-source-link">${esc(label)} <span aria-hidden="true">↗</span></a></li>`
@@ -2262,6 +2334,7 @@ const base = import.meta.env.BASE_URL;
     renderUF(data);
     initExplorar(data);
     renderPrecandidatos(precand);
+    renderPresRegioes(presReg);
     renderEstaduais(estaduais);
     renderEleitorado(eleitorado);
     renderIntensidadeUF(data, eleitorado);
@@ -2284,7 +2357,7 @@ const base = import.meta.env.BASE_URL;
 
   async function loadEleicoes(): Promise<void> {
     const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
-    const [pdata, edata, cdata, prdata, estdata, intdata, fipca] = await Promise.all([
+    const [pdata, edata, cdata, prdata, estdata, intdata, fipca, fregdata] = await Promise.all([
       fetchJSON<ElPayload>(base, 'eleicoes_pesquisas.json'),
       fetchJSON<EleitoradoPayload>(base, 'eleicoes_eleitorado.json'),
       fetchJSON<ContextoPayload>(base, 'eleicoes_contexto.json'),
@@ -2292,6 +2365,7 @@ const base = import.meta.env.BASE_URL;
       fetchJSON<EstaduaisPayload>(base, 'eleicoes_estaduais.json'),
       fetchJSON<IntegridadePayload>(base, 'eleicoes_integridade.json'),
       fetchJSON<FundoIpcaPayload>(base, 'eleicoes_fundo_ipca.json'),
+      fetchJSON<PresRegioesPayload>(base, 'eleicoes_presidencial_regioes.json'),
     ]);
     eleitorado = edata;
     contexto = cdata;
@@ -2310,6 +2384,7 @@ const base = import.meta.env.BASE_URL;
     precand = prdata;
     estaduais = estdata;
     integridade = intdata;
+    presReg = fregdata;
     if (pdata && pdata.kpis) {
       payload = pdata;
       renderAll(pdata);
@@ -2317,7 +2392,7 @@ const base = import.meta.env.BASE_URL;
       ['el-barchart-svg', 'el-uf', 'el-iuf-body'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">dados indisponíveis — tente recarregar</p>'; });
       const body = el('el-rank-body'); if (body) body.innerHTML = '<tr><td colspan="4"><p class="el-error">dados indisponíveis — tente recarregar</p></td></tr>';
       // seções independentes ainda renderizam se vieram
-      renderPrecandidatos(precand); renderEstaduais(estaduais); renderEleitorado(eleitorado); renderJogo(contexto); renderRelogio(contexto); renderIntegridade(); renderSources();
+      renderPrecandidatos(precand); renderPresRegioes(presReg); renderEstaduais(estaduais); renderEleitorado(eleitorado); renderJogo(contexto); renderRelogio(contexto); renderIntegridade(); renderSources();
     }
   }
 
