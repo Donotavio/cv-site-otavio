@@ -218,6 +218,14 @@
   --sg-amber-dim:  rgba(201, 124, 14, 0.08);
   --sg-amber-line: rgba(201, 124, 14, 0.30);
 
+  /* ─── Educbank Inteligência (scoped) ────────────────────────────── */
+  /* Roxo de marca Educbank (oklch 0.554 0.176 290.5). Mesma regra da casa:
+     a BASE é decorativa (dots, bordas, fundos); *-ink é o único uso em TEXTO. */
+  --edu-purple:      #7C5CFC;   /* decorativo · dots/bordas/fundos */
+  --edu-purple-ink:  #6A47C9;   /* texto · 6.3:1 sobre --paper — passa AA */
+  --edu-purple-dim:  rgba(124, 92, 252, 0.08);
+  --edu-purple-line: rgba(124, 92, 252, 0.30);
+
   /* ─── Eventos / Palestras (seção temporária "Onde me ver") ──────────
      Acentos de MARCA do evento (Codecon: amarelo=painel, rosa=palestra),
      únicos na home. Regra da casa: as BASES são DECORATIVAS (fundo da tag,

@@ -1,0 +1,244 @@
+---
+/**
+ * EduInteligenciaCard.astro — Seção Portfólio (card irmão do PIX/Radar/Cockpit/WC/Saul)
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Card para o projeto "Inteligência de Mercado — Educbank": plataforma
+ * self-service que entrega, em ~30s, um relatório de 8 capítulos com o
+ * panorama de mercado da região de uma escola particular. Cruza dados públicos
+ * (Censo INEP, IBGE, SINASC) com a operação financeira Educbank sobre uma
+ * arquitetura Lakehouse (Databricks · Delta · Unity Catalog · Lakeflow →
+ * Lakebase Postgres). Cada relatório ganha um agente LLM com RAG restrito aos
+ * dados daquele relatório e guardrails de narrativa — conversa apenas sobre o
+ * mercado da própria escola.
+ *
+ * Projeto profissional (Educbank). Produto público em
+ * inteligencia.apps.educbank.com.br — código privado (sem GitHub público).
+ *
+ * Motion: revealUp (mesmo grupo de stagger da seção #portfolio).
+ */
+
+import { t } from '../lib/i18n';
+
+const EDU_URL = 'https://inteligencia.apps.educbank.com.br/';
+---
+
+<div class="edu-card card crop" role="group" aria-labelledby="edu-card-title">
+  <span class="crop-mark-bl" aria-hidden="true"></span>
+  <span class="crop-mark-br" aria-hidden="true"></span>
+
+  <div class="edu-card__label-row">
+    <span class="mono-label" data-i18n-key="portfolio.edu_inteligencia.live_label">{t('portfolio.edu_inteligencia.live_label')}</span>
+    <span class="mono-label edu-card__badge">
+      <span class="edu-card__live-dot" aria-hidden="true"></span>
+      <span data-i18n-key="portfolio.edu_inteligencia.platform">{t('portfolio.edu_inteligencia.platform')}</span>
+    </span>
+  </div>
+
+  <h3
+    id="edu-card-title"
+    class="edu-card__title"
+    data-i18n-key="portfolio.edu_inteligencia.title"
+  >{t('portfolio.edu_inteligencia.title')}</h3>
+
+  <p
+    class="edu-card__desc"
+    data-i18n-key="portfolio.edu_inteligencia.description"
+  >{t('portfolio.edu_inteligencia.description')}</p>
+
+  <div class="edu-card__tags">
+    <span class="tag tag--edu" data-i18n-key="portfolio.edu_inteligencia.tag_1">{t('portfolio.edu_inteligencia.tag_1')}</span>
+    <span class="tag tag--edu" data-i18n-key="portfolio.edu_inteligencia.tag_2">{t('portfolio.edu_inteligencia.tag_2')}</span>
+    <span class="tag tag--edu" data-i18n-key="portfolio.edu_inteligencia.tag_3">{t('portfolio.edu_inteligencia.tag_3')}</span>
+    <span class="tag" data-i18n-key="portfolio.edu_inteligencia.tag_data">{t('portfolio.edu_inteligencia.tag_data')}</span>
+  </div>
+
+  <!-- Stats do produto (estáticos — projeto profissional) -->
+  <dl
+    class="edu-card__telemetry"
+    aria-label={t('portfolio.edu_inteligencia.telemetry_aria')}
+    data-i18n-aria="portfolio.edu_inteligencia.telemetry_aria"
+  >
+    <div class="edu-card__stat">
+      <dt class="edu-card__stat-label mono-label" data-i18n-key="portfolio.edu_inteligencia.stat_ia">{t('portfolio.edu_inteligencia.stat_ia')}</dt>
+      <dd class="edu-card__stat-value">
+        <span data-i18n-key="portfolio.edu_inteligencia.stat_ia_value">{t('portfolio.edu_inteligencia.stat_ia_value')}</span>
+        <span class="edu-card__stat-sub" data-i18n-key="portfolio.edu_inteligencia.stat_ia_sub">{t('portfolio.edu_inteligencia.stat_ia_sub')}</span>
+      </dd>
+    </div>
+    <div class="edu-card__stat">
+      <dt class="edu-card__stat-label mono-label" data-i18n-key="portfolio.edu_inteligencia.stat_data">{t('portfolio.edu_inteligencia.stat_data')}</dt>
+      <dd class="edu-card__stat-value">
+        <span data-i18n-key="portfolio.edu_inteligencia.stat_data_value">{t('portfolio.edu_inteligencia.stat_data_value')}</span>
+        <span class="edu-card__stat-sub" data-i18n-key="portfolio.edu_inteligencia.stat_data_sub">{t('portfolio.edu_inteligencia.stat_data_sub')}</span>
+      </dd>
+    </div>
+    <div class="edu-card__stat">
+      <dt class="edu-card__stat-label mono-label" data-i18n-key="portfolio.edu_inteligencia.stat_report">{t('portfolio.edu_inteligencia.stat_report')}</dt>
+      <dd class="edu-card__stat-value">
+        <span data-i18n-key="portfolio.edu_inteligencia.stat_report_value">{t('portfolio.edu_inteligencia.stat_report_value')}</span>
+        <span class="edu-card__stat-sub" data-i18n-key="portfolio.edu_inteligencia.stat_report_sub">{t('portfolio.edu_inteligencia.stat_report_sub')}</span>
+      </dd>
+    </div>
+  </dl>
+
+  <div class="edu-card__actions">
+    <a
+      href={EDU_URL}
+      class="btn-primary edu-card__cta"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={t('portfolio.edu_inteligencia.cta_project_aria')}
+      data-i18n-aria="portfolio.edu_inteligencia.cta_project_aria"
+    >
+      <span data-i18n-key="portfolio.edu_inteligencia.cta_project">{t('portfolio.edu_inteligencia.cta_project')}</span> →
+    </a>
+  </div>
+</div>
+
+<style>
+  .edu-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-block-end: var(--space-6);
+  }
+
+  .edu-card:hover {
+    border-color: var(--edu-purple-line);
+  }
+
+  .edu-card__label-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .edu-card__badge {
+    color: var(--ink-faint);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .edu-card__live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--edu-purple);
+    flex-shrink: 0;
+    animation: edu-card-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes edu-card-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .edu-card__live-dot { animation: none; }
+  }
+
+  .edu-card__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .edu-card__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+    max-width: 68ch;
+  }
+
+  .edu-card__desc strong {
+    color: var(--edu-purple-ink);
+    font-weight: 600;
+  }
+
+  .edu-card__desc code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--edu-purple-ink);
+  }
+
+  .edu-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tag--edu {
+    color: var(--edu-purple-ink);
+    border-color: var(--edu-purple-line);
+    background: var(--edu-purple-dim);
+  }
+
+  /* ── Telemetria (dl) ──────────────────────────────────────── */
+  .edu-card__telemetry {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin: 0;
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .edu-card__stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: 0;
+  }
+
+  .edu-card__stat-label {
+    color: var(--ink-faint);
+  }
+
+  .edu-card__stat-value {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    margin: 0;
+  }
+
+  .edu-card__stat-sub {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    margin-top: var(--space-1);
+  }
+
+  /* ── CTAs ─────────────────────────────────────────────────── */
+  .edu-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .edu-card__cta {
+    background: var(--edu-purple-ink);
+    border-color: var(--edu-purple-ink);
+  }
+
+  .edu-card__cta:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    transform: translateY(-1px);
+  }
+</style>
