@@ -1,0 +1,39 @@
+{
+  "_curadoria": true,
+  "_nota": "Eventos/palestras curados à mão (NÃO é pipeline). Guarda só dados estruturais que não se traduzem (datas, horários, salas, nomes próprios, fotos, url). Todo texto de exibição (título/descrição da sessão, cargo do palestrante, chrome da seção) vive em assets/i18n/*.json sob 'events.*', endereçado pelo 'id'. A seção some sozinha quando não há evento com data_fim >= hoje (filtro no build + guard em runtime). Para adicionar um evento futuro: acrescente um objeto em 'eventos' e as chaves i18n correspondentes nos 3 locales.",
+  "atualizado_em": "2026-07-17",
+  "eventos": [
+    {
+      "id": "codecon-summit-26",
+      "nome": "Codecon Summit 26",
+      "cidade": "Curitiba",
+      "local": "Expotrade",
+      "data_inicio": "2026-08-14",
+      "data_fim": "2026-08-15",
+      "url": "https://codecon.dev/summit",
+      "logo": "assets/img/events/codecon-summit.jpg",
+      "sessoes": [
+        {
+          "id": "codecon-ia-plataforma",
+          "tipo": "palestra",
+          "horario": "10:40 – 11:20",
+          "sala": "Sala Dados&IA",
+          "palestrantes": [
+            { "id": "otavio", "nome": "Otávio Ribeiro", "foto": "assets/img/otavio-portrait.jpg" }
+          ]
+        },
+        {
+          "id": "codecon-banco-dados",
+          "tipo": "painel",
+          "horario": "15:50 – 16:30",
+          "sala": "Sala Escovando Bits",
+          "palestrantes": [
+            { "id": "teo-calvo", "nome": "Téo Calvo", "foto": "assets/img/events/speakers/teo-calvo.jpg" },
+            { "id": "otavio", "nome": "Otávio Ribeiro", "foto": "assets/img/otavio-portrait.jpg" },
+            { "id": "luan-moreno", "nome": "Luan Moreno", "foto": "assets/img/events/speakers/luan-moreno.jpg" }
+          ]
+        }
+      ]
+    }
+  ]
+}

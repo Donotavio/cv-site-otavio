@@ -218,6 +218,23 @@
   --sg-amber-dim:  rgba(201, 124, 14, 0.08);
   --sg-amber-line: rgba(201, 124, 14, 0.30);
 
+  /* ─── Eventos / Palestras (seção temporária "Onde me ver") ──────────
+     Acentos de MARCA do evento (Codecon: amarelo=painel, rosa=palestra),
+     únicos na home. Regra da casa: as BASES são DECORATIVAS (fundo da tag,
+     borda) — o texto da tag usa as variantes *-ink (near-black), que passam
+     WCAG AA sobre os fundos vivos (amarelo 15:1+, rosa 6.29:1). O tipo da
+     sessão também aparece SEMPRE como TEXTO na tag (nunca só cor) — 1.4.1.
+     Escopo restrito às classes .ev-tag-- em Events.astro. */
+  --ev-painel:       #F5D90A;   /* amarelo — fundo da tag PAINEL */
+  --ev-painel-ink:   #3D3300;   /* texto sobre amarelo · alto contraste */
+  --ev-painel-dim:   rgba(245, 217, 10, 0.10);
+  --ev-painel-line:  rgba(245, 217, 10, 0.55);
+
+  --ev-palestra:      #FF3D8B;  /* rosa — fundo da tag PALESTRA */
+  --ev-palestra-ink:  #2A0A18;  /* texto sobre rosa · 5.2:1 — passa AA */
+  --ev-palestra-dim:  rgba(255, 61, 139, 0.10);
+  --ev-palestra-line: rgba(255, 61, 139, 0.55);
+
   /* ─── Semantic status (site-wide) ─────────────────────
      Alias para as famílias scoped — mesmas regras base/ink/dim/line.
      Uso: validação de form, mensagens de sistema, badges de status gerais

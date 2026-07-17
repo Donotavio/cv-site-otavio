@@ -1,0 +1,446 @@
+---
+/**
+ * Events.astro — Faixa temporária "Onde me ver" — Direção Blueprint
+ *
+ * Anúncio de palestras/painéis confirmados. Fica logo após o Hero e, por ser
+ * temporária, NÃO carrega o índice [ NN ] (como Hero/GitHubStats) — some sem
+ * deslocar a numeração das demais seções.
+ *
+ * Dados estruturais (datas, salas, horários, fotos, url) vêm de
+ * assets/data/events.json; TODO texto traduzível vive em assets/i18n/*.json
+ * sob 'events.*', endereçado por id → baked em pt-BR no build (CLS~0/SEO/no-JS)
+ * e trocado em runtime por i18n.js.
+ *
+ * Temporário: filtra no build os eventos com data_fim >= hoje (se sobrar zero,
+ * a seção não é renderizada); um guard em runtime reesconde eventos vencidos
+ * caso o build esteja defasado.
+ *
+ * Regras: zero hex (só tokens.css — acentos do evento em --ev-*), CSS scoped,
+ *         mobile-first, apenas padrões revealUp/hairlineDraw.
+ */
+import { t } from '../lib/i18n';
+import events from '../../assets/data/events.json';
+
+const base = import.meta.env.BASE_URL;
+
+// "14–15 ago 2026" no idioma do build (pt-BR). Espelhado no <script> p/ runtime.
+const fmtRange = (startIso: string, endIso: string, locale = 'pt-BR') => {
+  const s = new Date(startIso + 'T12:00:00');
+  const e = new Date(endIso + 'T12:00:00');
+  const mo = (d: Date) =>
+    new Intl.DateTimeFormat(locale, { month: 'short' }).format(d).replace('.', '');
+  const y = e.getFullYear();
+  if (startIso === endIso) return `${s.getDate()} ${mo(e)} ${y}`;
+  const sameMonth = s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear();
+  if (sameMonth) return `${s.getDate()}–${e.getDate()} ${mo(e)} ${y}`;
+  return `${s.getDate()} ${mo(s)} – ${e.getDate()} ${mo(e)} ${y}`;
+};
+
+// Filtro "enquanto houver eventos": só eventos que ainda não terminaram.
+const now = new Date();
+const eventos = (events.eventos ?? []).filter(
+  (ev) => new Date(ev.data_fim + 'T23:59:59') >= now,
+);
+const avatarFallback = `${base}assets/img/avatar-placeholder.svg`;
+---
+
+{eventos.length > 0 && (
+  <section id="events" class="section events" aria-labelledby="events-title">
+    <div class="container">
+      <div class="section-head">
+        <span class="mono-label mono-label--accent events-eyebrow" data-i18n-key="events.eyebrow">{t('events.eyebrow')}</span>
+        <h2 id="events-title" class="events-display" data-i18n-key="events.title">{t('events.title')}</h2>
+        <p class="events-lead" data-i18n-key="events.subtitle">{t('events.subtitle')}</p>
+      </div>
+
+      <hr class="section-line" aria-hidden="true" />
+
+      <div class="ev-events">
+        {eventos.map((ev) => (
+          <div class="ev-event" data-end={ev.data_fim}>
+            <header class="ev-event-head">
+              <img
+                class="ev-cover"
+                src={base + ev.logo}
+                alt={ev.nome}
+                width="120"
+                height="68"
+                loading="lazy"
+                decoding="async"
+                onerror="this.style.display='none';"
+              />
+              <div class="ev-event-meta">
+                <h3 class="ev-event-name">{ev.nome}</h3>
+                <p class="ev-event-where">
+                  <span class="ev-daterange" data-start={ev.data_inicio} data-end={ev.data_fim}>
+                    {fmtRange(ev.data_inicio, ev.data_fim)}
+                  </span>
+                  <span class="ev-dot" aria-hidden="true"> · </span>{ev.cidade}
+                  <span class="ev-dot" aria-hidden="true"> · </span>{ev.local}
+                </p>
+              </div>
+              <a
+                class="ev-event-cta link-underline"
+                href={ev.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-i18n-key="events.cta_event"
+              >{t('events.cta_event')}</a>
+            </header>
+
+            <div class="ev-sessions">
+              {ev.sessoes.map((s) => (
+                <article class={`card crop ev-session ev-session--${s.tipo}`}>
+                  <span class="crop-mark-bl" aria-hidden="true"></span>
+                  <span class="crop-mark-br" aria-hidden="true"></span>
+
+                  <div class="ev-session-top">
+                    <span class={`ev-tag ev-tag--${s.tipo}`} data-i18n-key={`events.type_${s.tipo}`}>{t(`events.type_${s.tipo}`)}</span>
+                    <span class="ev-session-when">{s.horario}<span class="ev-dot" aria-hidden="true"> · </span>{s.sala}</span>
+                  </div>
+
+                  <h4 class="ev-session-title" data-i18n-key={`events.sessions.${s.id}.title`}>{t(`events.sessions.${s.id}.title`)}</h4>
+                  <p class="ev-session-desc" data-i18n-key={`events.sessions.${s.id}.desc`}>{t(`events.sessions.${s.id}.desc`)}</p>
+
+                  <ul class="ev-speakers">
+                    {s.palestrantes.map((p) => (
+                      <li class={`ev-speaker${p.id === 'otavio' ? ' ev-speaker--me' : ''}`}>
+                        <img
+                          class="ev-speaker-photo"
+                          src={base + p.foto}
+                          alt={p.nome}
+                          width="44"
+                          height="44"
+                          loading="lazy"
+                          decoding="async"
+                          onerror={`this.onerror=null;this.src='${avatarFallback}';`}
+                        />
+                        <span class="ev-speaker-info">
+                          <span class="ev-speaker-name">{p.nome}</span>
+                          <span class="ev-speaker-role" data-i18n-key={`events.speakers.${p.id}.role`}>{t(`events.speakers.${p.id}.role`)}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  /* Cabeçalho (mesma escala editorial das demais seções) */
+  .events-eyebrow {
+    margin: 0;
+  }
+
+  .events-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .events-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  .section-line {
+    margin-block-end: var(--space-12);
+  }
+
+  /* Lista de eventos */
+  .ev-events {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+  }
+
+  .ev-event {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  /* Cabeçalho do evento: logo + meta + CTA */
+  .ev-event-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-6);
+    padding-block-end: var(--space-6);
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Capa do evento (key visual oficial) como miniatura emoldurada */
+  .ev-cover {
+    width: 120px;
+    height: 68px;
+    object-fit: cover;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--paper-soft);
+    flex: none;
+  }
+
+  .ev-event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .ev-event-name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .ev-event-where {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    margin: 0;
+  }
+
+  .ev-dot {
+    color: var(--line-strong);
+  }
+
+  .ev-event-cta {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  @media (min-width: 640px) {
+    .ev-event-cta {
+      margin-inline-start: auto;
+    }
+  }
+
+  /* Grade de sessões */
+  .ev-sessions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 1024px) {
+    .ev-sessions {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-8);
+    }
+  }
+
+  .ev-session {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-8);
+  }
+
+  .ev-session-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    justify-content: space-between;
+  }
+
+  /* Tag do tipo — único ponto de cor do evento (Codecon) */
+  .ev-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+  }
+
+  .ev-tag--painel {
+    background: var(--ev-painel);
+    color: var(--ev-painel-ink);
+    border-color: var(--ev-painel-line);
+  }
+
+  .ev-tag--palestra {
+    background: var(--ev-palestra);
+    color: var(--ev-palestra-ink);
+    border-color: var(--ev-palestra-line);
+  }
+
+  .ev-session-when {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .ev-session-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .ev-session-desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  /* Palestrantes */
+  .ev-speakers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-block-start: var(--space-4);
+    margin-block-start: auto;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .ev-speaker {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .ev-speaker-photo {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    border: 1px solid var(--line);
+    background: var(--paper-soft);
+    flex: none;
+  }
+
+  .ev-speaker-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .ev-speaker-name {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+  }
+
+  .ev-speaker-role {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    line-height: var(--leading-snug);
+  }
+
+  /* Destaque sutil no palestrante = eu (Otávio) */
+  .ev-speaker--me .ev-speaker-name {
+    color: var(--accent);
+  }
+  .ev-speaker--me .ev-speaker-photo {
+    border-color: var(--line-accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
+
+  // Espelha fmtRange do frontmatter — reescreve "14–15 ago 2026" no idioma
+  // corrente (o build assa pt-BR; conteúdo dinâmico não é re-varrido pelo i18n.js).
+  function fmtRange(startIso: string, endIso: string, locale: string): string {
+    const s = new Date(startIso + 'T12:00:00');
+    const e = new Date(endIso + 'T12:00:00');
+    const mo = (d: Date) =>
+      new Intl.DateTimeFormat(locale, { month: 'short' }).format(d).replace('.', '');
+    const y = e.getFullYear();
+    if (startIso === endIso) return `${s.getDate()} ${mo(e)} ${y}`;
+    const sameMonth = s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear();
+    if (sameMonth) return `${s.getDate()}–${e.getDate()} ${mo(e)} ${y}`;
+    return `${s.getDate()} ${mo(s)} – ${e.getDate()} ${mo(e)} ${y}`;
+  }
+
+  function localizeDates(section: HTMLElement) {
+    const lang = window.i18n?.lang ?? 'pt-BR';
+    section.querySelectorAll<HTMLElement>('.ev-daterange').forEach((el) => {
+      const s = el.dataset.start;
+      const e = el.dataset.end;
+      if (s && e) el.textContent = fmtRange(s, e, lang);
+    });
+  }
+
+  // Guard "temporário": esconde eventos já encerrados; se sobrar zero, esconde
+  // a seção inteira (protege um build defasado que ainda liste evento vencido).
+  function pruneExpired(section: HTMLElement) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let visible = 0;
+    section.querySelectorAll<HTMLElement>('.ev-event').forEach((ev) => {
+      const end = ev.dataset.end;
+      const expired = end ? new Date(end + 'T23:59:59') < today : false;
+      ev.hidden = expired;
+      if (!expired) visible++;
+    });
+    section.hidden = visible === 0;
+  }
+
+  // Registrado uma vez (módulo executa no 1º load; persiste entre navegações SPA).
+  window.addEventListener('languageChanged', () => {
+    const sec = document.getElementById('events');
+    if (sec) localizeDates(sec as HTMLElement);
+  });
+
+  document.addEventListener('astro:page-load', () => {
+    const section = document.getElementById('events') as HTMLElement | null;
+    if (!section) return;
+
+    pruneExpired(section);
+    localizeDates(section);
+
+    const line = section.querySelector('.section-line') as Element | null;
+    const head = section.querySelector('.section-head') as Element | null;
+    const heads = section.querySelectorAll('.ev-event-head');
+    const sessions = section.querySelectorAll('.ev-session');
+
+    if (line) hairlineDraw(line, section);
+    if (motionOk) {
+      if (head) revealUp([head], section, 0);
+      if (heads.length) revealUp(heads, section, 0.08);
+      if (sessions.length) revealUp(sessions, section, 0.1);
+    }
+  });
+</script>
