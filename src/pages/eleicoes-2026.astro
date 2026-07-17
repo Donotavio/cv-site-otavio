@@ -2322,26 +2322,32 @@ const base = import.meta.env.BASE_URL;
   }
 
   let payload: ElPayload | null = null;
+  // Isola cada passo de render: uma seção com dado parcial/malformado não pode
+  // derrubar as seguintes. Sem isso, uma exceção antes de initExplorar/
+  // renderEstaduais/renderPresRegioes deixava o mapa e os filtros sem montar.
+  function safe(label: string, fn: () => void): void {
+    try { fn(); } catch (e) { console.error(`[eleicoes] render "${label}" falhou:`, e); }
+  }
   function renderAll(data: ElPayload): void {
-    renderProgress(data);
-    renderBento(data);
-    renderMiniStats(data);
-    renderBarChart(data);
-    renderRankTable(data);
-    renderOrigem(data);
-    renderNivel(data);
-    renderAmostragem(data);
-    renderUF(data);
-    initExplorar(data);
-    renderPrecandidatos(precand);
-    renderPresRegioes(presReg);
-    renderEstaduais(estaduais);
-    renderEleitorado(eleitorado);
-    renderIntensidadeUF(data, eleitorado);
-    renderJogo(contexto);
-    renderRelogio(contexto);
-    renderIntegridade();
-    renderSources();
+    safe('progress', () => renderProgress(data));
+    safe('bento', () => renderBento(data));
+    safe('ministats', () => renderMiniStats(data));
+    safe('barchart', () => renderBarChart(data));
+    safe('ranktable', () => renderRankTable(data));
+    safe('origem', () => renderOrigem(data));
+    safe('nivel', () => renderNivel(data));
+    safe('amostragem', () => renderAmostragem(data));
+    safe('uf', () => renderUF(data));
+    safe('explorar', () => initExplorar(data));
+    safe('precandidatos', () => renderPrecandidatos(precand));
+    safe('presregioes', () => renderPresRegioes(presReg));
+    safe('estaduais', () => renderEstaduais(estaduais));
+    safe('eleitorado', () => renderEleitorado(eleitorado));
+    safe('intensidadeuf', () => renderIntensidadeUF(data, eleitorado));
+    safe('jogo', () => renderJogo(contexto));
+    safe('relogio', () => renderRelogio(contexto));
+    safe('integridade', () => renderIntegridade());
+    safe('sources', () => renderSources());
   }
 
   async function fetchJSON<T>(base: string, file: string, ms = 8000): Promise<T | null> {
@@ -2391,8 +2397,16 @@ const base = import.meta.env.BASE_URL;
     } else {
       ['el-barchart-svg', 'el-uf', 'el-iuf-body'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">dados indisponíveis — tente recarregar</p>'; });
       const body = el('el-rank-body'); if (body) body.innerHTML = '<tr><td colspan="4"><p class="el-error">dados indisponíveis — tente recarregar</p></td></tr>';
-      // seções independentes ainda renderizam se vieram
-      renderPrecandidatos(precand); renderPresRegioes(presReg); renderEstaduais(estaduais); renderEleitorado(eleitorado); renderJogo(contexto); renderRelogio(contexto); renderIntegridade(); renderSources();
+      // seções independentes ainda renderizam se vieram (isoladas: uma falha
+      // não pode derrubar as demais — sobretudo o mapa/filtro estadual)
+      safe('precandidatos', () => renderPrecandidatos(precand));
+      safe('presregioes', () => renderPresRegioes(presReg));
+      safe('estaduais', () => renderEstaduais(estaduais));
+      safe('eleitorado', () => renderEleitorado(eleitorado));
+      safe('jogo', () => renderJogo(contexto));
+      safe('relogio', () => renderRelogio(contexto));
+      safe('integridade', () => renderIntegridade());
+      safe('sources', () => renderSources());
     }
   }
 
