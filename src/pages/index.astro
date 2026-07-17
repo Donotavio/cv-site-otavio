@@ -12,7 +12,8 @@ import Timeline from '../components/Timeline.astro';
 import Skills from '../components/Skills.astro';
 import TechStack from '../components/TechStack.astro';
 import Projects from '../components/Projects.astro';
-import PixObservatoryCard from '../components/PixObservatoryCard.astro';
+import PortfolioIndex from '../components/PortfolioIndex.astro';
+import PixObservatoryPanel from '../components/PixObservatoryPanel.astro';
 import DataStackRadarCard from '../components/DataStackRadarCard.astro';
 import EleicoesCard from '../components/EleicoesCard.astro';
 import BrasilCockpitCard from '../components/BrasilCockpitCard.astro';
@@ -40,14 +41,15 @@ import Footer from '../components/Footer.astro';
     <Skills />
     <TechStack />
     <Projects />
-    <PixObservatoryCard>
-      <EduInteligenciaCard />
-      <DataStackRadarCard />
-      <EleicoesCard />
-      <BrasilCockpitCard />
-      <WorldCupCard />
-      <SaulGoodmanCard />
-    </PixObservatoryCard>
+    <PortfolioIndex>
+      <EleicoesCard slot="eleicoes" />
+      <PixObservatoryPanel slot="pix" />
+      <EduInteligenciaCard slot="edu" />
+      <DataStackRadarCard slot="radar" />
+      <BrasilCockpitCard slot="cockpit" />
+      <WorldCupCard slot="worldcup" />
+      <SaulGoodmanCard slot="saul" />
+    </PortfolioIndex>
     <GitHubStats />
     <Blog />
     <Recommendations />

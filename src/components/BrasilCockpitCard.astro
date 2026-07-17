@@ -8,7 +8,7 @@
  * .radar-card) para o terceiro projeto ao vivo do portfólio: o Brasil
  * Cockpit, um painel executivo de KPIs macro do Brasil com status
  * semafórico (verde/amarelo/vermelho) vs metas, delta e tendência.
- * Renderizado via <slot /> dentro de PixObservatoryCard.astro, ao lado
+ * Renderizado via <slot /> dentro de PortfolioIndex.astro (slot nomeado), ao lado
  * do card do Data Stack Radar BR.
  *
  * A mini-legenda de status (Verde/Amarelo/Vermelho + contagem) é hidratada
@@ -18,7 +18,7 @@
  *
  * Tokens: --ck-* (status semafórico), nunca hex hardcoded.
  * Motion: revealUp (mesmo grupo de stagger da seção #portfolio, registrado
- *         em PixObservatoryCard.astro — este card não registra motion).
+ *         em PortfolioIndex.astro (slot nomeado) — este card não registra motion).
  */
 
 import { t } from '../lib/i18n';

@@ -1,0 +1,440 @@
+---
+/**
+ * PixObservatoryPanel.astro — painel do PIX Observatory dentro do visor do
+ * Portfólio (índice interativo). Conteúdo extraído do antigo
+ * PixObservatoryCard.astro (que era, ao mesmo tempo, a seção inteira). Agora
+ * é apenas o painel-detalhe do projeto em destaque — um entre iguais no visor.
+ *
+ * Motion: count-up nos números-chave é disparado pelo PortfolioIndex (dono da
+ * seção), que varre [data-count-to] dentro de #portfolio.
+ */
+
+import { t } from '../lib/i18n';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<div class="pix-oc__card crop" aria-labelledby="pix-oc-card-title">
+  <span class="crop-mark-bl" aria-hidden="true"></span>
+  <span class="crop-mark-br" aria-hidden="true"></span>
+
+  <!-- Label ao vivo -->
+  <div class="pix-oc__featured-label">
+    <span
+      class="pix-oc__live-dot"
+      aria-label={t('portfolio.live_pipeline')}
+      role="status"
+    ></span>
+    <span class="mono-label" data-i18n-key="portfolio.pix_observatory.live_label">{t('portfolio.pix_observatory.live_label')}</span>
+  </div>
+
+  <div class="pix-oc__layout">
+
+    <!-- Coluna esquerda: descrição + stack + CTA -->
+    <div class="pix-oc__info">
+      <div class="pix-oc__tags">
+        <span class="tag tag--pix-oc" data-i18n-key="portfolio.pix_observatory.tag_1">{t('portfolio.pix_observatory.tag_1')}</span>
+        <span class="tag tag--pix-oc" data-i18n-key="portfolio.pix_observatory.tag_2">{t('portfolio.pix_observatory.tag_2')}</span>
+        <span class="tag" data-i18n-key="portfolio.pix_observatory.tag_open_source">{t('portfolio.pix_observatory.tag_open_source')}</span>
+      </div>
+
+      <h3
+        id="pix-oc-card-title"
+        class="pix-oc__title"
+        data-i18n-key="portfolio.pix_observatory.title"
+      >{t('portfolio.pix_observatory.title')}</h3>
+
+      <p class="pix-oc__desc" data-i18n-key="portfolio.pix_observatory.description">
+        {t('portfolio.pix_observatory.description')}
+      </p>
+
+      <!-- Stack técnico -->
+      <div
+        class="pix-oc__stack"
+        aria-label={t('portfolio.stack_label')}
+        data-i18n-aria="portfolio.stack_label"
+      >
+        <span class="pix-oc__stack-label mono-label" aria-hidden="true" data-i18n-key="portfolio.stack_label">{t('portfolio.stack_label')}</span>
+        <div class="pix-oc__stack-items">
+          <span class="tag">Python</span>
+          <span class="tag">DuckDB</span>
+          <span class="tag">Parquet</span>
+          <span class="tag">GitHub Actions</span>
+          <span class="tag" data-i18n-key="portfolio.pix_observatory.gold_desc">{t('portfolio.pix_observatory.gold_desc')}</span>
+        </div>
+      </div>
+
+      <!-- CTAs -->
+      <div class="pix-oc__actions">
+        <a
+          href={`${base}pix-observatory/`}
+          class="btn-primary pix-oc__cta"
+          aria-label={t('portfolio.pix_observatory.cta_observe_aria')}
+          data-i18n-aria="portfolio.pix_observatory.cta_observe_aria"
+        >
+          <span data-i18n-key="portfolio.pix_observatory.cta_observe">{t('portfolio.pix_observatory.cta_observe')}</span> →
+        </a>
+        <a
+          href="https://github.com/Donotavio/cv-site-otavio/tree/main/ingestion"
+          class="btn-secondary"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={t('portfolio.pix_observatory.cta_github_aria')}
+          data-i18n-aria="portfolio.pix_observatory.cta_github_aria"
+        >
+          <span data-i18n-key="portfolio.pix_observatory.cta_github">{t('portfolio.pix_observatory.cta_github')}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Coluna direita: métricas vivas -->
+    <div
+      class="pix-oc__metrics"
+      aria-label={t('portfolio.metrics_label')}
+      data-i18n-aria="portfolio.metrics_label"
+    >
+
+      <div class="pix-oc__metric-hero crop">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <span class="pix-oc__metric-spark" aria-hidden="true">▁▂▃▅▆▇▇▆▇█</span>
+        <span
+          class="pix-oc__metric-value"
+          data-count-to="258"
+          data-count-suffix="M+"
+          aria-label={t('portfolio.pix_observatory.metric_hero_aria')}
+          data-i18n-aria="portfolio.pix_observatory.metric_hero_aria"
+        >258M+</span>
+        <span
+          class="pix-oc__metric-label"
+          data-i18n-key="portfolio.pix_observatory.metric_hero_label"
+        >{t('portfolio.pix_observatory.metric_hero_label')}</span>
+      </div>
+
+      <div class="pix-oc__metric-grid">
+        <div class="pix-oc__metric-sm">
+          <span class="pix-oc__metric-value pix-oc__metric-value--sm">106k×</span>
+          <span
+            class="pix-oc__metric-label"
+            data-i18n-key="portfolio.pix_observatory.metric_2_label"
+          >{t('portfolio.pix_observatory.metric_2_label')}</span>
+        </div>
+        <div class="pix-oc__metric-sm">
+          <span class="pix-oc__metric-value pix-oc__metric-value--sm">R$4,4tri</span>
+          <span
+            class="pix-oc__metric-label"
+            data-i18n-key="portfolio.pix_observatory.metric_3_label"
+          >{t('portfolio.pix_observatory.metric_3_label')}</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Pipeline strip na base do card -->
+  <ul
+    class="pix-oc__pipeline"
+    aria-label={t('portfolio.architecture_label')}
+    data-i18n-aria="portfolio.architecture_label"
+  >
+    <li class="pix-oc__pipeline-step">
+      <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--bronze mono-label" data-i18n-key="portfolio.pix_observatory.bronze_label">{t('portfolio.pix_observatory.bronze_label')}</span>
+      <span class="pix-oc__pipeline-desc" data-i18n-key="portfolio.pix_observatory.bronze_desc">{t('portfolio.pix_observatory.bronze_desc')}</span>
+    </li>
+    <li class="pix-oc__pipeline-step" aria-hidden="true">
+      <span class="pix-oc__pipeline-arrow">→</span>
+    </li>
+    <li class="pix-oc__pipeline-step">
+      <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--silver mono-label" data-i18n-key="portfolio.pix_observatory.silver_label">{t('portfolio.pix_observatory.silver_label')}</span>
+      <span class="pix-oc__pipeline-desc" data-i18n-key="portfolio.pix_observatory.silver_desc">{t('portfolio.pix_observatory.silver_desc')}</span>
+    </li>
+    <li class="pix-oc__pipeline-step" aria-hidden="true">
+      <span class="pix-oc__pipeline-arrow">→</span>
+    </li>
+    <li class="pix-oc__pipeline-step">
+      <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--gold mono-label" data-i18n-key="portfolio.pix_observatory.gold_label">{t('portfolio.pix_observatory.gold_label')}</span>
+      <span class="pix-oc__pipeline-desc" data-i18n-key="portfolio.pix_observatory.gold_desc">{t('portfolio.pix_observatory.gold_desc')}</span>
+    </li>
+    <li class="pix-oc__pipeline-step" aria-hidden="true">
+      <span class="pix-oc__pipeline-arrow">→</span>
+    </li>
+    <li class="pix-oc__pipeline-step">
+      <span class="pix-oc__pipeline-badge pix-oc__pipeline-badge--gh mono-label" data-i18n-key="portfolio.pix_observatory.deploy_label">{t('portfolio.pix_observatory.deploy_label')}</span>
+      <span class="pix-oc__pipeline-desc" data-i18n-key="portfolio.pix_observatory.deploy_desc">{t('portfolio.pix_observatory.deploy_desc')}</span>
+    </li>
+  </ul>
+
+</div>
+
+<style>
+  /* ── Card principal (PIX Observatory) ──────────────────────── */
+  .pix-oc__card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  }
+
+  .pix-oc__card:hover {
+    border-color: var(--pix-green-line);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Label de destaque + dot live */
+  .pix-oc__featured-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .pix-oc__live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--pix-green);
+    animation: live-pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes live-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pix-oc__live-dot { animation: none; }
+  }
+
+  /* ── Título do projeto ─────────────────────────────────────── */
+  .pix-oc__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  /* ── Layout interno ────────────────────────────────────────── */
+  .pix-oc__layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 1024px) {
+    .pix-oc__layout {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--space-12);
+    }
+
+    .pix-oc__info { flex: 1; }
+
+    .pix-oc__metrics {
+      flex-shrink: 0;
+      width: 300px;
+    }
+  }
+
+  /* ── Info ──────────────────────────────────────────────────── */
+  .pix-oc__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .pix-oc__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tag--pix-oc {
+    color: var(--pix-green-ink);
+    border-color: var(--pix-green-line);
+    background: var(--pix-green-dim);
+  }
+
+  .pix-oc__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+  }
+
+  .pix-oc__desc em {
+    color: var(--ink);
+    font-style: italic;
+  }
+
+  .pix-oc__stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .pix-oc__stack-label { color: var(--ink-faint); }
+
+  .pix-oc__stack-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .pix-oc__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+    margin-top: var(--space-2);
+  }
+
+  /* --pix-green-ink (não a base) — texto branco (--paper) em cima exige
+     ≥4.5:1 (WCAG AA). A base (#00A651) só rende 3.14:1 aqui; a variante
+     -ink rende 5.23:1. */
+  .pix-oc__cta {
+    background: var(--pix-green-ink);
+    border-color: var(--pix-green-ink);
+  }
+
+  .pix-oc__cta:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  /* ── Métricas ──────────────────────────────────────────────── */
+  .pix-oc__metrics {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .pix-oc__metric-hero {
+    position: relative;
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .pix-oc__metric-spark {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--pix-green-ink);
+    letter-spacing: 0.1em;
+    opacity: 0.85;
+  }
+
+  .pix-oc__metric-value {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--pix-green);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .pix-oc__metric-value--sm { font-size: var(--text-xl); }
+
+  .pix-oc__metric-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .pix-oc__metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  .pix-oc__metric-sm {
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  /* ── Pipeline strip ────────────────────────────────────────── */
+  .pix-oc__pipeline {
+    list-style: none;
+    margin: 0;
+    padding-block-start: var(--space-6);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    border-top: 1px solid var(--line);
+  }
+
+  .pix-oc__pipeline-step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .pix-oc__pipeline-badge {
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    font-family: var(--font-mono);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .pix-oc__pipeline-badge--bronze {
+    color: var(--medallion-bronze-ink);
+    border-color: var(--medallion-bronze-line);
+    background: var(--medallion-bronze-dim);
+  }
+
+  .pix-oc__pipeline-badge--silver {
+    color: var(--medallion-silver-ink);
+    border-color: var(--medallion-silver-line);
+    background: var(--medallion-silver-dim);
+  }
+
+  .pix-oc__pipeline-badge--gold {
+    color: var(--medallion-gold-ink);
+    border-color: var(--medallion-gold-line);
+    background: var(--medallion-gold-dim);
+  }
+
+  .pix-oc__pipeline-badge--gh {
+    color: var(--pix-green-ink);
+    border-color: var(--pix-green-line);
+    background: var(--pix-green-dim);
+  }
+
+  .pix-oc__pipeline-desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+  }
+
+  .pix-oc__pipeline-arrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    align-self: center;
+  }
+</style>

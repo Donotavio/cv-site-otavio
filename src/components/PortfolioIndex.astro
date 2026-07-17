@@ -1,0 +1,483 @@
+---
+/**
+ * PortfolioIndex.astro — Seção Portfólio (índice interativo / "visor")
+ * Direção: Blueprint (DESIGN.md)
+ *
+ * Substitui a pilha vertical de cards por um painel mestre-detalhe estilo
+ * "console de engenheiro": um ÍNDICE (tablist) à esquerda lista todos os
+ * projetos; ao selecionar, o projeto abre no VISOR à direita. Cada painel do
+ * visor é um componente de card existente, injetado por SLOT NOMEADO — tudo
+ * renderizado por Astro (nada de innerHTML/DOM), CSS escopado intacto, i18n
+ * por data-i18n-key.
+ *
+ * Projeto em destaque (aberto por padrão): Eleições 2026.
+ *
+ * Acessibilidade: WAI-ARIA Tabs (tablist/tab/tabpanel), roving tabindex,
+ * navegação por setas/Home/End. Painéis inativos ficam [hidden].
+ *
+ * Motion: hairline-draw (linha), reveal-up (cabeçalho + linhas do índice +
+ * visor), count-up (métricas do painel ativo), e um cross-fade CSS no swap
+ * (micro-interação, desligado em prefers-reduced-motion). Sem GSAP ad-hoc.
+ */
+
+import { t } from '../lib/i18n';
+
+// Fonte única do índice. `accent` referencia SOMENTE tokens de tokens.css
+// (nunca hex). `slot` mapeia o slot nomeado onde o card-detalhe entra.
+const PROJECTS = [
+  { id: 'eleicoes', num: '01', live: true, featured: true,
+    accent: { base: '--accent', ink: '--accent', line: '--line-accent', dim: '--accent-dim' } },
+  { id: 'pix', num: '02', live: true, featured: false,
+    accent: { base: '--pix-green', ink: '--pix-green-ink', line: '--pix-green-line', dim: '--pix-green-dim' } },
+  { id: 'edu', num: '03', live: true, featured: false,
+    accent: { base: '--edu-purple', ink: '--edu-purple-ink', line: '--edu-purple-line', dim: '--edu-purple-dim' } },
+  { id: 'radar', num: '04', live: true, featured: false,
+    accent: { base: '--radar-trial', ink: '--radar-trial-ink', line: '--radar-trial-line', dim: '--radar-trial-dim' } },
+  { id: 'cockpit', num: '05', live: true, featured: false,
+    accent: { base: '--ck-verde', ink: '--ck-verde-ink', line: '--ck-verde-line', dim: '--ck-verde-dim' } },
+  { id: 'worldcup', num: '06', live: true, featured: false,
+    accent: { base: '--wc-live', ink: '--wc-live-ink', line: '--wc-live-line', dim: '--wc-live-dim' } },
+  { id: 'saul', num: '07', live: true, featured: false,
+    accent: { base: '--sg-amber', ink: '--sg-amber-ink', line: '--sg-amber-line', dim: '--sg-amber-dim' } },
+] as const;
+
+// O projeto em destaque abre por padrão.
+const defaultId = PROJECTS.find((p) => p.featured)?.id ?? PROJECTS[0].id;
+
+const accentStyle = (a: { base: string; ink: string; line: string; dim: string }) =>
+  `--a:var(${a.base});--a-ink:var(${a.ink});--a-line:var(${a.line});--a-dim:var(${a.dim})`;
+---
+
+<section id="portfolio" class="section portfolio-section" aria-labelledby="portfolio-title">
+  <!-- Sem JS: o índice não é funcional → escondê-lo e empilhar todos os
+       painéis (degradação graciosa para o layout antigo). -->
+  <noscript>
+    <style>
+      #portfolio .pf-index { display: none; }
+      #portfolio .pf-layout { grid-template-columns: 1fr !important; }
+      #portfolio .pf-visor { display: flex; flex-direction: column; gap: var(--space-6); }
+      #portfolio .pf-panel[hidden] { display: block !important; }
+    </style>
+  </noscript>
+  <div class="container">
+
+    <!-- Section head — padrão Blueprint com índice mono -->
+    <div class="section-head">
+      <span class="mono-label" data-i18n-key="nav.portfolio">Portfólio</span>
+      <h2 id="portfolio-title" class="portfolio-display" data-i18n-key="portfolio.title">
+        Projetos ao vivo
+      </h2>
+      <p class="portfolio-lead" data-i18n-key="portfolio.subtitle">
+        Produtos de dados construídos em público — pipeline real, dados reais, zero custo de infra.
+      </p>
+    </div>
+
+    <hr class="section-line" aria-hidden="true" />
+
+    <div class="pf-layout">
+
+      <!-- ── ÍNDICE (tablist) ─────────────────────────────────── -->
+      <div
+        class="pf-index"
+        role="tablist"
+        aria-orientation="vertical"
+        aria-label={t('portfolio.index.index_aria')}
+        data-i18n-aria="portfolio.index.index_aria"
+      >
+        <span class="pf-index__eyebrow mono-label" aria-hidden="true" data-i18n-key="portfolio.index.index_label">índice</span>
+
+        {PROJECTS.map((p) => (
+          <button
+            type="button"
+            role="tab"
+            id={`pf-tab-${p.id}`}
+            class:list={['pf-index__row', { 'is-active': p.id === defaultId }]}
+            data-target={p.id}
+            aria-controls={`pf-panel-${p.id}`}
+            aria-selected={p.id === defaultId ? 'true' : 'false'}
+            tabindex={p.id === defaultId ? 0 : -1}
+            style={accentStyle(p.accent)}
+          >
+            <span class="pf-index__num mono-label" aria-hidden="true">{p.num}</span>
+            <span class="pf-index__dot" aria-hidden="true"></span>
+            <span class="pf-index__body">
+              <span class="pf-index__name" data-i18n-key={`portfolio.index.${p.id}.name`}>{t(`portfolio.index.${p.id}.name`)}</span>
+              <span class="pf-index__domain" data-i18n-key={`portfolio.index.${p.id}.domain`}>{t(`portfolio.index.${p.id}.domain`)}</span>
+            </span>
+            {p.featured && (
+              <span class="pf-index__flag mono-label" data-i18n-key="portfolio.featured_label">{t('portfolio.featured_label')}</span>
+            )}
+            <span class="pf-index__chev" aria-hidden="true">→</span>
+          </button>
+        ))}
+
+        <!-- Próximo projeto — linha discreta, não-selecionável -->
+        <div class="pf-index__row pf-index__row--upcoming" aria-hidden="true">
+          <span class="pf-index__num mono-label">08</span>
+          <span class="pf-index__dot pf-index__dot--muted"></span>
+          <span class="pf-index__body">
+            <span class="pf-index__name" data-i18n-key="portfolio.index.upcoming.name">Próximo projeto</span>
+            <span class="pf-index__domain" data-i18n-key="portfolio.upcoming_text">em construção</span>
+          </span>
+          <span class="pf-index__spark" aria-hidden="true">▁▁▂▂▃</span>
+        </div>
+      </div>
+
+      <!-- ── VISOR (tabpanels) ────────────────────────────────── -->
+      <div
+        class="pf-visor"
+        aria-label={t('portfolio.index.visor_aria')}
+        data-i18n-aria="portfolio.index.visor_aria"
+      >
+        {PROJECTS.map((p) => (
+          <div
+            class="pf-panel"
+            id={`pf-panel-${p.id}`}
+            role="tabpanel"
+            aria-labelledby={`pf-tab-${p.id}`}
+            data-panel={p.id}
+            tabindex="0"
+            hidden={p.id !== defaultId}
+            style={accentStyle(p.accent)}
+          >
+            <slot name={p.id} />
+          </div>
+        ))}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── Section ──────────────────────────────────────────────── */
+  .portfolio-section {
+    background: var(--paper-soft);
+  }
+
+  .portfolio-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .portfolio-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  /* ── Layout mestre-detalhe ────────────────────────────────── */
+  .pf-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 1024px) {
+    .pf-layout {
+      grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+      gap: var(--space-10);
+      align-items: start;
+    }
+  }
+
+  /* ── Índice (tablist) ─────────────────────────────────────── */
+  .pf-index {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  @media (min-width: 1024px) {
+    .pf-index {
+      position: sticky;
+      top: var(--space-8);
+    }
+  }
+
+  .pf-index__eyebrow {
+    color: var(--ink-faint);
+    padding: 0 var(--space-2) var(--space-2);
+  }
+
+  .pf-index__row {
+    /* reset de button */
+    appearance: none;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-4);
+    transition: border-color var(--transition-fast),
+                background-color var(--transition-fast),
+                transform var(--transition-fast);
+  }
+
+  .pf-index__row:hover {
+    border-color: var(--a-line);
+    background: var(--a-dim);
+  }
+
+  .pf-index__row:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+  }
+
+  /* Estado ativo — barra de acento à esquerda + fundo tênue */
+  .pf-index__row.is-active {
+    border-color: var(--a-line);
+    background: var(--a-dim);
+    box-shadow: inset 3px 0 0 0 var(--a);
+  }
+
+  .pf-index__num {
+    color: var(--ink-faint);
+    font-size: var(--text-xs);
+  }
+
+  .pf-index__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--a);
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  .pf-index__row.is-active .pf-index__dot {
+    animation: pf-dot-pulse 2s ease-in-out infinite;
+  }
+
+  .pf-index__dot--muted {
+    background: var(--ink-faint);
+    opacity: 0.5;
+  }
+
+  @keyframes pf-dot-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.75); }
+  }
+
+  .pf-index__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .pf-index__name {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .pf-index__row.is-active .pf-index__name { color: var(--a-ink); }
+
+  .pf-index__domain {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-wide);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pf-index__flag {
+    grid-column: 3 / 4;
+    justify-self: start;
+    font-size: 0.625rem;
+    color: var(--a-ink);
+    border: 1px solid var(--a-line);
+    background: var(--a-dim);
+    border-radius: var(--radius-sm);
+    padding: 2px var(--space-2);
+  }
+
+  .pf-index__chev {
+    font-family: var(--font-mono);
+    color: var(--a-ink);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .pf-index__row:hover .pf-index__chev,
+  .pf-index__row.is-active .pf-index__chev {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Linha "próximo projeto" — discreta, tracejada, não interativa */
+  .pf-index__row--upcoming {
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--line-strong);
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .pf-index__spark {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    opacity: 0.5;
+  }
+
+  /* ── Visor (tabpanels) ────────────────────────────────────── */
+  .pf-visor {
+    min-width: 0;
+  }
+
+  .pf-panel {
+    min-width: 0;
+  }
+
+  .pf-panel[hidden] { display: none; }
+
+  .pf-panel:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 4px;
+    border-radius: var(--radius-md);
+  }
+
+  /* Cross-fade de entrada no swap (micro-interação CSS, não GSAP) */
+  @keyframes pf-panel-enter {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .pf-panel.is-entering {
+    animation: pf-panel-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pf-index__row.is-active .pf-index__dot { animation: none; }
+    .pf-panel.is-entering { animation: none; }
+    .pf-index__row,
+    .pf-index__chev { transition: none; }
+  }
+
+  /* Os cards-detalhe (slots) trazem sua própria margem inferior; dentro do
+     visor só um aparece por vez, então zeramos para o card encostar na base. */
+  .pf-panel > :global(.card),
+  .pf-panel > :global(.pix-oc__card) {
+    margin-block-end: 0;
+  }
+</style>
+
+<script>
+  import { revealUp }     from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { countUp }      from '../scripts/motion/count-up';
+  import { motionOk }     from '../scripts/motion/constants';
+
+  // astro:page-load: dispara no 1º load E após cada navegação SPA (<ClientRouter/>).
+  document.addEventListener('astro:page-load', () => {
+    const section = document.getElementById('portfolio');
+    if (!section) return;
+
+    const line  = section.querySelector('.section-line') as Element | null;
+    const head  = section.querySelector('.section-head') as Element | null;
+    const visor = section.querySelector('.pf-visor') as Element | null;
+    const tabs  = Array.from(
+      section.querySelectorAll<HTMLButtonElement>('.pf-index__row[role="tab"]'),
+    );
+    const panels = Array.from(
+      section.querySelectorAll<HTMLElement>('.pf-panel'),
+    );
+    if (!tabs.length) return;
+
+    // ── Motion de entrada (padrões nomeados) ──────────────────
+    if (line) hairlineDraw(line, section);
+    if (motionOk && head) revealUp([head], section, 0);
+    if (motionOk && tabs.length) revealUp(tabs, section, 0.06);
+    if (motionOk && visor) revealUp([visor], section, 0.12);
+
+    // Conta as métricas do painel ativo no load (idempotente via data-counted).
+    runCountUp(panels.find((p) => !p.hidden) ?? null);
+
+    function runCountUp(panel: HTMLElement | null) {
+      if (!panel) return;
+      panel.querySelectorAll<HTMLElement>('[data-count-to]').forEach((el) => {
+        if (el.dataset.counted) return;
+        el.dataset.counted = '1';
+        countUp(el, panel);
+      });
+    }
+
+    // ── Ativação de um projeto ────────────────────────────────
+    function activate(id: string, focusTab = false) {
+      tabs.forEach((tab) => {
+        const active = tab.dataset.target === id;
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+        tab.classList.toggle('is-active', active);
+        if (active && focusTab) tab.focus();
+      });
+
+      panels.forEach((panel) => {
+        const active = panel.dataset.panel === id;
+        panel.hidden = !active;
+        panel.classList.remove('is-entering');
+        if (active) {
+          if (motionOk) {
+            // reflow para reiniciar a animação de entrada
+            void panel.offsetWidth;
+            panel.classList.add('is-entering');
+          }
+          runCountUp(panel);
+        }
+      });
+    }
+
+    // ── Interação: clique ─────────────────────────────────────
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const id = tab.dataset.target;
+        if (id) activate(id);
+      });
+    });
+
+    // ── Interação: teclado (roving tabindex, ativação automática) ──
+    const tablist = section.querySelector('.pf-index[role="tablist"]') as HTMLElement | null;
+    tablist?.addEventListener('keydown', (e: KeyboardEvent) => {
+      const current = tabs.findIndex((t) => t === document.activeElement);
+      if (current === -1) return;
+      let next = current;
+      switch (e.key) {
+        case 'ArrowDown':
+        case 'ArrowRight': next = (current + 1) % tabs.length; break;
+        case 'ArrowUp':
+        case 'ArrowLeft':  next = (current - 1 + tabs.length) % tabs.length; break;
+        case 'Home':       next = 0; break;
+        case 'End':        next = tabs.length - 1; break;
+        default: return;
+      }
+      e.preventDefault();
+      const id = tabs[next].dataset.target;
+      if (id) activate(id, true);
+    });
+  });
+</script>
