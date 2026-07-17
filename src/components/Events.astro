@@ -99,7 +99,11 @@ const avatarFallback = `${base}assets/img/avatar-placeholder.svg`;
                     <span class="ev-session-when">{s.horario}<span class="ev-dot" aria-hidden="true"> · </span>{s.sala}</span>
                   </div>
 
-                  <h4 class="ev-session-title" data-i18n-key={`events.sessions.${s.id}.title`}>{t(`events.sessions.${s.id}.title`)}</h4>
+                  <h4 class="ev-session-title" data-i18n-key={s.url ? undefined : `events.sessions.${s.id}.title`}>
+                    {s.url
+                      ? <a class="ev-session-title-link link-underline" href={s.url} target="_blank" rel="noopener noreferrer" data-i18n-key={`events.sessions.${s.id}.title`}>{t(`events.sessions.${s.id}.title`)}</a>
+                      : t(`events.sessions.${s.id}.title`)}
+                  </h4>
                   <p class="ev-session-desc" data-i18n-key={`events.sessions.${s.id}.desc`}>{t(`events.sessions.${s.id}.desc`)}</p>
 
                   <ul class="ev-speakers">
@@ -116,7 +120,9 @@ const avatarFallback = `${base}assets/img/avatar-placeholder.svg`;
                           onerror={`this.onerror=null;this.src='${avatarFallback}';`}
                         />
                         <span class="ev-speaker-info">
-                          <span class="ev-speaker-name">{p.nome}</span>
+                          {p.linkedin
+                            ? <a class="ev-speaker-name link-underline" href={p.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`LinkedIn de ${p.nome}`}>{p.nome}</a>
+                            : <span class="ev-speaker-name">{p.nome}</span>}
                           <span class="ev-speaker-role" data-i18n-key={`events.speakers.${p.id}.role`}>{t(`events.speakers.${p.id}.role`)}</span>
                         </span>
                       </li>
