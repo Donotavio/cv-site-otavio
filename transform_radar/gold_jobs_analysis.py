@@ -36,37 +36,49 @@ def main() -> int:
         FROM 'data/silver/jobs_clean.parquet'
     """).fetchone()[0]
 
+    # Tiebreakers estáveis (chave secundária ASC) em todos os ORDER BY —
+    # sem isso o DuckDB reordena empates a cada execução e o CI commita
+    # diffs de ruído (ordem) sem mudança real de dado.
     by_seniority = con.execute("""
         SELECT seniority, COUNT(*) AS n, ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 1) AS pct
         FROM 'data/silver/jobs_clean.parquet'
-        GROUP BY seniority ORDER BY n DESC
+        GROUP BY seniority ORDER BY n DESC, seniority ASC
+    """).df().to_dict(orient="records")
+
+    # Vínculo (CLT/PJ/Estágio/Temporário/não especificado) — dimensão nova,
+    # viável com o campo estruturado das fontes ATS + inferência por texto.
+    by_contract = con.execute("""
+        SELECT contract_type AS contrato, COUNT(*) AS n,
+               ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 1) AS pct
+        FROM 'data/silver/jobs_clean.parquet'
+        GROUP BY contract_type ORDER BY n DESC, contrato ASC
     """).df().to_dict(orient="records")
 
     by_city = con.execute("""
         SELECT city, state, COUNT(*) AS n
         FROM 'data/silver/jobs_clean.parquet'
         WHERE city IS NOT NULL AND city != ''
-        GROUP BY city, state ORDER BY n DESC LIMIT 12
+        GROUP BY city, state ORDER BY n DESC, city ASC, state ASC LIMIT 12
     """).df().to_dict(orient="records")
 
     top_skills = con.execute("""
         SELECT skill, n_jobs, ROUND(100.0 * n_jobs / (SELECT COUNT(*) FROM 'data/silver/jobs_clean.parquet'), 1) AS pct_of_jobs
         FROM 'data/silver/skills_by_week.parquet'
         WHERE iso_week = (SELECT MAX(iso_week) FROM 'data/silver/skills_by_week.parquet')
-        ORDER BY n_jobs DESC LIMIT 24
+        ORDER BY n_jobs DESC, skill ASC LIMIT 24
     """).df().to_dict(orient="records")
 
     by_term = con.execute("""
         SELECT _matched_term AS termo_busca, COUNT(*) AS n
         FROM 'data/silver/jobs_clean.parquet'
-        GROUP BY _matched_term ORDER BY n DESC
+        GROUP BY _matched_term ORDER BY n DESC, termo_busca ASC
     """).df().to_dict(orient="records")
 
     by_source = con.execute("""
         SELECT source AS fonte, COUNT(*) AS n,
                ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 1) AS pct
         FROM 'data/silver/jobs_clean.parquet'
-        GROUP BY source ORDER BY n DESC
+        GROUP BY source ORDER BY n DESC, fonte ASC
     """).df().to_dict(orient="records")
 
     payload = {
@@ -75,6 +87,7 @@ def main() -> int:
         "remoto_pct": float(remote_pct) if remote_pct is not None else None,
         "por_fonte": by_source,
         "por_senioridade": by_seniority,
+        "por_contrato": by_contract,
         "por_cidade": by_city,
         "por_termo_busca": by_term,
         "skills_mais_mencionadas": top_skills,

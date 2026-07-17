@@ -207,7 +207,9 @@ import { t } from '../lib/i18n';
   import { countUp } from '../scripts/motion/count-up';
   import { STAGGER, motionOk } from '../scripts/motion/constants';
 
-  function initCounters(): void {
+  // Pintura dos contadores — re-executada a cada page-load (o DOM do footer é
+  // recriado a cada navegação SPA). Idempotente: só lê caches + anima.
+  function paintCounters(): void {
     const root = document.querySelector<HTMLElement>('[data-counter-root]');
     if (!root) return;
 
@@ -242,10 +244,15 @@ import { t } from '../lib/i18n';
       if (globalCell && views.global !== cached.global) animateCell(globalCell, views.global, 0);
       if (pageCell && views.page !== cached.page) animateCell(pageCell, views.page, 1);
     });
+  }
 
-    // Contagem de cliques ao vivo
-    const clicksLive = root.querySelector<HTMLElement>('[data-clicks-live]');
-    const clicksLabelEl = root.querySelector<HTMLElement>('[data-i18n-key="footer.stats.clicks"]');
+  // Listener global de clique — anexado UMA única vez (persiste entre
+  // navegações SPA). Re-consulta as células no momento do clique, então nunca
+  // fica com referências obsoletas ao DOM antigo nem duplica o handler.
+  let clickWired = false;
+  function wireClickTracking(): void {
+    if (clickWired) return;
+    clickWired = true;
     document.addEventListener(
       'click',
       (event) => {
@@ -254,6 +261,10 @@ import { t } from '../lib/i18n';
           return;
         }
         const next = trackClick();
+        const root = document.querySelector<HTMLElement>('[data-counter-root]');
+        const clicksCell = root?.querySelector<HTMLElement>('[data-counter="clicks"]') ?? null;
+        const clicksLive = root?.querySelector<HTMLElement>('[data-clicks-live]') ?? null;
+        const clicksLabelEl = root?.querySelector<HTMLElement>('[data-i18n-key="footer.stats.clicks"]') ?? null;
         if (clicksCell) clicksCell.textContent = String(next);
         if (clicksLive) {
           const liveNode = clicksLive as HTMLElement & { _liveTimer?: number };
@@ -275,9 +286,10 @@ import { t } from '../lib/i18n';
     );
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCounters, { once: true });
-  } else {
-    initCounters();
-  }
+  // astro:page-load (não DOMContentLoaded): dispara no 1º load E após cada
+  // navegação SPA. O Footer está em todas as páginas, então repinta sempre.
+  document.addEventListener('astro:page-load', () => {
+    paintCounters();
+    wireClickTracking();
+  });
 </script>

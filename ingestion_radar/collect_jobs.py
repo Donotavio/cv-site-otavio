@@ -44,20 +44,11 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from urllib.robotparser import RobotFileParser
 
+from catalog import SEARCH_TERMS
+
 API_BASE = "https://employability-portal.gupy.io/api/v1/jobs"
 ROBOTS_URL = "https://portal.gupy.io/robots.txt"
 USER_AGENT = "data-stack-radar-br/1.0 (+https://donotavio.github.io)"
-
-SEARCH_TERMS = [
-    "engenheiro de dados",
-    "data engineer",
-    "analytics engineer",
-    "data analyst",
-    "analista de dados",
-    "cientista de dados",
-    "data platform",
-    "MLOps",
-]
 
 PAGE_LIMIT = 100          # itens por página aceitos pela API
 MAX_PAGES_PER_TERM = 5    # cap de segurança (até 500 vagas/termo)

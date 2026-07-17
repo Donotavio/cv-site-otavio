@@ -26,50 +26,11 @@ from pathlib import Path
 
 import duckdb
 
+sys.path.insert(0, str(Path(__file__).parent.parent / "ingestion_radar"))
+from catalog import SKILL_TO_TOOL, TOOL_CATEGORY  # noqa: E402
+
 GOLD_DIR = Path("data/gold")
 FRONTEND_DIR = Path("assets/data")
-
-# Skill (regex taxonomy) → ferramenta canônica (só as que têm equivalente
-# direto de tool monitorada via GitHub/PyPI — skills genéricas como
-# python/sql/aws/azure/gcp/docker/kubernetes/power bi/bigquery/snowflake/
-# fivetran ficam de fora do radar de *ferramentas de dados* propriamente,
-# mas continuam disponíveis em skills_by_week.parquet para outras análises).
-SKILL_TO_TOOL = {
-    "airflow": "apache-airflow",
-    "dagster": "dagster",
-    "prefect": "prefect",
-    "databricks": "databricks",
-    "spark": "apache-spark",
-    "dbt": "dbt",
-    "duckdb": "duckdb",
-    "polars": "polars",
-    "kafka": "apache-kafka",
-    "delta lake": "delta-lake",
-    "iceberg": "apache-iceberg",
-    "airbyte": "airbyte",
-    "mlflow": "mlflow",
-}
-
-# Universo completo do radar (16 ferramentas) — nome canônico → categoria
-# (usado só para agrupar visualmente no frontend).
-TOOL_CATEGORY = {
-    "apache-airflow": "orquestração",
-    "dagster": "orquestração",
-    "prefect": "orquestração",
-    "kestra": "orquestração",
-    "databricks": "plataforma",
-    "dbt": "transformação",
-    "apache-spark": "processamento",
-    "polars": "processamento",
-    "duckdb": "processamento",
-    "apache-kafka": "streaming",
-    "delta-lake": "storage",
-    "apache-iceberg": "storage",
-    "airbyte": "ingestão",
-    "dlt": "ingestão",
-    "mlflow": "mlops",
-    "great-expectations": "qualidade",
-}
 
 
 def main() -> int:
@@ -176,7 +137,7 @@ def main() -> int:
     payload_scores = {
         "gerado_em": datetime.now(timezone.utc).isoformat(),
         "metodologia": {
-            "job_score": "PERCENT_RANK() sobre menções de skill na semana mais recente de vagas coletadas (Gupy + Greenhouse Jobs API)",
+            "job_score": "PERCENT_RANK() sobre menções de skill na semana mais recente de vagas coletadas (Gupy, Greenhouse, Lever, Ashby, InHire e API BR)",
             "github_score": "PERCENT_RANK() sobre repositórios novos (topic search) desde 1º de janeiro do ano vigente",
             "pypi_score": "PERCENT_RANK() sobre downloads/mês (PyPI Stats)",
             "total_score": "job_score*0.5 + github_score*0.25 + pypi_score*0.25",
@@ -194,54 +155,82 @@ def main() -> int:
     )
     print(f"  ✓ {FRONTEND_DIR / 'radar_scores.json'}")
 
-    # ── Trending: growth_pct últimas 4 semanas vs. 4 semanas anteriores ──
-    # (real — se não houver histórico suficiente ainda, fica marcado
-    # explicitamente como tal, sem inventar número).
-    weeks_available = con.execute("""
-        SELECT COUNT(DISTINCT iso_week) FROM read_parquet('data/silver/skills_by_week.parquet')
-    """).fetchone()[0]
+    # ── Trending: variação da SHARE de demanda por ferramenta ────────────
+    # Mede a fatia (%) que cada ferramenta representa das menções de skill do
+    # universo do radar, e compara a janela recente vs. anterior. Usar SHARE
+    # (não contagem absoluta) torna o sinal robusto à entrada de novas fontes
+    # de vaga — mais fontes elevam o volume de todas as ferramentas, mas não
+    # a fatia relativa de uma. Janela adaptativa (medalhão real, sem inventar):
+    #   >= 8 semanas → média das 4 semanas recentes vs. 4 anteriores (suave)
+    #   >= 2 semanas → semana mais recente vs. semana anterior (janela curta)
+    #    < 2 semanas → insuficiente (sem número)
+    weeks = [r[0] for r in con.execute("""
+        SELECT DISTINCT iso_week FROM read_parquet('data/silver/skills_by_week.parquet')
+        ORDER BY iso_week DESC
+    """).fetchall()]
+    weeks_available = len(weeks)
+
+    def _weeks_sql(ws: list[str]) -> str:
+        return ", ".join("'" + w.replace("'", "''") + "'" for w in ws)
 
     if weeks_available >= 8:
-        trending_df = con.execute("""
-            WITH weeks AS (
-                SELECT DISTINCT iso_week FROM read_parquet('data/silver/skills_by_week.parquet')
-                ORDER BY iso_week DESC
-            ),
-            recent_weeks AS (SELECT iso_week FROM weeks LIMIT 4),
-            prior_weeks AS (SELECT iso_week FROM weeks LIMIT 8 OFFSET 4),
-            recent AS (
-                SELECT sm.tool, SUM(sw.n_jobs) AS mentions
+        recent_weeks, prior_weeks = weeks[0:4], weeks[4:8]
+        mode, window_label = "media_4s", "4 semanas recentes vs. 4 anteriores"
+    elif weeks_available >= 2:
+        recent_weeks, prior_weeks = weeks[0:1], weeks[1:2]
+        mode, window_label = "semana", "semana mais recente vs. semana anterior"
+    else:
+        recent_weeks, prior_weeks = [], []
+        mode, window_label = "insuficiente", "acumulando histórico"
+
+    insufficient_history = mode == "insuficiente"
+
+    if not insufficient_history:
+        trending_df = con.execute(f"""
+            WITH recent_m AS (
+                SELECT sm.tool, COALESCE(SUM(sw.n_jobs), 0) AS m
                 FROM skill_map sm
                 LEFT JOIN read_parquet('data/silver/skills_by_week.parquet') sw
-                    ON sw.skill = sm.skill AND sw.iso_week IN (SELECT iso_week FROM recent_weeks)
+                    ON sw.skill = sm.skill AND sw.iso_week IN ({_weeks_sql(recent_weeks)})
                 GROUP BY sm.tool
             ),
-            prior AS (
-                SELECT sm.tool, SUM(sw.n_jobs) AS mentions
+            prior_m AS (
+                SELECT sm.tool, COALESCE(SUM(sw.n_jobs), 0) AS m
                 FROM skill_map sm
                 LEFT JOIN read_parquet('data/silver/skills_by_week.parquet') sw
-                    ON sw.skill = sm.skill AND sw.iso_week IN (SELECT iso_week FROM prior_weeks)
+                    ON sw.skill = sm.skill AND sw.iso_week IN ({_weeks_sql(prior_weeks)})
                 GROUP BY sm.tool
+            ),
+            tot AS (
+                SELECT (SELECT SUM(m) FROM recent_m) AS r, (SELECT SUM(m) FROM prior_m) AS p
             )
             SELECT
-                r.tool,
-                COALESCE(p.mentions, 0) AS mentions_prior_4w,
-                COALESCE(r.mentions, 0) AS mentions_recent_4w,
-                CASE WHEN COALESCE(p.mentions, 0) > 0
-                     THEN ROUND((r.mentions - p.mentions) * 100.0 / p.mentions, 1)
-                     ELSE NULL
-                END AS growth_pct
-            FROM recent r
-            LEFT JOIN prior p ON p.tool = r.tool
-            ORDER BY growth_pct DESC NULLS LAST
+                t.tool,
+                COALESCE(rm.m, 0) AS mentions_recent,
+                COALESCE(pm.m, 0) AS mentions_prior,
+                ROUND(100.0 * COALESCE(rm.m, 0) / NULLIF((SELECT r FROM tot), 0), 1) AS share_recent_pct,
+                ROUND(100.0 * COALESCE(pm.m, 0) / NULLIF((SELECT p FROM tot), 0), 1) AS share_prior_pct
+            FROM tools t
+            LEFT JOIN recent_m rm ON rm.tool = t.tool
+            LEFT JOIN prior_m pm ON pm.tool = t.tool
         """).df()
-        insufficient_history = False
+        trending_df["share_recent_pct"] = trending_df["share_recent_pct"].fillna(0.0)
+        trending_df["share_prior_pct"] = trending_df["share_prior_pct"].fillna(0.0)
+        trending_df["delta_pp"] = (trending_df["share_recent_pct"] - trending_df["share_prior_pct"]).round(1)
+        trending_df["direction"] = trending_df["delta_pp"].apply(
+            lambda d: "up" if d > 0.1 else ("down" if d < -0.1 else "flat")
+        )
+        # ordena por maior movimento (risers no topo, fallers no fim), com
+        # tiebreaker estável por tool para não gerar diff de ruído no CI
+        trending_df = trending_df.sort_values(
+            ["delta_pp", "tool"], ascending=[False, True]
+        ).reset_index(drop=True)
     else:
-        trending_df = con.execute("SELECT tool FROM tools").df()
-        trending_df["mentions_prior_4w"] = None
-        trending_df["mentions_recent_4w"] = None
-        trending_df["growth_pct"] = None
-        insufficient_history = True
+        trending_df = con.execute("SELECT tool FROM tools ORDER BY tool").df()
+        for col in ("mentions_recent", "mentions_prior", "share_recent_pct",
+                    "share_prior_pct", "delta_pp"):
+            trending_df[col] = None
+        trending_df["direction"] = "flat"
 
     con.execute(f"""
         COPY (SELECT * FROM trending_df)
@@ -252,13 +241,17 @@ def main() -> int:
     payload_trending = {
         "gerado_em": datetime.now(timezone.utc).isoformat(),
         "insufficient_history": insufficient_history,
+        "mode": mode,
+        "window_label": window_label,
         "nota": (
-            "Histórico ainda insuficiente para calcular crescimento 4 semanas "
-            "vs. 4 semanas anteriores — necessário acumular pelo menos 8 semanas "
-            "de coleta (o pipeline roda semanalmente às segundas-feiras)."
+            "Histórico ainda insuficiente — necessário pelo menos 2 semanas de "
+            "coleta para comparar janelas (o pipeline roda diariamente e agrega "
+            "por semana ISO)."
             if insufficient_history else
-            "growth_pct compara menções de skill nas 4 semanas mais recentes "
-            "vs. as 4 semanas imediatamente anteriores."
+            f"Variação da fatia (share, em pontos percentuais) de cada ferramenta "
+            f"nas menções de vaga do universo do radar: {window_label}. Share "
+            f"(não contagem) para ser robusto à entrada de novas fontes. A partir "
+            f"de 8 semanas, a janela passa a usar a média de 4 semanas (mais suave)."
         ),
         "weeks_available": int(weeks_available),
         "tools": trending_df.to_dict(orient="records"),

@@ -181,8 +181,12 @@ import { t } from '../lib/i18n';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
   import { motionOk } from '../scripts/motion/constants';
 
-  const section = document.getElementById('contact');
-  if (section) {
+  // astro:page-load (não top-level): dispara no 1º load E após cada navegação
+  // SPA do <ClientRouter />; re-anima ao voltar. O guard garante que só roda
+  // onde a seção existe (o listener no document persiste entre navegações).
+  document.addEventListener('astro:page-load', () => {
+    const section = document.getElementById('contact');
+    if (!section) return;
     const line = section.querySelector('.section-line') as Element;
     const head = section.querySelector('.section-head') as Element;
     const linksCard = document.getElementById('contact-links-card') as Element;
@@ -194,5 +198,5 @@ import { t } from '../lib/i18n';
       if (head) revealUp([head], section, 0);
       if (linksCard && hireCard) revealUp([linksCard, hireCard], section, 0.12);
     }
-  }
+  });
 </script>

@@ -321,14 +321,15 @@ import { t } from '../lib/i18n';
   import { digitRoll } from '../scripts/motion/digit-roll';
   import { motionOk } from '../scripts/motion/constants';
 
-  const section = document.getElementById('impact');
-
   /**
    * Preenche os valores das métricas a partir do i18n e aplica o digit-roll.
+   * Re-consulta #impact AO VIVO (o DOM é recriado no swap do <ClientRouter />),
+   * então nunca opera sobre uma seção obsoleta após navegação SPA.
    * - Reset do valor para texto antes de remontar (re-render ao trocar idioma).
    * - digitRoll cuida do slot-machine (numérico) ou scramble (textual).
    */
   function renderMetrics() {
+    const section = document.getElementById('impact');
     if (!section) return;
 
     section.querySelectorAll<HTMLElement>('.metric').forEach((metric) => {
@@ -350,7 +351,13 @@ import { t } from '../lib/i18n';
     });
   }
 
-  if (section) {
+  // Re-render ao trocar idioma (persistente; o keystone re-dispara no page-load).
+  window.addEventListener('languageChanged', () => renderMetrics());
+
+  // astro:page-load (não top-level): motion + render inicial a cada navegação SPA.
+  document.addEventListener('astro:page-load', () => {
+    const section = document.getElementById('impact');
+    if (!section) return;
     const line = section.querySelector('.section-line') as Element;
     const head = section.querySelector('.section-head') as Element;
     const cards = section.querySelectorAll('.metric');
@@ -364,8 +371,7 @@ import { t } from '../lib/i18n';
       if (highlight) revealUp([highlight], section, 0);
     }
 
-    // Render inicial (valores localizados) + re-render ao trocar idioma
+    // Render inicial (valores localizados)
     renderMetrics();
-    window.addEventListener('languageChanged', () => renderMetrics());
-  }
+  });
 </script>

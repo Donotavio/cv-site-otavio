@@ -273,5 +273,7 @@ const base = import.meta.env.BASE_URL;
     }
   }
 
-  document.addEventListener('DOMContentLoaded', loadRadarCardTiers);
+  // astro:page-load (não DOMContentLoaded): dispara no 1º load E após cada
+  // navegação SPA do <ClientRouter />. Guarda em #radar-card-tiers (só na home).
+  document.addEventListener('astro:page-load', loadRadarCardTiers);
 </script>

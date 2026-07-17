@@ -208,8 +208,12 @@ const meter = (level: number) => {
   import { countUp } from '../scripts/motion/count-up';
   import { motionOk, STAGGER } from '../scripts/motion/constants';
 
-  const section = document.getElementById('skills');
-  if (section) {
+  // astro:page-load (não top-level): dispara no 1º load E após cada navegação
+  // SPA do <ClientRouter />; re-anima ao voltar. O guard garante que só roda
+  // onde a seção existe (o listener no document persiste entre navegações).
+  document.addEventListener('astro:page-load', () => {
+    const section = document.getElementById('skills');
+    if (!section) return;
     const line   = section.querySelector('.section-line') as Element;
     const head   = section.querySelector('.section-head') as Element;
     const groups = section.querySelectorAll<HTMLElement>('[data-skills-group]');
@@ -233,5 +237,5 @@ const meter = (level: number) => {
         pcts.forEach((pct) => countUp(pct, group));
       });
     }
-  }
+  });
 </script>

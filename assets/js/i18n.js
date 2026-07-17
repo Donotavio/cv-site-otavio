@@ -35,7 +35,14 @@ const detectLanguage = () => {
   return defaultLanguage;
 };
 
+// Cache em memória por idioma — evita refetch a cada navegação SPA
+// (astro:page-load reaplica traduções em toda navegação).
+const translationCache = {};
+
 const fetchTranslations = async (lang) => {
+  if (translationCache[lang]) {
+    return translationCache[lang];
+  }
   const baseUrl = getBaseUrl();
   const response = await fetch(`${baseUrl}/assets/i18n/${lang}.json`, {
     cache: "no-store",
@@ -43,7 +50,9 @@ const fetchTranslations = async (lang) => {
   if (!response.ok) {
     throw new Error("Failed to load translations");
   }
-  return response.json();
+  const json = await response.json();
+  translationCache[lang] = json;
+  return json;
 };
 
 const resolveKey = (obj, key) => {
@@ -143,13 +152,24 @@ const setLanguage = async (lang) => {
   applyTranslations(translations, normalized);
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+const initI18n = () => {
   const initial = detectLanguage();
   setLanguage(initial).catch(() => setLanguage(defaultLanguage));
 
+  // Após o swap do <ClientRouter />, os .lang-btn são elementos NOVOS — re-liga
+  // o click a cada page-load. São elementos frescos, então não há duplicação.
   document.querySelectorAll(".lang-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       setLanguage(btn.dataset.lang).catch(() => setLanguage(defaultLanguage));
     });
   });
-});
+};
+
+// astro:page-load (não DOMContentLoaded): dispara no 1º carregamento E após
+// cada navegação SPA do <ClientRouter />. Sem isso, o DOM novo vinha em pt-BR
+// (SSG) e o seletor de idioma parava de responder após a 1ª navegação.
+// __i18nBooted evita registrar o listener duas vezes se o script for reavaliado.
+if (!window.__i18nBooted) {
+  window.__i18nBooted = true;
+  document.addEventListener("astro:page-load", initI18n);
+}

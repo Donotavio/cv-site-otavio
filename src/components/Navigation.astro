@@ -75,66 +75,87 @@ const resolveHref = (anchor: string) => (isHome ? anchor : `${base}${anchor}`);
 
 <!-- Toggle mobile + navegação por menu (scroll suave) -->
 <script>
-  const toggle = document.querySelector('[data-nav-toggle]') as HTMLButtonElement | null;
-  const list   = document.getElementById('nav-list');
+  type LenisLike = { scrollTo: (t: Element, o?: object) => void };
 
-  function closeMenu() {
+  // Fecha o drawer mobile — consulta os elementos AO VIVO (o DOM do header é
+  // recriado a cada navegação SPA do <ClientRouter />).
+  function closeMenu(): void {
+    const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+    const list = document.getElementById('nav-list');
     if (!toggle || !list) return;
     list.classList.remove('nav-list--open');
     toggle.classList.remove('nav-toggle--open');
     toggle.setAttribute('aria-expanded', 'false');
   }
 
-  if (toggle && list) {
-    toggle.addEventListener('click', () => {
-      const isOpen = list.classList.toggle('nav-list--open');
-      toggle.classList.toggle('nav-toggle--open', isOpen);
-      toggle.setAttribute('aria-expanded', String(isOpen));
-    });
+  // Handlers ligados a elementos da página (recriados a cada swap). Re-ligar a
+  // cada page-load é seguro: são elementos novos, sem duplicação.
+  function setupNav(): void {
+    const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+    const list = document.getElementById('nav-list');
 
-    // Fechar ao pressionar Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && list.classList.contains('nav-list--open')) {
+    if (toggle && list) {
+      toggle.addEventListener('click', () => {
+        const isOpen = list.classList.toggle('nav-list--open');
+        toggle.classList.toggle('nav-toggle--open', isOpen);
+        toggle.setAttribute('aria-expanded', String(isOpen));
+      });
+    }
+
+    /*
+     * Navegação por menu:
+     *  1. previne o jump instantâneo da âncora
+     *  2. scroll suave via Lenis (cai em scrollIntoView se Lenis ausente)
+     *  3. fecha o drawer mobile
+     */
+    document.querySelectorAll<HTMLAnchorElement>('.nav-link').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href') ?? '';
+        if (!href.startsWith('#')) return;
+
+        const id = href.slice(1);
+        const target = document.getElementById(id);
+        if (!target) return;
+
+        e.preventDefault();
+
+        const lenis = (window as Window & { __lenis?: LenisLike }).__lenis;
+        // Offset negativo = para ANTES do alvo, compensando o header fixo (~80px).
+        // O CSS scroll-padding-top cobre o scroll nativo; Lenis precisa do offset explícito.
+        const headerOffset = -80;
+        if (lenis) {
+          lenis.scrollTo(target, { offset: headerOffset, duration: 1.1 });
+        } else {
+          // reduced-motion / Lenis ausente → scroll nativo (respeita scroll-padding-top)
+          target.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
+
         closeMenu();
-        toggle.focus();
+      });
+    });
+  }
+
+  // Escape fecha o drawer — listener no document, ligado UMA vez (persiste
+  // entre navegações; consulta elementos ao vivo, sem referência obsoleta).
+  let escWired = false;
+  function wireEscape(): void {
+    if (escWired) return;
+    escWired = true;
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const list = document.getElementById('nav-list');
+      if (list?.classList.contains('nav-list--open')) {
+        closeMenu();
+        document.querySelector<HTMLButtonElement>('[data-nav-toggle]')?.focus();
       }
     });
   }
 
-  /*
-   * Navegação por menu:
-   *  1. previne o jump instantâneo da âncora
-   *  2. scroll suave via Lenis (cai em scrollIntoView se Lenis ausente)
-   *  3. fecha o drawer mobile
-   * (O Query Loader não é mais disparado na navegação — fica só no hero, no
-   *  1º load; ver BaseLayout.astro.)
-   */
-  type LenisLike = { scrollTo: (t: Element, o?: object) => void };
-
-  document.querySelectorAll<HTMLAnchorElement>('.nav-link').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href') ?? '';
-      if (!href.startsWith('#')) return;
-
-      const id = href.slice(1);
-      const target = document.getElementById(id);
-      if (!target) return;
-
-      e.preventDefault();
-
-      const lenis = (window as Window & { __lenis?: LenisLike }).__lenis;
-      // Offset negativo = para ANTES do alvo, compensando o header fixo (~80px).
-      // O CSS scroll-padding-top cobre o scroll nativo; Lenis precisa do offset explícito.
-      const headerOffset = -80;
-      if (lenis) {
-        lenis.scrollTo(target, { offset: headerOffset, duration: 1.1 });
-      } else {
-        // reduced-motion / Lenis ausente → scroll nativo (respeita scroll-padding-top)
-        target.scrollIntoView({ behavior: 'auto', block: 'start' });
-      }
-
-      closeMenu();
-    });
+  // astro:page-load (não top-level): dispara no 1º load E após cada navegação
+  // SPA. Re-liga os handlers da página (elementos novos após o swap).
+  document.addEventListener('astro:page-load', () => {
+    setupNav();
+    wireEscape();
   });
 </script>
 

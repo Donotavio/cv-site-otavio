@@ -495,8 +495,12 @@ import { t } from '../lib/i18n';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
   import { motionOk } from '../scripts/motion/constants';
 
-  const section = document.getElementById('architecture');
-  if (section) {
+  // astro:page-load (não top-level): dispara no 1º load E após cada navegação
+  // SPA do <ClientRouter />; re-anima ao voltar. O guard garante que só roda
+  // onde a seção existe (o listener no document persiste entre navegações).
+  document.addEventListener('astro:page-load', () => {
+    const section = document.getElementById('architecture');
+    if (!section) return;
     const line   = section.querySelector('.section-line') as Element;
     const head   = section.querySelector('.section-head') as Element;
     const stages = section.querySelectorAll('.stage');
@@ -509,5 +513,5 @@ import { t } from '../lib/i18n';
       revealUp(stages, section, 0.1);
       if (legend) revealUp([legend], section, 0);
     }
-  }
+  });
 </script>

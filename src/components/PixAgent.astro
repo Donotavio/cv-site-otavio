@@ -601,29 +601,24 @@ import { t } from '../lib/i18n';
     ).replace('{query}', query);
   }
 
-  // ── DOM refs ───────────────────────────────────────────────
-  const agent    = document.querySelector<HTMLElement>('[data-pix-agent]');
-  const fab       = document.querySelector<HTMLButtonElement>('[data-agent-toggle]');
-  const panel     = document.getElementById('pix-agent-panel');
-  const closeBtn  = document.querySelector<HTMLButtonElement>('[data-agent-close]');
-  const form      = document.getElementById('pix-agent-form') as HTMLFormElement | null;
-  const input     = document.getElementById('pix-agent-input') as HTMLInputElement | null;
-  const messages  = document.getElementById('pix-agent-messages');
-  const sendBtn    = document.getElementById('pix-agent-send') as HTMLButtonElement | null;
+  // ── DOM refs — `let` porque são REATRIBUÍDOS a cada page-load (o DOM do
+  // widget é recriado no swap do <ClientRouter />). As funções abaixo fecham
+  // sobre estas variáveis, então sempre usam os elementos da página atual.
+  let agent: HTMLElement | null = null;
+  let fab: HTMLButtonElement | null = null;
+  let panel: HTMLElement | null = null;
+  let closeBtn: HTMLButtonElement | null = null;
+  let form: HTMLFormElement | null = null;
+  let input: HTMLInputElement | null = null;
+  let messages: HTMLElement | null = null;
+  let sendBtn: HTMLButtonElement | null = null;
 
   let isOpen = false;
   let isProcessing = false;
 
-  // ── Memória de interação — para o pulso de "chamar atenção" depois que
-  // o usuário já abriu o chat uma vez, para não incomodar em sessões longas.
+  // Memória de interação — pulso de "chamar atenção" só até o usuário abrir o
+  // chat uma vez (o estado inicial é aplicado no boot, abaixo).
   const VISITED_KEY = 'pix-agent-visited';
-  try {
-    if (localStorage.getItem(VISITED_KEY) && agent) {
-      agent.setAttribute('data-agent-visited', '');
-    }
-  } catch {
-    // localStorage indisponível (modo privado etc) — pulso permanece ativo, ok.
-  }
 
   function markVisited() {
     if (agent) agent.setAttribute('data-agent-visited', '');
@@ -645,16 +640,19 @@ import { t } from '../lib/i18n';
 
   function closePanel() {
     if (!agent || !panel || !fab) return;
+    // const local — os refs agora são `let`; capturar aqui deixa o TS estreitar
+    // o tipo dentro do closure `done` (que roda depois, no animationend).
+    const panelEl = panel;
     isOpen = false;
-    panel.classList.remove('is-opening');
-    panel.classList.add('is-closing');
+    panelEl.classList.remove('is-opening');
+    panelEl.classList.add('is-closing');
     agent.removeAttribute('data-open');
     fab.setAttribute('aria-expanded', 'false');
     fab.setAttribute('aria-label', tr('pix_agent.aria_fab_open', 'Abrir chat com o agente do PIX'));
-    const done = () => { panel.hidden = true; panel.classList.remove('is-closing'); };
+    const done = () => { panelEl.hidden = true; panelEl.classList.remove('is-closing'); };
     // respeita reduced-motion (sem animationend)
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) done();
-    else panel.addEventListener('animationend', done, { once: true });
+    else panelEl.addEventListener('animationend', done, { once: true });
     fab.focus();
   }
 
@@ -712,27 +710,62 @@ import { t } from '../lib/i18n';
     input.focus();
   }
 
-  // ── Wiring ─────────────────────────────────────────────────
-  fab?.addEventListener('click', () => (isOpen ? closePanel() : openPanel()));
-  closeBtn?.addEventListener('click', closePanel);
+  // ── Wiring — re-liga a cada page-load (elementos novos após o swap) ──
+  function bootPixAgent(): void {
+    agent = document.querySelector<HTMLElement>('[data-pix-agent]');
+    if (!agent) return; // só existe na página do PIX Observatory
+    fab = document.querySelector<HTMLButtonElement>('[data-agent-toggle]');
+    panel = document.getElementById('pix-agent-panel');
+    closeBtn = document.querySelector<HTMLButtonElement>('[data-agent-close]');
+    form = document.getElementById('pix-agent-form') as HTMLFormElement | null;
+    input = document.getElementById('pix-agent-input') as HTMLInputElement | null;
+    messages = document.getElementById('pix-agent-messages');
+    sendBtn = document.getElementById('pix-agent-send') as HTMLButtonElement | null;
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isOpen) closePanel();
-  });
+    isOpen = false;
+    isProcessing = false;
 
-  form?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (input) submitQuestion(input.value.trim());
-  });
-
-  input?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      form?.requestSubmit();
+    try {
+      if (localStorage.getItem(VISITED_KEY)) agent.setAttribute('data-agent-visited', '');
+    } catch {
+      // localStorage indisponível (modo privado etc) — pulso permanece ativo, ok.
     }
-  });
 
-  document.querySelectorAll<HTMLButtonElement>('[data-agent-suggest]').forEach((chip) => {
-    chip.addEventListener('click', () => submitQuestion(chip.textContent?.trim() ?? ''));
+    fab?.addEventListener('click', () => (isOpen ? closePanel() : openPanel()));
+    closeBtn?.addEventListener('click', closePanel);
+
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (input) submitQuestion(input.value.trim());
+    });
+
+    input?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        form?.requestSubmit();
+      }
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-agent-suggest]').forEach((chip) => {
+      chip.addEventListener('click', () => submitQuestion(chip.textContent?.trim() ?? ''));
+    });
+  }
+
+  // Escape — listener no document, ligado UMA vez (persiste entre navegações;
+  // lê `isOpen`/refs ao vivo).
+  let pixEscWired = false;
+  function wirePixEscape(): void {
+    if (pixEscWired) return;
+    pixEscWired = true;
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen) closePanel();
+    });
+  }
+
+  // astro:page-load (não top-level): dispara no 1º load E após cada navegação
+  // SPA do <ClientRouter />.
+  document.addEventListener('astro:page-load', () => {
+    bootPixAgent();
+    wirePixEscape();
   });
 </script>

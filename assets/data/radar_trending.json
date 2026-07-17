@@ -1,104 +1,154 @@
 {
-  "gerado_em": "2026-07-16T16:50:39.151683+00:00",
-  "insufficient_history": true,
-  "nota": "Histórico ainda insuficiente para calcular crescimento 4 semanas vs. 4 semanas anteriores — necessário acumular pelo menos 8 semanas de coleta (o pipeline roda semanalmente às segundas-feiras).",
+  "gerado_em": "2026-07-16T23:38:17.967235+00:00",
+  "insufficient_history": false,
+  "mode": "semana",
+  "window_label": "semana mais recente vs. semana anterior",
+  "nota": "Variação da fatia (share, em pontos percentuais) de cada ferramenta nas menções de vaga do universo do radar: semana mais recente vs. semana anterior. Share (não contagem) para ser robusto à entrada de novas fontes. A partir de 8 semanas, a janela passa a usar a média de 4 semanas (mais suave).",
   "weeks_available": 3,
   "tools": [
     {
-      "tool": "apache-airflow",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
-    },
-    {
-      "tool": "dagster",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
-    },
-    {
-      "tool": "prefect",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
-    },
-    {
-      "tool": "kestra",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
-    },
-    {
-      "tool": "databricks",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
-    },
-    {
-      "tool": "dbt",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
+      "tool": "delta-lake",
+      "mentions_recent": 17.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 3.9,
+      "share_prior_pct": 0.0,
+      "delta_pp": 3.9,
+      "direction": "up"
     },
     {
       "tool": "apache-spark",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
+      "mentions_recent": 123.0,
+      "mentions_prior": 9.0,
+      "share_recent_pct": 28.2,
+      "share_prior_pct": 25.7,
+      "delta_pp": 2.5,
+      "direction": "up"
     },
     {
-      "tool": "polars",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
-    },
-    {
-      "tool": "duckdb",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
+      "tool": "apache-airflow",
+      "mentions_recent": 96.0,
+      "mentions_prior": 7.0,
+      "share_recent_pct": 22.0,
+      "share_prior_pct": 20.0,
+      "delta_pp": 2.0,
+      "direction": "up"
     },
     {
       "tool": "apache-kafka",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
-    },
-    {
-      "tool": "delta-lake",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
-    },
-    {
-      "tool": "apache-iceberg",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
+      "mentions_recent": 33.0,
+      "mentions_prior": 2.0,
+      "share_recent_pct": 7.6,
+      "share_prior_pct": 5.7,
+      "delta_pp": 1.9,
+      "direction": "up"
     },
     {
       "tool": "airbyte",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
+      "mentions_recent": 4.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 0.9,
+      "share_prior_pct": 0.0,
+      "delta_pp": 0.9,
+      "direction": "up"
     },
     {
-      "tool": "dlt",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
+      "tool": "dagster",
+      "mentions_recent": 4.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 0.9,
+      "share_prior_pct": 0.0,
+      "delta_pp": 0.9,
+      "direction": "up"
     },
     {
       "tool": "mlflow",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
+      "mentions_recent": 16.0,
+      "mentions_prior": 1.0,
+      "share_recent_pct": 3.7,
+      "share_prior_pct": 2.9,
+      "delta_pp": 0.8,
+      "direction": "up"
+    },
+    {
+      "tool": "prefect",
+      "mentions_recent": 3.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 0.7,
+      "share_prior_pct": 0.0,
+      "delta_pp": 0.7,
+      "direction": "up"
+    },
+    {
+      "tool": "duckdb",
+      "mentions_recent": 1.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 0.2,
+      "share_prior_pct": 0.0,
+      "delta_pp": 0.2,
+      "direction": "up"
+    },
+    {
+      "tool": "dlt",
+      "mentions_recent": 0.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 0.0,
+      "share_prior_pct": 0.0,
+      "delta_pp": 0.0,
+      "direction": "flat"
     },
     {
       "tool": "great-expectations",
-      "mentions_prior_4w": null,
-      "mentions_recent_4w": null,
-      "growth_pct": null
+      "mentions_recent": 0.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 0.0,
+      "share_prior_pct": 0.0,
+      "delta_pp": 0.0,
+      "direction": "flat"
+    },
+    {
+      "tool": "kestra",
+      "mentions_recent": 0.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 0.0,
+      "share_prior_pct": 0.0,
+      "delta_pp": 0.0,
+      "direction": "flat"
+    },
+    {
+      "tool": "polars",
+      "mentions_recent": 0.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 0.0,
+      "share_prior_pct": 0.0,
+      "delta_pp": 0.0,
+      "direction": "flat"
+    },
+    {
+      "tool": "apache-iceberg",
+      "mentions_recent": 4.0,
+      "mentions_prior": 1.0,
+      "share_recent_pct": 0.9,
+      "share_prior_pct": 2.9,
+      "delta_pp": -2.0,
+      "direction": "down"
+    },
+    {
+      "tool": "dbt",
+      "mentions_recent": 36.0,
+      "mentions_prior": 4.0,
+      "share_recent_pct": 8.3,
+      "share_prior_pct": 11.4,
+      "delta_pp": -3.1,
+      "direction": "down"
+    },
+    {
+      "tool": "databricks",
+      "mentions_recent": 99.0,
+      "mentions_prior": 11.0,
+      "share_recent_pct": 22.7,
+      "share_prior_pct": 31.4,
+      "delta_pp": -8.7,
+      "direction": "down"
     }
   ]
 }

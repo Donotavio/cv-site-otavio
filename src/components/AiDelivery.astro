@@ -256,8 +256,12 @@ const pillars = ['orchestration', 'guardrails', 'context', 'knowledge'];
   import { countUp } from '../scripts/motion/count-up';
   import { motionOk } from '../scripts/motion/constants';
 
-  const section = document.getElementById('ai-delivery');
-  if (section) {
+  // astro:page-load (não top-level): dispara no 1º load E após cada navegação
+  // SPA do <ClientRouter />; re-anima ao voltar. O guard garante que só roda
+  // onde a seção existe (o listener no document persiste entre navegações).
+  document.addEventListener('astro:page-load', () => {
+    const section = document.getElementById('ai-delivery');
+    if (!section) return;
     const line    = section.querySelector('.section-line') as Element;
     const head    = section.querySelector('.section-head') as Element;
     const stats   = section.querySelectorAll('.stat');
@@ -276,5 +280,5 @@ const pillars = ['orchestration', 'guardrails', 'context', 'knowledge'];
 
     // count-up nos números (mostra valor final se reduced-motion)
     nums.forEach((n) => countUp(n, section));
-  }
+  });
 </script>

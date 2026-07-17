@@ -74,6 +74,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ProjectRecommendations from '../components/ProjectRecommendations.astro';
 
 // ── KPIs em destaque no briefing executivo (IPCA dominante + 3 secundários)
 const BRIEFING_IDS = ['ipca_12m', 'selic', 'desocupacao', 'cambio_usd'] as const;
@@ -547,6 +548,8 @@ collect_ibge.py    cron: trimestral (PNAD)</pre>
         </p>
       </div>
     </section>
+
+    <ProjectRecommendations current="brasil-cockpit" />
 
   </main>
 
@@ -1549,7 +1552,11 @@ collect_ibge.py    cron: trimestral (PNAD)</pre>
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
   import { motionOk, STAGGER } from '../scripts/motion/constants';
 
-  document.addEventListener('DOMContentLoaded', () => {
+  // astro:page-load (não DOMContentLoaded): dispara no 1º load E após cada
+  // navegação SPA do <ClientRouter />. O guard #ck-hero garante que só roda
+  // nesta página (o listener no document persiste entre navegações).
+  document.addEventListener('astro:page-load', () => {
+    if (!document.getElementById('ck-hero')) return;
     const heroCard = document.querySelector('.hero-card');
     if (heroCard && motionOk) revealUp([heroCard], heroCard, 0);
 
@@ -2499,5 +2506,8 @@ collect_ibge.py    cron: trimestral (PNAD)</pre>
     }
   }
 
-  document.addEventListener('DOMContentLoaded', loadCockpit);
+  document.addEventListener('astro:page-load', () => {
+    if (!document.getElementById('ck-hero')) return;
+    loadCockpit();
+  });
 </script>

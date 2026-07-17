@@ -21,24 +21,11 @@ from pathlib import Path
 
 import requests
 
+from catalog import PYPI_PACKAGES as PACKAGES
+
 API_BASE = "https://pypistats.org/api/packages/{package}/recent"
 BRONZE_DIR = Path("data/bronze/radar_pypi")
 TIMEOUT = 30
-
-# Pacote PyPI → nome canônico da ferramenta (para casar com o resto do radar)
-PACKAGES: dict[str, str] = {
-    "apache-airflow": "apache-airflow",
-    "prefect": "prefect",
-    "dagster": "dagster",
-    "dbt-core": "dbt",
-    "pyspark": "apache-spark",
-    "polars": "polars",
-    "duckdb": "duckdb",
-    "airbyte-cdk": "airbyte",
-    "dlt": "dlt",
-    "great-expectations": "great-expectations",
-    "mlflow": "mlflow",
-}
 
 
 def collect_all() -> list[dict]:

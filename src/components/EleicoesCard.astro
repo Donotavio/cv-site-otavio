@@ -127,5 +127,7 @@ const base = import.meta.env.BASE_URL;
     }
   }
 
-  document.addEventListener('DOMContentLoaded', loadEleicoesCardStats);
+  // astro:page-load (não DOMContentLoaded): dispara no 1º load E após cada
+  // navegação SPA do <ClientRouter />. Guarda em #el-card-stats (só na home).
+  document.addEventListener('astro:page-load', loadEleicoesCardStats);
 </script>

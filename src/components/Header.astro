@@ -51,10 +51,19 @@ const logoHref = isHome ? '#hero' : `${base}#hero`;
 
 <!-- Scroll observer: adiciona .scrolled ao header sem GSAP -->
 <script>
-  const header = document.getElementById('site-header');
+  // astro:page-load (não top-level): dispara no 1º load E após cada navegação
+  // SPA do <ClientRouter />. O #site-header e o sentinel são recriados no swap,
+  // então recriamos o observer a cada navegação (desconectando o anterior e
+  // removendo sentinels órfãos para não acumular).
+  let headerObserver: IntersectionObserver | null = null;
+  document.addEventListener('astro:page-load', () => {
+    const header = document.getElementById('site-header');
+    if (!header) return;
 
-  if (header) {
-    const observer = new IntersectionObserver(
+    headerObserver?.disconnect();
+    document.querySelectorAll('[data-header-sentinel]').forEach((el) => el.remove());
+
+    headerObserver = new IntersectionObserver(
       ([entry]) => {
         // Quando o sentinel (topo da página) sai do viewport → scrollado
         header.classList.toggle('scrolled', !entry.isIntersecting);
@@ -65,11 +74,12 @@ const logoHref = isHome ? '#hero' : `${base}#hero`;
     // Sentinel: elemento invisível no topo absoluto da página
     const sentinel = document.createElement('div');
     sentinel.setAttribute('aria-hidden', 'true');
+    sentinel.setAttribute('data-header-sentinel', '');
     sentinel.style.cssText =
       'position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;';
     document.body.prepend(sentinel);
-    observer.observe(sentinel);
-  }
+    headerObserver.observe(sentinel);
+  });
 </script>
 
 <style>

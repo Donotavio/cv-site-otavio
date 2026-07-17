@@ -29,7 +29,7 @@ from pathlib import Path
 
 import requests
 
-from skills_extractor import TOOL_TOPICS
+from catalog import TOOL_TOPICS
 
 API_URL = "https://api.github.com/search/repositories"
 BRONZE_DIR = Path("data/bronze/radar_github")

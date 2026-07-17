@@ -26,7 +26,6 @@ Saída:
 
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
@@ -35,36 +34,24 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "ingestion_radar"))
 from skills_extractor import extract_skills_row  # noqa: E402
+from catalog import (  # noqa: E402
+    SALARY_ANCHOR_PATTERN,
+    SENIORITY_PATTERNS,
+    infer_contract_from_text,
+    normalize_contract,
+)
 
 GUPY_GLOB = "data/bronze/radar_jobs/*.parquet"
 GREENHOUSE_GLOB = "data/bronze/radar_jobs_greenhouse/*.parquet"
+# Coletores ATS que compartilham o mesmo schema de bronze (Lever/Ashby/
+# InHire/API BR): source → glob. Carregados por `_load_ats()`.
+ATS_GLOBS = {
+    "lever": "data/bronze/radar_jobs_lever/*.parquet",
+    "ashby": "data/bronze/radar_jobs_ashby/*.parquet",
+    "inhire": "data/bronze/radar_jobs_inhire/*.parquet",
+    "apibr": "data/bronze/radar_jobs_apibr/*.parquet",
+}
 SILVER_DIR = Path("data/silver")
-
-SENIORITY_PATTERNS = [
-    ("estágio", re.compile(r"est[aá]gi", re.IGNORECASE)),
-    ("júnior", re.compile(r"j[uú]nior|\bjr\b", re.IGNORECASE)),
-    ("pleno", re.compile(r"pleno|\bpl\b", re.IGNORECASE)),
-    ("sênior", re.compile(r"s[eê]nior|\bsr\b|senior", re.IGNORECASE)),
-    ("especialista", re.compile(r"especialista|specialist|staff|principal", re.IGNORECASE)),
-    ("liderança", re.compile(r"lead|coordenador|gerente|head|manager", re.IGNORECASE)),
-]
-
-# Extrai valor(es) REAL de remuneração — não é "menciona R$ em algum
-# lugar" (isso captura quase só benefício: vale-refeição, auxílio home
-# office, plano de saúde, bônus de indicação — nada disso é salário).
-# Só conta como remuneração real quando o valor vem a poucos caracteres
-# de "remuneração"/"salário"/"faixa salarial" — descartamos deliberada-
-# mente qualquer R$ solto no meio do texto de benefícios.
-# Achado real ao validar manualmente: de 301 vagas, o padrão antigo
-# (r"r\$\s?\d") batia em 26 (8,6%) — quase todas eram benefício, não
-# salário. Com este padrão mais estrito, restam só 2 (0,7%) — é o dado
-# real, e o próprio "quase nada divulga salário" é o insight.
-SALARY_ANCHOR_PATTERN = re.compile(
-    r"(?:remunera[çc][ãa]o|sal[áa]rio|faixa\s+salarial)[^R$\n]{0,25}"
-    r"r\$\s?([\d.,]+)"
-    r"(?:[^R$\n]{0,15}(?:a|até|[-–—]|e)[^R$\n]{0,10}r\$\s?([\d.,]+))?",
-    re.IGNORECASE,
-)
 
 
 def _infer_seniority(title: str) -> str:
@@ -171,36 +158,114 @@ def _load_greenhouse() -> pd.DataFrame:
     return out
 
 
+def _load_ats(source: str, glob: str) -> pd.DataFrame:
+    """Loader genérico para as fontes ATS (Lever/Ashby/InHire/API BR) que
+    compartilham o mesmo schema de bronze — inclui os campos ESTRUTURADOS
+    de contrato e salário quando a fonte os fornece (Ashby traz faixa
+    salarial; Lever/Ashby/InHire trazem tipo de contrato)."""
+    files = sorted(Path(".").glob(glob))
+    if not files:
+        return pd.DataFrame()
+
+    frames = []
+    for f in files:
+        df = pd.read_parquet(f)
+        df["_iso_week"] = _week_label_from_filename(f)
+        frames.append(df)
+    raw = pd.concat(frames, ignore_index=True)
+    raw = raw.sort_values("_ingest_ts").drop_duplicates(subset=["id", "company_slug"], keep="last")
+
+    out = pd.DataFrame({
+        "id": f"{source}_" + raw["company_slug"].astype(str) + "_" + raw["id"].astype(str),
+        "title": raw["title"],
+        "city": raw["location"],
+        "state": "",
+        "country": "Brasil",
+        "is_remote": raw["is_remote"].fillna(False).astype(bool),
+        "publishedDate": raw["updated_at"],
+        "_matched_term": f"{source}:" + raw["company"].astype(str),
+        "_iso_week": raw["_iso_week"],
+        "description": raw["description"],
+        "company": raw["company"],
+        "url": raw["absolute_url"],
+        "source": source,
+        # campos estruturados (podem vir vazios conforme a fonte)
+        "contract_raw": raw.get("contract_type_raw"),
+        "struct_salary_min": raw.get("salary_min"),
+        "struct_salary_max": raw.get("salary_max"),
+        "struct_salary_currency": raw.get("salary_currency"),
+    })
+    return out
+
+
+def _resolve_contract(row: pd.Series) -> str:
+    """Contrato ESTRUTURADO (campo do ATS, já normalizado no coletor) tem
+    prioridade; senão infere do texto (título+descrição); senão 'não
+    especificado'."""
+    raw = row.get("contract_raw")
+    if isinstance(raw, str) and raw:
+        norm = normalize_contract(raw)
+        if norm:
+            return norm
+    return infer_contract_from_text(f"{row.get('title', '')} {row.get('description', '')}")
+
+
+def _resolve_salary(row: pd.Series) -> tuple[float | None, float | None, str | None, str | None]:
+    """Salário ESTRUTURADO (Ashby/InHire) tem prioridade sobre o regex.
+    Retorna (min, max, moeda, fonte) — fonte ∈ {estruturado, regex, None}."""
+    smin = row.get("struct_salary_min")
+    smax = row.get("struct_salary_max")
+    if pd.notna(smin) or pd.notna(smax):
+        lo = float(smin) if pd.notna(smin) else float(smax)
+        hi = float(smax) if pd.notna(smax) else lo
+        cur = row.get("struct_salary_currency")
+        cur = cur if isinstance(cur, str) and cur else "BRL"
+        return min(lo, hi), max(lo, hi), cur, "estruturado"
+    rmin, rmax = _extract_salary(row.get("description", ""))
+    if rmin is not None:
+        return rmin, rmax, "BRL", "regex"
+    return None, None, None, None
+
+
 def build_jobs_clean() -> pd.DataFrame:
-    gupy = _load_gupy()
-    greenhouse = _load_greenhouse()
+    frames = [_load_gupy(), _load_greenhouse()]
+    frames += [_load_ats(source, glob) for source, glob in ATS_GLOBS.items()]
+    frames = [f for f in frames if not f.empty]
 
-    if gupy.empty and greenhouse.empty:
-        raise RuntimeError(
-            f"Nenhum arquivo bronze de vagas encontrado em {GUPY_GLOB} nem {GREENHOUSE_GLOB}"
-        )
+    if not frames:
+        raise RuntimeError("Nenhum arquivo bronze de vagas encontrado em nenhuma fonte.")
 
-    raw = pd.concat([gupy, greenhouse], ignore_index=True)
+    raw = pd.concat(frames, ignore_index=True)
+
+    # Colunas estruturadas podem faltar nas fontes antigas (Gupy/Greenhouse)
+    # — garante que existam (NaN) para o resolve funcionar após o concat.
+    for col in ("contract_raw", "struct_salary_min", "struct_salary_max", "struct_salary_currency"):
+        if col not in raw.columns:
+            raw[col] = None
 
     # Vários títulos/nomes de empresa vêm com espaços sobrando na fonte
-    # original (Gupy e Greenhouse) — cosmético, mas afeta a exibição
-    # (ex.: "Analista de Dados " em vez de "Analista de Dados").
+    # original — cosmético, mas afeta a exibição.
     raw["title"] = raw["title"].str.strip()
-    raw["company"] = raw["company"].str.strip()
+    raw["company"] = raw["company"].fillna("").str.strip()
 
     raw["skills"] = raw.apply(
         lambda r: extract_skills_row(r.get("title", ""), r.get("description", "")), axis=1
     )
     raw["seniority"] = raw["title"].apply(_infer_seniority)
-    salary = raw["description"].apply(_extract_salary)
+    raw["contract_type"] = raw.apply(_resolve_contract, axis=1)
+
+    salary = raw.apply(_resolve_salary, axis=1)
     raw["salary_min"] = salary.apply(lambda t: t[0])
     raw["salary_max"] = salary.apply(lambda t: t[1])
+    raw["salary_currency"] = salary.apply(lambda t: t[2])
+    raw["salary_source"] = salary.apply(lambda t: t[3])
     raw["has_salary_info"] = raw["salary_min"].notna()
 
     clean = raw[[
         "id", "title", "company", "url", "city", "state", "country", "is_remote",
-        "seniority", "publishedDate", "_matched_term", "_iso_week", "skills", "source",
-        "has_salary_info", "salary_min", "salary_max",
+        "seniority", "contract_type", "publishedDate", "_matched_term", "_iso_week",
+        "skills", "source", "has_salary_info", "salary_min", "salary_max",
+        "salary_currency", "salary_source",
     ]]
 
     return clean

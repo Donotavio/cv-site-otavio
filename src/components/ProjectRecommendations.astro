@@ -1,0 +1,382 @@
+---
+/**
+ * ProjectRecommendations.astro — banda de fecho "continue explorando"
+ * Direção: The Architect / Blueprint (DESIGN.md)
+ *
+ * Aparece ao FINAL de cada página de projeto (antes do Footer), recomendando
+ * os OUTROS projetos ao vivo do portfólio. Não é uma seção numerada [ NN ] —
+ * é uma banda de navegação de fecho (como o Footer), então não entra na
+ * contagem sequencial de seções da página.
+ *
+ * Catálogo = ordem do portfólio (index 01–06). A partir do projeto atual
+ * (`current`), mostra os próximos 3 num anel (wrap-around) — variedade por
+ * página, todo projeto aparece recomendado em algum lugar.
+ *
+ * Cada card carrega o acento da sua família de tokens (pix/radar/ck/wc-gold/
+ * wc-field/sg) via [data-accent] → var()  (zero hex hardcoded fora de tokens).
+ * Título/descrição/tags reusam as chaves i18n já existentes em portfolio.*.
+ * Motion: hairlineDraw (linha) + revealUp (cards) — padrões permitidos.
+ */
+import { t } from '../lib/i18n';
+
+interface Props {
+  /** id do projeto atual — excluído das recomendações */
+  current: 'pix-observatory' | 'data-stack-radar-br' | 'brasil-cockpit' | 'eleicoes-2026' | 'world-cup-dashboard' | 'saul-goodman';
+}
+
+const { current } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const SAUL_URL = 'https://donotavio.github.io/saul_goodman/';
+
+interface ProjectRef {
+  id: string;
+  accent: string;              // chave do data-accent → mapa CSS
+  href: string;
+  external?: boolean;
+  kindKey: string;             // recommend.kind_live | recommend.kind_external
+  titleKey: string;
+  descKey: string;
+  tagKeys: string[];
+}
+
+const CATALOG: ProjectRef[] = [
+  {
+    id: 'pix-observatory', accent: 'pix', href: `${base}pix-observatory/`,
+    kindKey: 'recommend.kind_live',
+    titleKey: 'portfolio.pix_observatory.title',
+    descKey: 'portfolio.pix_observatory.description',
+    tagKeys: ['portfolio.pix_observatory.tag_1', 'portfolio.pix_observatory.tag_2'],
+  },
+  {
+    id: 'data-stack-radar-br', accent: 'radar', href: `${base}data-stack-radar-br/`,
+    kindKey: 'recommend.kind_live',
+    titleKey: 'portfolio.data_stack_radar.title',
+    descKey: 'portfolio.data_stack_radar.description',
+    tagKeys: ['portfolio.data_stack_radar.tag_1', 'portfolio.data_stack_radar.tag_2'],
+  },
+  {
+    id: 'brasil-cockpit', accent: 'cockpit', href: `${base}brasil-cockpit/`,
+    kindKey: 'recommend.kind_live',
+    titleKey: 'portfolio.brasil_cockpit.title',
+    descKey: 'portfolio.brasil_cockpit.description',
+    tagKeys: ['portfolio.brasil_cockpit.tag_1', 'portfolio.brasil_cockpit.tag_2'],
+  },
+  {
+    id: 'eleicoes-2026', accent: 'eleicoes', href: `${base}eleicoes-2026/`,
+    kindKey: 'recommend.kind_live',
+    titleKey: 'portfolio.eleicoes.title',
+    descKey: 'portfolio.eleicoes.description',
+    tagKeys: ['portfolio.eleicoes.tag_1', 'portfolio.eleicoes.tag_2'],
+  },
+  {
+    id: 'world-cup-dashboard', accent: 'worldcup', href: `${base}world-cup-dashboard/`,
+    kindKey: 'recommend.kind_live',
+    titleKey: 'portfolio.world_cup.title',
+    descKey: 'portfolio.world_cup.description',
+    tagKeys: ['portfolio.world_cup.tag_1', 'portfolio.world_cup.tag_2'],
+  },
+  {
+    id: 'saul-goodman', accent: 'sg', href: SAUL_URL, external: true,
+    kindKey: 'recommend.kind_external',
+    titleKey: 'portfolio.saul_goodman.title',
+    descKey: 'portfolio.saul_goodman.description',
+    tagKeys: ['portfolio.saul_goodman.tag_1', 'portfolio.saul_goodman.tag_2'],
+  },
+];
+
+const currentIdx = CATALOG.findIndex((p) => p.id === current);
+// Anel: próximos 3 depois do atual (wrap-around). Se `current` não estiver no
+// catálogo (-1), cai para os 3 primeiros.
+const start = currentIdx >= 0 ? currentIdx : -1;
+const recs: { p: ProjectRef; num: string }[] = [];
+for (let step = 1; recs.length < 3 && step <= CATALOG.length; step++) {
+  const idx = (start + step + CATALOG.length) % CATALOG.length;
+  if (idx === currentIdx) continue;
+  recs.push({ p: CATALOG[idx], num: String(idx + 1).padStart(2, '0') });
+}
+---
+
+<section class="recommend" aria-labelledby="recommend-title">
+  <div class="container">
+    <div class="recommend__head">
+      <span class="mono-label recommend__kicker" data-i18n-key="recommend.kicker">{t('recommend.kicker')}</span>
+      <h2 id="recommend-title" class="recommend__title" data-i18n-key="recommend.title">{t('recommend.title')}</h2>
+      <p class="recommend__lead" data-i18n-key="recommend.subtitle">{t('recommend.subtitle')}</p>
+    </div>
+
+    <hr class="section-line recommend__line" aria-hidden="true" />
+
+    <div class="recommend__grid">
+      {recs.map(({ p, num }) => (
+        <a
+          class="recommend__card card crop"
+          data-accent={p.accent}
+          href={p.href}
+          {...(p.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          aria-labelledby={`rec-${p.id}-title`}
+        >
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <span class="recommend__rule" aria-hidden="true"></span>
+          <span class="recommend__ghost" aria-hidden="true">{num}</span>
+
+          <div class="recommend__card-top">
+            <span class="mono-label recommend__num">{num} · {String(CATALOG.length).padStart(2, '0')}</span>
+            <span class="mono-label recommend__kind" data-i18n-key={p.kindKey}>{t(p.kindKey)}</span>
+          </div>
+
+          <h3 id={`rec-${p.id}-title`} class="recommend__card-title" data-i18n-key={p.titleKey}>{t(p.titleKey)}</h3>
+          <p class="recommend__card-desc" data-i18n-key={p.descKey}>{t(p.descKey)}</p>
+
+          <div class="recommend__tags">
+            {p.tagKeys.map((k) => (
+              <span class="tag recommend__tag" data-i18n-key={k}>{t(k)}</span>
+            ))}
+          </div>
+
+          <span class="recommend__go">
+            <span data-i18n-key="recommend.cta">{t('recommend.cta')}</span>
+            <span class="recommend__arrow" aria-hidden="true">→</span>
+          </span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .recommend {
+    padding-block: var(--space-32);
+    background: var(--paper-soft, var(--paper));
+    border-top: 1px solid var(--line);
+  }
+
+  @media (min-width: 1024px) {
+    .recommend { padding-block: var(--space-40); }
+  }
+
+  .recommend__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-block-end: var(--space-8);
+  }
+
+  .recommend__kicker { color: var(--accent); }
+
+  .recommend__title {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .recommend__lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .recommend__line { margin-block-end: var(--space-12); }
+
+  .recommend__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .recommend__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 1024px) {
+    .recommend__grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* ── Card ─────────────────────────────────────────────────── */
+  .recommend__card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-8);
+    text-decoration: none;
+    color: inherit;
+    isolation: isolate;
+    transition: border-color var(--transition-normal),
+                box-shadow var(--transition-normal),
+                transform var(--transition-normal);
+  }
+
+  .recommend__card:hover,
+  .recommend__card:focus-visible {
+    border-color: var(--rc-line);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+  }
+
+  /* Régua de acento no topo — cresce da esquerda no hover (eco do hairline). */
+  .recommend__rule {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--rc-accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--transition-normal);
+  }
+
+  .recommend__card:hover .recommend__rule,
+  .recommend__card:focus-visible .recommend__rule { transform: scaleX(1); }
+
+  /* Numeral fantasma decorativo no canto. */
+  .recommend__ghost {
+    position: absolute;
+    inset-block-start: var(--space-2);
+    inset-inline-end: var(--space-4);
+    z-index: -1;
+    font-family: var(--font-mono);
+    font-size: 5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--rc-dim);
+    pointer-events: none;
+    user-select: none;
+    transition: color var(--transition-normal);
+  }
+
+  .recommend__card:hover .recommend__ghost { color: var(--rc-line); }
+
+  .recommend__card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .recommend__num { color: var(--ink-faint); }
+  .recommend__kind { color: var(--rc-ink); }
+
+  .recommend__card-title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+    transition: color var(--transition-fast);
+  }
+
+  .recommend__card:hover .recommend__card-title { color: var(--rc-ink); }
+
+  .recommend__card-desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: 0;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .recommend__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .recommend__tag {
+    color: var(--rc-ink);
+    border-color: var(--rc-line);
+    background: var(--rc-dim);
+  }
+
+  .recommend__go {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    color: var(--rc-ink);
+  }
+
+  .recommend__arrow {
+    transition: transform var(--transition-normal);
+  }
+
+  .recommend__card:hover .recommend__arrow,
+  .recommend__card:focus-visible .recommend__arrow { transform: translateX(4px); }
+
+  /* ── Mapa de acentos (tokens — zero hex hardcoded) ───────────── */
+  .recommend__card[data-accent='pix'] {
+    --rc-accent: var(--pix-green); --rc-ink: var(--pix-green-ink);
+    --rc-dim: var(--pix-green-dim); --rc-line: var(--pix-green-line);
+  }
+  .recommend__card[data-accent='radar'] {
+    --rc-accent: var(--radar-adopt); --rc-ink: var(--radar-adopt-ink);
+    --rc-dim: var(--radar-adopt-dim); --rc-line: var(--radar-adopt-line);
+  }
+  .recommend__card[data-accent='cockpit'] {
+    --rc-accent: var(--ck-verde); --rc-ink: var(--ck-verde-ink);
+    --rc-dim: var(--ck-verde-dim); --rc-line: var(--ck-verde-line);
+  }
+  .recommend__card[data-accent='eleicoes'] {
+    --rc-accent: var(--wc-gold); --rc-ink: var(--wc-gold-ink);
+    --rc-dim: var(--wc-gold-dim); --rc-line: var(--wc-gold-line);
+  }
+  .recommend__card[data-accent='worldcup'] {
+    --rc-accent: var(--wc-field); --rc-ink: var(--wc-field-ink);
+    --rc-dim: var(--wc-field-dim); --rc-line: var(--wc-field-line);
+  }
+  .recommend__card[data-accent='sg'] {
+    --rc-accent: var(--sg-amber); --rc-ink: var(--sg-amber-ink);
+    --rc-dim: var(--sg-amber-dim); --rc-line: var(--sg-amber-line);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .recommend__card,
+    .recommend__rule,
+    .recommend__arrow,
+    .recommend__ghost { transition: none; }
+    .recommend__rule { transform: scaleX(1); }
+  }
+</style>
+
+<script>
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { hairlineDraw } from '../scripts/motion/hairline-draw';
+  import { motionOk } from '../scripts/motion/constants';
+
+  // astro:page-load (não top-level nem DOMContentLoaded): dispara no 1º load E
+  // após cada navegação SPA do <ClientRouter />. Como este módulo é
+  // compartilhado por 4 páginas, o código de topo rodaria só uma vez; o
+  // listener no document persiste e re-anima o .recommend da página atual.
+  document.addEventListener('astro:page-load', () => {
+    const section = document.querySelector('.recommend');
+    if (!section) return;
+
+    const line = section.querySelector('.recommend__line') as Element | null;
+    const head = section.querySelector('.recommend__head') as Element | null;
+    const cards = section.querySelectorAll<Element>('.recommend__card');
+
+    if (line) hairlineDraw(line, section);
+    if (motionOk && head) revealUp([head], section, 0);
+    if (cards.length) revealUp(cards, section.querySelector('.recommend__grid') as Element, 0.1);
+  });
+</script>

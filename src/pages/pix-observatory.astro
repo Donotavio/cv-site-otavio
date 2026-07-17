@@ -31,6 +31,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ProjectRecommendations from '../components/ProjectRecommendations.astro';
 import PixAgent from '../components/PixAgent.astro';
 
 const base = import.meta.env.BASE_URL;
@@ -1059,6 +1060,8 @@ const dictKeyShare = [
         </div>
       </div>
     </section>
+
+    <ProjectRecommendations current="pix-observatory" />
 
   </main>
 
@@ -2644,7 +2647,11 @@ const dictKeyShare = [
   import { motionOk }     from '../scripts/motion/constants';
 
   // ── Reveal animations for all sections ───────────────────
-  document.addEventListener('DOMContentLoaded', () => {
+  // astro:page-load (não DOMContentLoaded): dispara no 1º load E após cada
+  // navegação SPA do <ClientRouter />. O guard #pix-hero garante que só roda
+  // nesta página (o listener no document persiste entre navegações).
+  document.addEventListener('astro:page-load', () => {
+    if (!document.getElementById('pix-hero')) return;
 
     // Hero
     const heroCard = document.querySelector('.hero-card') as Element;
@@ -2835,7 +2842,7 @@ const dictKeyShare = [
     }
   }
 
-  document.addEventListener('DOMContentLoaded', renderNews);
+  document.addEventListener('astro:page-load', renderNews);
 </script>
 
 <script>
@@ -2971,7 +2978,7 @@ const dictKeyShare = [
     }
   }
 
-  document.addEventListener('DOMContentLoaded', renderRanking);
+  document.addEventListener('astro:page-load', renderRanking);
 </script>
 
 <script>
@@ -3038,7 +3045,7 @@ const dictKeyShare = [
     }
   }
 
-  document.addEventListener('DOMContentLoaded', refreshUsuariosKpi);
+  document.addEventListener('astro:page-load', refreshUsuariosKpi);
 </script>
 
 <script>
@@ -3279,7 +3286,7 @@ const dictKeyShare = [
     });
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('astro:page-load', () => {
     renderGeografiaRanking();
     renderMapa();
   });
@@ -3417,6 +3424,6 @@ const dictKeyShare = [
     }
   }
 
-  document.addEventListener('DOMContentLoaded', renderSeguranca);
+  document.addEventListener('astro:page-load', renderSeguranca);
 </script>
 

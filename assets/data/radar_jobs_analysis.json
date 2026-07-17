@@ -1,54 +1,96 @@
 {
-  "gerado_em": "2026-07-16T16:50:38.622591+00:00",
-  "total_vagas": 455,
-  "remoto_pct": 32.1,
+  "gerado_em": "2026-07-16T23:38:18.347792+00:00",
+  "total_vagas": 502,
+  "remoto_pct": 35.7,
   "por_fonte": [
     {
       "fonte": "gupy",
       "n": 412,
-      "pct": 90.5
+      "pct": 82.1
     },
     {
       "fonte": "greenhouse",
       "n": 43,
-      "pct": 9.5
+      "pct": 8.6
+    },
+    {
+      "fonte": "apibr",
+      "n": 26,
+      "pct": 5.2
+    },
+    {
+      "fonte": "inhire",
+      "n": 18,
+      "pct": 3.6
+    },
+    {
+      "fonte": "lever",
+      "n": 3,
+      "pct": 0.6
     }
   ],
   "por_senioridade": [
     {
       "seniority": "sênior",
-      "n": 160,
-      "pct": 35.2
+      "n": 175,
+      "pct": 34.9
     },
     {
       "seniority": "não especificado",
-      "n": 138,
-      "pct": 30.3
+      "n": 158,
+      "pct": 31.5
     },
     {
       "seniority": "pleno",
-      "n": 95,
-      "pct": 20.9
+      "n": 103,
+      "pct": 20.5
     },
     {
       "seniority": "júnior",
-      "n": 33,
-      "pct": 7.3
+      "n": 35,
+      "pct": 7.0
     },
     {
       "seniority": "especialista",
-      "n": 22,
-      "pct": 4.8
+      "n": 23,
+      "pct": 4.6
     },
     {
       "seniority": "estágio",
       "n": 4,
-      "pct": 0.9
+      "pct": 0.8
     },
     {
       "seniority": "liderança",
-      "n": 3,
-      "pct": 0.7
+      "n": 4,
+      "pct": 0.8
+    }
+  ],
+  "por_contrato": [
+    {
+      "contrato": "não especificado",
+      "n": 396,
+      "pct": 78.9
+    },
+    {
+      "contrato": "CLT",
+      "n": 55,
+      "pct": 11.0
+    },
+    {
+      "contrato": "PJ",
+      "n": 38,
+      "pct": 7.6
+    },
+    {
+      "contrato": "Estágio",
+      "n": 11,
+      "pct": 2.2
+    },
+    {
+      "contrato": "Temporário",
+      "n": 2,
+      "pct": 0.4
     }
   ],
   "por_cidade": [
@@ -56,6 +98,11 @@
       "city": "São Paulo",
       "state": "São Paulo",
       "n": 127
+    },
+    {
+      "city": "Brasil",
+      "state": "",
+      "n": 35
     },
     {
       "city": "Belo Horizonte",
@@ -68,6 +115,11 @@
       "n": 19
     },
     {
+      "city": "BR",
+      "state": "",
+      "n": 17
+    },
+    {
       "city": "Rio de Janeiro",
       "state": "Rio de Janeiro",
       "n": 14
@@ -78,9 +130,9 @@
       "n": 13
     },
     {
-      "city": "Brasil",
-      "state": "",
-      "n": 9
+      "city": "Barueri",
+      "state": "São Paulo",
+      "n": 8
     },
     {
       "city": "Campinas",
@@ -93,11 +145,6 @@
       "n": 8
     },
     {
-      "city": "Barueri",
-      "state": "São Paulo",
-      "n": 8
-    },
-    {
       "city": "Brasília",
       "state": "Distrito Federal",
       "n": 7
@@ -105,11 +152,6 @@
     {
       "city": "Brazil (Remote)",
       "state": "",
-      "n": 5
-    },
-    {
-      "city": "Sao Paulo",
-      "state": "São Paulo",
       "n": 5
     }
   ],
@@ -125,6 +167,10 @@
     {
       "termo_busca": "cientista de dados",
       "n": 81
+    },
+    {
+      "termo_busca": "apibr:",
+      "n": 26
     },
     {
       "termo_busca": "greenhouse:Banco Inter",
@@ -147,6 +193,14 @@
       "n": 8
     },
     {
+      "termo_busca": "inhire:BIX Tecnologia",
+      "n": 7
+    },
+    {
+      "termo_busca": "inhire:Radix",
+      "n": 7
+    },
+    {
       "termo_busca": "MLOps",
       "n": 6
     },
@@ -163,6 +217,14 @@
       "n": 2
     },
     {
+      "termo_busca": "inhire:Indicium",
+      "n": 2
+    },
+    {
+      "termo_busca": "lever:CloudWalk",
+      "n": 2
+    },
+    {
       "termo_busca": "data platform",
       "n": 1
     },
@@ -173,113 +235,125 @@
     {
       "termo_busca": "greenhouse:VTEX",
       "n": 1
+    },
+    {
+      "termo_busca": "inhire:DOT Group",
+      "n": 1
+    },
+    {
+      "termo_busca": "inhire:Semantix",
+      "n": 1
+    },
+    {
+      "termo_busca": "lever:Neon",
+      "n": 1
     }
   ],
   "skills_mais_mencionadas": [
     {
       "skill": "python",
-      "n_jobs": 251,
-      "pct_of_jobs": 55.2
+      "n_jobs": 284,
+      "pct_of_jobs": 56.6
     },
     {
       "skill": "sql",
-      "n_jobs": 251,
-      "pct_of_jobs": 55.2
+      "n_jobs": 280,
+      "pct_of_jobs": 55.8
     },
     {
       "skill": "aws",
-      "n_jobs": 132,
-      "pct_of_jobs": 29.0
+      "n_jobs": 152,
+      "pct_of_jobs": 30.3
     },
     {
       "skill": "spark",
-      "n_jobs": 109,
-      "pct_of_jobs": 24.0
+      "n_jobs": 123,
+      "pct_of_jobs": 24.5
     },
     {
       "skill": "power bi",
-      "n_jobs": 99,
-      "pct_of_jobs": 21.8
+      "n_jobs": 111,
+      "pct_of_jobs": 22.1
     },
     {
       "skill": "azure",
-      "n_jobs": 91,
-      "pct_of_jobs": 20.0
+      "n_jobs": 106,
+      "pct_of_jobs": 21.1
     },
     {
       "skill": "databricks",
-      "n_jobs": 87,
-      "pct_of_jobs": 19.1
-    },
-    {
-      "skill": "airflow",
-      "n_jobs": 84,
-      "pct_of_jobs": 18.5
+      "n_jobs": 99,
+      "pct_of_jobs": 19.7
     },
     {
       "skill": "gcp",
-      "n_jobs": 81,
-      "pct_of_jobs": 17.8
+      "n_jobs": 98,
+      "pct_of_jobs": 19.5
+    },
+    {
+      "skill": "airflow",
+      "n_jobs": 96,
+      "pct_of_jobs": 19.1
     },
     {
       "skill": "bigquery",
-      "n_jobs": 35,
-      "pct_of_jobs": 7.7
-    },
-    {
-      "skill": "kafka",
-      "n_jobs": 31,
-      "pct_of_jobs": 6.8
+      "n_jobs": 44,
+      "pct_of_jobs": 8.8
     },
     {
       "skill": "dbt",
-      "n_jobs": 31,
-      "pct_of_jobs": 6.8
+      "n_jobs": 36,
+      "pct_of_jobs": 7.2
     },
     {
-      "skill": "kubernetes",
-      "n_jobs": 30,
+      "skill": "kafka",
+      "n_jobs": 33,
       "pct_of_jobs": 6.6
     },
     {
+      "skill": "kubernetes",
+      "n_jobs": 31,
+      "pct_of_jobs": 6.2
+    },
+    {
       "skill": "snowflake",
-      "n_jobs": 24,
-      "pct_of_jobs": 5.3
+      "n_jobs": 31,
+      "pct_of_jobs": 6.2
     },
     {
       "skill": "docker",
-      "n_jobs": 23,
-      "pct_of_jobs": 5.1
+      "n_jobs": 30,
+      "pct_of_jobs": 6.0
     },
     {
       "skill": "delta lake",
-      "n_jobs": 15,
-      "pct_of_jobs": 3.3
+      "n_jobs": 17,
+      "pct_of_jobs": 3.4
     },
     {
       "skill": "mlflow",
-      "n_jobs": 15,
-      "pct_of_jobs": 3.3
+      "n_jobs": 16,
+      "pct_of_jobs": 3.2
     },
     {
       "skill": "airbyte",
       "n_jobs": 4,
-      "pct_of_jobs": 0.9
+      "pct_of_jobs": 0.8
+    },
+    {
+      "skill": "dagster",
+      "n_jobs": 4,
+      "pct_of_jobs": 0.8
     },
     {
       "skill": "iceberg",
       "n_jobs": 4,
-      "pct_of_jobs": 0.9
-    },
-    {
-      "skill": "dagster",
-      "n_jobs": 3,
-      "pct_of_jobs": 0.7
+      "pct_of_jobs": 0.8
     },
     {
       "skill": "prefect",
-      "n_jobs": 2,
-      "pct_of_jobs": 0.4
+      "n_jobs": 3,
+      "pct_of_jobs": 0.6
     },
     {
       "skill": "duckdb",

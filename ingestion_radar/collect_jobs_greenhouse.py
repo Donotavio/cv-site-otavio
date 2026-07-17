@@ -49,57 +49,20 @@ from pathlib import Path
 
 import requests
 
+from catalog import (
+    ATS_COMPANIES,
+    BR_LOCATION_KEYWORDS,
+    DATA_TITLE_PATTERN,
+    OTHER_COUNTRY_KEYWORDS,
+)
+
 API_BASE = "https://boards-api.greenhouse.io/v1/boards/{company}/jobs"
 BRONZE_DIR = Path("data/bronze/radar_jobs_greenhouse")
 TIMEOUT = 30
 
-# Curadoria — todas confirmadas com vagas reais abertas em 2026-07.
-# name: nome canônico exibido; slug: identificador na URL da Greenhouse.
-COMPANIES: dict[str, str] = {
-    "stone": "Stone",
-    "nubank": "Nubank",
-    "inter": "Banco Inter",
-    "quintoandar": "QuintoAndar",
-    "gympass": "Gympass/Wellhub",
-    "ebanx": "Ebanx",
-    "vtex": "VTEX",
-    "wildlifestudios": "Wildlife Studios",
-    "arco": "Arco Educação",
-    "vitta": "Vitta",
-    "zenvia": "Zenvia",
-}
-
-DATA_TITLE_PATTERN = re.compile(
-    r"engenheir[ao]\s+de\s+dados|data\s+engineer|analytics\s+engineer|"
-    r"data\s+analyst|analista\s+de\s+dados|analista\s+de\s+bi\b|"
-    r"cientista\s+de\s+dados|data\s+scientist|data\s+platform|"
-    r"\bmlops\b|machine\s+learning\s+engineer|data\s+science|"
-    r"business\s+intelligence|\betl\b|data\s+architect|arquitet[ao]\s+de\s+dados",
-    re.IGNORECASE,
-)
-
-BR_LOCATION_KEYWORDS = [
-    "brazil", "brasil", "são paulo", "sao paulo", "rio de janeiro",
-    "belo horizonte", "curitiba", "recife", "campinas", "porto alegre",
-    "salvador", "fortaleza", "brasília", "brasilia", "florianópolis",
-    "florianopolis", "minas gerais", "paraná", "parana", "pernambuco",
-    "rio grande do sul", "santa catarina", "goiânia", "goiania",
-    "espírito santo", "espirito santo", "distrito federal",
-]
-# Deliberadamente SEM abreviações de estado de 2 letras (", sp", ", pa"
-# etc.) — bug real encontrado: ", pa" (Pará) casava com "Palo Alto" e
-# vazava vagas dos EUA pro dataset BR (ex.: Nubank "USA, Palo Alto").
-# Nome completo de cidade/estado é mais lento de manter, mas não tem
-# esse tipo de falso positivo por coincidência de substring.
-
-# Outros países comuns nas mesmas boards multi-país (para desambiguar
-# "Remoto"/"Remote" sem país explícito — só tratamos como BR se nenhum
-# desses aparecer junto).
-OTHER_COUNTRY_KEYWORDS = [
-    "argentina", "méxico", "mexico", "colombia", "colômbia", "usa",
-    "united states", "canada", "canadá", "france", "frança", "spain",
-    "españa", "espanha", "chile", "peru", "peru", "uruguay", "uruguai",
-]
+# Curadoria de empresas vem do catálogo (fonte única). name: nome canônico
+# exibido; slug: identificador na URL da Greenhouse.
+COMPANIES: dict[str, str] = ATS_COMPANIES["greenhouse"]
 
 TIMEOUT_SLEEP = 1.0
 

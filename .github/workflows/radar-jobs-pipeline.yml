@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   collect-jobs:
-    name: Coleta de vagas (Gupy + Greenhouse) + skills + gold
+    name: Coleta de vagas (Gupy + Greenhouse + Lever + Ashby + InHire + API BR) + skills + gold
     runs-on: ubuntu-latest
 
     steps:
@@ -35,15 +35,39 @@ jobs:
 
       - name: Criar diretórios de dados
         run: |
-          mkdir -p data/bronze/radar_jobs data/bronze/radar_jobs_greenhouse data/silver data/gold
+          mkdir -p data/bronze/radar_jobs data/bronze/radar_jobs_greenhouse \
+                   data/bronze/radar_jobs_lever data/bronze/radar_jobs_ashby \
+                   data/bronze/radar_jobs_inhire data/bronze/radar_jobs_apibr \
+                   data/silver data/gold
 
       - name: Coletar vagas (Gupy — 8 termos de busca)
         run: python ingestion_radar/collect_jobs.py
 
-      - name: Coletar vagas (Greenhouse — 11 empresas BR/LatAm curadas)
+      - name: Coletar vagas (Greenhouse — empresas BR/LatAm curadas)
         run: python ingestion_radar/collect_jobs_greenhouse.py
 
-      - name: Silver — extrair skills por semana (Gupy + Greenhouse)
+      # As sub-fontes ATS/comunidade degradam sozinhas (continue-on-error):
+      # um board fora do ar ou sem vaga de dados no momento não derruba o
+      # pipeline — o silver simplesmente não encontra aquele bronze.
+      - name: Coletar vagas (Lever)
+        continue-on-error: true
+        run: python ingestion_radar/collect_jobs_lever.py
+
+      - name: Coletar vagas (Ashby)
+        continue-on-error: true
+        run: python ingestion_radar/collect_jobs_ashby.py
+
+      - name: Coletar vagas (InHire)
+        continue-on-error: true
+        run: python ingestion_radar/collect_jobs_inhire.py
+
+      - name: Coletar vagas (API BR — GitHub issues)
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python ingestion_radar/collect_jobs_apibr.py
+
+      - name: Silver — extrair skills + contrato + salário (todas as fontes)
         run: python transform_radar/silver_jobs.py
 
       - name: Gold — análise de vagas (remoto/cidade/senioridade/skills/fonte)
@@ -60,7 +84,10 @@ jobs:
           git config user.name "radar-pipeline[bot]"
           git config user.email "radar-pipeline@users.noreply.github.com"
 
-          git add data/bronze/radar_jobs/ data/bronze/radar_jobs_greenhouse/ data/silver/ data/gold/ \
+          git add data/bronze/radar_jobs/ data/bronze/radar_jobs_greenhouse/ \
+                  data/bronze/radar_jobs_lever/ data/bronze/radar_jobs_ashby/ \
+                  data/bronze/radar_jobs_inhire/ data/bronze/radar_jobs_apibr/ \
+                  data/silver/ data/gold/ \
                   assets/data/radar_scores.json assets/data/radar_trending.json \
                   assets/data/radar_jobs_analysis.json assets/data/radar_insights.json || true
 
@@ -68,7 +95,7 @@ jobs:
             echo "ℹ Sem mudanças nos dados — nada a commitar."
           else
             TODAY=$(date +%Y-%m-%d)
-            git commit -m "data: coleta semanal de vagas — Data Stack Radar BR ${TODAY}"
+            git commit -m "data: coleta diária de vagas — Data Stack Radar BR ${TODAY}"
             # Push resiliente: radar-jobs e radar-signals regeneram os mesmos
             # arquivos (radar_scores.json/parquet, radar_trending.json). Em vez
             # de rebase (que quebra no parquet binário), reconcilia com merge

@@ -17,56 +17,14 @@ from __future__ import annotations
 
 import re
 
-RAW_TAXONOMY: dict[str, list[str]] = {
-    "airflow": ["airflow", "apache airflow"],
-    "dagster": ["dagster"],
-    "prefect": ["prefect"],
-    "databricks": ["databricks"],
-    "spark": [r"\bspark\b", "pyspark"],
-    "dbt": [r"\bdbt\b", r"dbt[\s\-]core"],
-    "duckdb": ["duckdb"],
-    "polars": ["polars"],
-    "kafka": [r"\bkafka\b"],
-    "bigquery": ["bigquery"],
-    "snowflake": ["snowflake"],
-    "delta lake": [r"delta[\s\-]lake"],
-    "iceberg": [r"\biceberg\b"],
-    "airbyte": ["airbyte"],
-    "fivetran": ["fivetran"],
-    "power bi": ["power bi", "powerbi"],
-    "python": [r"\bpython\b"],
-    "sql": [r"\bsql\b"],
-    "aws": [r"\baws\b"],
-    "azure": [r"\bazure\b"],
-    "gcp": [r"\bgcp\b", "google cloud"],
-    "mlflow": ["mlflow"],
-    "kubernetes": [r"\bk8s\b", "kubernetes"],
-    "docker": [r"\bdocker\b"],
-}
+# Taxonomia e universo de tools vêm do catálogo (fonte única). Re-exportados
+# aqui por compatibilidade com quem já importava de `skills_extractor`.
+from catalog import RAW_TAXONOMY, TOOL_TOPICS  # noqa: F401
 
 # Compila tudo uma única vez no import — evita recompilar regex por vaga.
 _COMPILED: dict[str, list[re.Pattern]] = {
     skill: [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
     for skill, patterns in RAW_TAXONOMY.items()
-}
-
-# Ferramentas monitoradas pelo radar (sinal GitHub/PyPI) — usadas para
-# cruzar taxonomia de skills de vaga com o universo de "tools" do radar.
-TOOL_TOPICS: dict[str, str] = {
-    "airflow": "apache-airflow",
-    "dagster": "dagster",
-    "prefect": "prefect",
-    "databricks": "databricks",
-    "dbt": "dbt",
-    "spark": "apache-spark",
-    "polars": "polars",
-    "duckdb": "duckdb",
-    "kafka": "apache-kafka",
-    "airbyte": "airbyte",
-    "mlflow": "mlflow",
-    "delta-lake": "delta-lake",
-    "iceberg": "apache-iceberg",
-    "kestra": "kestra",
 }
 
 

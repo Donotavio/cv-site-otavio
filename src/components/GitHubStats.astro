@@ -525,16 +525,21 @@ import { t } from '../lib/i18n';
   // O query-loader já revelou a seção #stats?
   let statsRevealed = false;
 
-  if (section) {
-    const line = section.querySelector('.section-line') as Element;
-    const head = section.querySelector('.section-head') as Element;
-    if (line) hairlineDraw(line, section);
+  // astro:page-load: re-anima cabeçalho + cards a cada navegação SPA (consulta
+  // #stats ao vivo). O motion de CONTEÚDO (heatmap/count-up) segue via
+  // queryLoaderDone abaixo; `section` acima permanece para o fallback.
+  document.addEventListener('astro:page-load', () => {
+    const s = document.getElementById('stats');
+    if (!s) return;
+    const line = s.querySelector('.section-line') as Element;
+    const head = s.querySelector('.section-head') as Element;
+    if (line) hairlineDraw(line, s);
     if (motionOk) {
-      revealUp([head], section, 0);
-      revealUp(section.querySelectorAll('.summary-card'), section, 0.08);
-      revealUp(section.querySelectorAll('.stats-block'), section, 0.1);
+      revealUp([head], s, 0);
+      revealUp(s.querySelectorAll('.summary-card'), s, 0.08);
+      revealUp(s.querySelectorAll('.stats-block'), s, 0.1);
     }
-  }
+  });
 
   // O motion de conteúdo (count-up, heatmap, barras) roda APÓS o query-loader
   // revelar #stats — caso contrário rodaria escondido sob o overlay.

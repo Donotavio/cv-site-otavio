@@ -676,13 +676,16 @@ import { t } from '../lib/i18n';
   }
 
   // ─── Section line hairline + head reveal ─────────────────────
-  const section = document.getElementById('blog');
-  if (section) {
+  // astro:page-load: re-anima o cabeçalho a cada navegação SPA (o render dos
+  // cards é reaplicado via languageChanged; ver assets/js/i18n.js).
+  document.addEventListener('astro:page-load', () => {
+    const section = document.getElementById('blog');
+    if (!section) return;
     const line = section.querySelector('.section-line') as Element;
     const head = section.querySelector('.section-head') as Element;
     if (line) hairlineDraw(line, section);
     if (motionOk && head) revealUp([head], section, 0);
-  }
+  });
 
   // ─── i18n ────────────────────────────────────────────────────
   // Ao trocar idioma: fecha o modal (conteúdo seria do idioma antigo) e
