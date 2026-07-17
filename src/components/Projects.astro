@@ -1,22 +1,21 @@
 ---
 /**
  * Projects.astro — Seção [ 09 ] Repositórios — Direção Blueprint
- * Grade de repositórios do GitHub com crop marks: nome em serif, descrição via
- * i18n, linguagem como .tag, stars em mono, link com .link-underline.
  *
- * Renderização 100% Astro/SSR (sem innerHTML/DOM): os dados vêm de
- * `assets/data/profile.json` importado em build-time (o mesmo arquivo é
- * regenerado pelo pipeline diário do CI, então o HTML nasce sempre fresco).
- * O texto default sai em pt-BR via t(); o i18n.js runtime troca [data-i18n-key]
- * ao mudar de idioma — não há re-render manual.
+ * Renderização 100% Astro/SSR (sem innerHTML/DOM): dados de
+ * `assets/data/github_activity.json` → projects[] importado em build-time
+ * (regenerado pelo `fetch_github_data.py` no CI). Cada card é uma PRÉVIA e
+ * abre um <dialog> nativo com detalhes do repo (descrição completa, tópicos,
+ * linguagem, stars, forks, última atualização, site + GitHub). O <dialog> de
+ * cada repo é SSR — o JS só alterna open/close.
  *
  * Distinto do "Portfólio / Projetos ao vivo" (PortfolioIndex): aqui é código
- * aberto / repositórios; lá são os produtos de dados curados.
+ * aberto / repositórios.
  *
  * Motion: hairlineDraw (linha) + revealUp (cabeçalho + cards).
  */
 import { t } from '../lib/i18n';
-import profileData from '../../assets/data/profile.json';
+import profileData from '../../assets/data/github_activity.json';
 
 const base = import.meta.env.BASE_URL;
 
@@ -26,43 +25,42 @@ interface Repo {
   language?: string;
   stars?: number;
   url?: string;
+  topics?: string[];
+  forks?: number;
+  updated_at?: string;
+  homepage?: string;
 }
 
 const projects: Repo[] = (profileData as { projects?: Repo[] }).projects ?? [];
 
-// Mapa linguagem → logo (assets/img/logos/lang/). Apenas os que existem;
-// linguagem sem logo → só o ícone Git (degradação graciosa).
 const LANG_LOGO: Record<string, string> = {
-  HTML: 'html5.svg',
-  CSS: 'css3.svg',
-  JavaScript: 'javascript.svg',
-  TypeScript: 'typescript.svg',
-  Python: 'python.svg',
-  Shell: 'gnubash.svg',
-  'Jupyter Notebook': 'jupyter.svg',
-  Java: 'openjdk.svg',
-  Go: 'go.svg',
-  Ruby: 'ruby.svg',
-  Swift: 'swift.svg',
+  HTML: 'html5.svg', CSS: 'css3.svg', JavaScript: 'javascript.svg',
+  TypeScript: 'typescript.svg', Python: 'python.svg', Shell: 'gnubash.svg',
+  'Jupyter Notebook': 'jupyter.svg', Java: 'openjdk.svg', Go: 'go.svg',
+  Ruby: 'ruby.svg', Swift: 'swift.svg',
 };
 
 const ctaLabel = t('projects.cta');
+const detailsLabel = t('projects.details');
 
-// Pré-resolve, por repo: descrição (traduzida se houver chave, senão a do
-// profile.json) + logo da linguagem. Se `descKey` existir, o i18n.js troca a
-// descrição ao mudar de idioma; senão fica no texto do profile (sem tradução,
-// mesma paridade do comportamento anterior).
 const cards = projects.map((p) => {
   const descKey = `projects.descriptions.${p.name}`;
   const translated = t(descKey);
   const logoFile = p.language ? LANG_LOGO[p.language] : undefined;
   return {
     ...p,
+    slug: p.name,
     descKey: translated ? descKey : null,
     descText: translated || p.description || '',
     logo: logoFile ? `${base}assets/img/logos/lang/${logoFile}` : null,
+    updatedShort: (p.updated_at || '').slice(0, 10),
+    topics: p.topics ?? [],
   };
 });
+
+const GH_ICON = 'M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z';
+const STAR_ICON = 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z';
+const FORK_ICON = 'M5 3.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0m0 2.122A2.25 2.25 0 1 1 7.75 3.25a2.25 2.25 0 0 1-2 2.122v1.128A2.25 2.25 0 0 0 8 8.75h.5A2.25 2.25 0 0 1 10.75 11v.128a2.25 2.25 0 1 1-1.5 0V11a.75.75 0 0 0-.75-.75H8a3.7 3.7 0 0 1-1.5-.317v1.44a2.25 2.25 0 1 1-1.5 0zm5.75 9.128a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0m-5 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0';
 ---
 
 <section id="projects" class="section projects" aria-labelledby="projects-title">
@@ -82,48 +80,33 @@ const cards = projects.map((p) => {
             <span class="crop-mark-bl" aria-hidden="true"></span>
             <span class="crop-mark-br" aria-hidden="true"></span>
 
+            <button
+              type="button"
+              class="proj-card__trigger"
+              aria-haspopup="dialog"
+              aria-controls={`proj-modal-${p.slug}`}
+              aria-label={`${detailsLabel}: ${p.name}`}
+              data-modal={`proj-modal-${p.slug}`}
+            ></button>
+
             <div class="proj-card__header">
               <h3 class="proj-card__name">{p.name}</h3>
               <span class="proj-card__icons">
-                {p.logo && (
-                  <img
-                    class="proj-card__lang-logo"
-                    src={p.logo}
-                    alt={p.language}
-                    width="16"
-                    height="16"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                )}
-                <svg class="proj-card__github-icon" width="18" height="18" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
+                {p.logo && <img class="proj-card__lang-logo" src={p.logo} alt={p.language} width="16" height="16" loading="lazy" decoding="async" />}
+                <svg class="proj-card__github-icon" width="18" height="18" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d={GH_ICON} /></svg>
               </span>
             </div>
 
-            {p.descText && (
-              <p class="proj-card__description" data-i18n-key={p.descKey || undefined}>{p.descText}</p>
-            )}
+            {p.descText && <p class="proj-card__description" data-i18n-key={p.descKey || undefined}>{p.descText}</p>}
 
             <div class="proj-card__meta">
               {p.language && <span class="tag">{p.language}</span>}
               <span class="proj-card__stars">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={STAR_ICON} /></svg>
                 {p.stars ?? 0}
               </span>
+              <span class="proj-card__more mono-label" aria-hidden="true">→</span>
             </div>
-
-            <a
-              class="proj-card__link link-underline"
-              href={p.url ?? '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${ctaLabel}: ${p.name}`}
-              data-i18n-key="projects.cta"
-            >{ctaLabel}</a>
           </article>
         ))}
       </div>
@@ -131,6 +114,68 @@ const cards = projects.map((p) => {
       <p class="empty-state" data-i18n-key="projects.empty">{t('projects.empty')}</p>
     )}
   </div>
+
+  <!-- Modais (um <dialog> por repo, SSR) -->
+  {cards.map((p) => (
+    <dialog class="proj-modal" id={`proj-modal-${p.slug}`} aria-labelledby={`proj-modal-title-${p.slug}`}>
+      <div class="proj-modal__inner">
+        <button type="button" class="proj-modal__close" data-close aria-label={t('projects.close')} data-i18n-aria="projects.close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+
+        <div class="proj-modal__head">
+          {p.logo && <img class="proj-modal__logo" src={p.logo} alt={p.language} width="28" height="28" loading="lazy" decoding="async" />}
+          <h3 class="proj-modal__title" id={`proj-modal-title-${p.slug}`}>{p.name}</h3>
+        </div>
+
+        {p.descText && <p class="proj-modal__desc" data-i18n-key={p.descKey || undefined}>{p.descText}</p>}
+
+        <dl class="proj-modal__meta">
+          {p.language && (
+            <div class="proj-modal__meta-item">
+              <dt class="mono-label" data-i18n-key="stats.labels.languages">{t('stats.labels.languages')}</dt>
+              <dd>{p.language}</dd>
+            </div>
+          )}
+          <div class="proj-modal__meta-item">
+            <dt class="mono-label" data-i18n-key="stats.labels.stars">{t('stats.labels.stars')}</dt>
+            <dd><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={STAR_ICON} /></svg> {p.stars ?? 0}</dd>
+          </div>
+          <div class="proj-modal__meta-item">
+            <dt class="mono-label" data-i18n-key="projects.forks">{t('projects.forks')}</dt>
+            <dd><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d={FORK_ICON} /></svg> {p.forks ?? 0}</dd>
+          </div>
+          {p.updatedShort && (
+            <div class="proj-modal__meta-item">
+              <dt class="mono-label" data-i18n-key="projects.updated">{t('projects.updated')}</dt>
+              <dd><time datetime={p.updatedShort}>{p.updatedShort}</time></dd>
+            </div>
+          )}
+        </dl>
+
+        {p.topics.length > 0 && (
+          <div class="proj-modal__topics">
+            <span class="mono-label proj-modal__topics-label" data-i18n-key="projects.topics">{t('projects.topics')}</span>
+            <div class="proj-modal__topics-list">
+              {p.topics.map((topic) => <span class="tag proj-modal__topic">{topic}</span>)}
+            </div>
+          </div>
+        )}
+
+        <div class="proj-modal__actions">
+          {p.homepage && (
+            <a class="btn-secondary" href={p.homepage} target="_blank" rel="noopener noreferrer">
+              <span data-i18n-key="projects.homepage">{t('projects.homepage')}</span> →
+            </a>
+          )}
+          <a class="btn-primary proj-modal__cta" href={p.url ?? '#'} target="_blank" rel="noopener noreferrer" aria-label={`${ctaLabel}: ${p.name}`}>
+            <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d={GH_ICON} /></svg>
+            <span data-i18n-key="projects.cta">{ctaLabel}</span> →
+          </a>
+        </div>
+      </div>
+    </dialog>
+  ))}
 </section>
 
 <style>
@@ -153,26 +198,20 @@ const cards = projects.map((p) => {
     max-width: 56ch;
   }
 
-  .section-line {
-    margin-block-end: var(--space-16);
-  }
+  .section-line { margin-block-end: var(--space-16); }
 
   .projects-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-6);
   }
+  @media (min-width: 640px) { .projects-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .projects-grid { grid-template-columns: repeat(3, 1fr); } }
 
-  @media (min-width: 640px) {
-    .projects-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  @media (min-width: 1024px) {
-    .projects-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-
-  /* ── Card ─────────────────────────────────────────────────── */
+  /* ── Card (prévia) ────────────────────────────────────────── */
   .proj-card {
+    position: relative;
+    min-width: 0; /* colunas 1fr encolhem — sem estouro horizontal */
     background: var(--paper-card);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
@@ -180,15 +219,27 @@ const cards = projects.map((p) => {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-    transition: border-color var(--transition-normal),
-                box-shadow var(--transition-normal),
-                transform var(--transition-normal);
+    transition: border-color var(--transition-normal), box-shadow var(--transition-normal), transform var(--transition-normal);
   }
-
   .proj-card:hover {
     border-color: var(--line-strong);
     box-shadow: var(--shadow-md);
     transform: translateY(-2px);
+  }
+  .proj-card:focus-within { border-color: var(--line-accent); }
+
+  .proj-card__trigger {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+  }
+  .proj-card__trigger:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: 2px;
   }
 
   .proj-card__header {
@@ -197,7 +248,6 @@ const cards = projects.map((p) => {
     justify-content: space-between;
     gap: var(--space-3);
   }
-
   .proj-card__name {
     font-family: var(--font-display);
     font-size: var(--text-xl);
@@ -205,24 +255,20 @@ const cards = projects.map((p) => {
     color: var(--ink);
     line-height: var(--leading-snug);
     word-break: break-word;
+    min-width: 0;
   }
-
   .proj-card__icons {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
     flex-shrink: 0;
   }
-
   .proj-card__github-icon {
     flex-shrink: 0;
     color: var(--ink-faint);
     transition: color var(--transition-fast);
   }
-
   .proj-card:hover .proj-card__github-icon { color: var(--accent); }
-
-  /* Logo da linguagem ao lado do ícone Git — discreto, monocromático. */
   .proj-card__lang-logo {
     width: 16px;
     height: 16px;
@@ -230,7 +276,6 @@ const cards = projects.map((p) => {
     opacity: 0.6;
     transition: opacity var(--transition-fast);
   }
-
   .proj-card:hover .proj-card__lang-logo { opacity: 1; }
 
   .proj-card__description {
@@ -239,6 +284,12 @@ const cards = projects.map((p) => {
     color: var(--ink-soft);
     line-height: var(--leading-loose);
     flex: 1;
+    /* prévia recortada — altura uniforme */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
   }
 
   .proj-card__meta {
@@ -247,7 +298,6 @@ const cards = projects.map((p) => {
     gap: var(--space-4);
     margin-top: auto;
   }
-
   .proj-card__stars {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
@@ -257,19 +307,137 @@ const cards = projects.map((p) => {
     align-items: center;
     gap: var(--space-1);
   }
+  .proj-card__more {
+    margin-left: auto;
+    color: var(--ink-faint);
+    transition: color var(--transition-fast), transform var(--transition-fast);
+  }
+  .proj-card:hover .proj-card__more {
+    color: var(--accent);
+    transform: translateX(2px);
+  }
 
-  .proj-card__link {
+  /* ── Modal (<dialog>) ─────────────────────────────────────── */
+  .proj-modal {
+    width: min(92vw, 40rem);
+    max-height: min(86vh, 44rem);
+    padding: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md);
+    background: var(--paper-card);
+    color: var(--ink);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .proj-modal::backdrop {
+    background: rgba(10, 10, 10, 0.55);
+    backdrop-filter: blur(2px);
+  }
+  .proj-modal__inner {
+    position: relative;
+    padding: var(--space-10);
+    max-height: min(86vh, 44rem);
+    overflow-y: auto;
+  }
+  .proj-modal__close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: var(--paper);
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+  }
+  .proj-modal__close:hover { border-color: var(--line-strong); color: var(--ink); }
+  .proj-modal__close:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: 2px;
+  }
+
+  .proj-modal__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-right: var(--space-8);
+  }
+  .proj-modal__logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+  .proj-modal__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: var(--tracking-tight);
+    word-break: break-word;
+  }
+
+  .proj-modal__desc {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--ink-soft);
+    line-height: var(--leading-loose);
+    margin: var(--space-5) 0 0;
+  }
+
+  .proj-modal__meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    margin: var(--space-8) 0 0;
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 480px) { .proj-modal__meta { grid-template-columns: repeat(4, 1fr); } }
+  .proj-modal__meta-item { margin: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+  .proj-modal__meta-item dt { color: var(--ink-faint); }
+  .proj-modal__meta-item dd {
+    margin: 0;
     font-family: var(--font-mono);
     font-size: var(--text-sm);
-    font-weight: 500;
-    letter-spacing: var(--tracking-wide);
-    text-decoration: none;
-    align-self: flex-start;
-    margin-top: var(--space-2);
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
   }
-  .proj-card__link::after { content: ' →'; }
 
-  /* ── Empty state ─────────────────────────────────────────── */
+  .proj-modal__topics { margin-top: var(--space-6); }
+  .proj-modal__topics-label { color: var(--ink-faint); display: block; margin-bottom: var(--space-3); }
+  .proj-modal__topics-list { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .proj-modal__topic {
+    color: var(--accent);
+    border-color: var(--line-accent);
+    background: var(--accent-dim);
+  }
+
+  .proj-modal__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+  }
+  .proj-modal__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .proj-modal[open] { animation: proj-modal-in 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes proj-modal-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .proj-modal[open] { animation: none; }
+    .proj-card { transition: none; }
+  }
+
   .empty-state {
     font-family: var(--font-mono);
     font-size: var(--text-sm);
@@ -284,9 +452,6 @@ const cards = projects.map((p) => {
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
   import { motionOk } from '../scripts/motion/constants';
 
-  // Cards são SSR (existem no load) — nada de fetch/innerHTML. Só motion.
-  // astro:page-load: dispara no 1º load E após navegação SPA (<ClientRouter/>).
-  // Troca de idioma é feita pelo i18n.js sobre [data-i18n-key] (sem re-render).
   document.addEventListener('astro:page-load', () => {
     const section = document.getElementById('projects');
     if (!section) return;
@@ -300,5 +465,18 @@ const cards = projects.map((p) => {
       const cards = grid.querySelectorAll('.proj-card');
       if (cards.length) revealUp(cards, grid, 0.1);
     }
+
+    // Modais: <dialog> nativo (Esc + focus-trap grátis).
+    section.querySelectorAll<HTMLButtonElement>('.proj-card__trigger').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const id = trigger.dataset.modal;
+        const dlg = id ? (document.getElementById(id) as HTMLDialogElement | null) : null;
+        dlg?.showModal();
+      });
+    });
+    section.querySelectorAll<HTMLDialogElement>('.proj-modal').forEach((dlg) => {
+      dlg.querySelector<HTMLButtonElement>('[data-close]')?.addEventListener('click', () => dlg.close());
+      dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    });
   });
 </script>

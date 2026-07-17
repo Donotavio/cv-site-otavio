@@ -227,6 +227,11 @@ def main():
                 "language": repo.get("language") or "",
                 "stars": repo.get("stargazers_count", 0),
                 "url": repo.get("html_url"),
+                # Campos extras p/ o modal de detalhes do repo (seção [09]).
+                "topics": repo.get("topics") or [],
+                "forks": repo.get("forks_count", 0),
+                "updated_at": repo.get("updated_at") or "",
+                "homepage": (repo.get("homepage") or "").strip(),
             }
         )
 
