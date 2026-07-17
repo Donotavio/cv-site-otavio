@@ -20,7 +20,7 @@
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { registerCleaner, wireLifecycleTeardown } from './motion/cleanup';
+import { wireLifecycleTeardown } from './motion/cleanup';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -71,19 +71,29 @@ export function initMotion(): Lenis | undefined {
   // Expor para scroll programático (navegação por menu → fireQueryLoader)
   (window as Window & { __lenis?: Lenis }).__lenis = lenis;
 
-  // ── Teardown registrado no cleanup central ──────────────────
-  // Remove o callback do ticker, o listener do Lenis, destrói o Lenis e
-  // mata todos os ScrollTriggers. Idempotente (guard activeLenis).
-  registerCleaner(() => {
+  // ── Teardown do Lenis SÓ no unload real (pagehide) ──────────
+  // O Lenis, o proxy do ScrollTrigger, o ticker e o listener de scroll são
+  // criados UMA vez e PERSISTEM entre navegações SPA (ClientRouter). Destruí-
+  // los no astro:before-swap (como um cleaner central) recriava o Lenis a cada
+  // página e dessincronizava o scrollerProxy: `ScrollTrigger.scroll()` passava
+  // a ler 0 enquanto o Lenis vivo estava rolado → seções com reveal-up ficavam
+  // presas em opacity:0 ao re-entrar via navegação SPA. Por isso NÃO usamos o
+  // registro central aqui — só desmontamos no pagehide (o contexto JS morre no
+  // reload de verdade; os ScrollTriggers por-página já são revertidos pelos
+  // seus próprios gsap.context() em astro:before-swap). O guard `activeLenis`
+  // faz initMotion() sair cedo nas navegações seguintes (sem recriar).
+  const teardownLenis = () => {
     try { lenis.off('scroll', onScroll); } catch { /* noop */ }
     try { gsap.ticker.remove(tickerCb); } catch { /* noop */ }
-    try { ScrollTrigger.killAll(); } catch { /* noop */ }
     try { lenis.destroy(); } catch { /* noop */ }
     activeLenis = null;
     (window as Window & { __lenis?: Lenis }).__lenis = undefined;
-  });
+  };
+  window.addEventListener('pagehide', teardownLenis, { once: true });
 
-  // Conecta destroyAllMotion a pagehide / astro:before-swap (uma única vez).
+  // Conecta destroyAllMotion a pagehide / astro:before-swap (uma única vez) —
+  // isso reverte os gsap.context() dos padrões por-página (reveal-up, hairline,
+  // count-up, etc.), mas não toca no Lenis persistente acima.
   wireLifecycleTeardown();
 
   return lenis;
