@@ -3307,6 +3307,14 @@ html.has-js [data-reveal].is-visible {
   letter-spacing: var(--tracking-wide);
 }
 
+/* Sub-cabeçalho de grupo dentro da ficha (ex.: "Defesa & disciplina"). */
+.wc-stat-subhead {
+  color: var(--ink-faint);
+  margin: var(--space-4) 0 var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
 /* Rodapé: fonte dos dados (ESPN). */
 .wc-stat-compare__source {
   align-self: flex-end;
@@ -3777,3 +3785,118 @@ html.has-js [data-reveal].is-visible {
   .wc-match-combobox__input,
   .wc-match-combobox__option { transition: none !important; }
 }
+
+/* ════════════════════════════════════════════════════════════
+ * [07] Clássicos 2022 — análise avançada (StatsBomb)
+ * ════════════════════════════════════════════════════════════ */
+/* Seletor nativo (isolado do combobox das seções 04/05/06). */
+.wc-cl-select {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  padding: 8px 28px 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-card);
+  color: var(--ink);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%),
+    linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) calc(50% - 2px),
+    calc(100% - 12px) calc(50% - 2px);
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+}
+.wc-cl-select:hover { border-color: var(--line-strong); }
+.wc-cl-select:focus-visible {
+  outline: 2px solid var(--accent, #1A1AFF);
+  outline-offset: 2px;
+}
+
+.wc-cl-meta {
+  display: block;
+  color: var(--ink-faint);
+  margin-bottom: var(--space-5);
+}
+
+.wc-cl-block {
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+@media (min-width: 768px) {
+  .wc-cl-block { padding: var(--space-6); }
+}
+.wc-cl-block__title {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 var(--space-4);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.wc-cl-block__unit {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--ink-faint);
+  letter-spacing: var(--tracking-wide);
+  text-transform: none;
+}
+
+/* Tabela Total / 1º / 2º */
+.wc-cl-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-4);
+  font-family: var(--font-mono);
+}
+.wc-cl-table thead th {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--ink-faint);
+  letter-spacing: var(--tracking-wide);
+  text-align: right;
+  padding: 0 0 var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+.wc-cl-table__corner { border-bottom: 1px solid var(--line); }
+.wc-cl-table__team {
+  text-align: left;
+  font-weight: 500;
+  color: var(--ink);
+  padding: var(--space-2) var(--space-3) var(--space-2) 0;
+  white-space: nowrap;
+}
+.wc-cl-table__team .wc-flag { margin-right: var(--space-2); }
+.wc-cl-table__num {
+  text-align: right;
+  font-variant-numeric: var(--num-tabular);
+  color: var(--ink-soft);
+  padding: var(--space-2) 0 var(--space-2) var(--space-3);
+  min-width: 64px;
+}
+.wc-cl-table tbody tr + tr td,
+.wc-cl-table tbody tr + tr th { border-top: 1px solid var(--line); }
+/* Linha do líder da coluna Total — realce em ouro (apartidário). */
+.wc-cl-table__row--lead .wc-cl-table__team,
+.wc-cl-table__row--lead .wc-cl-table__num:first-of-type {
+  color: var(--wc-gold-ink);
+  font-weight: 600;
+}
+
+.wc-cl-block__chart { margin-top: var(--space-2); }
+
+.wc-cl-note {
+  display: block;
+  margin-top: var(--space-4);
+  color: var(--ink-faint);
+  line-height: 1.5;
+}
+.wc-cl-note strong { color: var(--ink-soft); }

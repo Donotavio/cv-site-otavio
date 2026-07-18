@@ -319,25 +319,48 @@ def fetch_espn_summary(event_id: str) -> dict | None:
         name = team_info.get("displayName", "?")
         name = ESPN_NAME_FIX.get(name, name)
         code, flag = _team_meta(name)
+        # ── Chute / finalização ──────────────────────────────────────
         shots = int(_extract_stat(stats, "SHOTS"))
         on_target = int(_extract_stat(stats, "ON GOAL"))
         blocked = int(_extract_stat(stats, "Blocked Shots"))
         goals = int(_extract_stat(stats, "Penalty Goals"))  # nem sempre presente
+        # ── Passe / posse ────────────────────────────────────────────
         passes = int(_extract_stat(stats, "Passes"))
         accurate = int(_extract_stat(stats, "Accurate Passes"))
-        pct = _extract_stat(stats, "Pass Completion %")
         crosses = int(_extract_stat(stats, "Crosses"))
         acc_crosses = int(_extract_stat(stats, "Accurate Crosses"))
         long_balls = int(_extract_stat(stats, "Long Balls"))
+        acc_long_balls = int(_extract_stat(stats, "Accurate Long Balls"))
         possession = _extract_stat(stats, "Possession")
+        # ── Defesa / disciplina (novos campos ESPN) ──────────────────
+        fouls = int(_extract_stat(stats, "Fouls"))
+        yellow_cards = int(_extract_stat(stats, "Yellow Cards"))
+        red_cards = int(_extract_stat(stats, "Red Cards"))
+        offsides = int(_extract_stat(stats, "Offsides"))
+        corners = int(_extract_stat(stats, "Corner Kicks"))
+        saves = int(_extract_stat(stats, "Saves"))
+        tackles = int(_extract_stat(stats, "Tackles"))
+        effective_tackles = int(_extract_stat(stats, "Effective Tackles"))
+        interceptions = int(_extract_stat(stats, "Interceptions"))
+        clearances = int(_extract_stat(stats, "Clearances"))
+        # Percentuais derivados dos contadores brutos (mais precisos que o
+        # displayValue arredondado da ESPN, que reporta ex.: 0.9 → 90%
+        # quando o real é ~87%). Fail-soft: 0 quando denominador é 0.
+        pass_pct = round(accurate / passes * 100, 1) if passes > 0 else 0.0
+        on_target_pct = round(on_target / shots * 100, 1) if shots > 0 else 0.0
         return {
             "code": code, "flag": flag, "name": name,
             "shots": shots, "on_target": on_target, "blocked": blocked,
+            "on_target_pct": on_target_pct,
             "passes": passes, "accurate_passes": accurate,
-            "pass_pct": round(pct * 100, 1) if pct < 1 else round(pct, 1),
+            "pass_pct": pass_pct,
             "crosses": crosses, "accurate_crosses": acc_crosses,
-            "long_balls": long_balls,
+            "long_balls": long_balls, "accurate_long_balls": acc_long_balls,
             "possession": round(possession, 1),
+            "fouls": fouls, "yellow_cards": yellow_cards, "red_cards": red_cards,
+            "offsides": offsides, "corners": corners, "saves": saves,
+            "tackles": tackles, "effective_tackles": effective_tackles,
+            "interceptions": interceptions, "clearances": clearances,
         }
 
     home = parse_team(teams[0])
@@ -419,19 +442,26 @@ def fetch_espn_stats(
             skipped_no_summary += 1
             continue
 
+        shot_keys = ("code", "flag", "name", "shots", "on_target",
+                     "on_target_pct", "blocked", "goals")
+        pass_keys = ("code", "flag", "name", "possession",
+                     "passes", "accurate_passes", "pass_pct",
+                     "crosses", "accurate_crosses",
+                     "long_balls", "accurate_long_balls",
+                     "corners", "offsides", "saves",
+                     "tackles", "effective_tackles", "interceptions",
+                     "clearances", "fouls", "yellow_cards", "red_cards")
         shot_stats[match_id] = {
             "match": label,
             "source": "ESPN",
-            "home": {k: summary["home"].get(k, 0) for k in ("code", "flag", "name", "shots", "on_target", "blocked", "goals")},
-            "away": {k: summary["away"].get(k, 0) for k in ("code", "flag", "name", "shots", "on_target", "blocked", "goals")},
+            "home": {k: summary["home"].get(k, 0) for k in shot_keys},
+            "away": {k: summary["away"].get(k, 0) for k in shot_keys},
         }
         pass_stats[match_id] = {
             "match": label,
             "source": "ESPN",
-            "home": {k: summary["home"].get(k, 0) for k in
-                     ("code", "flag", "name", "passes", "accurate_passes", "pass_pct", "crosses", "accurate_crosses", "long_balls", "possession")},
-            "away": {k: summary["away"].get(k, 0) for k in
-                     ("code", "flag", "name", "passes", "accurate_passes", "pass_pct", "crosses", "accurate_crosses", "long_balls", "possession")},
+            "home": {k: summary["home"].get(k, 0) for k in pass_keys},
+            "away": {k: summary["away"].get(k, 0) for k in pass_keys},
         }
         fetched += 1
 

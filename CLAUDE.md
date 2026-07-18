@@ -137,3 +137,44 @@ python transform_eleicoes/gold_fundo_ipca.py       # → eleicoes_fundo_ipca.jso
 - **Mapa de calor (§3 estaduais):** `buildGeoMap()` injeta `assets/img/maps/brazil-states.svg` (27 paths com `data-uf`) e pinta cada UF pela **margem do líder na corrida a governador (1º turno)** — intensidade em `--wc-gold-ink` (apartidário). Hover usa o tooltip flutuante global (`[data-tip]`) com líder/partido, intenção, margem s/ 2º, tendência e volume de pesquisas; clique sincroniza os painéis. `buildGeoMap` é reusável (`opts.selectable`, `opts.legendId`). O tile-cartograma `buildUfMap()` segue em uso na §5 (volume por UF).
 - **Mapa presidencial por região (§2):** `eleicoes_presidencial_regioes.json` é **curado à mão** (não pipeline) de UMA pesquisa citável (Genial/Quaest jul/2026, registro TSE), verificada no texto. `renderPresRegioes()` reusa `buildGeoMap` (selectable:false) pintando cada UF pela margem do líder na SUA região. **Não há presidencial por-UF**: a intenção presidencial agregada (`precandidatos.json`) é só nacional e não existe fonte coletável/completa por estado (só ~10 estados em imagens; a Quaest agrupa Norte+CO → 4 macrorregiões). Bloco traz `instituto/registro_tse/fonte_url` + `disclaimer` de cobertura parcial; degrada oculto (`#el-reg[hidden]`) se o JSON faltar. Atualizar à mão quando sair rodada nova com recorte regional. Um monitor no CI — `transform_eleicoes/check_regioes_freshness.py` — **valida o schema** (regiões↔27 UFs completas, candidatos com %, metadados/fontes) e **avisa quando o dado está velho** (`data_ref` > 45 dias); nunca coleta/altera número (erro de schema → exit 1 vermelho; dado velho → ⚠ não-bloqueante).
 - CI: `.github/workflows/eleicoes-pipeline.yml` (pesquisas + pré-candidatos + estaduais + integridade, diário) + `eleicoes-eleitorado-monthly.yml` (eleitorado, mensal — job pesado).
+
+---
+
+## Sub-projeto: World Cup Dashboard (Copa 2026)
+
+Painel **estático standalone** (não Astro) em `public/world-cup-dashboard/`
+(`index.html` + `js/{main,deepstats,classics,motion,jumpnav,wc-match-combobox}.js`,
+`css/style.css`). Servido direto no GitHub Pages via `public/`. Só o card teaser
+`src/components/WorldCupCard.astro` vive no Astro. Sem i18n (pt-BR hardcoded).
+Charts com **Chart.js 4.4.4** (CDN), não SVG hand-rolled. Cada `<section>` tem
+mono-label `[ NN ]` sequencial em ordem de DOM; jumpnav auto-numera (inserir seção
+= renumerar os mono-labels seguintes). Tokens `--wc-field*`/`--wc-gold*`/`--wc-live*`.
+
+```bash
+pip install -r ingestion_worldcup/requirements.txt   # só feedparser (resto stdlib)
+python ingestion_worldcup/scraper.py                 # partidas/artilheiros/estatisticas/grupos/simulacao/… → data/*.json
+python ingestion_worldcup/fetch_ball_level.py        # deepstats.json (momentum openfootball + stats de jogo inteiro ESPN)
+python ingestion_worldcup/fetch_classics_statsbomb.py  # classics_2022.json (one-off — dado 2022 é estático)
+```
+
+- **Custo zero, sem API key.** JSONs vão para `public/world-cup-dashboard/data/`
+  (NÃO `assets/data/`); runtime só faz fetch, zero LLM. Constantes/URLs inline nos
+  scripts (não há `catalog.py`).
+- **Limite de dado 2026:** ESPN só devolve **totais de jogo inteiro** (sem split
+  1º/2º tempo, sem por-intervalo, sem PPDA/xG); openfootball só minuto de gol.
+  As seções 04/05 mostram a ficha de jogo (28 stats ESPN em barras `wc-stat-row`;
+  `fetch_ball_level.py` recomputa `pass_pct` de accurate/passes p/ precisão).
+- **[07] Clássicos 2022 (`classics.js` + `classics_2022.json`):** reproduz FIEL o
+  recorte das transmissões — **posse %, precisão de passe %, PPDA** por intervalo de
+  15 min + Total/1º/2º tempo — com dado de **evento** aberto do StatsBomb
+  (competition_id=43, season_id=106; CC BY-NC-SA). `fetch_classics_statsbomb.py`
+  baixa 64 partidas (stdlib urllib) e calcula: posse = base temporal (tempo entre
+  eventos por `possession_team`, clamp 30 s); precisão = passes completos ÷
+  tentados; **PPDA = passes do adversário ÷ ações defensivas (desarme+interceptação+
+  falta) na zona de 60% do campo longe do gol de quem pressiona**, com direção de
+  ataque inferida do x médio dos chutes (frame fixo do StatsBomb). Não há evento
+  aberto p/ 2026 → nunca fabricar intervalo/PPDA de 2026. **One-off** (dado 2022 é
+  estático): rodar e commitar; não entra no cron diário.
+- CI: `.github/workflows/update-world-cup.yml` (horário na janela de jogos; roda
+  `scraper.py` + `fetch_ball_level.py`, commita `data:`, dispara build-and-deploy).
+  O `fetch_classics_statsbomb.py` **não** está no workflow (dado imutável).

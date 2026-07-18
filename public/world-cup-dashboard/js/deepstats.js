@@ -32,7 +32,8 @@
  *         "match": "Germany 7–1 Curaçao",
  *         "source": "ESPN",
  *         "home": { "code": "GER", "flag": "🇩🇪", "name": "Germany",
- *                   "shots": 26, "on_target": 12, "blocked": 8, "goals": 7 },
+ *                   "shots": 26, "on_target": 12, "on_target_pct": 46.2,
+ *                   "blocked": 8, "goals": 7 },
  *         "away": { ... }
  *       }
  *     }
@@ -44,9 +45,14 @@
  *       "<id>": {
  *         "match": "...",
  *         "home": { "code": "GER", "flag": "🇩🇪", "name": "Germany",
+ *                   "possession": 65.2,
  *                   "passes": 620, "accurate_passes": 580, "pass_pct": 93.5,
- *                   "crosses": 15, "accurate_crosses": 8, "long_balls": 40,
- *                   "possession": 65.2 },
+ *                   "crosses": 15, "accurate_crosses": 8,
+ *                   "long_balls": 40, "accurate_long_balls": 22,
+ *                   "corners": 9, "offsides": 2, "saves": 3,
+ *                   "tackles": 18, "effective_tackles": 12, "interceptions": 7,
+ *                   "clearances": 24, "fouls": 11,
+ *                   "yellow_cards": 2, "red_cards": 0 },
  *         "away": { ... }
  *       }
  *     }
@@ -256,6 +262,30 @@
       </div>`;
   }
 
+  /** Sub-cabeçalho de grupo dentro da ficha (ex.: "Defesa & disciplina"). */
+  function statSubheadHtml(label) {
+    return `<div class="wc-stat-subhead mono-label">${escapeHtml(label)}</div>`;
+  }
+
+  /**
+   * Constrói uma linha a partir de uma chave, respeitando presença do campo.
+   * - Se a chave não existir em nenhum dos dois times → '' (não renderiza).
+   *   Protege deepstats.json antigo/cacheado antes do próximo cron.
+   * - opts.pct: formata como percentual (opts.dec casas, default 0).
+   * - opts.hideZero: omite a linha se ambos os valores forem 0 (ex.: cartões).
+   */
+  function rowFromKey(home, away, key, label, opts) {
+    opts = opts || {};
+    if (!(key in home) && !(key in away)) return '';
+    const hv = num(home[key]);
+    const av = num(away[key]);
+    if (opts.hideZero && hv === 0 && av === 0) return '';
+    const fmt = opts.pct
+      ? (v) => fmtPct(v, opts.dec == null ? 0 : opts.dec)
+      : fmtInt;
+    return statRowHtml(label, fmt(hv), fmt(av), hv, av);
+  }
+
   /** Estado vazio amigável (não é erro — apenas sem ESPN p/ esta partida). */
   function unavailableHtml(host, errId, msg) {
     const hostEl = host;
@@ -293,6 +323,15 @@
     const home = m.home;
     const away = m.away;
 
+    // % no alvo = chutes no alvo / chutes. Usa o campo do pipeline quando
+    // presente; senão deriva (compat com deepstats.json antigo).
+    const homeAcc = ('on_target_pct' in home)
+      ? num(home.on_target_pct)
+      : (num(home.shots) > 0 ? (num(home.on_target) / num(home.shots)) * 100 : 0);
+    const awayAcc = ('on_target_pct' in away)
+      ? num(away.on_target_pct)
+      : (num(away.shots) > 0 ? (num(away.on_target) / num(away.shots)) * 100 : 0);
+
     // Aproveitamento = gols / chutes * 100
     const homeConv = (num(home.shots) > 0)
       ? (num(home.goals) / num(home.shots)) * 100 : 0;
@@ -306,6 +345,9 @@
       statRowHtml('No alvo',
         fmtInt(home.on_target), fmtInt(away.on_target),
         home.on_target, away.on_target),
+      statRowHtml('No alvo %',
+        fmtPct(homeAcc, 0), fmtPct(awayAcc, 0),
+        homeAcc, awayAcc),
       statRowHtml('Bloqueados',
         fmtInt(home.blocked), fmtInt(away.blocked),
         home.blocked, away.blocked),
@@ -358,7 +400,8 @@
     const home = m.home;
     const away = m.away;
 
-    const rows = [
+    // Grupo 1 — Posse & construção
+    const buildRows = [
       statRowHtml('Posse %',
         fmtPct(home.possession, 1), fmtPct(away.possession, 1),
         home.possession, away.possession),
@@ -374,7 +417,23 @@
       statRowHtml('Bolas longas',
         fmtInt(home.long_balls), fmtInt(away.long_balls),
         home.long_balls, away.long_balls),
-    ].join('');
+      rowFromKey(home, away, 'corners', 'Escanteios'),
+    ].filter(Boolean).join('');
+
+    // Grupo 2 — Defesa & disciplina (campos novos; ausentes = não renderizam)
+    const defRows = [
+      rowFromKey(home, away, 'tackles', 'Desarmes'),
+      rowFromKey(home, away, 'interceptions', 'Interceptações'),
+      rowFromKey(home, away, 'clearances', 'Cortes'),
+      rowFromKey(home, away, 'saves', 'Defesas do goleiro'),
+      rowFromKey(home, away, 'offsides', 'Impedimentos'),
+      rowFromKey(home, away, 'fouls', 'Faltas'),
+      rowFromKey(home, away, 'yellow_cards', 'Cartões amarelos'),
+      rowFromKey(home, away, 'red_cards', 'Cartões vermelhos', { hideZero: true }),
+    ].filter(Boolean).join('');
+
+    const rows = buildRows +
+      (defRows ? statSubheadHtml('Defesa & disciplina') + defRows : '');
 
     host.innerHTML =
       statHeadHtml(home, away) +

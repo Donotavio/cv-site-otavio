@@ -40,6 +40,7 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="js/main.js" defer></script>
   <script src="js/deepstats.js" defer></script>
+  <script src="js/classics.js" defer></script>
   <script src="js/wc-match-combobox.js" defer></script>
   <script src="js/jumpnav.js" defer></script>
 
@@ -381,7 +382,7 @@
         <div class="section-head" data-reveal>
           <span class="mono-label">04</span>
           <h2 id="wc-shotmap-title" class="wc-display">Finalizações</h2>
-          <p class="wc-lead">Total de chutes, chutes no alvo e aproveitamento por seleção. Estatísticas agregadas via ESPN.</p>
+          <p class="wc-lead">Chutes, chutes no alvo, % no alvo, bloqueados e aproveitamento por seleção. Totais de jogo agregados via ESPN.</p>
         </div>
         <hr class="section-line" aria-hidden="true" data-reveal>
         <span class="mono-label wc-shotmap-tagline" style="display:block;margin-bottom:var(--space-5);color:var(--ink-faint)">rastreamento óptico agregado · ESPN</span>
@@ -410,7 +411,7 @@
         <div class="section-head" data-reveal>
           <span class="mono-label">05</span>
           <h2 id="wc-passnet-title" class="wc-display">Posse e Passes</h2>
-          <p class="wc-lead">Volume de passes, precisão, cruzamentos e posse de bola. Estatísticas agregadas via ESPN.</p>
+          <p class="wc-lead">Ficha completa da partida: posse, passes e precisão, mais desarmes, interceptações, cortes, faltas e cartões. Totais de jogo agregados via ESPN.</p>
         </div>
         <hr class="section-line" aria-hidden="true" data-reveal>
         <span class="mono-label" style="display:block;margin-bottom:var(--space-5);color:var(--ink-faint)">estatísticas agregadas via ESPN</span>
@@ -460,12 +461,69 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════════
-         [07] MONTE CARLO (simulação 10k)
+         [07] CLÁSSICOS 2022 — análise avançada (StatsBomb open data)
+         ══════════════════════════════════════════════════════ -->
+    <section id="wc-classics" class="section wc-classics-section" aria-labelledby="wc-classics-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <span class="mono-label">07</span>
+          <h2 id="wc-classics-title" class="wc-display">Clássicos 2022</h2>
+          <p class="wc-lead">Posse de bola, precisão de passe e PPDA (intensidade de pressão) por intervalo de 15 min e por tempo — o mesmo recorte das transmissões, com número real do dado de evento (lance a lance) da Copa de 2022. Não há evento aberto para 2026.</p>
+        </div>
+        <hr class="section-line" aria-hidden="true" data-reveal>
+        <span class="mono-label" style="display:block;margin-bottom:var(--space-4);color:var(--ink-faint)">dado de evento · StatsBomb Open Data (CC BY-NC-SA)</span>
+
+        <div class="wc-match-select-wrap" data-reveal style="margin-bottom:var(--space-3)">
+          <label for="wc-classics-select" class="mono-label" style="margin-right:var(--space-2)">partida</label>
+          <select id="wc-classics-select" class="wc-cl-select"></select>
+        </div>
+        <span class="mono-label wc-cl-meta" id="wc-classics-meta" data-reveal>—</span>
+
+        <p class="wc-error mono-label" id="wc-classics-error" hidden>Análise avançada indisponível para esta partida.</p>
+
+        <!-- Posse de bola -->
+        <div class="wc-cl-block card crop" data-reveal>
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <h3 class="wc-cl-block__title">Posse de bola <span class="wc-cl-block__unit">%</span></h3>
+          <div class="wc-cl-block__table" id="wc-cl-poss-table" aria-live="polite"></div>
+          <div class="wc-cl-block__chart" style="height:clamp(220px,30vw,300px);position:relative">
+            <canvas id="wc-cl-poss-chart" role="img" aria-label="Posse de bola por intervalo de 15 minutos, casa vs. fora."></canvas>
+          </div>
+        </div>
+
+        <!-- Precisão de passe -->
+        <div class="wc-cl-block card crop" data-reveal>
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <h3 class="wc-cl-block__title">Precisão de passe <span class="wc-cl-block__unit">%</span></h3>
+          <div class="wc-cl-block__table" id="wc-cl-pass-table" aria-live="polite"></div>
+          <div class="wc-cl-block__chart" style="height:clamp(220px,30vw,300px);position:relative">
+            <canvas id="wc-cl-pass-chart" role="img" aria-label="Precisão de passe por intervalo de 15 minutos, casa vs. fora."></canvas>
+          </div>
+        </div>
+
+        <!-- PPDA -->
+        <div class="wc-cl-block card crop" data-reveal>
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <h3 class="wc-cl-block__title">PPDA <span class="wc-cl-block__unit">intensidade de pressão</span></h3>
+          <div class="wc-cl-block__table" id="wc-cl-ppda-table" aria-live="polite"></div>
+          <div class="wc-cl-block__chart" style="height:clamp(220px,30vw,300px);position:relative">
+            <canvas id="wc-cl-ppda-chart" role="img" aria-label="PPDA por intervalo de 15 minutos, casa vs. fora."></canvas>
+          </div>
+          <p class="wc-cl-note mono-label">PPDA = passes do adversário ÷ ações defensivas (desarmes + interceptações + faltas) na zona de pressão. <strong>Menor = pressão mais intensa.</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════
+         [08] MONTE CARLO (simulação 10k)
          ══════════════════════════════════════════════════════ -->
     <section id="monte-carlo" class="section wc-prob-section" aria-labelledby="wc-prob-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">07</span>
+          <span class="mono-label">08</span>
           <div class="wc-mc-title-row">
             <h2 id="wc-prob-title" class="wc-display">Monte Carlo</h2>
             <button type="button"
@@ -621,7 +679,7 @@
     <section id="grupos" class="section wc-groups-section" aria-labelledby="wc-groups-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">08</span>
+          <span class="mono-label">09</span>
           <h2 id="wc-groups-title" class="wc-display">Fase de grupos</h2>
           <p class="wc-lead">
             12 grupos de 4 seleções. Os três primeiros de cada grupo avançam
@@ -645,7 +703,7 @@
     <section id="mata-mata" class="section wc-bracket-section" aria-labelledby="wc-bracket-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">09</span>
+          <span class="mono-label">10</span>
           <h2 id="wc-bracket-title" class="wc-display">Mata-mata</h2>
           <p class="wc-lead">
             32 seleções no mata-mata: 16 avos, oitavas, quartas, semifinal e final.
@@ -667,7 +725,7 @@
     <section id="selecao-copa" class="section wc-selection-section" aria-labelledby="wc-selection-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">10</span>
+          <span class="mono-label">11</span>
           <h2 id="wc-selection-title" class="wc-display">Seleção da Copa</h2>
           <p class="wc-lead">
             O melhor XI em 4-3-3, inferido dos resultados do torneio. O artilheiro
@@ -688,7 +746,7 @@
     <section id="insights" class="section wc-insights-section" aria-labelledby="wc-insights-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">11</span>
+          <span class="mono-label">12</span>
           <h2 id="wc-insights-title" class="wc-display">Insights</h2>
           <p class="wc-lead">
             Oito leituras editoriais sobre o torneio — números que contam a história.
@@ -711,7 +769,7 @@
     <section id="craque" class="section wc-game-section" aria-labelledby="wc-game-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">12</span>
+          <span class="mono-label">13</span>
           <h2 id="wc-game-title" class="wc-display">Quem é o craque?</h2>
           <p class="wc-lead">
             Dois jogadores aparecem lado a lado. Escolha quem você acha melhor.
@@ -760,7 +818,7 @@
     <section id="partidas" class="section wc-matches-section" aria-labelledby="wc-matches-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">13</span>
+          <span class="mono-label">14</span>
           <h2 id="wc-matches-title" class="wc-display">Partidas</h2>
           <p class="wc-lead">
             Resultados recentes e próximos jogos da Copa. Jogos de hoje
@@ -803,7 +861,7 @@
     <section id="bolao" class="section wc-bolao-section" aria-labelledby="wc-bolao-title">
       <div class="container">
         <div class="section-head" data-reveal>
-          <span class="mono-label">14</span>
+          <span class="mono-label">15</span>
           <h2 id="wc-bolao-title" class="wc-display">Bolão local</h2>
           <p class="wc-lead">
             Palpites salvos só neste navegador. Acerto exato do placar vale
