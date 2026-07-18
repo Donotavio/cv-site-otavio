@@ -1,10 +1,18 @@
 {
-  "updated_at": "2026-07-18T03:42:45.001038+00:00",
+  "updated_at": "2026-07-18T23:39:40.709327+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
-  "featured_id": "ger-cuw-2026-06-14",
+  "featured_id": "fra-eng-2026-07-18",
   "match_list": [
+    {
+      "id": "fra-eng-2026-07-18",
+      "label": "France 4–6 England",
+      "date": "2026-07-18",
+      "goals": 10,
+      "has_stats": false,
+      "has_momentum": true
+    },
     {
       "id": "ger-cuw-2026-06-14",
       "label": "Germany 7–1 Curaçao",
@@ -8239,6 +8247,149 @@
     "metric": "goals",
     "metric_label": "Gols acumulados",
     "matches": {
+      "fra-eng-2026-07-18": {
+        "id": "fra-eng-2026-07-18",
+        "label": "France 4–6 England",
+        "date": "2026-07-18",
+        "total_goals": 10,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "name": "France",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            2,
+            2,
+            2,
+            3,
+            3,
+            3,
+            3,
+            4
+          ]
+        },
+        "away": {
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "name": "England",
+          "cum": [
+            0,
+            1,
+            1,
+            1,
+            2,
+            2,
+            2,
+            2,
+            3,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            6
+          ]
+        },
+        "goals": [
+          {
+            "minute": 48,
+            "team": "home",
+            "player": "Kylian Mbappé",
+            "cum": 1
+          },
+          {
+            "minute": 54,
+            "team": "home",
+            "player": "Bradley Barcola",
+            "cum": 2
+          },
+          {
+            "minute": 66,
+            "team": "home",
+            "player": "Kylian Mbappé",
+            "cum": 3
+          },
+          {
+            "minute": 90,
+            "team": "home",
+            "player": "Ousmane Dembélé",
+            "cum": 4
+          },
+          {
+            "minute": 3,
+            "team": "away",
+            "player": "Declan Rice",
+            "cum": 1
+          },
+          {
+            "minute": 18,
+            "team": "away",
+            "player": "Ezri Konsa",
+            "cum": 2
+          },
+          {
+            "minute": 37,
+            "team": "away",
+            "player": "Bukayo Saka",
+            "cum": 3
+          },
+          {
+            "minute": 45,
+            "team": "away",
+            "player": "Bukayo Saka",
+            "cum": 4
+          },
+          {
+            "minute": 87,
+            "team": "away",
+            "player": "Bukayo Saka",
+            "cum": 5
+          },
+          {
+            "minute": 90,
+            "team": "away",
+            "player": "Jude Bellingham",
+            "cum": 6
+          }
+        ]
+      },
       "ger-cuw-2026-06-14": {
         "id": "ger-cuw-2026-06-14",
         "label": "Germany 7–1 Curaçao",
