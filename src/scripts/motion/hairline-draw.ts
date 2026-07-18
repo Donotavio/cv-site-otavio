@@ -14,7 +14,7 @@ import { registerCleaner } from './cleanup';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function hairlineDraw(line: Element, trigger: Element): void {
+export function hairlineDraw(line: Element, trigger: Element, delay = 0): void {
   if (!motionOk) return;
 
   // gsap.context() rastreia o tween + ScrollTrigger para teardown limpo.
@@ -24,6 +24,7 @@ export function hairlineDraw(line: Element, trigger: Element): void {
       transformOrigin: 'left center',
       duration: DURATIONS.slow,
       ease: EASINGS.outStrong,
+      delay, // offset opcional → desenha segmentos em cascata (default 0 = sem stagger)
       scrollTrigger: {
         trigger,
         start: 'top 80%',

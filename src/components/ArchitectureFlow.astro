@@ -13,13 +13,88 @@
  *  - Fluxo contínuo dos pacotes de dados: CSS @keyframes (transform-only, GPU)
  *    ligado APENAS em `prefers-reduced-motion: no-preference`. Sob reduced-motion
  *    os pacotes somem e a direção fica indicada por setas estáticas (▸/▾).
- *  - Eixo do fluxo: vertical no mobile, horizontal ≥900px (container query units
+ *  - Eixo do fluxo: vertical no mobile, horizontal ≥1024px (container query units
  *    cqw/cqh — os pacotes atravessam a extensão real do trilho, responsivo).
  *
  * Regras: zero hex (só tokens.css Blueprint — família --medallion-*), CSS scoped,
  *         mobile-first, texto UI via data-i18n-key. Conteúdo legível sem JS (SSG).
  */
 import { t } from '../lib/i18n';
+
+/**
+ * Spec sheets por camada — clicar num estágio abre o <dialog> com a
+ * transformação real (padrão de <dialog> nativo reusado de Projects/Recommendations).
+ * `code` é universal (SQL/YAML); `in/out/grain` são nomes de artefato (tabelas);
+ * rótulos do modal vêm do i18n (arch.spec_*).
+ */
+const specs = [
+  {
+    slug: 'sources', idx: '00', tone: 'var(--accent)', labelKey: 'arch.s_sources_label',
+    inp: 'apis · dbs · kafka · s3', out: 'landing.raw_*', grain: 'evento / registro',
+    tools: ['Kafka', 'Debezium', 'Airbyte', 'Airflow'],
+    code: `# conectores heterogêneos · idempotentes
+api:      REST + webhook      # paginação · retry · backoff
+db:       CDC (log-based)     # snapshot + incremental
+eventos:  kafka topics        # schema registry
+arquivos: s3://raw/*.{csv,json,parquet}`,
+  },
+  {
+    slug: 'landing', idx: '01', tone: 'var(--accent)', labelKey: 'arch.s_landing_label',
+    inp: 'streams + arquivos brutos', out: 'landing.raw_<fonte>', grain: 'linha · append-only',
+    tools: ['Delta Lake', 'S3 / ADLS', 'Spark'],
+    code: `-- lago de petróleo · append-only · nada é sobrescrito
+COPY INTO landing.raw_pedidos
+FROM 's3://raw/pedidos/dt=\${ds}/'
+FILEFORMAT = PARQUET
+COPY_OPTIONS ('mergeSchema' = 'true');
+-- reprocessável a partir de qualquer ponto`,
+  },
+  {
+    slug: 'bronze', idx: '02', tone: 'var(--medallion-bronze)', labelKey: 'arch.s_bronze_label',
+    inp: 'landing.raw_*', out: 'bronze.<entidade>', grain: 'linha tipada',
+    tools: ['Spark SQL', 'dbt', 'Delta'],
+    code: `-- ingestão bruta + tipagem, sem regra de negócio
+CREATE OR REPLACE TABLE bronze.pedidos AS
+SELECT
+  CAST(id        AS BIGINT)        AS pedido_id,
+  CAST(valor     AS DECIMAL(18,2)) AS valor,
+  CAST(criado_em AS TIMESTAMP)     AS criado_em,
+  _ingestion_ts, _source_file
+FROM landing.raw_pedidos;`,
+  },
+  {
+    slug: 'silver', idx: '03', tone: 'var(--medallion-silver)', labelKey: 'arch.s_silver_label',
+    inp: 'bronze.*', out: 'silver.* + silver._quarentena', grain: 'linha qualificada',
+    tools: ['dbt tests', 'Great Expectations', 'Spark'],
+    dq: ['PK não-nula', 'valor ≥ 0', 'data ≤ agora', 'unicidade'],
+    code: `-- qualificação + quarentena de DQ (linha a linha)
+WITH ck AS (
+  SELECT *,
+    pedido_id IS NOT NULL AS ck_pk,
+    valor >= 0            AS ck_valor
+  FROM bronze.pedidos
+)
+INSERT INTO silver.pedidos
+  SELECT * FROM ck WHERE ck_pk AND ck_valor;
+INSERT INTO silver._quarentena
+  SELECT * FROM ck WHERE NOT (ck_pk AND ck_valor);`,
+  },
+  {
+    slug: 'gold', idx: '04', tone: 'var(--medallion-gold)', labelKey: 'arch.s_gold_label',
+    inp: 'silver.*', out: 'gold.obt_<domínio>', grain: '1 linha / visão',
+    tools: ['dbt', 'Delta', 'BI'],
+    code: `-- OBT por domínio · fatos + dimensões · grão por visão
+MERGE INTO gold.obt_receita t
+USING (
+  SELECT p.pedido_id, p.valor, c.segmento, d.mes
+  FROM   silver.pedidos p
+  JOIN   silver.clientes c USING (cliente_id)
+  JOIN   dim.calendario  d ON d.data = p.criado_em::date
+) s ON t.pedido_id = s.pedido_id
+WHEN MATCHED THEN UPDATE SET *
+WHEN NOT MATCHED THEN INSERT *;`,
+  },
+];
 ---
 
 <section id="architecture" class="section arch" aria-labelledby="arch-title">
@@ -32,9 +107,35 @@ import { t } from '../lib/i18n';
 
     <hr class="section-line" aria-hidden="true" />
 
+    <!-- PIPELINE.RUN — datamation ao vivo (canvas). Decorativo: os cards abaixo
+         carregam o conteúdo semântico/acessível e o fallback sem-JS. -->
+    <figure class="refinery" aria-hidden="true">
+      <figcaption class="refinery-cap">
+        <span class="refinery-run mono-label">PIPELINE.RUN</span>
+        <span class="refinery-meta mono-label">
+          <button type="button" class="refinery-replay" data-replay tabindex="-1">
+            <span aria-hidden="true">▷</span><span data-i18n-key="arch.spec_replay">{t('arch.spec_replay')}</span>
+          </button>
+          <span class="refinery-count"><b data-count>0</b> OBT materializadas</span>
+          <span class="refinery-live"><i></i>ao vivo</span>
+        </span>
+      </figcaption>
+      <canvas class="refinery-canvas"></canvas>
+      <div class="refinery-scale">
+        <span><b>00</b> <span data-i18n-key="arch.s_sources_label">{t('arch.s_sources_label')}</span></span>
+        <span><b>01</b> <span data-i18n-key="arch.s_landing_label">{t('arch.s_landing_label')}</span></span>
+        <span><b>02</b> <span data-i18n-key="arch.s_bronze_label">{t('arch.s_bronze_label')}</span></span>
+        <span><b>03</b> <span data-i18n-key="arch.s_silver_label">{t('arch.s_silver_label')}</span></span>
+        <span><b>04</b> <span data-i18n-key="arch.s_gold_label">{t('arch.s_gold_label')}</span></span>
+      </div>
+      <div class="refinery-log" aria-hidden="true">
+        <div class="refinery-log-line is-boot"><b>··:··:··</b> PIPELINE.RUN · streaming de eventos…</div>
+      </div>
+    </figure>
+
     <div class="flow" role="group" aria-label={t('arch.aria')} data-i18n-aria="arch.aria">
       <!-- ── 00 · Fontes ─────────────────────────────────── -->
-      <article class="stage stage--sources crop" style="--tone: var(--accent);">
+      <article class="stage stage--sources crop" style="--tone: var(--accent); --tone-dim: var(--accent-dim);">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
         <header class="stage-head">
@@ -46,16 +147,19 @@ import { t } from '../lib/i18n';
         <span class="src-fan" aria-hidden="true">
           <i></i><i></i><i></i><i></i>
         </span>
+        <button type="button" class="stage-spec mono-label" data-modal="arch-spec-sources" aria-haspopup="dialog" aria-controls="arch-spec-sources">
+          <span data-i18n-key="arch.spec_hint">{t('arch.spec_hint')}</span><span aria-hidden="true">↗</span>
+        </button>
       </article>
 
       <div class="rail rail--raw" aria-hidden="true">
         <span class="rail-line"></span>
         <span class="rail-arrow">▸</span>
-        <i class="pkt"></i><i class="pkt"></i><i class="pkt"></i>
+        <span class="rail-beam"></span>
       </div>
 
       <!-- ── 01 · Landing Zone ───────────────────────────── -->
-      <article class="stage stage--landing crop" style="--tone: var(--accent);">
+      <article class="stage stage--landing crop" style="--tone: var(--accent); --tone-dim: var(--accent-dim);">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
         <header class="stage-head">
@@ -67,16 +171,19 @@ import { t } from '../lib/i18n';
         <span class="landing-strata" aria-hidden="true">
           <i></i><i></i><i></i><i></i><i></i>
         </span>
+        <button type="button" class="stage-spec mono-label" data-modal="arch-spec-landing" aria-haspopup="dialog" aria-controls="arch-spec-landing">
+          <span data-i18n-key="arch.spec_hint">{t('arch.spec_hint')}</span><span aria-hidden="true">↗</span>
+        </button>
       </article>
 
       <div class="rail rail--bronze" aria-hidden="true">
         <span class="rail-line"></span>
         <span class="rail-arrow">▸</span>
-        <i class="pkt"></i><i class="pkt"></i><i class="pkt"></i>
+        <span class="rail-beam"></span>
       </div>
 
       <!-- ── 02 · Bronze ─────────────────────────────────── -->
-      <article class="stage stage--bronze crop" style="--tone: var(--medallion-bronze);">
+      <article class="stage stage--bronze crop" style="--tone: var(--medallion-bronze); --tone-dim: var(--medallion-bronze-dim);">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
         <header class="stage-head">
@@ -85,16 +192,19 @@ import { t } from '../lib/i18n';
         </header>
         <h3 class="stage-name" data-i18n-key="arch.s_bronze_label">{t('arch.s_bronze_label')}</h3>
         <p class="stage-desc" data-i18n-key="arch.s_bronze_desc">{t('arch.s_bronze_desc')}</p>
+        <button type="button" class="stage-spec mono-label" data-modal="arch-spec-bronze" aria-haspopup="dialog" aria-controls="arch-spec-bronze">
+          <span data-i18n-key="arch.spec_hint">{t('arch.spec_hint')}</span><span aria-hidden="true">↗</span>
+        </button>
       </article>
 
       <div class="rail rail--silver" aria-hidden="true">
         <span class="rail-line"></span>
         <span class="rail-arrow">▸</span>
-        <i class="pkt"></i><i class="pkt"></i><i class="pkt"></i>
+        <span class="rail-beam"></span>
       </div>
 
       <!-- ── 03 · Prata (com quarentena de DQ) ───────────── -->
-      <article class="stage stage--silver crop" style="--tone: var(--medallion-silver);">
+      <article class="stage stage--silver crop" style="--tone: var(--medallion-silver); --tone-dim: var(--medallion-silver-dim);">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
         <header class="stage-head">
@@ -107,16 +217,19 @@ import { t } from '../lib/i18n';
           <span class="quarantine-dot" aria-hidden="true"></span>
           <span class="quarantine-label mono-label" data-i18n-key="arch.quarantine">{t('arch.quarantine')}</span>
         </span>
+        <button type="button" class="stage-spec mono-label" data-modal="arch-spec-silver" aria-haspopup="dialog" aria-controls="arch-spec-silver">
+          <span data-i18n-key="arch.spec_hint">{t('arch.spec_hint')}</span><span aria-hidden="true">↗</span>
+        </button>
       </article>
 
       <div class="rail rail--gold" aria-hidden="true">
         <span class="rail-line"></span>
         <span class="rail-arrow">▸</span>
-        <i class="pkt"></i><i class="pkt"></i><i class="pkt"></i>
+        <span class="rail-beam"></span>
       </div>
 
       <!-- ── 04 · Ouro (OBTs por domínio) ────────────────── -->
-      <article class="stage stage--gold crop" style="--tone: var(--medallion-gold);">
+      <article class="stage stage--gold crop" style="--tone: var(--medallion-gold); --tone-dim: var(--medallion-gold-dim);">
         <span class="crop-mark-bl" aria-hidden="true"></span>
         <span class="crop-mark-br" aria-hidden="true"></span>
         <header class="stage-head">
@@ -130,6 +243,9 @@ import { t } from '../lib/i18n';
           <li class="obt-chip"><span data-i18n-key="arch.obt_2">{t('arch.obt_2')}</span></li>
           <li class="obt-chip"><span data-i18n-key="arch.obt_3">{t('arch.obt_3')}</span></li>
         </ul>
+        <button type="button" class="stage-spec mono-label" data-modal="arch-spec-gold" aria-haspopup="dialog" aria-controls="arch-spec-gold">
+          <span data-i18n-key="arch.spec_hint">{t('arch.spec_hint')}</span><span aria-hidden="true">↗</span>
+        </button>
       </article>
     </div>
 
@@ -137,14 +253,62 @@ import { t } from '../lib/i18n';
     <div class="flow-legend crop">
       <span class="crop-mark-bl" aria-hidden="true"></span>
       <span class="crop-mark-br" aria-hidden="true"></span>
-      <span class="legend-swatches" aria-hidden="true">
-        <span class="sw sw--bronze"></span>
-        <span class="sw sw--silver"></span>
-        <span class="sw sw--gold"></span>
-      </span>
       <span class="legend-flow mono-label" data-i18n-key="arch.legend_flow">{t('arch.legend_flow')}</span>
       <p class="legend-note" data-i18n-key="arch.legend_note">{t('arch.legend_note')}</p>
     </div>
+
+    <!-- Spec sheets por camada (um <dialog> SSR por estágio) -->
+    {specs.map((s) => (
+      <dialog class="arch-modal" id={`arch-spec-${s.slug}`} style={`--tone: ${s.tone};`} aria-labelledby={`arch-spec-title-${s.slug}`}>
+        <div class="arch-modal__inner">
+          <button type="button" class="arch-modal__close" data-close aria-label={t('arch.spec_close')} data-i18n-aria="arch.spec_close">✕</button>
+          <header class="arch-modal__head">
+            <span class="arch-modal__idx mono-label">{s.idx}</span>
+            <h3 class="arch-modal__title" id={`arch-spec-title-${s.slug}`} data-i18n-key={s.labelKey}>{t(s.labelKey)}</h3>
+            <span class="arch-modal__badge mono-label">STAGE.SPEC</span>
+          </header>
+
+          <div class="arch-modal__codewrap">
+            <span class="arch-modal__codelabel mono-label" data-i18n-key="arch.spec_transform">{t('arch.spec_transform')}</span>
+            <button type="button" class="arch-code__copy mono-label" data-copy data-copied={t('arch.spec_copied')} data-i18n-key="arch.spec_copy">{t('arch.spec_copy')}</button>
+            <pre class="arch-code"><code>{s.code.split('\n').map((ln) => (
+              <span class={/^\s*(#|--)/.test(ln) ? 'cl cl--c' : 'cl'}>{ln + '\n'}</span>
+            ))}</code></pre>
+          </div>
+
+          <dl class="arch-modal__meta">
+            <div class="arch-modal__meta-item">
+              <dt class="mono-label" data-i18n-key="arch.spec_in">{t('arch.spec_in')}</dt>
+              <dd>{s.inp}</dd>
+            </div>
+            <div class="arch-modal__meta-item">
+              <dt class="mono-label" data-i18n-key="arch.spec_out">{t('arch.spec_out')}</dt>
+              <dd>{s.out}</dd>
+            </div>
+            <div class="arch-modal__meta-item">
+              <dt class="mono-label" data-i18n-key="arch.spec_grain">{t('arch.spec_grain')}</dt>
+              <dd>{s.grain}</dd>
+            </div>
+          </dl>
+
+          {s.dq && (
+            <div class="arch-modal__chips">
+              <span class="mono-label arch-modal__chips-label" data-i18n-key="arch.spec_dq">{t('arch.spec_dq')}</span>
+              <div class="arch-modal__chips-list">
+                {s.dq.map((c) => <span class="arch-modal__chip arch-modal__chip--dq mono-label">{c}</span>)}
+              </div>
+            </div>
+          )}
+
+          <div class="arch-modal__chips">
+            <span class="mono-label arch-modal__chips-label" data-i18n-key="arch.spec_tools">{t('arch.spec_tools')}</span>
+            <div class="arch-modal__chips-list">
+              {s.tools.map((tl) => <span class="arch-modal__chip mono-label">{tl}</span>)}
+            </div>
+          </div>
+        </div>
+      </dialog>
+    ))}
   </div>
 </section>
 
@@ -173,12 +337,158 @@ import { t } from '../lib/i18n';
   }
 
   .section-line {
-    margin-block-end: var(--space-16);
+    margin-block-end: var(--space-12);
   }
+
+  /* ── PIPELINE.RUN — refinaria de dados ao vivo (canvas) ──────────── */
+  .refinery {
+    position: relative;
+    margin-block-end: var(--space-8);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--paper-card);
+    overflow: hidden;
+  }
+  .refinery-cap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-block-end: 1px solid var(--line);
+  }
+  .refinery-run {
+    color: var(--ink-soft);
+    letter-spacing: var(--tracking-wider);
+  }
+  .refinery-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    color: var(--ink-faint);
+  }
+  .refinery-replay {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 2px var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--ink-soft);
+    font: inherit;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), color var(--transition-fast),
+                box-shadow var(--transition-fast);
+  }
+  .refinery-replay > span:first-child { color: var(--accent); }
+  @media (hover: hover) {
+    .refinery-replay:hover {
+      border-color: var(--accent);
+      color: var(--ink);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+  }
+  .refinery-count { color: var(--ink-faint); }
+  .refinery-count b {
+    color: var(--ink-soft);
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+  }
+  .refinery-live {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--ink-faint);
+  }
+  @media (max-width: 560px) { .refinery-count { display: none; } }
+  /* Sob reduced-motion o canvas mostra 1 frame estático (grade montada): nada
+     "corre", então não anunciamos contador/ao-vivo. */
+  @media (prefers-reduced-motion: reduce) { .refinery-meta { display: none; } }
+  .refinery-live i {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .refinery-live i { animation: refineryBlink 1.6s steps(1) infinite; }
+  }
+  @keyframes refineryBlink { 0%, 62% { opacity: 1; } 63%, 100% { opacity: 0.25; } }
+
+  .refinery-canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: clamp(190px, 24vw, 280px);
+    cursor: crosshair; /* convida a interagir com o rio */
+    touch-action: pan-y; /* não sequestra o scroll no mobile */
+  }
+
+  .refinery-scale {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-block-start: 1px solid var(--line);
+  }
+  .refinery-scale > span {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-inline-start: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .refinery-scale > span:first-child { border-inline-start: 0; }
+  .refinery-scale b { color: var(--ink-faint); font-weight: 400; }
+  .refinery-scale > span {
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  .refinery-scale > span.is-on {
+    color: var(--ink);
+    background: var(--paper-soft);
+  }
+  .refinery-scale > span.is-on b { color: var(--accent); }
+
+  /* ── Log de execução (terminal) ─────────────────────────────────── */
+  .refinery-log {
+    border-block-start: 1px solid var(--line);
+    padding: var(--space-2) var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.7;
+    color: var(--ink-soft);
+    min-block-size: calc(3 * 1.7em + 2 * var(--space-2));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0;
+    overflow: hidden;
+  }
+  .refinery-log-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: var(--tracking-wide);
+  }
+  .refinery-log-line b { color: var(--ink-faint); font-weight: 400; margin-inline-end: var(--space-2); }
+  .refinery-log-line.is-warn { color: var(--warning-ink); }
+  .refinery-log-line.is-boot { color: var(--ink-faint); }
+  @media (prefers-reduced-motion: no-preference) {
+    .refinery-log-line { animation: refineryLogIn 0.3s ease both; }
+  }
+  @keyframes refineryLogIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+  /* Sob reduced-motion não há rAF/eventos → esconde o strip do log. */
+  @media (prefers-reduced-motion: reduce) { .refinery-log { display: none; } }
 
   /* ── Spine do fluxo ──────────────────────────────────────
      Mobile: coluna (estação / trilho / estação …).
-     Desktop ≥900px: linha, estações e trilhos com alturas iguais. */
+     Desktop ≥1024px: linha, estações e trilhos com alturas iguais. */
   .flow {
     display: flex;
     flex-direction: column;
@@ -194,18 +504,22 @@ import { t } from '../lib/i18n';
   }
 
   /* ── Estação ─────────────────────────────────────────────── */
+  /* Cards = camada SECUNDÁRIA (referência) sob o console PIPELINE.RUN (herói):
+     fundo transparente + borda leve → menos peso que a caixa viva acima. */
   .stage {
     position: relative;
     flex: 0 0 auto;
-    background: var(--paper-card);
-    border: 1px solid var(--line);
+    background: transparent;
+    border: 1px solid var(--line-faint);
     border-top: 2px solid var(--tone);
     border-radius: var(--radius-md);
     padding: var(--space-5);
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    transition: border-color var(--transition-normal);
+    transition: border-color var(--transition-normal),
+                background var(--transition-fast),
+                box-shadow var(--transition-fast);
   }
 
   @media (min-width: 1024px) {
@@ -217,8 +531,20 @@ import { t } from '../lib/i18n';
   }
 
   .stage:hover {
-    border-color: var(--line-strong);
+    border-color: var(--line);
     border-top-color: var(--tone);
+    background: var(--paper-card); /* card "acende" ao focar (era transparente) */
+  }
+
+  /* hover-glow (padrão CSS aprovado) — anel tingido pelo --tone da estação */
+  @media (hover: hover) {
+    .stage:hover {
+      box-shadow: 0 0 0 3px var(--tone-dim);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stage { transition: none; }
+    .stage:hover { box-shadow: none; }
   }
 
   .stage-head {
@@ -353,22 +679,22 @@ import { t } from '../lib/i18n';
   .rail-line {
     position: absolute;
     background: var(--line-strong);
+    /* transform livre p/ o scaleX do hairline-draw (spine se desenha no scroll) */
+    transform-origin: left center;
   }
   .rail-line {
-    /* mobile: linha vertical centrada */
+    /* mobile: linha vertical centrada (centragem via inset, não transform) */
     inset-block: 6px;
-    inset-inline-start: 50%;
+    inset-inline-start: calc(50% - 0.5px);
     inline-size: 1px;
-    transform: translateX(-0.5px);
   }
   @media (min-width: 1024px) {
     .rail-line {
       inset-block: auto;
-      inset-block-start: 50%;
+      inset-block-start: calc(50% - 0.5px);
       inset-inline: 6px;
       inline-size: auto;
       block-size: 1px;
-      transform: translateY(-0.5px);
     }
   }
 
@@ -394,57 +720,59 @@ import { t } from '../lib/i18n';
     }
   }
 
-  /* Pacotes de dados (diamantes) — cor por segmento (--pkt) */
+  /* Cor por segmento do conector (--pkt) — usada pelo beam pulse */
   .rail--raw    { --pkt: var(--accent); }
   .rail--bronze { --pkt: var(--medallion-bronze); }
   .rail--silver { --pkt: var(--medallion-silver); }
   .rail--gold   { --pkt: var(--medallion-gold); }
 
-  .pkt {
+  /* ── Beam pulse (padrão Magic UI) ─────────────────────────────────
+     Um pulso de luz único e sutil percorre cada conector, no tom do
+     segmento. Complementa o canvas sem competir (calmo, lento). O trilho
+     é container-type:size → usamos cqh/cqw p/ o beam cruzar a extensão real.
+     Só sob motion; sob reduced-motion some (setas indicam a direção). */
+  .rail-beam {
     position: absolute;
-    width: 7px;
-    height: 7px;
-    background: var(--pkt);
-    border-radius: 1px;
-    /* diamante */
+    display: none;
+    border-radius: var(--radius-full);
+    /* mobile: lane vertical central */
+    inline-size: 3px;
+    block-size: 22px;
     inset-inline-start: 50%;
     inset-block-start: 0;
-    display: none; /* aparece só quando motion é permitido (regra abaixo) */
+    translate: -50% 0;
+    background: linear-gradient(to bottom, transparent, var(--pkt), transparent);
   }
-
-  /* Fluxo contínuo — SOMENTE quando o usuário aceita motion.
-     Mobile: desce (translateY 0 → 100cqh). Desktop: anda (translateX 0 → 100cqw). */
-  @media (prefers-reduced-motion: no-preference) {
-    .pkt {
-      display: block;
-      animation: flowY 3s linear infinite;
-    }
-    .pkt:nth-child(3) { animation-delay: -1s; }
-    .pkt:nth-child(4) { animation-delay: -2s; }
-
-    @media (min-width: 1024px) {
-      .pkt { animation-name: flowX; }
-    }
-  }
-
-  @keyframes flowY {
-    0%   { transform: translate(-50%, -4px) rotate(45deg); opacity: 0; }
-    12%  { opacity: 1; }
-    88%  { opacity: 1; }
-    100% { transform: translate(-50%, calc(100cqh + 4px)) rotate(45deg); opacity: 0; }
-  }
-
-  @keyframes flowX {
-    0%   { transform: translate(-4px, -50%) rotate(45deg); opacity: 0; }
-    12%  { opacity: 1; }
-    88%  { opacity: 1; }
-    100% { transform: translate(calc(100cqw + 4px), -50%) rotate(45deg); opacity: 0; }
-  }
-
-  /* No desktop os pacotes partem do topo-central; reancoramos para o meio
-     vertical (a translação horizontal cuida do resto). */
   @media (min-width: 1024px) {
-    .pkt { inset-block-start: 50%; inset-inline-start: 0; }
+    .rail-beam {
+      inline-size: 26px;
+      block-size: 3px;
+      inset-inline-start: 0;
+      inset-block-start: 50%;
+      translate: 0 -50%;
+      background: linear-gradient(to right, transparent, var(--pkt), transparent);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .rail-beam {
+      display: block;
+      animation: railBeamY 3s ease-in-out infinite;
+    }
+    @media (min-width: 1024px) {
+      .rail-beam { animation-name: railBeamX; }
+    }
+  }
+  @keyframes railBeamY {
+    0%   { transform: translateY(-26px); opacity: 0; }
+    18%  { opacity: 0.55; }
+    82%  { opacity: 0.55; }
+    100% { transform: translateY(calc(100cqh + 26px)); opacity: 0; }
+  }
+  @keyframes railBeamX {
+    0%   { transform: translateX(-26px); opacity: 0; }
+    18%  { opacity: 0.55; }
+    82%  { opacity: 0.55; }
+    100% { transform: translateX(calc(100cqw + 26px)); opacity: 0; }
   }
 
   /* ── Legenda ─────────────────────────────────────────────── */
@@ -461,20 +789,6 @@ import { t } from '../lib/i18n';
     gap: var(--space-3) var(--space-4);
   }
 
-  .legend-swatches {
-    display: inline-flex;
-    gap: var(--space-1);
-  }
-  .sw {
-    width: 12px;
-    height: 12px;
-    border-radius: 1px;
-    transform: rotate(45deg);
-  }
-  .sw--bronze { background: var(--medallion-bronze); }
-  .sw--silver { background: var(--medallion-silver); }
-  .sw--gold   { background: var(--medallion-gold); }
-
   .legend-flow {
     color: var(--ink-faint);
   }
@@ -488,12 +802,193 @@ import { t } from '../lib/i18n';
     margin: 0;
     min-width: 0;
   }
+
+  /* ── Trigger "Ver spec ↗" (rodapé do card) ────────────────── */
+  .stage-spec {
+    margin-block-start: auto; /* empurra p/ o rodapé do card (flex column) */
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), color var(--transition-fast),
+                box-shadow var(--transition-fast);
+  }
+  @media (hover: hover) {
+    .stage-spec:hover { border-color: var(--tone); color: var(--ink); box-shadow: 0 0 0 3px var(--tone-dim); }
+  }
+  .stage-spec:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .stage-spec > span:last-child { color: var(--tone); }
+
+  /* ── Modal spec sheet (<dialog>) ──────────────────────────── */
+  .arch-modal {
+    /* reset global zera o margin:auto do UA → reforçamos a centragem */
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    inline-size: min(94vw, 46rem);
+    max-block-size: min(88vh, 46rem);
+    padding: 0;
+    border: 1px solid var(--line-strong);
+    border-block-start: 2px solid var(--tone);
+    border-radius: var(--radius-md);
+    background: var(--paper-card);
+    color: var(--ink);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+  .arch-modal::backdrop {
+    background: rgba(10, 10, 10, 0.55);
+    backdrop-filter: blur(2px);
+  }
+  .arch-modal__inner {
+    position: relative;
+    padding: var(--space-8);
+    max-block-size: min(88vh, 46rem);
+    overflow-y: auto;
+  }
+  .arch-modal__close {
+    position: absolute;
+    inset-block-start: var(--space-4);
+    inset-inline-end: var(--space-4);
+    inline-size: 32px;
+    block-size: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: var(--paper);
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+  }
+  .arch-modal__close:hover { border-color: var(--line-strong); color: var(--ink); }
+  .arch-modal__close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .arch-modal__head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding-inline-end: var(--space-8);
+    margin-block-end: var(--space-5);
+  }
+  .arch-modal__idx { color: var(--tone); }
+  .arch-modal__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: var(--ink);
+    margin: 0;
+    line-height: var(--leading-snug);
+  }
+  .arch-modal__badge { margin-inline-start: auto; color: var(--ink-faint); letter-spacing: var(--tracking-wider); }
+
+  .arch-modal__codewrap { position: relative; margin-block-end: var(--space-5); }
+  .arch-modal__codelabel {
+    display: block;
+    color: var(--ink-faint);
+    margin-block-end: var(--space-2);
+  }
+  .arch-code__copy {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    padding: 2px var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+  }
+  .arch-code__copy:hover { border-color: var(--line-strong); color: var(--ink); }
+  .arch-code__copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .arch-code__copy.is-copied { border-color: var(--accent); color: var(--accent); }
+  .arch-code {
+    margin: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--paper-soft);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.65;
+    color: var(--ink);
+    -webkit-overflow-scrolling: touch;
+  }
+  .arch-code .cl { display: inline; }
+  .arch-code .cl--c { color: var(--ink-faint); font-style: italic; } /* comentários */
+
+  .arch-modal__meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+    margin: 0 0 var(--space-4);
+  }
+  @media (max-width: 560px) { .arch-modal__meta { grid-template-columns: 1fr; } }
+  .arch-modal__meta-item {
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    min-width: 0;
+  }
+  .arch-modal__meta-item dt { color: var(--ink-faint); margin-block-end: var(--space-1); }
+  .arch-modal__meta-item dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink);
+    letter-spacing: var(--tracking-wide);
+    word-break: break-word;
+  }
+
+  .arch-modal__chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    margin-block-start: var(--space-3);
+  }
+  .arch-modal__chips-label { color: var(--ink-faint); }
+  .arch-modal__chips-list { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .arch-modal__chip {
+    padding: 2px var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--paper-soft);
+    color: var(--ink-soft);
+    letter-spacing: var(--tracking-wide);
+    white-space: nowrap;
+  }
+  .arch-modal__chip--dq {
+    border-color: var(--warning-line);
+    background: var(--warning-dim);
+    color: var(--warning-ink);
+  }
 </style>
 
 <script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
   import { motionOk } from '../scripts/motion/constants';
+  import { registerCleaner } from '../scripts/motion/cleanup';
+  import { initRefinery, type RefineryControl } from '../scripts/arch-refinery';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // guardado entre navegações SPA p/ teardown antes de re-inicializar
+  let refineryCtl: RefineryControl | null = null;
 
   // astro:page-load (não top-level): dispara no 1º load E após cada navegação
   // SPA do <ClientRouter />; re-anima ao voltar. O guard garante que só roda
@@ -501,17 +996,114 @@ import { t } from '../lib/i18n';
   document.addEventListener('astro:page-load', () => {
     const section = document.getElementById('architecture');
     if (!section) return;
-    const line   = section.querySelector('.section-line') as Element;
-    const head   = section.querySelector('.section-head') as Element;
-    const stages = section.querySelectorAll('.stage');
-    const legend = section.querySelector('.flow-legend') as Element;
+    const line     = section.querySelector('.section-line') as Element;
+    const head     = section.querySelector('.section-head') as Element;
+    const refinery = section.querySelector('.refinery') as Element;
+    const stages   = section.querySelectorAll('.stage');
+    const rails    = section.querySelectorAll('.rail-line');
+    const legend   = section.querySelector('.flow-legend') as Element;
 
     if (line) hairlineDraw(line, section);
 
+    // Spine assinatura: desenha os segmentos do trilho em cascata (Fontes→Ouro).
+    // hairlineDraw auto-gated por motionOk; delay escalonado ~STAGGER.normal.
+    rails.forEach((rail, i) => hairlineDraw(rail, section, i * 0.12));
+
+    // PIPELINE.RUN — refinaria de dados ao vivo (canvas). Teardown do anterior.
+    refineryCtl?.destroy();
+    refineryCtl = null;
+    const canvas = section.querySelector('.refinery-canvas') as HTMLCanvasElement | null;
+
+    // Log de execução (terminal): eventos reais da simulação → linhas mono.
+    const logEl = section.querySelector('.refinery-log') as HTMLElement | null;
+    const LOG_MAX = 3;
+    const pushLog = (e: { kind: 'merge' | 'quarantine'; domain?: string }) => {
+      if (!logEl) return;
+      const d = new Date();
+      const ts = d.toTimeString().slice(0, 8) + '.' + String(d.getMilliseconds()).padStart(3, '0');
+      const row = document.createElement('div');
+      row.className = 'refinery-log-line' + (e.kind === 'quarantine' ? ' is-warn' : '');
+      const msg = e.kind === 'merge'
+        ? `MERGE gold.obt_${e.domain} ✓ · +1 linha`
+        : 'DQ FAIL · registro → quarentena';
+      const b = document.createElement('b');
+      b.textContent = ts;
+      row.append(b, document.createTextNode(' ' + msg));
+      logEl.prepend(row);
+      while (logEl.children.length > LOG_MAX) logEl.lastElementChild?.remove();
+    };
+
+    if (canvas) refineryCtl = initRefinery(canvas, { onEvent: pushLog });
+
+    // Hover num card ilumina a zona no rio + realça a régua (as demais esmaecem).
+    const scaleItems = section.querySelectorAll('.refinery-scale > span');
+    stages.forEach((stage, i) => {
+      const enter = () => { refineryCtl?.setZone(i); scaleItems[i]?.classList.add('is-on'); };
+      const leave = () => { refineryCtl?.setZone(null); scaleItems[i]?.classList.remove('is-on'); };
+      stage.addEventListener('mouseenter', enter);
+      stage.addEventListener('mouseleave', leave);
+      stage.addEventListener('focusin', enter);
+      stage.addEventListener('focusout', leave);
+    });
+
+    // Spec sheets: <dialog> nativo (Esc + focus-trap grátis). Abre pelo trigger
+    // do card; fecha no botão ✕, no clique fora (backdrop) ou Esc.
+    section.querySelectorAll<HTMLElement>('.stage-spec[data-modal]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const id = trigger.dataset.modal;
+        const dlg = id ? section.querySelector<HTMLDialogElement>('#' + CSS.escape(id)) : null;
+        dlg?.showModal();
+      });
+    });
+    section.querySelectorAll<HTMLDialogElement>('.arch-modal').forEach((dlg) => {
+      dlg.querySelector<HTMLButtonElement>('[data-close]')?.addEventListener('click', () => dlg.close());
+      dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    });
+
+    // Copiar SQL do spec sheet (como em docs/GitHub).
+    section.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const code = btn.parentElement?.querySelector('.arch-code')?.textContent ?? '';
+        try { await navigator.clipboard.writeText(code); } catch { /* clipboard bloqueado */ }
+        const orig = btn.textContent;
+        btn.textContent = btn.dataset.copied ?? '✓';
+        btn.classList.add('is-copied');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('is-copied'); }, 1200);
+      });
+    });
+
+    // REPLAY — reroda o pipeline do zero e limpa o log.
+    section.querySelector<HTMLButtonElement>('[data-replay]')?.addEventListener('click', () => {
+      refineryCtl?.replay();
+      if (logEl) {
+        logEl.replaceChildren();
+        const boot = document.createElement('div');
+        boot.className = 'refinery-log-line is-boot';
+        const b = document.createElement('b');
+        b.textContent = '··:··:··';
+        boot.append(b, document.createTextNode(' PIPELINE.RUN · re-executando…'));
+        logEl.append(boot);
+      }
+    });
+
     if (motionOk) {
       revealUp([head], section, 0);
+      if (refinery) revealUp([refinery], section, 0);
       revealUp(stages, section, 0.1);
       if (legend) revealUp([legend], section, 0);
+
+      // Scroll-scrub: a frente de processamento avança Fontes→Ouro conforme
+      // a seção entra (o rio "enche" com o scroll). onUpdate/onRefresh → progress.
+      const ctx = gsap.context(() => {
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top 82%',
+          end: 'top 28%',
+          onUpdate: (self) => refineryCtl?.setProgress(self.progress),
+          onRefresh: (self) => refineryCtl?.setProgress(self.progress),
+        });
+      });
+      registerCleaner(() => ctx.revert());
     }
   });
 </script>

@@ -9,8 +9,9 @@
  *  - Métricas secundárias em composição assimétrica ao redor (não grid uniforme).
  *  - Highlight strip (stack) ancorando o rodapé.
  *
- * Efeito: digit-roll (slot-machine / odômetro) nos valores numéricos;
- * scramble nos textuais. Números GIGANTES em Instrument Serif (--font-display).
+ * Efeito: count-up (Padrão 4) nos valores numéricos — MESMO signature vivo de
+ * Stats/Skills/AiDelivery/etc. (coerência de sistema). Valores textuais degradam
+ * p/ texto simples. Números GIGANTES em Instrument Serif (--font-display).
  * Detalhes blueprint: labels mono [colchetes], crop marks, hairlines conectoras,
  * sparkline ASCII (▁▂▃▅▇).
  *
@@ -251,43 +252,6 @@ import { t } from '../lib/i18n';
     max-width: 40ch;
   }
 
-  /* ── digit-roll (slot-machine) ───────────────────────────── */
-  /* Host do valor quando montado com colunas roláveis. */
-  .metric-value :global(.digit-roll-host),
-  .metric-value:global(.digit-roll-host) {
-    display: inline-flex;
-    align-items: flex-end;
-  }
-  .metric-value :global(.digit-roll) {
-    display: inline-block;
-    height: 1em;
-    line-height: 1;
-    overflow: hidden;
-    vertical-align: bottom;
-  }
-  .metric-value :global(.digit-col) {
-    display: flex;
-    flex-direction: column;
-    /* will-change é gerenciado pelo motion-engineer em runtime:
-       setado no start da animação (digit-roll.ts) e limpo no
-       onComplete() para liberar a camada compositor quando ociosa.
-       NÃO remover daqui — o CSS funciona como fallback inicial. */
-    will-change: transform;
-  }
-  .metric-value :global(.digit-cell) {
-    display: block;
-    /* ⚠️ NÃO MUDAR height: 1em — exigido pelo motion-engineer.
-       O script digit-roll.ts usa `yPercent: -target * 10` (GSAP),
-       que assume células de altura 1em (10 células → 1000% = loop).
-       Qualquer outro valor quebra o offset da slot-machine. */
-    height: 1em;
-    line-height: 1;
-    text-align: center;
-  }
-  .metric-value :global(.digit-fixed) {
-    display: inline-block;
-  }
-
   /* ── Highlight strip ─────────────────────────────────────── */
   .impact-highlight {
     position: relative;
@@ -318,15 +282,16 @@ import { t } from '../lib/i18n';
 <script>
   import { revealUp } from '../scripts/motion/reveal-up';
   import { hairlineDraw } from '../scripts/motion/hairline-draw';
-  import { digitRoll } from '../scripts/motion/digit-roll';
+  import { countUp } from '../scripts/motion/count-up';
   import { motionOk } from '../scripts/motion/constants';
 
   /**
-   * Preenche os valores das métricas a partir do i18n e aplica o digit-roll.
-   * Re-consulta #impact AO VIVO (o DOM é recriado no swap do <ClientRouter />),
-   * então nunca opera sobre uma seção obsoleta após navegação SPA.
-   * - Reset do valor para texto antes de remontar (re-render ao trocar idioma).
-   * - digitRoll cuida do slot-machine (numérico) ou scramble (textual).
+   * Preenche os valores das métricas a partir do i18n e aplica o count-up
+   * (Padrão 4) — MESMO signature "número vivo" usado em Stats, Skills, AiDelivery,
+   * etc. (coerência de sistema: um único jeito de os números-herói do site
+   * contarem ao vivo). Re-consulta #impact AO VIVO (DOM recriado no swap SPA).
+   * Separa número + sufixo ("498", "10+", "60%"); valores textuais degradam
+   * p/ texto simples (sem count-up).
    */
   function renderMetrics() {
     const section = document.getElementById('impact');
@@ -337,17 +302,15 @@ import { t } from '../lib/i18n';
       const valueEl = metric.querySelector<HTMLElement>('[data-metric-value]');
       if (!idx || !valueEl) return;
 
-      const raw =
-        window.i18n?.t(`impact.metric_${idx}_value`) ?? valueEl.textContent ?? '';
+      const raw = (window.i18n?.t(`impact.metric_${idx}_value`) ?? valueEl.textContent ?? '').trim();
+      const m = raw.match(/^([\d.,]+)(.*)$/);
+      if (!m) { valueEl.textContent = raw; return; } // valor textual → sem count-up
 
-      // reset para estado de texto simples antes de (re)montar
-      valueEl.dataset.rollValue = raw.trim();
-      valueEl.removeAttribute('aria-label');
-      valueEl.classList.remove('digit-roll-host');
-      valueEl.textContent = raw;
-
-      // dispara o efeito (com ScrollTrigger interno) usando o card como trigger
-      digitRoll(valueEl, metric);
+      valueEl.dataset.countTo = m[1].replace(/\./g, '').replace(',', '.');
+      valueEl.dataset.countSuffix = m[2] ?? '';
+      valueEl.dataset.countDecimals = '0';
+      valueEl.textContent = raw; // estado final visível (SSG / reduced-motion)
+      countUp(valueEl, metric); // ScrollTrigger interno, gated por motionOk
     });
   }
 
