@@ -7,9 +7,9 @@
  * Copa do Mundo 2026. Renderizado via <slot /> dentro de PortfolioIndex.astro (slot nomeado),
  * entre o card do Radar e o placeholder "em construção".
  *
- * O subprojeto é uma página HTML/CSS/JS vanilla isolada em
- * public/world-cup-dashboard/ (servida direta pelo GitHub Pages, sem passar
- * pelo build Astro) — por isso o link aponta para ${base}world-cup-dashboard/.
+ * O subprojeto é a página Astro src/pages/world-cup-dashboard.astro
+ * (mesmo padrão de pix/cockpit/eleicoes) — o link aponta para a rota
+ * ${base}world-cup-dashboard/ emitida pelo build.
  *
  * A linha de "telemetria" (artilheiro + jogos + fase atual) é hidratada em
  * runtime via fetch dos JSONs gerados pelo scraper (ingestion_worldcup/) —
@@ -250,7 +250,7 @@ const base = import.meta.env.BASE_URL;
 <script>
   /**
    * Telemetria do card — dado real dos JSONs gerados pelo scraper
-   * (ingestion_worldcup/scraper.py → public/world-cup-dashboard/data/).
+   * (ingestion_worldcup/scraper.py → assets/data/worldcup/).
    * Falha silenciosa: mantém "···" se o fetch não completar (card continua
    * funcional, igual ao DataStackRadarCard).
    *
@@ -283,7 +283,7 @@ const base = import.meta.env.BASE_URL;
 
     const base: string =
       (document.body as HTMLElement).dataset.baseurl ?? '';
-    const dataBase = `${base}world-cup-dashboard/data/`;
+    const dataBase = `${base}assets/data/worldcup/`;
 
     const withTimeout = async (url: string) => {
       const controller = new AbortController();
