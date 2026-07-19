@@ -1,0 +1,312 @@
+<!-- ════════════════════════════════════════════════════════════════════════
+     CAPÍTULO 2 + 3 — bloco 2022 / histórico do World Cup Dashboard (Astro).
+     Fragmento de <section>s para ser costurado dentro de
+     src/pages/world-cup-dashboard.astro (entre a §[02] Estatísticas e o
+     restante). Segue EXATAMENTE as convenções do esqueleto:
+       · mono-label sequencial [ 07..10 ] em ordem de DOM
+       · .section > .container > .section-head (mono-label + .wc-display + .wc-lead)
+       · <hr class="section-line"> por seção
+       · fundos alternados via classes .wc-*-section (definir no <style> da página)
+       · data-i18n-key / data-i18n-aria com as chaves EXISTENTES em
+         assets/i18n/*.json → portfolio.world_cup.*  (degrada p/ o texto embutido)
+     Charts Chart.js do legado viram CONTAINERS <div> que a lib SVG
+     (src/scripts/worldcup/charts.ts) preenche via innerHTML. O aria-label do
+     container é lido pelo TS e repassado ao <svg role="img"> (i18n preservado).
+     ════════════════════════════════════════════════════════════════════════ -->
+
+<!-- ═══════════════════════════ [07] CLÁSSICOS 2022 ═══════════════════════════ -->
+<section id="wc-classics" class="section wc-classics-section" aria-labelledby="wc-classics-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">07</span>
+      <h2 id="wc-classics-title" class="wc-display" data-i18n-key="portfolio.world_cup.classicos_title">Clássicos 2022</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.classicos_lead">
+        Posse de bola, precisão de passe e PPDA (intensidade de pressão) por intervalo de 15 min e por tempo — o mesmo recorte das transmissões, com número real do dado de evento (lance a lance) da Copa de 2022. Não há evento aberto para 2026.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" />
+
+    <span class="mono-label wc-cl-tagline" data-i18n-key="portfolio.world_cup.statsbomb_source">dado de evento · StatsBomb Open Data (CC BY-NC-SA)</span>
+
+    <div class="wc-match-select-wrap" style="margin-bottom:var(--space-3)">
+      <label for="wc-classics-select" class="mono-label" data-i18n-key="portfolio.world_cup.select_match">partida</label>
+      <select id="wc-classics-select" class="wc-cl-select" aria-labelledby="wc-classics-title"></select>
+    </div>
+    <span class="mono-label wc-cl-meta" id="wc-classics-meta">—</span>
+
+    <p class="wc-error mono-label" id="wc-classics-error" hidden data-i18n-key="portfolio.world_cup.classicos_error">Análise avançada indisponível para esta partida.</p>
+
+    <!-- Posse de bola -->
+    <div class="wc-cl-block card crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <h3 class="wc-cl-block__title">
+        <span data-i18n-key="portfolio.world_cup.classicos_poss_title">Posse de bola</span>
+        <span class="wc-cl-block__unit">%</span>
+      </h3>
+      <div class="wc-cl-block__table" id="wc-cl-poss-table" aria-live="polite"></div>
+      <div class="wc-cl-block__chart" id="wc-cl-poss-chart" role="img"
+           aria-label="Posse de bola por intervalo de 15 minutos, casa vs. fora."
+           data-i18n-aria="portfolio.world_cup.classicos_poss_chart_aria">
+        <p class="wc-loading mono-label">carregando gráfico…</p>
+      </div>
+    </div>
+
+    <!-- Precisão de passe -->
+    <div class="wc-cl-block card crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <h3 class="wc-cl-block__title">
+        <span data-i18n-key="portfolio.world_cup.classicos_pass_title">Precisão de passe</span>
+        <span class="wc-cl-block__unit">%</span>
+      </h3>
+      <div class="wc-cl-block__table" id="wc-cl-pass-table" aria-live="polite"></div>
+      <div class="wc-cl-block__chart" id="wc-cl-pass-chart" role="img"
+           aria-label="Precisão de passe por intervalo de 15 minutos, casa vs. fora."
+           data-i18n-aria="portfolio.world_cup.classicos_pass_chart_aria">
+        <p class="wc-loading mono-label">carregando gráfico…</p>
+      </div>
+    </div>
+
+    <!-- PPDA -->
+    <div class="wc-cl-block card crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <h3 class="wc-cl-block__title">
+        <span>PPDA</span>
+        <span class="wc-cl-block__unit" data-i18n-key="portfolio.world_cup.classicos_ppda_unit">intensidade de pressão</span>
+      </h3>
+      <div class="wc-cl-block__table" id="wc-cl-ppda-table" aria-live="polite"></div>
+      <div class="wc-cl-block__chart" id="wc-cl-ppda-chart" role="img"
+           aria-label="PPDA por intervalo de 15 minutos, casa vs. fora."
+           data-i18n-aria="portfolio.world_cup.classicos_ppda_chart_aria">
+        <p class="wc-loading mono-label">carregando gráfico…</p>
+      </div>
+      <p class="wc-cl-note mono-label">
+        <span data-i18n-key="portfolio.world_cup.classicos_ppda_note">PPDA = passes do adversário ÷ ações defensivas (desarmes + interceptações + faltas) na zona de pressão.</span>
+        <strong data-i18n-key="portfolio.world_cup.classicos_ppda_note_em">Menor = pressão mais intensa.</strong>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ [08] COPA 2022 — PANORAMA ═══════════════════════ -->
+<section id="copa2022-panorama" class="section wc-c22-section" aria-labelledby="c22-pan-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">08</span>
+      <h2 id="c22-pan-title" class="wc-display" data-i18n-key="portfolio.world_cup.panorama_title">Copa 2022 — Panorama</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.panorama_lead">
+        O torneio inteiro do Catar em dado de evento (lance a lance): xG por seleção, quem finalizou acima ou abaixo do esperado, e o volume de jogo — passes, pressões, duelos, conduções. Profundidade que a Copa ao vivo (2026) ainda não permite.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" />
+
+    <span class="mono-label wc-cl-tagline" id="c22-pan-meta" data-i18n-key="portfolio.world_cup.statsbomb_source">dado de evento · StatsBomb Open Data (CC BY-NC-SA)</span>
+
+    <p class="wc-error mono-label" id="c22-pan-error" hidden data-i18n-key="portfolio.world_cup.panorama_error">Panorama 2022 indisponível.</p>
+
+    <!-- Bento de destaques -->
+    <div class="wc-insights-grid" id="c22-highlights" aria-label="Destaques do torneio 2022"
+         data-i18n-aria="portfolio.world_cup.panorama_highlights_aria">
+      <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></div>
+      <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></div>
+      <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></div>
+      <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:140px"></span></div>
+    </div>
+
+    <!-- Ranking de seleções por métrica selecionável -->
+    <div class="wc-c22-block card crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <header class="wc-c22-block__head">
+        <h3 class="wc-c22-block__title" data-i18n-key="portfolio.world_cup.panorama_ranking_title">Ranking de seleções</h3>
+        <div class="wc-match-select-wrap">
+          <label for="c22-metric-select" class="mono-label" data-i18n-key="portfolio.world_cup.select_metric">métrica</label>
+          <select id="c22-metric-select" class="wc-cl-select"></select>
+        </div>
+      </header>
+      <div class="wc-c22-block__chart" id="c22-team-chart" role="img"
+           aria-label="Ranking das seleções da Copa 2022 pela métrica selecionada."
+           data-i18n-aria="portfolio.world_cup.panorama_team_chart_aria">
+        <p class="wc-loading mono-label">carregando gráfico…</p>
+      </div>
+      <p class="wc-cl-note mono-label" id="c22-team-note" data-i18n-key="portfolio.world_cup.panorama_team_note">Top 12 seleções por xG a favor — Copa 2022.</p>
+    </div>
+
+    <!-- Finalizadores: clínicos vs perdulários -->
+    <div class="wc-c22-block card crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <h3 class="wc-c22-block__title" data-i18n-key="portfolio.world_cup.panorama_finishing_title">Finalização · gols acima (+) ou abaixo (−) do xG</h3>
+      <div class="wc-c22-block__chart" id="c22-finishing-chart" role="img"
+           aria-label="Jogadores da Copa 2022 por diferença entre gols e xG: finalizadores clínicos versus perdulários."
+           data-i18n-aria="portfolio.world_cup.panorama_finishing_chart_aria">
+        <p class="wc-loading mono-label">carregando gráfico…</p>
+      </div>
+      <p class="wc-cl-note mono-label" data-i18n-key="portfolio.world_cup.panorama_finishing_note">Verde = marcou mais do que o xG previa (clínico). Ouro = desperdiçou (abaixo do xG). Mín. 5 chutes no torneio.</p>
+    </div>
+
+    <!-- Artilharia 2022 com xG -->
+    <div class="wc-scorers-wrap crop" style="margin-top:var(--space-6)">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <table class="wc-scorers-table" aria-label="Artilharia da Copa 2022 com xG"
+             data-i18n-aria="portfolio.world_cup.panorama_scorers_aria">
+        <thead>
+          <tr>
+            <th scope="col" class="wc-scorers-table__rank" data-i18n-key="portfolio.world_cup.col_rank">#</th>
+            <th scope="col" class="wc-scorers-table__player" data-i18n-key="portfolio.world_cup.col_player">Jogador</th>
+            <th scope="col" class="wc-scorers-table__goals" data-i18n-key="portfolio.world_cup.col_goals">Gols</th>
+            <th scope="col" class="wc-scorers-table__pen" data-i18n-key="portfolio.world_cup.col_pen">Pen.</th>
+            <th scope="col" class="wc-scorers-table__pen">xG</th>
+          </tr>
+        </thead>
+        <tbody id="c22-scorers-body">
+          <tr><td colspan="5"><p class="wc-loading mono-label">carregando artilharia…</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ [09] COPA 2022 × 2026 ═══════════════════════ -->
+<section id="comparativo-copas" class="section wc-c22-section wc-c22-section--alt" aria-labelledby="c22-cmp-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">09</span>
+      <h2 id="c22-cmp-title" class="wc-display" data-i18n-key="portfolio.world_cup.comparativo_title">Copa 2022 × 2026</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.comparativo_lead">
+        Comparação apples-to-apples: mesma fonte (openfootball) e o mesmo cálculo nos dois torneios. Muda o formato — 32 seleções e 64 jogos (2022) contra 48 e 104 (2026) — então a distribuição de gols por minuto sai normalizada em %. Métricas avançadas (xG/posse/PPDA) não entram: não existem para 2026.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" />
+
+    <p class="wc-error mono-label" id="c22-cmp-error" hidden data-i18n-key="portfolio.world_cup.comparativo_error">Comparação indisponível.</p>
+
+    <!-- Cartão comparativo -->
+    <div class="wc-stat-compare card crop" id="c22-compare-host" aria-live="polite">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <p class="wc-loading mono-label" style="padding:var(--space-5)" data-i18n-key="portfolio.world_cup.comparativo_loading">Carregando comparação…</p>
+    </div>
+
+    <!-- Gols por minuto sobrepostos -->
+    <div class="wc-c22-block card crop" style="margin-top:var(--space-6)">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <h3 class="wc-c22-block__title">
+        <span data-i18n-key="portfolio.world_cup.comparativo_minute_title">Quando saem os gols — 2022 vs 2026</span>
+        <span class="wc-cl-block__unit" data-i18n-key="portfolio.world_cup.comparativo_minute_unit">% dos gols do torneio</span>
+      </h3>
+      <div class="wc-c22-block__chart" id="c22-minute-chart" role="img"
+           aria-label="Distribuição percentual dos gols por faixa de minuto, comparando as Copas de 2022 e 2026."
+           data-i18n-aria="portfolio.world_cup.comparativo_minute_chart_aria">
+        <p class="wc-loading mono-label">carregando gráfico…</p>
+      </div>
+    </div>
+
+    <!-- Volume de jogo 2022 × 2026 (fontes distintas) -->
+    <h3 class="wc-c22-block__title" style="margin-top:var(--space-8)" data-i18n-key="portfolio.world_cup.comparativo_volume_title">Volume de jogo · por time por jogo</h3>
+    <div class="wc-stat-compare card crop" id="c22-volume-host" aria-live="polite">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <p class="wc-loading mono-label" style="padding:var(--space-5)" data-i18n-key="portfolio.world_cup.comparativo_volume_loading">Carregando volume…</p>
+    </div>
+
+    <!-- Deltas editoriais -->
+    <div class="wc-insights-grid" id="c22-deltas" aria-label="Variações entre 2022 e 2026"
+         data-i18n-aria="portfolio.world_cup.comparativo_deltas_aria" style="margin-top:var(--space-6)">
+      <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:120px"></span></div>
+      <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:120px"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ [10] COPAS NA HISTÓRIA ═══════════════════════ -->
+<section id="historia-copas" class="section wc-c22-section" aria-labelledby="c22-hist-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="mono-label">10</span>
+      <h2 id="c22-hist-title" class="wc-display" data-i18n-key="portfolio.world_cup.historia_title">Copas na história</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.historia_lead">
+        Os grandes números de todas as Copas do Mundo (1930–2022): maiores artilheiros, mais partidas disputadas, o ranking de campeões e as seleções mais presentes. O pano de fundo em que 2022 e 2026 entram.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" />
+
+    <p class="wc-error mono-label" id="c22-hist-error" hidden data-i18n-key="portfolio.world_cup.historia_error">Recordes históricos indisponíveis.</p>
+
+    <!-- Contexto editorial: marcos de 2022 e 2026 (curado + fontes) -->
+    <div class="wc-c22-context" id="c22-context-2022" aria-label="Marcos da Copa 2022" data-i18n-aria="portfolio.world_cup.historia_context_2022_aria"></div>
+    <div class="wc-c22-context" id="c22-context-2026" aria-label="Marcos da Copa 2026" data-i18n-aria="portfolio.world_cup.historia_context_2026_aria"></div>
+
+    <!-- Big numbers -->
+    <div class="wc-c22-bignumbers" id="c22-hist-bignumbers" role="list" aria-label="Recordes históricos da Copa do Mundo" data-i18n-aria="portfolio.world_cup.historia_bignumbers_aria">
+      <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:120px"></span></div>
+      <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:120px"></span></div>
+      <div class="wc-skeleton-card"><span class="wc-skeleton" style="height:120px"></span></div>
+    </div>
+
+    <!-- Ranking de campeões + artilheiros all-time -->
+    <div class="wc-c22-two-col">
+      <div class="wc-c22-block card crop">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <h3 class="wc-c22-block__title" data-i18n-key="portfolio.world_cup.historia_champions_title">Ranking de campeões · títulos</h3>
+        <div class="wc-c22-block__chart" id="c22-hist-champions" role="img"
+             aria-label="Ranking das seleções campeãs do mundo por número de títulos."
+             data-i18n-aria="portfolio.world_cup.historia_champions_chart_aria">
+          <p class="wc-loading mono-label">carregando gráfico…</p>
+        </div>
+      </div>
+      <div class="wc-scorers-wrap crop">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <table class="wc-scorers-table" aria-label="Maiores artilheiros da história das Copas" data-i18n-aria="portfolio.world_cup.historia_scorers_aria">
+          <thead>
+            <tr>
+              <th scope="col" class="wc-scorers-table__rank" data-i18n-key="portfolio.world_cup.col_rank">#</th>
+              <th scope="col" class="wc-scorers-table__player" data-i18n-key="portfolio.world_cup.col_player">Jogador</th>
+              <th scope="col" class="wc-scorers-table__goals" data-i18n-key="portfolio.world_cup.col_goals">Gols</th>
+              <th scope="col" class="wc-scorers-table__pen" data-i18n-key="portfolio.world_cup.col_cups">Copas</th>
+            </tr>
+          </thead>
+          <tbody id="c22-hist-scorers">
+            <tr><td colspan="4"><p class="wc-loading mono-label">carregando…</p></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mais participações (seleções) + mais partidas (jogadores) -->
+    <div class="wc-c22-two-col">
+      <div class="wc-c22-block card crop">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <h3 class="wc-c22-block__title" data-i18n-key="portfolio.world_cup.historia_participations_title">Mais participações · seleções em Copas</h3>
+        <div class="wc-c22-block__chart" id="c22-hist-participations" role="img"
+             aria-label="Seleções com mais participações em Copas do Mundo."
+             data-i18n-aria="portfolio.world_cup.historia_participations_chart_aria">
+          <p class="wc-loading mono-label">carregando gráfico…</p>
+        </div>
+      </div>
+      <div class="wc-scorers-wrap crop">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <table class="wc-scorers-table" aria-label="Jogadores com mais partidas em Copas" data-i18n-aria="portfolio.world_cup.historia_appearances_aria">
+          <thead>
+            <tr>
+              <th scope="col" class="wc-scorers-table__rank" data-i18n-key="portfolio.world_cup.col_rank">#</th>
+              <th scope="col" class="wc-scorers-table__player" data-i18n-key="portfolio.world_cup.col_player">Jogador</th>
+              <th scope="col" class="wc-scorers-table__goals" data-i18n-key="portfolio.world_cup.col_games">Jogos</th>
+            </tr>
+          </thead>
+          <tbody id="c22-hist-appearances">
+            <tr><td colspan="3"><p class="wc-loading mono-label">carregando…</p></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

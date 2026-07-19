@@ -1,0 +1,592 @@
+<!-- ============================================================================
+     cap1.html — CHAPTER 1 (live-2026) SECTION SHELLS
+     ============================================================================
+     Static markup fragments to be stitched into src/pages/world-cup-dashboard.astro
+     by the orchestrator, INSIDE <main id="main-content"> after the existing
+     [02] Estatísticas section (and before <ProjectRecommendations/>).
+
+     Conventions matched from the skeleton:
+       - `.section` wrapper + `.container` + `.section-head` (mono-label + h2.wc-display + p.wc-lead)
+       - `<hr class="section-line">`
+       - `.crop` cards with crop-mark-bl / crop-mark-br spans
+       - `data-i18n-key` on every text node; `data-i18n-aria` on aria-labels
+       - `data-reveal` on injected-content hosts (see cap1.notes.md re: reveal CSS)
+       - WC palette only (tokens); zero hardcoded hex
+
+     mono-label numbers below follow the LEGACY layout order (index.legacy.html).
+     They are PLACEHOLDERS — renumber sequentially once Chapter 2 sections are
+     interleaved (CLAUDE.md rule: mono-labels are sequential in DOM order). The
+     jumpnav NAV array in the page must be extended in the same final order.
+
+     Container IDs use the skeleton's `wc-` convention (NOT the legacy ids) so the
+     cap1.ts render functions target them unambiguously.
+============================================================================ -->
+
+
+<!-- ┌──────────────────────────────────────────────────────────────────────┐
+     │ HERO ENHANCEMENTS (OPTIONAL) — insert INTO the existing #wc-hero card  │
+     │ These power renderTournamentProgress() + renderFreshness() +           │
+     │ setupTeamFilter(). Omit them and those fns no-op (fail-soft).          │
+     └──────────────────────────────────────────────────────────────────────┘ -->
+
+<!-- (a) Freshness badge — put inside <header class="wc-hero__head"> after the mono-label -->
+<span class="wc-freshness" id="wc-freshness" data-freshness hidden aria-live="polite"></span>
+
+<!-- (b) Tournament progress — put inside .container, between .wc-hero__card and .wc-kpi-bento -->
+<div class="wc-progress" id="wc-tournament-progress" hidden
+     role="region" data-i18n-aria="portfolio.world_cup.progress_aria" aria-label="Progresso do torneio">
+  <div class="wc-progress__head">
+    <span class="wc-progress__phase mono-label" id="wc-progress-phase">—</span>
+    <span class="wc-progress__pct" id="wc-progress-pct">0%</span>
+  </div>
+  <div class="wc-progress__bar"
+       role="progressbar"
+       aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+       data-i18n-aria="portfolio.world_cup.progress_bar_aria" aria-label="Porcentagem do torneio concluída"
+       id="wc-progress-bar">
+    <div class="wc-progress__fill" id="wc-progress-fill" style="width:0%"></div>
+  </div>
+  <div class="wc-progress__meta">
+    <span id="wc-progress-remaining">—</span>
+    <span class="wc-progress__sep" aria-hidden="true">·</span>
+    <span id="wc-progress-next">—</span>
+  </div>
+</div>
+
+<!-- (c) Team filter — put at the top of <main>, before the hero section -->
+<div class="wc-team-filter" id="wc-team-filter" hidden role="region"
+     data-i18n-aria="portfolio.world_cup.filter_aria" aria-label="Filtrar por seleção">
+  <span class="mono-label wc-team-filter__label" data-i18n-key="portfolio.world_cup.filter_label">minha seleção</span>
+  <div class="wc-team-filter__chips" id="wc-team-filter-chips"></div>
+</div>
+
+
+<!-- ┌──────────────────────────────────────────────────────────────────────┐
+     │ ESTATÍSTICAS — EXTRA blocks. Append INSIDE the existing #estatisticas   │
+     │ section's grid (the doughnut is already built in the skeleton). These   │
+     │ add the minute bar-chart, the efficiency bar-chart and the "jogo com    │
+     │ mais gols" card. renderStatsExtra() hydrates them.                      │
+     └──────────────────────────────────────────────────────────────────────┘ -->
+
+<!-- gols por faixa de minuto (vertical bars) -->
+<figure class="wc-stat-card wc-stat-card--chart crop" aria-labelledby="wc-stat-min-l">
+  <span class="crop-mark-bl" aria-hidden="true"></span>
+  <span class="crop-mark-br" aria-hidden="true"></span>
+  <header class="wc-stat-card__head">
+    <span class="mono-label" id="wc-stat-min-l" data-i18n-key="portfolio.world_cup.stat_minutes_label">gols por faixa de minuto</span>
+    <span class="mono-label wc-stat-card__hint" aria-hidden="true" data-i18n-key="portfolio.world_cup.stat_minutes_hint">0–134 min</span>
+  </header>
+  <div class="wc-stat-card__chart" id="wc-chart-minutes">
+    <p class="wc-loading mono-label">carregando gráfico…</p>
+  </div>
+</figure>
+
+<!-- ranking de eficiência (horizontal bars, top 8) -->
+<figure class="wc-stat-card wc-stat-card--chart crop" aria-labelledby="wc-stat-eff-l">
+  <span class="crop-mark-bl" aria-hidden="true"></span>
+  <span class="crop-mark-br" aria-hidden="true"></span>
+  <header class="wc-stat-card__head">
+    <span class="mono-label" id="wc-stat-eff-l" data-i18n-key="portfolio.world_cup.stat_eff_label">ranking de eficiência · saldo por jogo</span>
+    <span class="mono-label wc-stat-card__hint" aria-hidden="true" data-i18n-key="portfolio.world_cup.stat_eff_hint">top 8</span>
+  </header>
+  <div class="wc-stat-card__chart" id="wc-chart-efficiency">
+    <p class="wc-loading mono-label">carregando gráfico…</p>
+  </div>
+</figure>
+
+<!-- jogo com mais gols (número-chave que faltava no bento do esqueleto) -->
+<div class="wc-stat-card crop" role="listitem" aria-labelledby="wc-stat-hi-l">
+  <span class="crop-mark-bl" aria-hidden="true"></span>
+  <span class="crop-mark-br" aria-hidden="true"></span>
+  <span class="mono-label" id="wc-stat-hi-l" data-i18n-key="portfolio.world_cup.stat_hi_label">jogo com mais gols</span>
+  <span class="wc-stat-card__value wc-stat-card__value--sm" id="wc-stat-hi">—</span>
+  <span class="wc-stat-card__sub" id="wc-stat-hi-sub"></span>
+</div>
+
+
+<!-- ═══════════════════════════ [01] NOTÍCIAS AO VIVO ═══════════════════════════ -->
+<section id="noticias" class="section wc-news-section" aria-labelledby="wc-news-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">01</span>
+      <h2 id="wc-news-title" class="wc-display" data-i18n-key="portfolio.world_cup.noticias_title">Notícias ao vivo</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.noticias_lead">
+        Feed agregado de Google News (PT/EN) sobre a Copa do Mundo 2026.
+        Atualizado a cada hora pelo pipeline.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+
+    <div class="wc-news-headline">
+      <span class="wc-live-dot" aria-hidden="true"></span>
+      <span class="mono-label wc-live-text" data-i18n-key="portfolio.world_cup.noticias_live">AO VIVO · RSS</span>
+      <span class="wc-news-source mono-label" id="wc-news-source" hidden></span>
+    </div>
+
+    <ol class="wc-news-list" id="wc-news-list" role="list" aria-live="polite"
+        data-i18n-aria="portfolio.world_cup.noticias_list_aria" aria-label="Últimas notícias da Copa do Mundo">
+      <li class="wc-loading mono-label">carregando notícias…</li>
+    </ol>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [12] FASE DE GRUPOS ═══════════════════════════ -->
+<section id="grupos" class="section wc-groups-section" aria-labelledby="wc-groups-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">12</span>
+      <h2 id="wc-groups-title" class="wc-display" data-i18n-key="portfolio.world_cup.grupos_title">Fase de grupos</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.grupos_lead">
+        12 grupos de 4 seleções. Os três primeiros de cada grupo avançam
+        ao mata-mata. PTS · J · V-E-D · GP:GC · SG.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+
+    <div class="wc-groups-grid" id="wc-groups-grid" role="list"
+         data-i18n-aria="portfolio.world_cup.grupos_grid_aria" aria-label="Tabela dos 12 grupos">
+      <div class="wc-loading mono-label" style="grid-column:1/-1">carregando grupos…</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [13] MATA-MATA ═══════════════════════════ -->
+<section id="mata-mata" class="section wc-bracket-section" aria-labelledby="wc-bracket-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">13</span>
+      <h2 id="wc-bracket-title" class="wc-display" data-i18n-key="portfolio.world_cup.matamata_title">Mata-mata</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.matamata_lead">
+        32 seleções no mata-mata: 16 avos, oitavas, quartas, semifinal e final.
+        Jogos ainda não definidos aparecem como “A definir”; jogos de hoje têm destaque.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+
+    <div id="wc-bracket-host" aria-live="polite">
+      <p class="wc-loading mono-label">carregando chaveamento…</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [11] MONTE CARLO ═══════════════════════════ -->
+<section id="monte-carlo" class="section wc-prob-section" aria-labelledby="wc-prob-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">11</span>
+      <div class="wc-mc-title-row">
+        <h2 id="wc-prob-title" class="wc-display" data-i18n-key="portfolio.world_cup.montecarlo_title">Monte Carlo</h2>
+        <button type="button" class="wc-mc-info-btn" id="wc-mc-info-btn"
+                data-i18n-aria="portfolio.world_cup.montecarlo_info_aria"
+                aria-label="Como funciona a simulação de Monte Carlo"
+                aria-haspopup="dialog" aria-expanded="false" aria-controls="wc-mc-modal">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="11" x2="12" y2="16"></line>
+            <circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"></circle>
+          </svg>
+        </button>
+      </div>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.montecarlo_lead">
+        10.000 simulações do mata-mata restante. Cada jogo não-decidido
+        é sorteado via probabilidade Elo; resultados já jogados são fixos.
+        A barra reflete o Elo relativo ao líder; o percentual é a frequência
+        de títulos nas simulações.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+
+    <p class="wc-methodology mono-label" id="wc-prob-method" aria-live="polite"
+       data-i18n-key="portfolio.world_cup.montecarlo_method">
+      metodologia: Monte Carlo · 10.000 simulações
+    </p>
+
+    <ol class="wc-prob-list" id="wc-prob-list" role="list" aria-labelledby="wc-prob-title">
+      <li class="wc-loading mono-label">carregando simulação…</li>
+    </ol>
+
+    <!-- Modal: metodologia Monte Carlo -->
+    <div class="wc-modal wc-mc-modal" id="wc-mc-modal"
+         role="dialog" aria-modal="true"
+         aria-labelledby="wc-mc-modal-title" aria-describedby="wc-mc-modal-lead" hidden>
+      <div class="wc-modal__backdrop" data-close-modal></div>
+      <div class="wc-modal__panel crop wc-mc-modal__panel">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+
+        <header class="wc-modal__head">
+          <h3 id="wc-mc-modal-title" class="wc-modal__title" data-i18n-key="portfolio.world_cup.montecarlo_modal_title">Como funciona o Monte Carlo</h3>
+          <button type="button" class="wc-modal__close"
+                  data-i18n-aria="portfolio.world_cup.montecarlo_modal_close_aria"
+                  aria-label="Fechar explicação da metodologia" data-close-modal>✕</button>
+        </header>
+        <p class="wc-modal__hint mono-label" data-i18n-key="portfolio.world_cup.montecarlo_modal_hint">metodologia da simulação</p>
+
+        <div class="wc-mc-modal__body">
+          <p class="wc-mc-modal__lead" id="wc-mc-modal-lead" data-i18n-key="portfolio.world_cup.montecarlo_modal_lead">
+            Em vez de prever um único campeão, o Monte Carlo roda o mata-mata restante
+            10.000 vezes. Cada jogo ainda em aberto é decidido por um sorteio ponderado
+            pela probabilidade Elo; os jogos já jogados ficam fixos. A fração de vezes que
+            cada seleção levanta a taça vira a porcentagem que você lê na barra.
+          </p>
+
+          <section class="wc-mc-modal__block">
+            <h4 class="wc-mc-modal__eyebrow mono-label" data-i18n-key="portfolio.world_cup.montecarlo_steps_eyebrow">etapas de cada simulação</h4>
+            <ol class="wc-mc-modal__steps">
+              <li>
+                <span class="wc-mc-modal__step-n">01</span>
+                <p><strong data-i18n-key="portfolio.world_cup.montecarlo_step1_title">Resultados reais travados.</strong>
+                <span data-i18n-key="portfolio.world_cup.montecarlo_step1_text">Jogos já decididos (placar oficial) são fixos em todas as 10.000 rodadas.</span></p>
+              </li>
+              <li>
+                <span class="wc-mc-modal__step-n">02</span>
+                <p><strong data-i18n-key="portfolio.world_cup.montecarlo_step2_title">Sorteio por Elo.</strong>
+                <span data-i18n-key="portfolio.world_cup.montecarlo_step2_text">Cada partida em aberto é decidida sorteando o vencedor pela probabilidade Elo. Não há empate — o mata-mata exige um classificado.</span></p>
+              </li>
+              <li>
+                <span class="wc-mc-modal__step-n">03</span>
+                <p><strong data-i18n-key="portfolio.world_cup.montecarlo_step3_title">Propagação do chaveamento.</strong>
+                <span data-i18n-key="portfolio.world_cup.montecarlo_step3_text">Os vencedores preenchem os espaços do bracket (placeholders como W83, L101) e avançam para a fase seguinte, em sequência.</span></p>
+              </li>
+              <li>
+                <span class="wc-mc-modal__step-n">04</span>
+                <p><strong data-i18n-key="portfolio.world_cup.montecarlo_step4_title">Contagem dos títulos.</strong>
+                <span data-i18n-key="portfolio.world_cup.montecarlo_step4_text">Ao fim de cada simulação anotamos o campeão. A frequência com que cada seleção vence, dividida por 10.000, é o seu percentual de título.</span></p>
+              </li>
+            </ol>
+          </section>
+
+          <section class="wc-mc-modal__block">
+            <h4 class="wc-mc-modal__eyebrow mono-label" data-i18n-key="portfolio.world_cup.montecarlo_formula_eyebrow">a fórmula Elo</h4>
+            <p class="wc-mc-modal__note" data-i18n-key="portfolio.world_cup.montecarlo_formula_note">
+              A probabilidade esperada de a seleção A vencer a seleção B é dada pela
+              fórmula de Elo: 1 dividido por (1 mais 10 elevado à razão entre a
+              diferença dos ratings e 400).
+            </p>
+            <pre class="wc-mc-modal__formula"><code
+              data-i18n-aria="portfolio.world_cup.montecarlo_formula_aria"
+              aria-label="Probabilidade de A igual a 1 sobre 1 mais 10 elevado a R B menos R A dividido por 400"
+              data-i18n-key="portfolio.world_cup.montecarlo_formula_code">P(A vence B) = 1 / (1 + 10^((Rb − Ra) / 400))</code></pre>
+            <dl class="wc-mc-modal__terms">
+              <dt><code>Ra</code></dt>
+              <dd data-i18n-key="portfolio.world_cup.montecarlo_term_ra">rating Elo da seleção A</dd>
+              <dt><code>Rb</code></dt>
+              <dd data-i18n-key="portfolio.world_cup.montecarlo_term_rb">rating Elo da seleção B</dd>
+            </dl>
+            <p class="wc-mc-modal__note" data-i18n-key="portfolio.world_cup.montecarlo_formula_note2">
+              Quanto maior a diferença Ra − Rb, maior a chance de A. Uma diferença de
+              400 pontos equivale a uma razão de ~10:1 (≈ 91%).
+            </p>
+          </section>
+
+          <section class="wc-mc-modal__block">
+            <h4 class="wc-mc-modal__eyebrow mono-label" data-i18n-key="portfolio.world_cup.montecarlo_legend_eyebrow">como ler a barra</h4>
+            <dl class="wc-mc-modal__legend">
+              <dt data-i18n-key="portfolio.world_cup.montecarlo_legend_length_dt">comprimento</dt>
+              <dd data-i18n-key="portfolio.world_cup.montecarlo_legend_length_dd">Elo da seleção relativo ao líder do ranking (referência = 100%).</dd>
+              <dt data-i18n-key="portfolio.world_cup.montecarlo_legend_pct_dt">percentual</dt>
+              <dd data-i18n-key="portfolio.world_cup.montecarlo_legend_pct_dd">frequência de títulos nas 10.000 simulações — a probabilidade de campeão.</dd>
+            </dl>
+          </section>
+
+          <section class="wc-mc-modal__block">
+            <h4 class="wc-mc-modal__eyebrow mono-label" data-i18n-key="portfolio.world_cup.montecarlo_caveats_eyebrow">limitações</h4>
+            <ul class="wc-mc-modal__caveats">
+              <li data-i18n-key="portfolio.world_cup.montecarlo_caveat_1">O Elo é tratado como fixo durante a Copa — não recalibrado jogo a jogo.</li>
+              <li data-i18n-key="portfolio.world_cup.montecarlo_caveat_2">Não modela lesões, cartões, suspensões ou desgaste.</li>
+              <li data-i18n-key="portfolio.world_cup.montecarlo_caveat_3">Decide vencedor por jogo, não placar — não prevê gols nem saldo.</li>
+              <li data-i18n-key="portfolio.world_cup.montecarlo_caveat_4">Cobre apenas o mata-mata; a fase de grupos é considerada consolidada.</li>
+              <li data-i18n-key="portfolio.world_cup.montecarlo_caveat_5">Com 10.000 amostras, a margem de erro é ≈ ±1% perto de 50%.</li>
+            </ul>
+          </section>
+        </div>
+
+        <footer class="wc-modal__foot">
+          <p class="wc-mc-modal__source mono-label" id="wc-mc-modal-source" hidden></p>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [17] PARTIDAS ═══════════════════════════ -->
+<section id="partidas" class="section wc-matches-section" aria-labelledby="wc-matches-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">17</span>
+      <h2 id="wc-matches-title" class="wc-display" data-i18n-key="portfolio.world_cup.partidas_title">Partidas</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.partidas_lead">
+        Resultados recentes e próximos jogos da Copa. Jogos de hoje
+        aparecem destacados; jogos ainda não definidos mostram “A definir”.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+
+    <div class="wc-matches-grid">
+      <div class="wc-matches-col" aria-labelledby="wc-matches-recent-title">
+        <header class="wc-matches-col__head">
+          <span class="mono-label" id="wc-matches-recent-title" data-i18n-key="portfolio.world_cup.partidas_recent_title">resultados recentes</span>
+          <span class="mono-label wc-matches-col__hint" data-i18n-key="portfolio.world_cup.partidas_recent_hint">últimos finalizados</span>
+        </header>
+        <ol class="wc-matches-list" id="wc-matches-recent" role="list" aria-live="polite">
+          <li class="wc-loading mono-label">carregando…</li>
+        </ol>
+      </div>
+
+      <div class="wc-matches-col" aria-labelledby="wc-matches-upcoming-title">
+        <header class="wc-matches-col__head">
+          <span class="mono-label" id="wc-matches-upcoming-title" data-i18n-key="portfolio.world_cup.partidas_upcoming_title">próximos jogos</span>
+          <span class="mono-label wc-matches-col__hint" data-i18n-key="portfolio.world_cup.partidas_upcoming_hint">hoje e agendados</span>
+        </header>
+        <ol class="wc-matches-list" id="wc-matches-upcoming" role="list" aria-live="polite">
+          <li class="wc-loading mono-label">carregando…</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [04] FINALIZAÇÕES (shot-map) ═══════════════════════════ -->
+<section id="shot-map" class="section wc-shotmap-section" aria-labelledby="wc-shotmap-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">04</span>
+      <h2 id="wc-shotmap-title" class="wc-display" data-i18n-key="portfolio.world_cup.finalizacoes_title">Finalizações</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.finalizacoes_lead">
+        Chutes, chutes no alvo, % no alvo, bloqueados e aproveitamento por
+        seleção. Totais de jogo agregados via ESPN.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+    <span class="mono-label wc-shotmap-tagline" style="display:block;margin-bottom:var(--space-5)"
+          data-i18n-key="portfolio.world_cup.finalizacoes_tagline">rastreamento óptico agregado · ESPN</span>
+
+    <div class="wc-match-select-wrap" style="margin-bottom:var(--space-4)">
+      <label for="wc-match-select-04" class="mono-label" style="margin-right:var(--space-2)"
+             data-i18n-key="portfolio.world_cup.select_match">partida</label>
+      <select id="wc-match-select-04" class="wc-match-select"></select>
+    </div>
+
+    <div class="wc-stat-compare card crop" id="wc-shotstats-host" data-reveal aria-live="polite">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <p class="wc-loading mono-label" style="padding:var(--space-5)"
+         data-i18n-key="portfolio.world_cup.loading_stats">Carregando estatísticas…</p>
+    </div>
+    <p class="wc-error mono-label" id="wc-shotstats-error" hidden
+       data-i18n-key="portfolio.world_cup.finalizacoes_error">Estatísticas de finalização indisponíveis para esta partida.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [05] POSSE E PASSES (pass-network) ═══════════════════════════ -->
+<section id="pass-network" class="section wc-passnet-section" aria-labelledby="wc-passnet-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">05</span>
+      <h2 id="wc-passnet-title" class="wc-display" data-i18n-key="portfolio.world_cup.posse_title">Posse e Passes</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.posse_lead">
+        Ficha completa da partida: posse, passes e precisão, mais desarmes,
+        interceptações, cortes, faltas e cartões. Totais de jogo agregados via ESPN.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+    <span class="mono-label" style="display:block;margin-bottom:var(--space-5);color:var(--ink-faint)"
+          data-i18n-key="portfolio.world_cup.posse_tagline">estatísticas agregadas via ESPN</span>
+
+    <div class="wc-match-select-wrap" style="margin-bottom:var(--space-4)">
+      <label for="wc-match-select-05" class="mono-label" style="margin-right:var(--space-2)"
+             data-i18n-key="portfolio.world_cup.select_match">partida</label>
+      <select id="wc-match-select-05" class="wc-match-select"></select>
+    </div>
+
+    <div class="wc-stat-compare card crop" id="wc-passstats-host" data-reveal aria-live="polite">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <p class="wc-loading mono-label" style="padding:var(--space-5)"
+         data-i18n-key="portfolio.world_cup.loading_stats">Carregando estatísticas…</p>
+    </div>
+    <p class="wc-error mono-label" id="wc-passstats-error" hidden
+       data-i18n-key="portfolio.world_cup.posse_error">Estatísticas de passes indisponíveis para esta partida.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [06] TRAJETÓRIA DA BOLA (momentum) ═══════════════════════════ -->
+<section id="momentum" class="section wc-flow-section" aria-labelledby="wc-flow-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">06</span>
+      <h2 id="wc-flow-title" class="wc-display" data-i18n-key="portfolio.world_cup.momentum_title">Trajetória da Bola</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.momentum_lead">
+        Onde o jogo pendeu, minuto a minuto. Cada subida na linha é um gol;
+        cada marcador, o instante exato. Gols reais da Copa 2026 via openfootball —
+        a telemetria do chip Trionda segue privada na FIFA.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+    <span class="mono-label" style="display:block;margin-bottom:var(--space-5);color:var(--ink-faint)"
+          data-i18n-key="portfolio.world_cup.momentum_tagline">sinais de jogo via vídeo · não da bola conectada</span>
+
+    <div class="wc-match-select-wrap" style="margin-bottom:var(--space-4)">
+      <label for="wc-match-select-06" class="mono-label" style="margin-right:var(--space-2)"
+             data-i18n-key="portfolio.world_cup.select_match">partida</label>
+      <select id="wc-match-select-06" class="wc-match-select"></select>
+    </div>
+
+    <div class="wc-flow-card crop" data-reveal style="position:relative;padding:var(--space-5)">
+      <span class="crop-mark-bl" aria-hidden="true"></span>
+      <span class="crop-mark-br" aria-hidden="true"></span>
+      <div class="wc-momentum-chart" id="wc-chart-momentum">
+        <p class="wc-loading mono-label">carregando gráfico…</p>
+      </div>
+      <p class="wc-error mono-label" id="wc-flow-error" hidden
+         data-i18n-key="portfolio.world_cup.momentum_error">Série temporal indisponível. Fonte: openfootball.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [14] SELEÇÃO DA COPA ═══════════════════════════ -->
+<section id="selecao-copa" class="section wc-selection-section" aria-labelledby="wc-selection-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">14</span>
+      <h2 id="wc-selection-title" class="wc-display" data-i18n-key="portfolio.world_cup.selecao_title">Seleção da Copa</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.selecao_lead">
+        O melhor XI em 4-3-3, inferido dos resultados do torneio. O artilheiro
+        entre os atacantes ganha o anel dourado.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+
+    <div class="wc-selection-wrap" id="wc-selection-host">
+      <p class="wc-loading mono-label">carregando seleção…</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [15] INSIGHTS ═══════════════════════════ -->
+<section id="insights" class="section wc-insights-section" aria-labelledby="wc-insights-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">15</span>
+      <h2 id="wc-insights-title" class="wc-display" data-i18n-key="portfolio.world_cup.insights_title">Insights</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.insights_lead">
+        Oito leituras editoriais sobre o torneio — números que contam a história.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+
+    <div class="wc-insights-grid" id="wc-insights-grid"
+         data-i18n-aria="portfolio.world_cup.insights_grid_aria" aria-label="Insights editoriais">
+      <div class="wc-loading mono-label" style="grid-column:1/-1">carregando insights…</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [18] BOLÃO LOCAL ═══════════════════════════ -->
+<section id="bolao" class="section wc-bolao-section" aria-labelledby="wc-bolao-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">18</span>
+      <h2 id="wc-bolao-title" class="wc-display" data-i18n-key="portfolio.world_cup.bolao_title">Bolão local</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.bolao_lead">
+        Palpites salvos só neste navegador. Acerto exato do placar vale
+        3 pontos; acerto só do vencedor vale 1. Pontuação computada quando
+        o jogo termina.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+
+    <div class="wc-bolao-grid">
+      <div class="wc-bolao-col" aria-labelledby="wc-bolao-palpites-title">
+        <header class="wc-matches-col__head">
+          <span class="mono-label" id="wc-bolao-palpites-title" data-i18n-key="portfolio.world_cup.bolao_palpites_title">próximos 5 jogos</span>
+          <span class="mono-label wc-matches-col__hint" data-i18n-key="portfolio.world_cup.bolao_palpites_hint">palpite em aberto</span>
+        </header>
+        <ol class="wc-bolao-list" id="wc-bolao-list" role="list" aria-live="polite">
+          <li class="wc-loading mono-label">carregando…</li>
+        </ol>
+      </div>
+
+      <div class="wc-bolao-col" aria-labelledby="wc-bolao-score-title">
+        <header class="wc-matches-col__head">
+          <span class="mono-label" id="wc-bolao-score-title" data-i18n-key="portfolio.world_cup.bolao_score_title">minha pontuação</span>
+          <span class="mono-label wc-matches-col__hint" data-i18n-key="portfolio.world_cup.bolao_score_hint">localStorage</span>
+        </header>
+        <div class="wc-bolao-score crop" data-reveal>
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <div class="wc-bolao-score__value" id="wc-bolao-total">0</div>
+          <div class="wc-bolao-score__label" data-i18n-key="portfolio.world_cup.bolao_score_label">pontos acumulados</div>
+          <ol class="wc-bolao-score__list" id="wc-bolao-score-list" role="list">
+            <li class="wc-loading mono-label" data-i18n-key="portfolio.world_cup.bolao_score_empty">sem palpites computados ainda</li>
+          </ol>
+          <button type="button" class="btn-secondary wc-bolao-reset" id="wc-bolao-reset"
+                  data-i18n-key="portfolio.world_cup.bolao_reset">Limpar palpites</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ [16] QUEM É O CRAQUE? ═══════════════════════════ -->
+<section id="craque" class="section wc-game-section" aria-labelledby="wc-game-title">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="mono-label">16</span>
+      <h2 id="wc-game-title" class="wc-display" data-i18n-key="portfolio.world_cup.craque_title">Quem é o craque?</h2>
+      <p class="wc-lead" data-i18n-key="portfolio.world_cup.craque_lead">
+        Dois jogadores aparecem lado a lado. Escolha quem você acha melhor.
+        Seus votos ficam salvos neste navegador e montam um ranking local
+        por taxa de vitória.
+      </p>
+    </div>
+    <hr class="section-line" aria-hidden="true" data-reveal />
+
+    <div class="wc-game__duel" id="wc-game-duel" aria-live="polite"
+         data-i18n-aria="portfolio.world_cup.craque_duel_aria" aria-label="Duelo de jogadores">
+      <p class="wc-loading mono-label">carregando duelo…</p>
+    </div>
+
+    <div class="wc-game__actions">
+      <button type="button" class="btn-secondary" id="wc-game-skip" data-i18n-key="portfolio.world_cup.craque_skip">Pular esta dupla</button>
+      <button type="button" class="btn-secondary" id="wc-game-ranking" data-i18n-key="portfolio.world_cup.craque_ranking">Ver ranking local</button>
+    </div>
+
+    <!-- Painel/Modal de ranking local -->
+    <div class="wc-modal" id="wc-ranking-modal" role="dialog" aria-modal="true"
+         aria-labelledby="wc-ranking-title" hidden>
+      <div class="wc-modal__backdrop" data-close-modal></div>
+      <div class="wc-modal__panel crop">
+        <span class="crop-mark-bl" aria-hidden="true"></span>
+        <span class="crop-mark-br" aria-hidden="true"></span>
+        <header class="wc-modal__head">
+          <h3 id="wc-ranking-title" class="wc-modal__title" data-i18n-key="portfolio.world_cup.craque_ranking_title">Seu ranking local</h3>
+          <button type="button" class="wc-modal__close"
+                  data-i18n-aria="portfolio.world_cup.craque_ranking_close_aria"
+                  aria-label="Fechar ranking" data-close-modal>✕</button>
+        </header>
+        <p class="wc-modal__hint mono-label" data-i18n-key="portfolio.world_cup.craque_ranking_hint">votos salvos neste navegador</p>
+        <ol class="wc-ranking-list" id="wc-ranking-list" role="list">
+          <li class="wc-loading mono-label" data-i18n-key="portfolio.world_cup.craque_ranking_empty">0 votos — comece a jogar!</li>
+        </ol>
+        <div class="wc-modal__foot">
+          <button type="button" class="btn-secondary wc-modal__reset" id="wc-ranking-reset"
+                  data-i18n-key="portfolio.world_cup.craque_ranking_reset">Limpar votos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

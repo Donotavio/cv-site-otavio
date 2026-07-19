@@ -60,6 +60,16 @@ URL_MATCHES_FALLBACK = f"{OPENFOOTBALL_RAW}/2022/worldcup.json"
 URL_TEAMS = f"{OPENFOOTBALL_RAW}/2026/worldcup.teams.json"
 URL_TEAMS_FALLBACK = f"{OPENFOOTBALL_RAW}/2022/worldcup.teams.json"
 URL_SQUADS = f"{OPENFOOTBALL_RAW}/2026/worldcup.squads.json"
+# 2022 não tem squads.json no worldcup.json — mas o repo texto openfootball/
+# world-cup traz os 32 elencos com data de nascimento (b. YYYY/MM/DD).
+URL_SQUADS_2022_TXT = (
+    "https://raw.githubusercontent.com/openfootball/world-cup/master/"
+    "more/2022_squads.txt"
+)
+
+# Datas de abertura (referência p/ cálculo de idade) de cada Copa.
+KICKOFF_2022 = date(2022, 11, 20)  # Catar × Equador (Al Bayt)
+KICKOFF_2026 = date(2026, 6, 11)   # abertura no Estádio Azteca (Cidade do México)
 
 # Google News agrega múltiplas fontes sem bloqueio. PT + EN cobrem
 # cobertura brasileira e internacional.
@@ -83,7 +93,7 @@ NEWS_KEYWORDS = (
 MAX_NEWS = 10
 
 # ─── Configuração ─────────────────────────────────────────────────────
-OUTPUT_DIR = Path("public/world-cup-dashboard/data")
+OUTPUT_DIR = Path("assets/data/worldcup")
 HTTP_TIMEOUT = 30
 USER_AGENT = "worldcup-dashboard/1.0 (+https://github.com/Donotavio/cv-site-otavio)"
 
@@ -460,6 +470,425 @@ def build_estatisticas(matches: list, teams_index: dict) -> dict:
         "goals_by_minute": [{"range": k, "count": v} for k, v in minute_buckets.items()],
         "teams_efficiency": efficiency[:16],
         "tournament_progress": _build_tournament_progress(matches),
+    }
+
+
+# ─── comparativo_copas.json (2022 × 2026, mesma fonte) ────────────────
+def _count_teams(matches: list) -> int:
+    names = set()
+    for m in matches:
+        for t in (m.get("team1"), m.get("team2")):
+            if t and not _is_placeholder(t):
+                names.add(t)
+    return len(names)
+
+
+def _comparativo_block(matches: list, teams_index: dict, year: str,
+                       format_teams: int, format_matches: int) -> dict:
+    """Um lado da comparação, calculado com o MESMO pipeline dos dois anos."""
+    st = build_estatisticas(matches, teams_index)
+    art = build_artilheiros(matches, teams_index)
+
+    gfh, gsh, get_ = (st["goals_first_half"], st["goals_second_half"],
+                      st["goals_extra_time"])
+    gtot = gfh + gsh + get_
+
+    def pct(x):
+        return round(x / gtot * 100, 1) if gtot else 0.0
+
+    gbm = st["goals_by_minute"]
+    gbm_total = sum(b["count"] for b in gbm) or 1
+    goals_by_minute = [{
+        "range": b["range"], "count": b["count"],
+        "pct": round(b["count"] / gbm_total * 100, 1),
+    } for b in gbm]
+
+    scorers = art.get("scorers") or []
+    top = scorers[0] if scorers else None
+    top_scorer = {
+        "name": top["name"], "goals": top["goals"], "team": top.get("team", {}),
+    } if top else None
+
+    return {
+        "year": year,
+        "format_teams": format_teams,
+        "format_matches": format_matches,
+        "total_matches": st["total_matches"],
+        "total_goals": st["total_goals"],
+        "teams": _count_teams(matches) or format_teams,
+        "avg_goals_per_match": st["avg_goals_per_match"],
+        "goals_first_half": gfh,
+        "goals_second_half": gsh,
+        "goals_extra_time": get_,
+        "goals_first_half_pct": pct(gfh),
+        "goals_second_half_pct": pct(gsh),
+        "goals_extra_time_pct": pct(get_),
+        "penalties_scored": st["penalties_scored"],
+        "own_goals": st["own_goals"],
+        "biggest_win": st["biggest_win"],
+        "highest_scoring_match": st["highest_scoring_match"],
+        "goals_by_minute": goals_by_minute,
+        "top_scorer": top_scorer,
+    }
+
+
+def _build_volume_comparison() -> dict | None:
+    """
+    Volume de jogo 2022 × 2026 nos indicadores que os DOIS torneios têm.
+    Fontes diferentes (2022 = StatsBomb evento; 2026 = ESPN óptico) → o bloco
+    traz um disclaimer. xG e PPDA ficam só em 2022 (não existem para 2026).
+    Lê os JSONs-companheiros já no disco; fail-soft se faltarem.
+
+    Convenção: valores POR TIME POR JOGO (total ÷ nº de duplas time-jogo).
+    """
+    pan = None
+    try:
+        pan = json.loads((OUTPUT_DIR / "copa2022_panorama.json").read_text("utf-8"))
+    except (OSError, ValueError):
+        pass
+    ds = None
+    try:
+        ds = json.loads((OUTPUT_DIR / "deepstats.json").read_text("utf-8"))
+    except (OSError, ValueError):
+        pass
+    if not pan or not ds:
+        return None
+
+    # ── 2022 (StatsBomb) — soma os totais por seleção do panorama ──
+    teams = pan.get("team_xg") or []
+    if not teams:
+        return None
+    def s22(k):
+        return sum((t.get(k) or 0) for t in teams)
+    tm22 = s22("matches") or 1                       # duplas time-jogo (≈128)
+    ppda_vals = [t["ppda_avg"] for t in teams if t.get("ppda_avg") is not None]
+    v22 = {
+        "shots_per_match": s22("shots") / tm22,
+        "shots_on_pct": (s22("shots_on") / s22("shots") * 100) if s22("shots") else None,
+        "passes_per_match": s22("passes") / tm22,
+        "pass_accuracy_pct": (s22("passes_cmp") / s22("passes") * 100) if s22("passes") else None,
+        "tackles_per_match": s22("tackles") / tm22,
+        "interceptions_per_match": s22("interceptions") / tm22,
+        "fouls_per_match": s22("fouls") / tm22,
+        "corners_per_match": s22("corners") / tm22,
+        "xg_per_match": s22("xg_for") / tm22,
+        "ppda": (sum(ppda_vals) / len(ppda_vals)) if ppda_vals else None,
+    }
+
+    # ── 2026 (ESPN) — agrega os totais de jogo por partida ──
+    sm = (ds.get("shot_stats") or {}).get("matches") or {}
+    pm = (ds.get("pass_stats") or {}).get("matches") or {}
+    S = {"shots": 0, "on": 0, "tm": 0}
+    for m in sm.values():
+        for side in ("home", "away"):
+            t = m.get(side) or {}
+            S["shots"] += t.get("shots") or 0
+            S["on"] += t.get("on_target") or 0
+            S["tm"] += 1
+    P = {"passes": 0, "acc": 0, "tk": 0, "int": 0, "foul": 0, "corner": 0, "tm": 0}
+    for m in pm.values():
+        for side in ("home", "away"):
+            t = m.get(side) or {}
+            P["passes"] += t.get("passes") or 0
+            P["acc"] += t.get("accurate_passes") or 0
+            P["tk"] += t.get("tackles") or 0
+            P["int"] += t.get("interceptions") or 0
+            P["foul"] += t.get("fouls") or 0
+            P["corner"] += t.get("corners") or 0
+            P["tm"] += 1
+    if S["tm"] == 0 and P["tm"] == 0:
+        return None
+    stm = S["tm"] or 1
+    ptm = P["tm"] or 1
+    v26 = {
+        "shots_per_match": S["shots"] / stm,
+        "shots_on_pct": (S["on"] / S["shots"] * 100) if S["shots"] else None,
+        "passes_per_match": P["passes"] / ptm,
+        "pass_accuracy_pct": (P["acc"] / P["passes"] * 100) if P["passes"] else None,
+        "tackles_per_match": P["tk"] / ptm,
+        "interceptions_per_match": P["int"] / ptm,
+        "fouls_per_match": P["foul"] / ptm,
+        "corners_per_match": P["corner"] / ptm,
+        "xg_per_match": None,   # não há xG para 2026
+        "ppda": None,           # não há PPDA para 2026
+    }
+
+    # ── Monta as linhas (só 2022 quando 2026 não tem) ──
+    SPEC = [
+        ("shots_per_match",         "Chutes por time/jogo",       1, ""),
+        ("shots_on_pct",            "Chutes no alvo",             1, "%"),
+        ("passes_per_match",        "Passes por time/jogo",       0, ""),
+        ("pass_accuracy_pct",       "Precisão de passe",          1, "%"),
+        ("tackles_per_match",       "Desarmes por time/jogo",     1, ""),
+        ("interceptions_per_match", "Interceptações por time/jogo", 1, ""),
+        ("fouls_per_match",         "Faltas por time/jogo",       1, ""),
+        ("corners_per_match",       "Escanteios por time/jogo",   1, ""),
+        ("xg_per_match",            "xG por time/jogo",           2, ""),
+        ("ppda",                    "PPDA (pressão)",             1, ""),
+    ]
+    def r(v, dec):
+        return round(v, dec) if v is not None else None
+    metrics = []
+    for key, label, dec, unit in SPEC:
+        metrics.append({
+            "key": key, "label": label, "unit": unit, "dec": dec,
+            "v2022": r(v22.get(key), dec),
+            "v2026": r(v26.get(key), dec),
+            "only_2022": v26.get(key) is None,
+        })
+
+    return {
+        "note": ("Volume de jogo — fontes diferentes: 2022 vem do dado de evento "
+                 "StatsBomb (lance a lance); 2026, dos totais de jogo da ESPN "
+                 "(rastreamento óptico). Compare a ordem de grandeza, não a casa "
+                 "decimal. xG e PPDA só existem para 2022."),
+        "metrics": metrics,
+    }
+
+
+def build_comparativo(matches_2026: list, teams_index_2026: dict) -> dict:
+    """
+    Compara 2022 × 2026 usando openfootball nos DOIS lados (mesma metodologia,
+    sem viés de fonte). 2026 vem do fetch principal; 2022 via fallback direto.
+    """
+    data22 = _http_get_json(URL_MATCHES_FALLBACK) or {}
+    matches_2022 = data22.get("matches") or []
+    # O arquivo de seleções de 2022 pode não existir (404): resolve bandeiras/
+    # códigos com o índice de 2026 como fallback (seleções recorrentes).
+    teams_index_2022 = {**teams_index_2026,
+                        **_build_team_index(_http_get_json(URL_TEAMS_FALLBACK) or [])}
+
+    b26 = _comparativo_block(matches_2026, teams_index_2026, "2026", 48, 104)
+    b22 = _comparativo_block(matches_2022, teams_index_2022, "2022", 32, 64)
+
+    def _delta(a, b):
+        if a is None or b is None:
+            return None
+        return round(a - b, 2)
+
+    deltas = {
+        "avg_goals_per_match": _delta(b26["avg_goals_per_match"],
+                                      b22["avg_goals_per_match"]),
+        "goals_first_half_pct": _delta(b26["goals_first_half_pct"],
+                                       b22["goals_first_half_pct"]),
+        "goals_second_half_pct": _delta(b26["goals_second_half_pct"],
+                                        b22["goals_second_half_pct"]),
+        "penalties_scored": _delta(b26["penalties_scored"],
+                                   b22["penalties_scored"]),
+        "own_goals": _delta(b26["own_goals"], b22["own_goals"]),
+    }
+
+    return {
+        "updated_at": _now_iso(),
+        "source": "openfootball/worldcup.json (2022 + 2026 — mesma metodologia)",
+        "note": (
+            "Comparação apples-to-apples: mesma fonte e mesmo cálculo local nos "
+            "dois torneios. Mudança de formato: 32 seleções / 64 jogos (2022) → "
+            "48 / 104 (2026). A distribuição de gols por minuto é normalizada em "
+            "% para comparar torneios de tamanhos diferentes. O volume de jogo "
+            "(abaixo) usa fontes distintas — ver disclaimer no bloco."
+        ),
+        "tournaments": {"2022": b22, "2026": b26},
+        "deltas": deltas,
+        "volume": _build_volume_comparison(),
+    }
+
+
+# ─── idade_copas.json ─────────────────────────────────────────────────
+_AGE_BUCKETS = (
+    ("<21", lambda a: a < 21),
+    ("21-24", lambda a: 21 <= a <= 24),
+    ("25-28", lambda a: 25 <= a <= 28),
+    ("29-32", lambda a: 29 <= a <= 32),
+    ("33+", lambda a: a >= 33),
+)
+
+
+def _age_at(dob: date, ref: date) -> int:
+    """Idade em anos completos de `dob` na data `ref`."""
+    return ref.year - dob.year - ((ref.month, ref.day) < (dob.month, dob.day))
+
+
+def _parse_dob(raw) -> date | None:
+    """Aceita 'YYYY-MM-DD' (JSON 2026) ou 'YYYY/MM/DD' (texto 2022)."""
+    if not raw:
+        return None
+    m = re.match(r"^\s*(\d{4})[-/](\d{1,2})[-/](\d{1,2})", str(raw))
+    if not m:
+        return None
+    try:
+        return date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    except ValueError:
+        return None
+
+
+def _players_2026(squads_data) -> list[dict]:
+    """[{name, team, pos, dob:date}] a partir do worldcup.squads.json (2026)."""
+    out: list[dict] = []
+    if not isinstance(squads_data, list):
+        return out
+    for sq in squads_data:
+        if not isinstance(sq, dict):
+            continue
+        team = sq.get("name") or ""
+        for p in sq.get("players") or []:
+            if not isinstance(p, dict) or not p.get("name"):
+                continue
+            out.append({
+                "name": p["name"],
+                "team": team,
+                "pos": (p.get("pos") or "")[:2].upper(),
+                "dob": _parse_dob(p.get("date_of_birth")),
+            })
+    return out
+
+
+def _players_2022(text: str) -> list[dict]:
+    """
+    Parseia o texto openfootball dos elencos de 2022:
+      == Brazil     # 26 Players
+          10, NEYMAR,   FW,  b. 1992/02/05
+    Devolve [{name, team, pos, dob:date}].
+    """
+    out: list[dict] = []
+    if not text:
+        return out
+    team_re = re.compile(r"^==\s+(.+?)\s*(?:#.*)?$")
+    player_re = re.compile(
+        r"^\s*\d+,\s*(.+?),\s*([A-Za-z]{2}),\s*b\.\s*(\d{4}/\d{1,2}/\d{1,2})"
+    )
+    team = None
+    for line in text.splitlines():
+        mt = team_re.match(line)
+        if mt:
+            team = mt.group(1).strip()
+            continue
+        mp = player_re.match(line)
+        if mp and team:
+            out.append({
+                "name": mp.group(1).strip(),
+                "team": team,
+                "pos": mp.group(2).upper(),
+                "dob": _parse_dob(mp.group(3)),
+            })
+    return out
+
+
+def _idade_block(players: list[dict], teams_index: dict, ref: date) -> dict:
+    """Bloco de idade de um torneio: médias, extremos, buckets e por seleção."""
+    ages: list[int] = []
+    skipped = 0
+    by_team: dict[str, list[int]] = {}
+    extremes: list[dict] = []  # (age, name, team) via lista de dicts
+
+    for p in players:
+        dob = p.get("dob")
+        if not isinstance(dob, date):
+            skipped += 1
+            continue
+        age = _age_at(dob, ref)
+        # Guarda-corpo contra datas absurdas (mantém 15–55 anos).
+        if age < 15 or age > 55:
+            skipped += 1
+            continue
+        ages.append(age)
+        by_team.setdefault(p["team"], []).append(age)
+        extremes.append({"age": age, "name": p["name"], "team": p["team"]})
+
+    if not ages:
+        return {
+            "avg_age": None, "median_age": None, "youngest": None,
+            "oldest": None, "players_counted": 0, "skipped": skipped,
+            "age_buckets": [{"range": r, "count": 0} for r, _ in _AGE_BUCKETS],
+            "teams": [],
+        }
+
+    ages_sorted = sorted(ages)
+    n = len(ages_sorted)
+    median = (ages_sorted[n // 2] if n % 2
+              else (ages_sorted[n // 2 - 1] + ages_sorted[n // 2]) / 2)
+
+    def _extreme(pick_max: bool) -> dict:
+        e = (max if pick_max else min)(extremes, key=lambda x: x["age"])
+        info = _team_info(e["team"], teams_index)
+        return {
+            "name": e["name"], "team": info["name"],
+            "age": e["age"], "flag": info["flag"],
+        }
+
+    buckets = [
+        {"range": label, "count": sum(1 for a in ages if pred(a))}
+        for label, pred in _AGE_BUCKETS
+    ]
+
+    teams = []
+    for team, tages in by_team.items():
+        info = _team_info(team, teams_index)
+        teams.append({
+            "name": info["name"],
+            "code": info["code"],
+            "flag": info["flag"],
+            "avg_age": round(sum(tages) / len(tages), 2),
+            "players": len(tages),
+        })
+    teams.sort(key=lambda t: (-t["avg_age"], t["name"]))
+
+    return {
+        "avg_age": round(sum(ages) / n, 2),
+        "median_age": round(median, 1),
+        "youngest": _extreme(pick_max=False),
+        "oldest": _extreme(pick_max=True),
+        "players_counted": n,
+        "skipped": skipped,
+        "age_buckets": buckets,
+        "teams": teams,
+    }
+
+
+def build_idade_copas(matches_2026: list, teams_index_2026: dict) -> dict:
+    """
+    Idade dos elencos 2022 × 2026 (openfootball nos dois lados, mesma
+    metodologia). Idade = anos completos na data de abertura de cada Copa.
+    2026: worldcup.squads.json (campo date_of_birth). 2022: não há squads.json
+    — usa o texto openfootball/world-cup/more/2022_squads.txt (b. YYYY/MM/DD).
+    `matches_2026` é aceito por simetria com os outros builders (não usado).
+    """
+    squads_2026 = _http_get_json(URL_SQUADS) or []
+    players_2026 = _players_2026(squads_2026)
+
+    txt_2022 = None
+    try:
+        txt_2022 = _http_get(URL_SQUADS_2022_TXT).decode("utf-8")
+    except (URLError, HTTPError, TimeoutError, OSError) as e:
+        print(f"    ✗ Falha ao buscar squads 2022: {e}")
+    players_2022 = _players_2022(txt_2022 or "")
+
+    # Seleções de 2022 podem faltar no índice (arquivo 2022 costuma dar 404):
+    # usa o índice de 2026 como fallback p/ bandeiras/códigos (nações recorrentes).
+    teams_index_2022 = {
+        **teams_index_2026,
+        **_build_team_index(_http_get_json(URL_TEAMS_FALLBACK) or []),
+    }
+
+    b22 = _idade_block(players_2022, teams_index_2022, KICKOFF_2022)
+    b26 = _idade_block(players_2026, teams_index_2026, KICKOFF_2026)
+
+    avg_delta = (round(b26["avg_age"] - b22["avg_age"], 2)
+                 if b26["avg_age"] is not None and b22["avg_age"] is not None
+                 else None)
+
+    return {
+        "updated_at": _now_iso(),
+        "source": "openfootball squads (2022 + 2026)",
+        "note": (
+            "Idade calculada na data de abertura de cada Copa "
+            f"(2022: {KICKOFF_2022.isoformat()}; 2026: {KICKOFF_2026.isoformat()}). "
+            "2026 vem do worldcup.squads.json (elencos preliminares); 2022 do "
+            "texto openfootball/world-cup (more/2022_squads.txt), com data de "
+            "nascimento por jogador. Mesma metodologia nos dois torneios."
+        ),
+        "tournaments": {"2022": b22, "2026": b26},
+        "deltas": {"avg_age": avg_delta},
     }
 
 
@@ -1276,6 +1705,8 @@ def main() -> int:
             ("simulacao", build_simulacao, (matches, teams_index)),
             ("selecao_copa", build_selecao_copa, (matches, teams_index, squads_by_team)),
             ("insights", build_insights, (matches, teams_index)),
+            ("comparativo_copas", build_comparativo, (matches, teams_index)),
+            ("idade_copas", build_idade_copas, (matches, teams_index)),
         ):
             print(f"  ▸ {name}.json...")
             try:

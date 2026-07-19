@@ -58,14 +58,14 @@ jobs:
 
       - name: Verificar JSONs gerados
         run: |
-          echo "📄 Arquivos em public/world-cup-dashboard/data/:"
-          ls -lh public/world-cup-dashboard/data/*.json 2>/dev/null || echo "  ⚠ Nenhum JSON encontrado."
+          echo "📄 Arquivos em assets/data/worldcup/:"
+          ls -lh assets/data/worldcup/*.json 2>/dev/null || echo "  ⚠ Nenhum JSON encontrado."
           echo
           echo "🏆 Top 5 artilheiros:"
           python3 -c "
           import json
           try:
-              d = json.load(open('public/world-cup-dashboard/data/artilheiros.json'))
+              d = json.load(open('assets/data/worldcup/artilheiros.json'))
               for s in d['scorers'][:5]:
                   print(f\"  {s['team']['flag']} {s['name']} — {s['goals']} gols ({s['team']['code']})\")
           except Exception as e:
@@ -79,7 +79,7 @@ jobs:
 
           # Apenas os 6 JSONs do dashboard (o scraper já evita reescrever
           # se o conteúdo não mudou — updated_at é ignorado no diff interno).
-          git add public/world-cup-dashboard/data/ || true
+          git add assets/data/worldcup/ || true
 
           if git diff --staged --quiet; then
             echo "ℹ Sem mudanças nos dados — nada a commitar."
