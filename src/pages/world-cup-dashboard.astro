@@ -1554,6 +1554,12 @@ const base = import.meta.env.BASE_URL;
 
   /* ════════════════ [04] Grupos ════════════════ */
   .wc-groups-section { background: var(--paper-soft); }
+  /* Calha à direita p/ a dock fixa do jumpnav (só onde ela aparece, ≥1024px):
+     evita que a 4ª coluna de grupos / a coluna B do bracket fiquem sob o rail. */
+  @media (min-width: 1024px) {
+    .wc-groups-section .container,
+    .wc-bracket-section .container { padding-right: var(--space-10); }
+  }
   .wc-groups-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
   @media (min-width: 640px)  { .wc-groups-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); } }
   @media (min-width: 1024px) { .wc-groups-grid { grid-template-columns: repeat(3, 1fr); } }

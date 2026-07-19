@@ -508,7 +508,25 @@ function wireMonteCarloModal(): void {
   };
   btn.onclick = open;
   modal.querySelectorAll<HTMLElement>('[data-close-modal]').forEach((el) => { el.onclick = close; });
-  modal.onkeydown = (e) => { if ((e as KeyboardEvent).key === 'Escape') close(); };
+  modal.onkeydown = (e) => {
+    const ev = e as KeyboardEvent;
+    if (ev.key === 'Escape') { close(); return; }
+    if (ev.key === 'Tab') trapTab(ev, modal);
+  };
+}
+
+/** Focus-trap: cicla Tab/Shift+Tab entre os focáveis do painel do modal
+ *  (aria-modal exige que o foco não escape p/ a página atrás). */
+function trapTab(ev: KeyboardEvent, modal: HTMLElement): void {
+  const panel = modal.querySelector<HTMLElement>('.wc-modal__panel') || modal;
+  const f = Array.from(panel.querySelectorAll<HTMLElement>(
+    'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])',
+  )).filter((el) => el.offsetParent !== null);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  const active = document.activeElement as HTMLElement | null;
+  if (ev.shiftKey && active === first) { ev.preventDefault(); last.focus(); }
+  else if (!ev.shiftKey && active === last) { ev.preventDefault(); first.focus(); }
 }
 
 /* ────────────────────────────────────────────────────────────────────────── */
@@ -1296,7 +1314,11 @@ export function setupGame(data: JogadoresPayload | null): void {
   if (rankingBtn) rankingBtn.onclick = openModal;
   if (rankingModal) {
     rankingModal.querySelectorAll<HTMLElement>('[data-close-modal]').forEach((el) => { el.onclick = closeModal; });
-    rankingModal.onkeydown = (e) => { if ((e as KeyboardEvent).key === 'Escape') closeModal(); };
+    rankingModal.onkeydown = (e) => {
+      const ev = e as KeyboardEvent;
+      if (ev.key === 'Escape') { closeModal(); return; }
+      if (ev.key === 'Tab') trapTab(ev, rankingModal);
+    };
   }
   const resetBtn = $('wc-ranking-reset'); if (resetBtn) (resetBtn as HTMLButtonElement).onclick = () => {
     if (Object.keys(readVotes()).length === 0) return;
@@ -1451,7 +1473,15 @@ export function setupDeepStats(data: DeepStatsPayload | null): void {
     return;
   }
   _deep = data;
-  _deepSelectedId = data.featured_id || data.match_list[0].id || null;
+  // Default: 1ª partida do match_list que REALMENTE tenha stats ESPN (o
+  // featured_id costuma apontar p/ o próximo jogo, ainda sem dados → seção
+  // "indisponível" no load). Cai para featured_id / 1º item se nenhuma tiver.
+  const shotM = data.shot_stats?.matches ?? {};
+  const passM = data.pass_stats?.matches ?? {};
+  const firstWithData = data.match_list.find(
+    (m) => m.id && (m.id in shotM || m.id in passM),
+  );
+  _deepSelectedId = (firstWithData?.id) || data.featured_id || data.match_list[0].id || null;
 
   const options = data.match_list.map((m) => `<option value="${esc(m.id)}"${m.id === _deepSelectedId ? ' selected' : ''}>${esc(m.label)}</option>`).join('');
   selects.forEach((sel) => {
