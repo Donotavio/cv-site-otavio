@@ -499,8 +499,8 @@ function panRenderHighlights(): void {
   const layout = ['hero', 'hero', 'md', 'md', 'md', 'md', 'hero', 'hero'];
   host.innerHTML = cards.map((c, i) => `
     <article class="wc-insight-card wc-insight-card--${c.cat} wc-insight-card--${layout[i] || 'md'}" data-reveal>
-      <header class="wc-insight-card__head"><span class="mono-label">${esc(c.title)}</span></header>
-      <h3 class="wc-insight-card__title"><span class="wc-insight-card__key">${esc(c.key)}</span></h3>
+      <header class="wc-insight-card__head"><h3 class="mono-label wc-insight-card__cat">${esc(c.title)}</h3></header>
+      <p class="wc-insight-card__title" aria-hidden="true"><span class="wc-insight-card__key">${esc(c.key)}</span></p>
       <p class="wc-insight-card__body">${c.name}<br><span class="mono-label" style="color:var(--ink-faint)">${esc(c.sub || '')}</span></p>
     </article>`).join('');
   observeReveals(host);
@@ -647,8 +647,8 @@ function cmpRenderDeltas(): void {
   const layout = ['hero', 'md', 'md', 'md', 'md'];
   host.innerHTML = cards.map((c, i) => `
     <article class="wc-insight-card wc-insight-card--${c.cat} wc-insight-card--${layout[i] || 'md'}" data-reveal>
-      <header class="wc-insight-card__head"><span class="mono-label">${esc(c.title)}</span></header>
-      <h3 class="wc-insight-card__title"><span class="wc-insight-card__key">${esc(c.key)}</span></h3>
+      <header class="wc-insight-card__head"><h3 class="mono-label wc-insight-card__cat">${esc(c.title)}</h3></header>
+      <p class="wc-insight-card__title" aria-hidden="true"><span class="wc-insight-card__key">${esc(c.key)}</span></p>
       <p class="wc-insight-card__body">${esc(c.body)}</p>
     </article>`).join('');
   observeReveals(host);

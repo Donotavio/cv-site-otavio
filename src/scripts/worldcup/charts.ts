@@ -501,12 +501,16 @@ export function barChart(container: HTMLElement, opts: BarChartOpts): void {
       const vals = grouped ? (d.values ?? []) : [d.value ?? 0];
       vals.forEach((v, si) => {
         const bx = groupStart + si * bwEach;
-        const y0 = yAt(Math.min(0, v)), y1 = yAt(Math.max(0, v));
-        const bh = Math.max(0, y1 - y0);
+        // SVG y cresce p/ baixo: yAt(0) fica embaixo (y maior), yAt(v>0) em cima
+        // (y menor). O topo do retângulo é o menor y; altura = |Δy| (não y1-y0,
+        // que seria negativo p/ valores positivos → barra some).
+        const yZero = yAt(Math.min(0, v)), yVal = yAt(Math.max(0, v));
+        const yTop = Math.min(yZero, yVal);
+        const bh = Math.abs(yVal - yZero);
         const fill = grouped ? seriesColor(si) : (d.color || (d.highlight ? P.gold : P.field));
-        const originY = v >= 0 ? y1 : y0; // grow from zero baseline
+        const originY = v >= 0 ? yTop + bh : yTop; // cresce a partir da base (zero)
         const gap = innerN > 1 ? 1 : 0;
-        svgParts.push(`<rect class="wc-bar" x="${(bx + gap / 2).toFixed(1)}" y="${y0.toFixed(1)}" width="${Math.max(0, bwEach - gap).toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${fill}" style="transform-origin:${(bx + bwEach / 2).toFixed(1)}px ${originY.toFixed(1)}px"></rect>`);
+        svgParts.push(`<rect class="wc-bar" x="${(bx + gap / 2).toFixed(1)}" y="${yTop.toFixed(1)}" width="${Math.max(0, bwEach - gap).toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${fill}" style="transform-origin:${(bx + bwEach / 2).toFixed(1)}px ${originY.toFixed(1)}px"></rect>`);
       });
       if (showValues && !grouped) {
         const v = d.value ?? 0;

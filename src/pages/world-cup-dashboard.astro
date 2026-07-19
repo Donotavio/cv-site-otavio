@@ -40,13 +40,6 @@ const base = import.meta.env.BASE_URL;
 
   <main id="main-content">
 
-    <!-- Filtro "minha seleção" — primeiro filho de <main>, antes do herói (cap1). -->
-    <div class="wc-team-filter" id="wc-team-filter" hidden role="region"
-         data-i18n-aria="portfolio.world_cup.filter_aria" aria-label="Filtrar por seleção">
-      <span class="mono-label wc-team-filter__label" data-i18n-key="portfolio.world_cup.filter_label">minha seleção</span>
-      <div class="wc-team-filter__chips" id="wc-team-filter-chips"></div>
-    </div>
-
     <!-- ═══════════════════════════ HERO + KPIs ═══════════════════════════ -->
     <section id="wc-hero" class="section wc-hero" aria-labelledby="wc-hero-title">
       <div class="container">
@@ -71,29 +64,8 @@ const base = import.meta.env.BASE_URL;
           </p>
 
           <div class="wc-hero__actions">
-            <a href="#artilheiros" class="btn-primary">Ver artilharia</a>
-            <a href="#estatisticas" class="btn-secondary">Estatísticas</a>
-          </div>
-        </div>
-
-        <!-- Barra de progresso do torneio (cap1) — entre o card do herói e os KPIs. -->
-        <div class="wc-progress" id="wc-tournament-progress" hidden
-             role="region" data-i18n-aria="portfolio.world_cup.progress_aria" aria-label="Progresso do torneio">
-          <div class="wc-progress__head">
-            <span class="wc-progress__phase mono-label" id="wc-progress-phase">—</span>
-            <span class="wc-progress__pct" id="wc-progress-pct">0%</span>
-          </div>
-          <div class="wc-progress__bar"
-               role="progressbar"
-               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
-               data-i18n-aria="portfolio.world_cup.progress_bar_aria" aria-label="Porcentagem do torneio concluída"
-               id="wc-progress-bar">
-            <div class="wc-progress__fill" id="wc-progress-fill" style="width:0%"></div>
-          </div>
-          <div class="wc-progress__meta">
-            <span id="wc-progress-remaining">—</span>
-            <span class="wc-progress__sep" aria-hidden="true">·</span>
-            <span id="wc-progress-next">—</span>
+            <a href="#noticias" class="btn-primary" data-i18n-key="portfolio.world_cup.hero_cta_news">Ver notícias ao vivo</a>
+            <a href="#craque" class="btn-secondary" data-i18n-key="portfolio.world_cup.hero_cta_game">Jogar: quem é o craque?</a>
           </div>
         </div>
 
@@ -141,8 +113,38 @@ const base = import.meta.env.BASE_URL;
           </div>
         </div>
 
+        <!-- Barra de progresso do torneio (cap1) — DEPOIS dos KPIs: revela tarde
+             (fetch) sem empurrar o herói/LCP → evita CLS. -->
+        <div class="wc-progress" id="wc-tournament-progress" hidden
+             role="region" data-i18n-aria="portfolio.world_cup.progress_aria" aria-label="Progresso do torneio">
+          <div class="wc-progress__head">
+            <span class="wc-progress__phase mono-label" id="wc-progress-phase">—</span>
+            <span class="wc-progress__pct" id="wc-progress-pct">0%</span>
+          </div>
+          <div class="wc-progress__bar"
+               role="progressbar"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+               data-i18n-aria="portfolio.world_cup.progress_bar_aria" aria-label="Porcentagem do torneio concluída"
+               id="wc-progress-bar">
+            <div class="wc-progress__fill" id="wc-progress-fill" style="width:0%"></div>
+          </div>
+          <div class="wc-progress__meta">
+            <span id="wc-progress-remaining">—</span>
+            <span class="wc-progress__sep" aria-hidden="true">·</span>
+            <span id="wc-progress-next">—</span>
+          </div>
+        </div>
+
       </div>
     </section>
+
+    <!-- Filtro "minha seleção" (cap1) — depois do herói: revela tarde (fetch)
+         sem empurrar o herói/LCP → evita CLS above-the-fold. -->
+    <div class="wc-team-filter" id="wc-team-filter" hidden role="region"
+         data-i18n-aria="portfolio.world_cup.filter_aria" aria-label="Filtrar por seleção">
+      <span class="mono-label wc-team-filter__label" data-i18n-key="portfolio.world_cup.filter_label">minha seleção</span>
+      <div class="wc-team-filter__chips" id="wc-team-filter-chips"></div>
+    </div>
 
     <!-- ═══════════════════════════ [01] NOTÍCIAS AO VIVO ═══════════════════════════ -->
     <section id="noticias" class="section wc-news-section" aria-labelledby="wc-news-title">
@@ -285,7 +287,7 @@ const base = import.meta.env.BASE_URL;
             </div>
           </figure>
 
-          <div class="wc-stat-card crop" role="listitem" aria-labelledby="wc-stat-hi-l">
+          <div class="wc-stat-card crop" aria-labelledby="wc-stat-hi-l">
             <span class="crop-mark-bl" aria-hidden="true"></span>
             <span class="crop-mark-br" aria-hidden="true"></span>
             <span class="mono-label" id="wc-stat-hi-l" data-i18n-key="portfolio.world_cup.stat_hi_label">jogo com mais gols</span>
@@ -638,7 +640,7 @@ const base = import.meta.env.BASE_URL;
           <span class="mono-label">12</span>
           <h2 id="wc-insights-title" class="wc-display" data-i18n-key="portfolio.world_cup.insights_title">Insights</h2>
           <p class="wc-lead" data-i18n-key="portfolio.world_cup.insights_lead">
-            Oito leituras editoriais sobre o torneio — números que contam a história.
+            Leituras editoriais sobre o torneio — números que contam a história.
           </p>
         </div>
         <hr class="section-line" aria-hidden="true" data-reveal />
@@ -821,7 +823,7 @@ const base = import.meta.env.BASE_URL;
             <p class="wc-loading mono-label">carregando gráfico…</p>
           </div>
           <p class="wc-cl-note mono-label">
-            <span data-i18n-key="portfolio.world_cup.classicos_ppda_note">PPDA = passes do adversário ÷ ações defensivas (desarmes + interceptações + faltas) na zona de pressão.</span>
+            <span data-i18n-key="portfolio.world_cup.classicos_ppda_note">PPDA = passes do adversário ÷ ações defensivas (desarmes + interceptações + faltas) na zona de pressão.</span>{' '}
             <strong data-i18n-key="portfolio.world_cup.classicos_ppda_note_em">Menor = pressão mais intensa.</strong>
           </p>
         </div>
@@ -1505,7 +1507,8 @@ const base = import.meta.env.BASE_URL;
   .wc-match { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--space-3); padding: var(--space-4); background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); transition: border-color var(--transition-fast); }
   .wc-match:hover { border-color: var(--line-strong); }
   .wc-match--today { border-color: var(--wc-live-line); background: var(--wc-live-dim); }
-  .wc-match--today .wc-match__meta, .wc-match--today .wc-match__round, .wc-match--today .wc-match__time, .wc-match--today .wc-match__score--pending { color: var(--ink-soft); }
+  .wc-match--today .wc-match__meta, .wc-match--today .wc-match__meta *, .wc-match--today .wc-match__round, .wc-match--today .wc-match__time, .wc-match--today .wc-match__score--pending { color: var(--wc-live-ink); }
+  .wc-bolao-item.is-today .wc-bolao-meta, .wc-bolao-item.is-today .wc-bolao-meta * { color: var(--wc-live-ink); }
   .wc-match--placeholder { background: var(--paper-soft); }
   .wc-match--placeholder .wc-match__name { color: var(--ink-soft); }
   .wc-match--placeholder .wc-match__score, .wc-match--placeholder .wc-match__meta { color: var(--ink-soft); }
@@ -1659,6 +1662,8 @@ const base = import.meta.env.BASE_URL;
   .wc-insight-card--ink   { border-top-color: var(--ink); }
   .wc-insight-card--live  { border-top-color: var(--wc-live); }
   .wc-insight-card__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+  /* Heading da categoria (h3) — visual do mono-label, sem estilo default de h3. */
+  .wc-insight-card__cat { margin: 0; font-weight: inherit; font-size: inherit; }
   .wc-insight-card__title { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 400; color: var(--ink); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); margin: 0; }
   .wc-insight-card__body { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--ink-soft); line-height: var(--leading-normal); }
   .wc-insight-card__key { font-family: var(--font-mono); font-weight: 700; font-variant-numeric: var(--num-tabular); }
@@ -1744,8 +1749,9 @@ const base = import.meta.env.BASE_URL;
   .wc-match-select-wrap > .mono-label { margin-right: var(--space-2); color: var(--ink-faint); }
   .wc-match-select { flex: 1 1 auto; min-width: 0; max-width: 100%; font-family: var(--font-mono); font-size: var(--text-sm); padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--paper-card); color: var(--ink); cursor: pointer; appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%); background-position: calc(100% - 16px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px); background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; padding-right: 28px; }
   .wc-match-select:hover { border-color: var(--line-strong); }
-  .wc-match-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .wc-match-select:focus-visible { outline: 2px solid var(--wc-field-ink); outline-offset: 2px; }
   .wc-stat-compare { padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); }
+  .wc-stat-compare[hidden] { display: none; }
   @media (min-width: 768px) { .wc-stat-compare { padding: var(--space-6); } }
   .wc-stat-compare__head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); padding-bottom: var(--space-3); border-bottom: 1px solid var(--line); margin-bottom: var(--space-2); flex-wrap: wrap; }
   .wc-stat-compare__team { display: flex; align-items: center; gap: var(--space-2); font-family: var(--font-display); font-size: var(--text-lg); color: var(--ink); line-height: var(--leading-tight); min-width: 0; }
@@ -1771,7 +1777,7 @@ const base = import.meta.env.BASE_URL;
   .wc-cl-tagline { display: block; color: var(--ink-faint); margin-bottom: var(--space-4); }
   .wc-cl-select { flex: 1 1 auto; min-width: 0; max-width: 100%; font-family: var(--font-mono); font-size: var(--text-sm); padding: 8px 28px 8px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--paper-card); color: var(--ink); cursor: pointer; appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%); background-position: calc(100% - 16px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px); background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
   .wc-cl-select:hover { border-color: var(--line-strong); }
-  .wc-cl-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .wc-cl-select:focus-visible { outline: 2px solid var(--wc-field-ink); outline-offset: 2px; }
   .wc-cl-meta { display: block; color: var(--ink-faint); margin-bottom: var(--space-5); }
   .wc-cl-block { padding: var(--space-5); margin-bottom: var(--space-5); }
   @media (min-width: 768px) { .wc-cl-block { padding: var(--space-6); } }
