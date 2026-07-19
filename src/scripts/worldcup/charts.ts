@@ -156,6 +156,37 @@ export interface LineChartOpts {
   height?: number;
 }
 
+/** One radar series: a label, one value per axis (same order as `axes`), an optional colour. */
+export interface RadarSeries {
+  label: string;
+  /** One value per axis, in the SAME order as `RadarChartOpts.axes`. */
+  values: number[];
+  /** CSS colour string / token value. Defaults: series 0 field-ink, series 1 gold-ink. */
+  color?: string;
+}
+
+export interface RadarChartOpts {
+  /** Axis labels, one per spoke (N ≥ 3 recommended). Order maps to each series' `values[i]`. */
+  axes: string[];
+  /** 1–2 series drawn as filled semi-transparent polygons. */
+  series: RadarSeries[];
+  /** Required for accessibility — becomes the SVG `aria-label`. */
+  ariaLabel: string;
+  /**
+   * Normalisation control. When set, EVERY axis uses this value as its 100 % reach
+   * — pass `1` when the series values are already normalised to 0..1. When omitted
+   * (default), each axis is normalised INDEPENDENTLY by its own max across all
+   * series (so every metric keeps its own scale). Raw values still show in the tooltip.
+   */
+  max?: number;
+  /** Format a raw value for the tooltip. `axisIdx` lets you pick a per-axis unit. Default `String`. */
+  valueFmt?: (v: number, axisIdx: number) => string;
+  /** Force-disable reveal animation. Defaults to the `prefers-reduced-motion` query. */
+  reduce?: boolean;
+  /** viewBox side length (default 300). */
+  size?: number;
+}
+
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Shared infrastructure: tokens, tick maths, escaping, CSS, tooltip           */
 /* ────────────────────────────────────────────────────────────────────────── */
@@ -246,6 +277,12 @@ function ensureStyles(): void {
 .wc-chart .wc-guide { stroke: var(--line-strong, rgba(10,10,10,0.25)); stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
 .wc-chart .wc-hoverdot { stroke: var(--paper-card, #fff); stroke-width: 1.5; pointer-events: none; }
 .wc-chart .wc-capture { fill: transparent; }
+/* radar */
+.wc-chart .wc-radar-ring { fill: none; stroke: var(--line, rgba(10,10,10,0.12)); stroke-width: 1; }
+.wc-chart .wc-radar-spoke { stroke: var(--line, rgba(10,10,10,0.12)); stroke-width: 1; }
+.wc-chart .wc-radar-axis { font-size: 11px; fill: var(--ink-soft, #545454); }
+.wc-chart .wc-radar-poly { stroke-width: 2; stroke-linejoin: round; fill-opacity: 0.14; vector-effect: non-scaling-stroke; }
+.wc-chart .wc-radar-vertex { stroke: var(--paper-card, #fff); stroke-width: 1.5; }
 .wc-chart-legend { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px) var(--space-4, 16px); margin-top: var(--space-3, 12px); font-family: var(--font-mono, monospace); font-size: var(--text-xs, 0.8rem); color: var(--ink-soft, #545454); }
 .wc-chart-legend > span { display: inline-flex; align-items: center; gap: var(--space-2, 8px); }
 .wc-chart-legend .wc-sw { width: 10px; height: 10px; border-radius: 2px; flex: 0 0 auto; }
@@ -258,9 +295,14 @@ function ensureStyles(): void {
 .wc-chart--anim.is-in .wc-line { stroke-dashoffset: 0; }
 .wc-chart--anim .wc-marker, .wc-chart--anim .wc-val, .wc-chart--anim .wc-endlabel { opacity: 0; transition: opacity 0.4s ease 0.4s; }
 .wc-chart--anim.is-in .wc-marker, .wc-chart--anim.is-in .wc-val, .wc-chart--anim.is-in .wc-endlabel { opacity: 1; }
+.wc-chart--anim .wc-radar-poly { opacity: 0; transform: scale(0.6); transform-origin: center; transform-box: view-box; transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.wc-chart--anim.is-in .wc-radar-poly { opacity: 1; transform: scale(1); }
+.wc-chart--anim .wc-radar-vertex { opacity: 0; transition: opacity 0.4s ease 0.4s; }
+.wc-chart--anim.is-in .wc-radar-vertex { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   .wc-chart--anim .wc-bar, .wc-chart--anim .wc-seg, .wc-chart--anim .wc-marker,
-  .wc-chart--anim .wc-val, .wc-chart--anim .wc-endlabel { transform: none; opacity: 1; transition: none; }
+  .wc-chart--anim .wc-val, .wc-chart--anim .wc-endlabel,
+  .wc-chart--anim .wc-radar-poly, .wc-chart--anim .wc-radar-vertex { transform: none; opacity: 1; transition: none; }
   .wc-chart--anim .wc-line { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
 }
 .wc-chart-tip { position: fixed; z-index: 300; pointer-events: none; min-width: 132px; max-width: 260px; padding: var(--space-3, 12px) var(--space-4, 16px); background: var(--paper-card, #fff); border: 1px solid var(--line-strong, rgba(10,10,10,0.25)); border-radius: var(--radius-sm, 4px); box-shadow: var(--shadow-md, 0 8px 32px rgba(0,0,0,0.12)); font-family: var(--font-mono, monospace); font-size: var(--text-xs, 0.8rem); color: var(--ink, #0A0A0A); line-height: 1.5; }
@@ -771,6 +813,163 @@ export function lineChart(container: HTMLElement, opts: LineChartOpts): void {
         rows.push({ name: s.label, value: fmt(pt.y), leader: si === 1 });
       });
       tip.innerHTML = tipHTML({ title: xFmt(Math.round(xTarget)), rows });
+      tip.hidden = false; placeTip(tip, e);
+    });
+    svg.addEventListener('pointerleave', hide);
+  }
+
+  armReveal(container, reduce);
+}
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* radarChart                                                                   */
+/* ────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Render a radar / spider chart as inline SVG into `container`. N spokes at even
+ * angles (first spoke points straight up, 12 o'clock), concentric grid rings,
+ * axis labels, and 1–2 filled semi-transparent polygons — one per series.
+ *
+ * ── Normalisation ────────────────────────────────────────────────────────────
+ * Every metric has its own scale, so values are normalised PER-AXIS before being
+ * plotted. Two modes:
+ *   · `opts.max` set   → every axis reaches 100 % at that value. Pass `max: 1`
+ *     when your series values are ALREADY normalised to 0..1.
+ *   · `opts.max` omitted (default) → each axis is normalised INDEPENDENTLY by the
+ *     largest value that any series has on that axis (so the leader on each metric
+ *     touches the outer ring). Raw values are always shown in the tooltip.
+ *
+ * Colours follow the WC family: series[0] → `--wc-field-ink`, series[1] →
+ * `--wc-gold-ink`; grid/labels use `--line` / `--ink-soft`. Hovering a vertex
+ * shows that series' raw value on that axis via the shared floating tooltip.
+ * Idempotent (clears first), reduced-motion aware, `role="img"` + aria-label.
+ *
+ * @example Head-to-head across 6 normalised metrics
+ * radarChart(el, {
+ *   axes: ['xG', 'Posse', 'Finalizações', 'Pressões', 'Distância', 'Precisão'],
+ *   ariaLabel: 'Comparação França x Espanha em 6 métricas.',
+ *   series: [
+ *     { label: 'FRA', values: [2.1, 50.6, 17, 246, 109.9, 89.5] },
+ *     { label: 'ESP', values: [1.8, 66.0, 15, 280, 105.2, 91.0] },
+ *   ],
+ *   valueFmt: (v, i) => (i === 1 || i === 5 ? v.toFixed(1) + '%' : v.toFixed(1)),
+ * });
+ */
+export function radarChart(container: HTMLElement, opts: RadarChartOpts): void {
+  ensureStyles();
+  clear(container);
+  container.classList.add('wc-chart');
+  const P = palette();
+  const reduce = prefersReduce(opts.reduce);
+  const axes = opts.axes || [];
+  const series = (opts.series || []).filter((s) => Array.isArray(s.values) && s.values.length);
+  const N = axes.length;
+  if (N < 3 || !series.length) {
+    container.innerHTML = '<p class="mono-label" style="color:var(--ink-faint)">série indisponível</p>';
+    return;
+  }
+  const fmt = opts.valueFmt ?? ((v: number) => String(v));
+  const seriesColor = (i: number, custom?: string): string => custom || (i === 1 ? P.gold : P.field);
+
+  // Per-axis 100 % reach: a fixed max, or the largest value any series shows on that axis.
+  const axisMax: number[] = axes.map((_, ai) => {
+    if (opts.max != null) return opts.max || 1;
+    let m = 0;
+    series.forEach((s) => { const v = Number(s.values[ai]) || 0; if (v > m) m = v; });
+    return m > 0 ? m : 1;
+  });
+
+  const size = opts.size ?? 300;
+  const cx = size / 2, cy = size / 2;
+  const R = size * 0.36;                       // outer ring radius
+  const RINGS = 4;                             // concentric grid rings
+  // Angle for axis i: start at top (−90°), go clockwise.
+  const angleAt = (i: number): number => (-Math.PI / 2) + (i / N) * 2 * Math.PI;
+  const pointAt = (i: number, frac: number): [number, number] => {
+    const a = angleAt(i);
+    const clamped = Math.max(0, Math.min(1, frac));
+    return [cx + Math.cos(a) * R * clamped, cy + Math.sin(a) * R * clamped];
+  };
+
+  const parts: string[] = [];
+
+  // Concentric grid rings (drawn as polygons through the N spokes → radar grid).
+  for (let ring = 1; ring <= RINGS; ring++) {
+    const frac = ring / RINGS;
+    const pts: string[] = [];
+    for (let i = 0; i < N; i++) { const [x, y] = pointAt(i, frac); pts.push(`${x.toFixed(1)},${y.toFixed(1)}`); }
+    parts.push(`<polygon class="wc-radar-ring" points="${pts.join(' ')}"></polygon>`);
+  }
+
+  // Spokes + axis labels.
+  for (let i = 0; i < N; i++) {
+    const [ex, ey] = pointAt(i, 1);
+    parts.push(`<line class="wc-radar-spoke" x1="${cx.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}"></line>`);
+    const a = angleAt(i);
+    const lx = cx + Math.cos(a) * (R + 16);
+    const ly = cy + Math.sin(a) * (R + 16);
+    // Anchor by horizontal position so labels don't overrun the viewBox.
+    const cosA = Math.cos(a);
+    const anchor = cosA > 0.15 ? 'start' : cosA < -0.15 ? 'end' : 'middle';
+    parts.push(`<text class="wc-radar-axis" x="${lx.toFixed(1)}" y="${(ly + 3).toFixed(1)}" text-anchor="${anchor}">${esc(axes[i])}</text>`);
+  }
+
+  // Series polygons (drawn last so they sit above the grid).
+  series.forEach((s, si) => {
+    const color = seriesColor(si, s.color);
+    const pts: string[] = [];
+    for (let i = 0; i < N; i++) {
+      const v = Number(s.values[i]) || 0;
+      const [x, y] = pointAt(i, v / axisMax[i]);
+      pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+    }
+    parts.push(`<polygon class="wc-radar-poly" points="${pts.join(' ')}" stroke="${color}" fill="${color}"></polygon>`);
+  });
+
+  // Vertices (hover targets), one per series per axis.
+  series.forEach((s, si) => {
+    const color = seriesColor(si, s.color);
+    for (let i = 0; i < N; i++) {
+      const v = Number(s.values[i]) || 0;
+      const [x, y] = pointAt(i, v / axisMax[i]);
+      parts.push(`<circle class="wc-radar-vertex" data-si="${si}" data-ai="${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="${color}"></circle>`);
+    }
+  });
+
+  parts.push(`<rect class="wc-capture" x="0" y="0" width="${size}" height="${size}"></rect>`);
+  container.innerHTML = `<svg viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(opts.ariaLabel)}" style="max-width:${size}px;margin:0 auto">${parts.join('')}</svg>`;
+
+  // Legend (one swatch per series).
+  const legend = document.createElement('div');
+  legend.className = 'wc-chart-legend';
+  legend.innerHTML = series.map((s, si) =>
+    `<span><span class="wc-sw" style="background:${seriesColor(si, s.color)}"></span>${esc(s.label)}</span>`).join('');
+  container.appendChild(legend);
+
+  // Hover: nearest vertex within a small radius → raw value on that axis.
+  const tip = mountTip();
+  const svg = container.querySelector('svg');
+  if (tip && svg) {
+    const verts = Array.from(svg.querySelectorAll<SVGCircleElement>('.wc-radar-vertex'));
+    const hide = (): void => { tip.hidden = true; };
+    svg.addEventListener('pointermove', (e) => {
+      const r = svg.getBoundingClientRect(); if (!r.width) return;
+      const px = ((e.clientX - r.left) / r.width) * size;
+      const py = ((e.clientY - r.top) / r.height) * size;
+      let best: SVGCircleElement | null = null, bd = Infinity;
+      verts.forEach((c) => {
+        const dx = Number(c.getAttribute('cx')) - px, dy = Number(c.getAttribute('cy')) - py;
+        const d = dx * dx + dy * dy;
+        if (d < bd) { bd = d; best = c; }
+      });
+      // ~14px hit radius in viewBox units.
+      if (!best || bd > 14 * 14) { hide(); return; }
+      const vc = best as SVGCircleElement;
+      const si = Number(vc.getAttribute('data-si'));
+      const ai = Number(vc.getAttribute('data-ai'));
+      const s = series[si];
+      const raw = Number(s.values[ai]) || 0;
+      tip.innerHTML = tipHTML({ title: axes[ai], rows: [{ name: s.label, value: fmt(raw, ai), leader: si === 1 }] });
       tip.hidden = false; placeTip(tip, e);
     });
     svg.addEventListener('pointerleave', hide);
