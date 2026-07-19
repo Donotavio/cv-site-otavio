@@ -49,7 +49,7 @@ ESPN_SUMMARY = (
 )
 
 # ─── Configuração ─────────────────────────────────────────────────────
-OUTPUT_DIR = Path("public/world-cup-dashboard/data")
+OUTPUT_DIR = Path("assets/data/worldcup")
 HTTP_TIMEOUT = 30
 ESPN_DELAY = 0.25           # s entre requests (rate-limit friendly)
 ESPN_HARD_MAX = 200         # teto de segurança — cobre as ~104 partidas da Copa

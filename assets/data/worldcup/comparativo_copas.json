@@ -1,0 +1,193 @@
+{
+  "updated_at": "2026-07-19T16:29:09.918061+00:00",
+  "source": "openfootball/worldcup.json (2022 + 2026 — mesma metodologia)",
+  "note": "Comparação apples-to-apples: mesma fonte e mesmo cálculo local nos dois torneios. Mudança de formato: 32 seleções / 64 jogos (2022) → 48 / 104 (2026). A distribuição de gols por minuto é normalizada em % para comparar torneios de tamanhos diferentes. O volume de jogo (abaixo) usa fontes distintas — ver disclaimer no bloco.",
+  "tournaments": {
+    "2022": {
+      "year": "2022",
+      "format_teams": 32,
+      "format_matches": 64,
+      "total_matches": 64,
+      "total_goals": 168,
+      "teams": 32,
+      "avg_goals_per_match": 2.62,
+      "goals_first_half": 66,
+      "goals_second_half": 100,
+      "goals_extra_time": 4,
+      "goals_first_half_pct": 38.8,
+      "goals_second_half_pct": 58.8,
+      "goals_extra_time_pct": 2.4,
+      "penalties_scored": 17,
+      "own_goals": 2,
+      "biggest_win": {
+        "match": "Spain 7–0 Costa Rica",
+        "diff": 7,
+        "score": [
+          7,
+          0
+        ]
+      },
+      "highest_scoring_match": {
+        "match": "England 6–2 Iran",
+        "goals": 8,
+        "score": [
+          6,
+          2
+        ]
+      },
+      "goals_by_minute": [
+        {
+          "range": "0-14",
+          "count": 15,
+          "pct": 8.8
+        },
+        {
+          "range": "15-29",
+          "count": 16,
+          "pct": 9.4
+        },
+        {
+          "range": "30-44",
+          "count": 30,
+          "pct": 17.6
+        },
+        {
+          "range": "45-59",
+          "count": 32,
+          "pct": 18.8
+        },
+        {
+          "range": "60-74",
+          "count": 31,
+          "pct": 18.2
+        },
+        {
+          "range": "75-89",
+          "count": 25,
+          "pct": 14.7
+        },
+        {
+          "range": "90-104",
+          "count": 17,
+          "pct": 10.0
+        },
+        {
+          "range": "105-119",
+          "count": 4,
+          "pct": 2.4
+        },
+        {
+          "range": "120-134",
+          "count": 0,
+          "pct": 0.0
+        }
+      ],
+      "top_scorer": {
+        "name": "Lionel Messi",
+        "goals": 7,
+        "team": {
+          "name": "Argentina",
+          "code": "ARG",
+          "flag": "🇦🇷"
+        }
+      }
+    },
+    "2026": {
+      "year": "2026",
+      "format_teams": 48,
+      "format_matches": 104,
+      "total_matches": 103,
+      "total_goals": 300,
+      "teams": 48,
+      "avg_goals_per_match": 2.91,
+      "goals_first_half": 109,
+      "goals_second_half": 146,
+      "goals_extra_time": 38,
+      "goals_first_half_pct": 37.2,
+      "goals_second_half_pct": 49.8,
+      "goals_extra_time_pct": 13.0,
+      "penalties_scored": 16,
+      "own_goals": 14,
+      "biggest_win": {
+        "match": "Canada 6–0 Qatar",
+        "diff": 6,
+        "score": [
+          6,
+          0
+        ]
+      },
+      "highest_scoring_match": {
+        "match": "France 4–6 England",
+        "goals": 10,
+        "score": [
+          4,
+          6
+        ]
+      },
+      "goals_by_minute": [
+        {
+          "range": "0-14",
+          "count": 33,
+          "pct": 11.3
+        },
+        {
+          "range": "15-29",
+          "count": 31,
+          "pct": 10.6
+        },
+        {
+          "range": "30-44",
+          "count": 42,
+          "pct": 14.3
+        },
+        {
+          "range": "45-59",
+          "count": 57,
+          "pct": 19.5
+        },
+        {
+          "range": "60-74",
+          "count": 44,
+          "pct": 15.0
+        },
+        {
+          "range": "75-89",
+          "count": 45,
+          "pct": 15.4
+        },
+        {
+          "range": "90-104",
+          "count": 38,
+          "pct": 13.0
+        },
+        {
+          "range": "105-119",
+          "count": 1,
+          "pct": 0.3
+        },
+        {
+          "range": "120-134",
+          "count": 2,
+          "pct": 0.7
+        }
+      ],
+      "top_scorer": {
+        "name": "Kylian Mbappé",
+        "goals": 10,
+        "team": {
+          "name": "France",
+          "code": "FRA",
+          "flag": "🇫🇷"
+        }
+      }
+    }
+  },
+  "deltas": {
+    "avg_goals_per_match": 0.29,
+    "goals_first_half_pct": -1.6,
+    "goals_second_half_pct": -9.0,
+    "penalties_scored": -1,
+    "own_goals": 12
+  },
+  "volume": null
+}

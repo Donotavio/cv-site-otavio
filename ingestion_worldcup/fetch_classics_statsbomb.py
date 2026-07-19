@@ -29,6 +29,16 @@ Metodologia (documentada também no painel):
     classics_2022.json ← agregados compactos por partida (sem LLM,
     sem runtime — o painel só faz fetch do JSON pronto).
 
+No mesmo passe pelos 64 arquivos de evento (sem re-download), extrai
+também o PANORAMA do torneio inteiro a partir do xG por chute
+(shot.statsbomb_xg) e dos eventos de gol:
+  • Ranking de xG por seleção (xG a favor/contra, over/underperformance
+    = gols − xG), + posse/precisão/PPDA médios do torneio.
+  • Finalizadores clínicos vs. perdulários (gols − xG por jogador).
+  • Artilharia derivada de eventos de gol + distribuição de gols/minuto.
+Chutes de disputa de pênaltis (period 5) são EXCLUÍDOS dos agregados de
+xG/gol (não são xG de jogo). → copa2022_panorama.json.
+
 Uso (one-off — dado 2022 é estático; NÃO entra no cron diário):
     python ingestion_worldcup/fetch_classics_statsbomb.py
 """
@@ -51,7 +61,9 @@ MATCHES_URL = f"{SB_RAW}/matches/{COMP_ID}/{SEASON_ID}.json"
 EVENTS_URL = f"{SB_RAW}/events/{{match_id}}.json"
 
 # ─── Configuração ─────────────────────────────────────────────────────
-OUTPUT = Path("public/world-cup-dashboard/data/classics_2022.json")
+OUTPUT = Path("assets/data/worldcup/classics_2022.json")
+OUTPUT_PANORAMA = Path("assets/data/worldcup/copa2022_panorama.json")
+FINISHING_MIN_SHOTS = 5   # mín. de chutes p/ entrar no ranking de finalização
 HTTP_TIMEOUT = 45
 FETCH_DELAY = 0.15
 RETRY_ATTEMPTS = 3
@@ -338,6 +350,324 @@ def compute_match(events: list[dict], home: str, away: str) -> dict | None:
     }
 
 
+# ─── Panorama do torneio (xG · finalização · artilharia) ──────────────
+def _minute_bucket(minute: int) -> str:
+    """Bucket de 15 min no formato de estatisticas.json (0-14, 15-29, …)."""
+    idx = (max(0, min(120, int(minute))) // 15) * 15
+    return f"{idx}-{idx+14}"
+
+
+# Chutes que chegaram ao gol (StatsBomb shot outcomes).
+SHOT_ON_TARGET = {"Goal", "Saved", "Saved To Post"}
+# Desfechos de duelo considerados vitória.
+DUEL_WON = {"Won", "Success", "Success In Play", "Success Out"}
+PROG_CARRY_MIN = 5.0      # avanço mínimo (m rumo ao gol) p/ condução progressiva
+
+
+def _blank_team_stat() -> dict:
+    return {
+        "xg": 0.0, "shots": 0, "shots_on": 0, "goals": 0, "og_for": 0,
+        "passes": 0, "passes_cmp": 0, "corners": 0, "fouls": 0,
+        "pressures": 0, "duels": 0, "duels_won": 0, "tackles": 0,
+        "interceptions": 0, "carries": 0, "prog_carries": 0,
+    }
+
+
+def compute_shots(events: list[dict], home: str, away: str) -> dict:
+    """
+    Extrai xG, finalização e VOLUME DE JOGO de uma partida a partir dos
+    eventos StatsBomb (passes, chutes no alvo, escanteios, faltas, pressões,
+    duelos, desarmes, interceptações, conduções). Exclui a disputa de
+    pênaltis (period 5) — não é volume de jogo.
+    """
+    teams = [home, away]
+    stat = {t: _blank_team_stat() for t in teams}
+    players: dict[str, dict] = {}
+    goal_minutes: list[int] = []
+    dirs = _attack_directions(events, teams)
+
+    for ev in events:
+        if ev.get("period", 0) == 5:           # shootout — fora dos agregados
+            continue
+        tname = ev.get("type", {}).get("name", "")
+        team = ev.get("team", {}).get("name")
+        if team not in stat:
+            continue
+        st = stat[team]
+
+        if tname == "Shot":
+            sh = ev.get("shot", {})
+            try:
+                xg = float(sh.get("statsbomb_xg") or 0.0)
+            except (TypeError, ValueError):
+                xg = 0.0
+            outcome = sh.get("outcome", {}).get("name", "")
+            is_goal = outcome == "Goal"
+            is_pen = sh.get("type", {}).get("name") == "Penalty"
+            st["xg"] += xg
+            st["shots"] += 1
+            if outcome in SHOT_ON_TARGET:
+                st["shots_on"] += 1
+            pname = ev.get("player", {}).get("name")
+            if pname:
+                p = players.setdefault(pname, {
+                    "name": pname, "team": team,
+                    "goals": 0, "xg": 0.0, "shots": 0,
+                    "shots_on": 0, "penalties": 0,
+                })
+                p["shots"] += 1
+                p["xg"] += xg
+                if outcome in SHOT_ON_TARGET:
+                    p["shots_on"] += 1
+                if is_goal:
+                    p["goals"] += 1
+                    if is_pen:
+                        p["penalties"] += 1
+            if is_goal:
+                st["goals"] += 1
+                goal_minutes.append(ev.get("minute", 0) or 0)
+
+        elif tname == "Own Goal For":
+            st["og_for"] += 1
+            goal_minutes.append(ev.get("minute", 0) or 0)
+
+        elif tname == "Pass":
+            pa = ev.get("pass", {})
+            st["passes"] += 1
+            if "outcome" not in pa:          # StatsBomb só marca o incompleto
+                st["passes_cmp"] += 1
+            if pa.get("type", {}).get("name") == "Corner":
+                st["corners"] += 1
+
+        elif tname == "Foul Committed":
+            st["fouls"] += 1
+        elif tname == "Pressure":
+            st["pressures"] += 1
+        elif tname == "Interception":
+            st["interceptions"] += 1
+        elif tname == "Duel":
+            st["duels"] += 1
+            if ev.get("duel", {}).get("type", {}).get("name") == "Tackle":
+                st["tackles"] += 1
+            if ev.get("duel", {}).get("outcome", {}).get("name") in DUEL_WON:
+                st["duels_won"] += 1
+        elif tname == "Carry":
+            st["carries"] += 1
+            loc = ev.get("location")
+            end = ev.get("carry", {}).get("end_location")
+            if (isinstance(loc, list) and len(loc) >= 1
+                    and isinstance(end, list) and len(end) >= 1):
+                adv = _att_x(float(end[0]), dirs[team]) - _att_x(float(loc[0]), dirs[team])
+                if adv >= PROG_CARRY_MIN:
+                    st["prog_carries"] += 1
+
+    return {"stat": stat, "players": players, "goal_minutes": goal_minutes}
+
+
+class PanoramaAccumulator:
+    """Acumula xG/finalização/artilharia do torneio inteiro (2022)."""
+
+    def __init__(self) -> None:
+        self.teams: dict[str, dict] = {}
+        self.players: dict[str, dict] = {}
+        self.minute_buckets: dict[str, int] = {
+            f"{lo}-{lo+14}": 0 for lo in range(0, 121, 15)
+        }
+        self.matches = 0
+
+    # Campos de volume somados diretamente do stat por partida.
+    VOLUME_KEYS = ("shots", "shots_on", "passes", "passes_cmp", "corners",
+                   "fouls", "pressures", "duels", "duels_won", "tackles",
+                   "interceptions", "carries", "prog_carries")
+
+    def _team(self, name: str) -> dict:
+        if name not in self.teams:
+            code, flag = _team_meta(name)
+            t = {
+                "name": name, "code": code, "flag": flag,
+                "xg_for": 0.0, "xg_against": 0.0,
+                "goals_for": 0, "goals_against": 0, "matches": 0,
+                "poss_sum": 0.0, "poss_n": 0, "ppda_sum": 0.0, "ppda_n": 0,
+            }
+            for k in self.VOLUME_KEYS:
+                t[k] = 0
+            self.teams[name] = t
+        return self.teams[name]
+
+    def add_match(self, sd: dict, stats: dict, home: str, away: str) -> None:
+        self.matches += 1
+        st = sd["stat"]
+        goals = {t: st[t]["goals"] + st[t]["og_for"] for t in (home, away)}
+        for me, opp in ((home, away), (away, home)):
+            t = self._team(me)
+            t["xg_for"] += st[me]["xg"]
+            t["xg_against"] += st[opp]["xg"]
+            t["goals_for"] += goals[me]
+            t["goals_against"] += goals[opp]
+            t["matches"] += 1
+            for k in self.VOLUME_KEYS:
+                t[k] += st[me][k]
+
+        # posse (base temporal) e PPDA vêm dos totais de compute_match.
+        for block, field, side, key in (
+            ("possession", "poss", "home", home), ("possession", "poss", "away", away),
+            ("ppda", "ppda", "home", home), ("ppda", "ppda", "away", away),
+        ):
+            v = (stats.get(block, {}).get("total", {}) or {}).get(side)
+            if v is not None:
+                t = self._team(key)
+                t[f"{field}_sum"] += v
+                t[f"{field}_n"] += 1
+
+        for pname, pd in sd["players"].items():
+            pp = self.players.setdefault(pname, {
+                "name": pname, "team": pd["team"],
+                "goals": 0, "xg": 0.0, "shots": 0, "shots_on": 0, "penalties": 0,
+            })
+            pp["goals"] += pd["goals"]
+            pp["xg"] += pd["xg"]
+            pp["shots"] += pd["shots"]
+            pp["shots_on"] += pd.get("shots_on", 0)
+            pp["penalties"] += pd["penalties"]
+
+        for minute in sd["goal_minutes"]:
+            self.minute_buckets[_minute_bucket(minute)] += 1
+
+    def build(self) -> dict:
+        def avg(s, n):
+            return round(s / n, 1) if n else None
+
+        def pct(a, b):
+            return round(a / b * 100, 1) if b else None
+
+        def per_match(v, n):
+            return round(v / n, 1) if n else None
+
+        team_xg = []
+        for t in self.teams.values():
+            n = t["matches"]
+            if n == 0:
+                continue
+            team_xg.append({
+                "name": t["name"], "code": t["code"], "flag": t["flag"],
+                "matches": n,
+                "goals_for": t["goals_for"], "goals_against": t["goals_against"],
+                "xg_for": round(t["xg_for"], 2), "xg_against": round(t["xg_against"], 2),
+                "xg_diff": round(t["goals_for"] - t["xg_for"], 2),
+                "xg_per_match": round(t["xg_for"] / n, 2),
+                "possession_avg": avg(t["poss_sum"], t["poss_n"]),
+                "ppda_avg": avg(t["ppda_sum"], t["ppda_n"]),
+                # Volume de jogo
+                "shots": t["shots"], "shots_on": t["shots_on"],
+                "shots_on_pct": pct(t["shots_on"], t["shots"]),
+                "shots_per_match": per_match(t["shots"], n),
+                "passes": t["passes"], "passes_cmp": t["passes_cmp"],
+                "pass_accuracy_avg": pct(t["passes_cmp"], t["passes"]),
+                "passes_per_match": per_match(t["passes"], n),
+                "corners": t["corners"], "fouls": t["fouls"],
+                "pressures": t["pressures"],
+                "pressures_per_match": per_match(t["pressures"], n),
+                "duels": t["duels"], "duels_won": t["duels_won"],
+                "duel_win_pct": pct(t["duels_won"], t["duels"]),
+                "tackles": t["tackles"], "interceptions": t["interceptions"],
+                "carries": t["carries"], "prog_carries": t["prog_carries"],
+                "prog_carries_per_match": per_match(t["prog_carries"], n),
+            })
+        team_xg.sort(key=lambda x: x["xg_for"], reverse=True)
+
+        finishing = []
+        for p in self.players.values():
+            if p["shots"] < FINISHING_MIN_SHOTS:
+                continue
+            code, flag = _team_meta(p["team"])
+            finishing.append({
+                "player": p["name"], "team": p["team"],
+                "code": code, "flag": flag,
+                "goals": p["goals"], "shots": p["shots"],
+                "shots_on": p["shots_on"], "penalties": p["penalties"],
+                "xg": round(p["xg"], 2),
+                "xg_diff": round(p["goals"] - p["xg"], 2),
+                "xg_per_shot": round(p["xg"] / p["shots"], 2) if p["shots"] else None,
+                "shots_per_goal": round(p["shots"] / p["goals"], 1) if p["goals"] else None,
+                "conversion_pct": pct(p["goals"], p["shots"]),
+            })
+        finishing.sort(key=lambda x: x["xg_diff"], reverse=True)
+
+        scorers = []
+        for p in self.players.values():
+            if p["goals"] < 1:
+                continue
+            code, flag = _team_meta(p["team"])
+            scorers.append({
+                "player": p["name"], "team": p["team"],
+                "code": code, "flag": flag,
+                "goals": p["goals"], "penalties": p["penalties"],
+                "xg": round(p["xg"], 2),
+            })
+        scorers.sort(key=lambda x: (x["goals"], -x["penalties"]), reverse=True)
+
+        goals_by_minute = [{"range": k, "count": v}
+                           for k, v in self.minute_buckets.items()]
+
+        # Highlights — destaques de mão para os cartões bento.
+        highlights = {}
+        if team_xg:
+            with_ppda = [t for t in team_xg if t["ppda_avg"] is not None]
+            with_poss = [t for t in team_xg if t["possession_avg"] is not None]
+            highlights["top_xg_team"] = team_xg[0]
+            highlights["most_overperforming_team"] = max(
+                team_xg, key=lambda x: x["xg_diff"])
+            highlights["most_underperforming_team"] = min(
+                team_xg, key=lambda x: x["xg_diff"])
+            highlights["best_defense_xg"] = min(
+                team_xg, key=lambda x: x["xg_against"])
+            highlights["most_shots_team"] = max(team_xg, key=lambda x: x["shots"])
+            if with_poss:
+                highlights["most_possession_team"] = max(
+                    with_poss, key=lambda x: x["possession_avg"])
+            if with_ppda:
+                highlights["most_pressing_team"] = min(
+                    with_ppda, key=lambda x: x["ppda_avg"])
+        if finishing:
+            highlights["most_clinical_player"] = finishing[0]
+            highlights["most_wasteful_player"] = finishing[-1]
+
+        return {
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "source": "StatsBomb Open Data (CC BY-NC-SA) — FIFA World Cup 2022",
+            "source_url": "https://github.com/statsbomb/open-data",
+            "competition": "FIFA World Cup 2022",
+            "note": (
+                "Panorama do torneio inteiro derivado do xG por chute e dos "
+                "eventos de gol do StatsBomb. Disputa de pênaltis excluída dos "
+                "agregados de xG/gol. Não há evento aberto para 2026 — estas "
+                "métricas são exclusivas da Copa 2022."
+            ),
+            "methodology": {
+                "xg": ("Soma de shot.statsbomb_xg por time/jogador. "
+                       "xG a favor/contra, e over/underperformance = gols − xG."),
+                "finishing": ("Gols − xG por jogador (mín. "
+                              f"{FINISHING_MIN_SHOTS} chutes). "
+                              "Positivo = finalizador clínico. Inclui chutes, "
+                              "chutes no alvo, conversão %, xG/chute e chutes/gol."),
+                "volume": ("Contagem de eventos StatsBomb por seleção no torneio "
+                           "inteiro: passes tentados/certos, chutes (no alvo), "
+                           "escanteios, faltas, pressões, duelos (ganhos), "
+                           "desarmes, interceptações e conduções (progressivas = "
+                           f"avanço ≥ {int(PROG_CARRY_MIN)} m rumo ao gol)."),
+                "possession_ppda": ("Posse base-temporal e PPDA vêm dos totais "
+                                    "por partida (mesma metodologia da seção "
+                                    "Clássicos); média simples entre jogos."),
+            },
+            "matches": self.matches,
+            "team_xg": team_xg,
+            "finishing": finishing,
+            "scorers": scorers,
+            "goals_by_minute": goals_by_minute,
+            "highlights": highlights,
+        }
+
+
 # ─── Orquestração ─────────────────────────────────────────────────────
 def _fmt_score(m: dict) -> str:
     return f"{m.get('home_score', 0)}–{m.get('away_score', 0)}"
@@ -348,7 +678,7 @@ def main() -> int:
     print("Clássicos 2022 — StatsBomb Open Data (posse · passe · PPDA)")
     print("═" * 60)
 
-    print("\n[1/3] Baixando índice de partidas…")
+    print("\n[1/4] Baixando índice de partidas…")
     matches = _http_get_json(MATCHES_URL)
     if not matches or not isinstance(matches, list):
         print("    ✗ Não foi possível baixar o índice de partidas.")
@@ -358,11 +688,12 @@ def main() -> int:
         m.get("match_date", "")))
     print(f"    ✓ {len(matches)} partidas no índice")
 
-    print("\n[2/3] Processando eventos partida a partida…")
+    print("\n[2/4] Processando eventos partida a partida…")
     out_matches: dict[str, dict] = {}
     match_list: list[dict] = []
     featured_id = None
     ok = fail = 0
+    panorama = PanoramaAccumulator()
 
     for idx, m in enumerate(matches, start=1):
         mid = str(m.get("match_id"))
@@ -377,6 +708,9 @@ def main() -> int:
         if not stats:
             fail += 1
             continue
+
+        # Mesmo passe pelos eventos → panorama do torneio (xG/finalização).
+        panorama.add_match(compute_shots(events, home, away), stats, home, away)
 
         hc, hf = _team_meta(home)
         ac, af = _team_meta(away)
@@ -409,7 +743,7 @@ def main() -> int:
     if featured_id is None:
         featured_id = match_list[0]["id"]
 
-    print("\n[3/3] Escrevendo classics_2022.json…")
+    print("\n[3/4] Escrevendo classics_2022.json…")
     payload = {
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "source": "StatsBomb Open Data (CC BY-NC-SA) — FIFA World Cup 2022",
@@ -439,6 +773,19 @@ def main() -> int:
                       encoding="utf-8")
     size = OUTPUT.stat().st_size
     print(f"    ✓ {OUTPUT.name} ({size} bytes) — {ok} partidas")
+
+    print("\n[4/4] Escrevendo copa2022_panorama.json…")
+    pan = panorama.build()
+    OUTPUT_PANORAMA.write_text(json.dumps(pan, ensure_ascii=False, indent=2),
+                               encoding="utf-8")
+    psize = OUTPUT_PANORAMA.stat().st_size
+    print(f"    ✓ {OUTPUT_PANORAMA.name} ({psize} bytes) — "
+          f"{len(pan['team_xg'])} seleções, {len(pan['scorers'])} artilheiros")
+    if pan["scorers"]:
+        top = pan["scorers"][0]
+        print(f"    → Artilheiro: {top['player']} ({top['goals']} gols, "
+              f"xG {top['xg']})")
+
     feat = out_matches.get(featured_id, {})
     print(f"\n✅ Concluído. Destaque: {feat.get('label', featured_id)}")
     return 0

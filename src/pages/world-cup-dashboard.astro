@@ -1,0 +1,765 @@
+---
+/**
+ * world-cup-dashboard.astro — Dashboard da Copa do Mundo 2026 (Fase 1 · esqueleto)
+ * ================================================================================
+ * Prova de ponta-a-ponta da migração do painel estático `public/world-cup-dashboard/`
+ * para dentro do Astro, seguindo o MESMO padrão das páginas-irmãs
+ * (pix-observatory / data-stack-radar-br / brasil-cockpit / eleicoes-2026).
+ *
+ * Escopo desta fase — TRÊS seções, validando o ciclo completo antes de portar as
+ * outras 16 do painel legado:
+ *   0. Hero + KPIs (#wc-hero)      — count-up compartilhado (src/scripts/motion/count-up)
+ *   1. [01] Artilharia (#artilheiros) — tabela top-10 (dado artilheiros.json)
+ *   2. [02] Estatísticas (#estatisticas) — UM doughnut via a nova lib SVG
+ *      (src/scripts/worldcup/charts → doughnutChart), gols 1º vs 2º tempo.
+ *
+ * Paleta: família World Cup APENAS — `--wc-field*` / `--wc-gold*` / `--wc-live*`
+ * (+ rampa neutra ink/paper/line). NUNCA o navy/cyan do portfólio. Zero hex hardcoded.
+ *
+ * Dados: fetch em runtime de `${base}assets/data/worldcup/<file>.json` (zero LLM).
+ * i18n: data-i18n-key estático (as chaves são autoradas à parte; degradam para o
+ * texto pt-BR embutido enquanto não existirem nos dicionários).
+ * Motion: padrões nomeados `resolve` (herói) + `reveal-up` (seções), guardados por
+ * motionOk (respeita prefers-reduced-motion). Charts self-handle reduced-motion.
+ * SPA: todo bootstrap em `astro:page-load` (o site usa <ClientRouter/>).
+ */
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ProjectRecommendations from '../components/ProjectRecommendations.astro';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout
+  title="Dashboard da Copa do Mundo 2026 — Otávio Ribeiro"
+  description="Painel de dados da Copa do Mundo FIFA 2026: 48 seleções, 104 jogos. Pipeline Python coleta partidas, artilharia e estatísticas; gráficos SVG hand-rolled, zero LLM em runtime."
+>
+  <Header />
+
+  <main id="main-content">
+
+    <!-- ═══════════════════════════ HERO + KPIs ═══════════════════════════ -->
+    <section id="wc-hero" class="section wc-hero" aria-labelledby="wc-hero-title">
+      <div class="container">
+
+        <div class="wc-hero__card crop">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+
+          <header class="wc-hero__head">
+            <span class="mono-label">FIFA World Cup 2026 · Canada/Mexico/USA</span>
+          </header>
+
+          <h1 id="wc-hero-title" class="wc-hero__display" data-i18n-key="portfolio.world_cup.hero_title">
+            A Copa em dados, ao vivo.
+          </h1>
+
+          <p class="wc-hero__lead" data-i18n-key="portfolio.world_cup.hero_lead">
+            Dashboard sobre a Copa do Mundo FIFA 2026 — 48 seleções, 104 jogos.
+            Pipeline Python coleta partidas, artilharia e estatísticas a cada hora.
+            Gráficos SVG desenhados à mão, tudo no navegador, a partir de JSONs públicos.
+          </p>
+
+          <div class="wc-hero__actions">
+            <a href="#artilheiros" class="btn-primary">Ver artilharia</a>
+            <a href="#estatisticas" class="btn-secondary">Estatísticas</a>
+          </div>
+        </div>
+
+        <!-- KPI Bento — 4 KPIs -->
+        <div class="wc-kpi-bento" role="list" aria-label="Métricas gerais da Copa">
+          <div class="wc-kpi wc-kpi--hero crop" role="listitem" aria-label="Total de jogos">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <header class="wc-kpi__head">
+              <span class="mono-label" aria-hidden="true">01</span>
+              <span class="wc-kpi__spark" aria-hidden="true">⚽</span>
+            </header>
+            <span class="wc-kpi__value wc-kpi__value--hero" id="kpi-total-matches"
+                  data-count-to="0" aria-label="Total de jogos">—</span>
+            <span class="wc-kpi__label">Jogos disputados</span>
+          </div>
+
+          <div class="wc-kpi crop" role="listitem" aria-label="Total de gols">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <header class="wc-kpi__head"><span class="mono-label" aria-hidden="true">02</span></header>
+            <span class="wc-kpi__value" id="kpi-total-goals"
+                  data-count-to="0" aria-label="Total de gols marcados">—</span>
+            <span class="wc-kpi__label">Gols marcados</span>
+          </div>
+
+          <div class="wc-kpi crop" role="listitem" aria-label="Média de gols por partida">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <header class="wc-kpi__head"><span class="mono-label" aria-hidden="true">03</span></header>
+            <span class="wc-kpi__value" id="kpi-avg-goals"
+                  data-count-to="0" data-count-decimals="2" aria-label="Média de gols por partida">—</span>
+            <span class="wc-kpi__label">Média de gols / jogo</span>
+          </div>
+
+          <div class="wc-kpi wc-kpi--gold crop" role="listitem" aria-label="Artilheiro atual">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <header class="wc-kpi__head">
+              <span class="mono-label" aria-hidden="true">04</span>
+              <span class="wc-kpi__badge">Chuteira de Ouro</span>
+            </header>
+            <span class="wc-kpi__value wc-kpi__value--scorer" id="kpi-top-scorer">—</span>
+            <span class="wc-kpi__label" id="kpi-top-scorer-team">Artilheiro</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ [01] ARTILHARIA ═══════════════════════════ -->
+    <section id="artilheiros" class="section wc-scorers-section" aria-labelledby="wc-scorers-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">01</span>
+          <h2 id="wc-scorers-title" class="wc-display" data-i18n-key="portfolio.world_cup.artilharia_title">Artilharia</h2>
+          <p class="wc-lead" data-i18n-key="portfolio.world_cup.artilharia_lead">
+            Top 10 artilheiros da Copa. O líder leva a Chuteira de Ouro.
+            Gols de pênalti aparecem na última coluna.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="wc-scorers-wrap crop">
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <table class="wc-scorers-table" aria-labelledby="wc-scorers-title">
+            <thead>
+              <tr>
+                <th scope="col" class="wc-scorers-table__rank">#</th>
+                <th scope="col" class="wc-scorers-table__player">Jogador</th>
+                <th scope="col" class="wc-scorers-table__team">Sel.</th>
+                <th scope="col" class="wc-scorers-table__goals">Gols</th>
+                <th scope="col" class="wc-scorers-table__pen">Pen.</th>
+              </tr>
+            </thead>
+            <tbody id="wc-scorers-body">
+              <tr><td colspan="5"><p class="wc-loading mono-label">carregando artilharia…</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ [02] ESTATÍSTICAS ═══════════════════════════ -->
+    <section id="estatisticas" class="section wc-stats-section" aria-labelledby="wc-stats-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">02</span>
+          <h2 id="wc-stats-title" class="wc-display" data-i18n-key="portfolio.world_cup.estatisticas_title">Estatísticas</h2>
+          <p class="wc-lead" data-i18n-key="portfolio.world_cup.estatisticas_lead">
+            Os números do torneio até agora — e a divisão dos gols entre o
+            primeiro e o segundo tempo (com a prorrogação).
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="wc-stats-grid">
+          <!-- Bento de números-chave -->
+          <div class="wc-stat-bento" role="list" aria-label="Recordes e totais">
+            <div class="wc-stat-card crop" role="listitem" aria-labelledby="wc-stat-avg-l">
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <span class="mono-label" id="wc-stat-avg-l">média / partida</span>
+              <span class="wc-stat-card__value" id="wc-stat-avg">—</span>
+              <span class="wc-stat-card__sub" id="wc-stat-avg-sub"></span>
+            </div>
+            <div class="wc-stat-card crop" role="listitem" aria-labelledby="wc-stat-bigwin-l">
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <span class="mono-label" id="wc-stat-bigwin-l">maior goleada</span>
+              <span class="wc-stat-card__value wc-stat-card__value--sm" id="wc-stat-bigwin">—</span>
+              <span class="wc-stat-card__sub" id="wc-stat-bigwin-sub"></span>
+            </div>
+            <div class="wc-stat-card crop" role="listitem" aria-labelledby="wc-stat-pen-l">
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <span class="mono-label" id="wc-stat-pen-l">pênaltis convertidos</span>
+              <span class="wc-stat-card__value" id="wc-stat-pen">—</span>
+              <span class="wc-stat-card__sub">gols de pênalti</span>
+            </div>
+            <div class="wc-stat-card crop" role="listitem" aria-labelledby="wc-stat-og-l">
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <span class="mono-label" id="wc-stat-og-l">gols contra</span>
+              <span class="wc-stat-card__value" id="wc-stat-og">—</span>
+              <span class="wc-stat-card__sub">own goals</span>
+            </div>
+          </div>
+
+          <!-- Doughnut: gols 1º vs 2º tempo (nova lib SVG) -->
+          <figure class="wc-stat-card wc-stat-card--chart crop" aria-labelledby="wc-halves-l">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <span class="mono-label" id="wc-halves-l">gols por tempo</span>
+            <div class="wc-halves-chart" id="wc-chart-halves">
+              <p class="wc-loading mono-label">carregando gráfico…</p>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <ProjectRecommendations current="world-cup-dashboard" />
+
+  </main>
+
+  <!-- Jump-nav: rail de pontos (desktop) + FAB/bottom-sheet (mobile). Lê main section[id]. -->
+  <button id="wc-jumpnav-fab" class="wc-jumpnav-fab" type="button" hidden
+          aria-expanded="false" aria-controls="wc-jumpnav" aria-label="Navegar entre seções">
+    <span class="wc-jumpnav-fab__icon" aria-hidden="true"><span></span><span></span><span></span></span>
+    <span>Seções</span>
+  </button>
+  <nav id="wc-jumpnav" class="wc-jumpnav" hidden aria-label="Navegação entre seções">
+    <ul id="wc-jumpnav-list" class="wc-jumpnav__list"></ul>
+  </nav>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  /* ── Fundos alternados (WC pattern) — tokens da própria Copa ── */
+  .wc-hero { background: var(--paper); }
+  .wc-scorers-section { background: var(--paper); }
+  .wc-stats-section { background: var(--paper-soft); }
+
+  /* ── Hero ── */
+  .wc-hero__card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-8) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  @media (min-width: 640px)  { .wc-hero__card { padding: var(--space-10) var(--space-8); } }
+  @media (min-width: 1024px) { .wc-hero__card { padding: var(--space-12) var(--space-12); } }
+
+  .wc-hero__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+  .wc-hero__display {
+    font-family: var(--font-display);
+    font-size: var(--display-1);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+    max-width: 16ch;
+  }
+  .wc-hero__lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 60ch;
+  }
+  .wc-hero__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+  /* Acento da página é a família WC — ecoado só no hover do CTA secundário. */
+  .wc-hero__actions .btn-secondary:hover { border-color: var(--wc-field-ink); color: var(--wc-field-ink); }
+
+  /* ── Section head display + lead ── */
+  .wc-display {
+    font-family: var(--font-display);
+    font-size: var(--display-2);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+  .wc-lead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+    margin: 0;
+    max-width: 62ch;
+  }
+
+  /* ── KPI Bento ── */
+  .wc-kpi-bento { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+  @media (min-width: 640px) {
+    .wc-kpi-bento { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+    .wc-kpi--hero { grid-column: span 2; }
+  }
+  @media (min-width: 1024px) {
+    .wc-kpi-bento { grid-template-columns: repeat(12, 1fr); grid-auto-rows: minmax(150px, auto); gap: var(--space-5); }
+    .wc-kpi--hero { grid-column: 1 / 8; grid-row: 1 / 3; }
+    .wc-kpi-bento > .wc-kpi:nth-child(2) { grid-column: 8 / 13; grid-row: 1 / 2; }
+    .wc-kpi-bento > .wc-kpi:nth-child(3) { grid-column: 8 / 13; grid-row: 2 / 3; }
+    .wc-kpi--gold { grid-column: 1 / 13; grid-row: 3 / 4; }
+  }
+  .wc-kpi {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    transition: border-color var(--transition-normal);
+  }
+  .wc-kpi:hover { border-color: var(--line-strong); }
+  .wc-kpi--hero { padding: var(--space-8); justify-content: space-between; }
+  .wc-kpi--gold { border-color: var(--wc-gold-line); background: linear-gradient(180deg, var(--paper-card) 0%, var(--wc-gold-dim) 100%); }
+  .wc-kpi__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+  .wc-kpi__spark { font-family: var(--font-mono); font-size: var(--text-lg); line-height: 1; }
+  .wc-kpi__badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--wc-gold-ink);
+    background: var(--wc-gold-dim);
+    border: 1px solid var(--wc-gold-line);
+    border-radius: var(--radius-sm);
+  }
+  .wc-kpi__value {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--wc-field-ink);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: var(--num-tabular);
+  }
+  .wc-kpi__value--hero { font-size: var(--display-1); line-height: 0.9; }
+  .wc-kpi__value--scorer {
+    font-size: var(--text-2xl);
+    color: var(--wc-gold-ink);
+    font-family: var(--font-display);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+  }
+  .wc-kpi__label { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--ink-soft); line-height: var(--leading-normal); }
+
+  /* ── Artilharia (tabela) ── */
+  .wc-scorers-wrap {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    padding: var(--space-3) var(--space-4);
+    margin-top: var(--space-8);
+  }
+  .wc-scorers-table { width: 100%; min-width: 520px; border-collapse: collapse; font-family: var(--font-sans); font-size: var(--text-sm); }
+  .wc-scorers-table thead th {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-faint);
+    text-align: left;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-soft);
+  }
+  .wc-scorers-table__rank { width: 56px; text-align: right; }
+  .wc-scorers-table__goals, .wc-scorers-table__pen { width: 80px; text-align: right; }
+  .wc-scorers-table__team { width: 100px; }
+  /* Linhas injetadas via JS → :global() sob a <tbody> estática */
+  #wc-scorers-body :global(td) {
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    vertical-align: middle;
+  }
+  #wc-scorers-body :global(tr:last-child td) { border-bottom: none; }
+  #wc-scorers-body :global(tr) { transition: background var(--transition-fast); }
+  #wc-scorers-body :global(tr:hover) { background: var(--paper-soft); }
+  #wc-scorers-body :global(.wc-scorers-table__rank-cell) { font-family: var(--font-mono); font-weight: 500; text-align: right; color: var(--ink-faint); }
+  #wc-scorers-body :global(.wc-scorers-table__player-cell) { display: flex; align-items: center; gap: var(--space-3); }
+  #wc-scorers-body :global(.wc-scorers-table__name) { font-weight: 500; color: var(--ink); }
+  #wc-scorers-body :global(.wc-scorers-table__name-block) { display: flex; flex-direction: column; gap: 2px; }
+  #wc-scorers-body :global(.wc-scorers-table__sub) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); letter-spacing: var(--tracking-wide); }
+  #wc-scorers-body :global(.wc-flag) { font-size: var(--text-xl); line-height: 1; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
+  #wc-scorers-body :global(.wc-scorers-table__goals-cell) { font-family: var(--font-mono); font-size: var(--text-lg); font-weight: 500; text-align: right; color: var(--ink); font-variant-numeric: var(--num-tabular); }
+  #wc-scorers-body :global(.wc-scorers-table__pen-cell) { font-family: var(--font-mono); font-size: var(--text-xs); text-align: right; color: var(--ink-faint); font-variant-numeric: var(--num-tabular); }
+  /* Linha do artilheiro líder (#1) — Chuteira de Ouro */
+  #wc-scorers-body :global(tr.wc-scorers-table__row--gold td) { background: var(--wc-gold-dim); border-bottom-color: var(--wc-gold-line); }
+  #wc-scorers-body :global(tr.wc-scorers-table__row--gold .wc-scorers-table__rank-cell) { color: var(--wc-gold-ink); font-weight: 500; }
+  #wc-scorers-body :global(.wc-scorers-table__gold-badge) {
+    display: inline-block;
+    margin-left: var(--space-2);
+    padding: 1px var(--space-2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: var(--tracking-wide);
+    color: var(--wc-gold-ink);
+    background: var(--paper-card);
+    border: 1px solid var(--wc-gold-line);
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+
+  /* ── Estatísticas ── */
+  .wc-stats-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-5); margin-top: var(--space-8); }
+  @media (min-width: 1024px) { .wc-stats-grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); align-items: start; } }
+  .wc-stat-bento { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+  .wc-stat-card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .wc-stat-card__value {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--wc-field-ink);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: var(--num-tabular);
+  }
+  .wc-stat-card__value--sm { font-size: var(--text-xl); color: var(--ink); }
+  .wc-stat-card__sub { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); letter-spacing: var(--tracking-wide); }
+  .wc-stat-card--chart { align-items: stretch; }
+  /* O doughnut é injetado via JS (innerHTML) → alcançável por :global() sob o container estático */
+  .wc-halves-chart { margin-top: var(--space-2); }
+  .wc-halves-chart :global(svg) { display: block; margin: 0 auto; }
+  .wc-loading { color: var(--ink-faint); }
+  :global(.wc-error) { color: var(--ink-faint); font-family: var(--font-mono); font-size: var(--text-sm); }
+
+  /* ── Jump-nav (rail desktop + FAB/sheet mobile) — tokens WC-gold ── */
+  :global(.wc-jumpnav), :global(.wc-jumpnav-fab) {
+    --jn-bullet: 10px; --jn-bullet-active: 28px;
+    --jn-rail-color: var(--line); --jn-ink: var(--ink-faint);
+    --jn-ink-active: var(--wc-gold-ink); --jn-fill: var(--wc-gold-ink);
+  }
+  :global(.wc-jumpnav-fab) { position: fixed; bottom: var(--space-4); right: var(--space-4); display: none; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--paper-card); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 12px rgba(10,10,10,.08), 0 1px 3px rgba(10,10,10,.04); z-index: 40; transition: transform .2s ease-out, box-shadow .2s ease-out; }
+  :global(.wc-jumpnav-fab:hover) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(10,10,10,.12), 0 2px 4px rgba(10,10,10,.06); }
+  :global(.wc-jumpnav-fab:active) { transform: translateY(0); }
+  :global(.wc-jumpnav-fab__icon) { display: inline-flex; flex-direction: column; gap: 3px; width: 14px; }
+  :global(.wc-jumpnav-fab__icon span) { display: block; height: 2px; background: currentColor; border-radius: 1px; }
+  :global(.wc-jumpnav-fab__icon span:nth-child(2)) { width: 70%; align-self: flex-end; }
+  :global(.wc-jumpnav-fab[aria-expanded="true"]) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  :global(.wc-jumpnav-fab[aria-expanded="true"] .wc-jumpnav-fab__icon span:nth-child(1)) { transform: translateY(5px) rotate(45deg); transition: transform .2s ease-out; }
+  :global(.wc-jumpnav-fab[aria-expanded="true"] .wc-jumpnav-fab__icon span:nth-child(2)) { opacity: 0; }
+  :global(.wc-jumpnav-fab[aria-expanded="true"] .wc-jumpnav-fab__icon span:nth-child(3)) { transform: translateY(-5px) rotate(-45deg); transition: transform .2s ease-out; }
+  :global(.wc-jumpnav) { position: fixed; right: var(--space-5); top: 50%; transform: translateY(-50%); display: none; z-index: 35; }
+  :global(.wc-jumpnav__list) { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; position: relative; }
+  :global(.wc-jumpnav__list::before) { content: ""; position: absolute; left: 50%; top: 5px; bottom: 5px; width: 1px; background: var(--jn-rail-color); transform: translateX(-50%); z-index: 0; }
+  :global(.wc-jumpnav__item) { position: relative; display: flex; align-items: center; justify-content: flex-end; gap: var(--space-3); margin: var(--space-2) 0; z-index: 1; }
+  :global(.wc-jumpnav__link) { display: flex; align-items: center; gap: var(--space-3); text-decoration: none; color: var(--jn-ink); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: .02em; padding: 4px 0; cursor: pointer; background: transparent; border: 0; outline-offset: 4px; transition: color .2s ease-out; }
+  :global(.wc-jumpnav__label) { display: inline-block; opacity: 0; transform: translateX(8px); transition: opacity .2s ease-out, transform .2s ease-out; pointer-events: none; padding: 2px var(--space-2); background: var(--paper-card); border-radius: var(--radius-sm); white-space: nowrap; box-shadow: 0 1px 2px rgba(10,10,10,.04); }
+  :global(.wc-jumpnav__bullet) { display: block; width: var(--jn-bullet); height: var(--jn-bullet); border-radius: 50%; background: var(--paper-card); border: 1.5px solid var(--jn-ink); flex-shrink: 0; transition: all .25s cubic-bezier(.16,1,.3,1); }
+  :global(.wc-jumpnav__link:hover .wc-jumpnav__label), :global(.wc-jumpnav__link:focus-visible .wc-jumpnav__label) { opacity: 1; transform: translateX(0); }
+  :global(.wc-jumpnav__link:hover .wc-jumpnav__bullet) { border-color: var(--jn-fill); background: var(--jn-fill); transform: scale(1.2); }
+  :global(.wc-jumpnav__link[aria-current="true"]) { color: var(--jn-ink-active); }
+  :global(.wc-jumpnav__link[aria-current="true"] .wc-jumpnav__bullet) { width: var(--jn-bullet-active); height: 8px; border-radius: 999px; border-color: var(--jn-fill); background: var(--jn-fill); }
+  :global(.wc-jumpnav__link[aria-current="true"] .wc-jumpnav__label) { opacity: 1; transform: translateX(0); font-weight: 600; }
+  :global(.wc-jumpnav__num) { display: none; font-variant-numeric: tabular-nums; opacity: .5; min-width: 1.5em; }
+  @media (min-width: 1024px) { :global(.wc-jumpnav) { display: block; } :global(.wc-jumpnav-fab) { display: none; } }
+  @media (max-width: 1023px) {
+    :global(.wc-jumpnav-fab) { display: inline-flex; }
+    :global(.wc-jumpnav) { position: fixed; inset: auto 0 0 0; top: auto; transform: none; background: var(--paper-card); border-top: 1px solid var(--line); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: var(--space-4) var(--space-4) var(--space-6); box-shadow: 0 -8px 32px rgba(10,10,10,.12); max-height: 70vh; overflow-y: auto; z-index: 39; }
+    :global(.wc-jumpnav[hidden]) { display: none; }
+    :global(.wc-jumpnav__list::before) { display: none; }
+    :global(.wc-jumpnav__item) { justify-content: flex-start; border-bottom: 1px solid var(--line); }
+    :global(.wc-jumpnav__item:last-child) { border-bottom: 0; }
+    :global(.wc-jumpnav__link) { width: 100%; padding: var(--space-3) var(--space-2); font-size: var(--text-sm); }
+    :global(.wc-jumpnav__label) { opacity: 1; transform: none; box-shadow: none; background: transparent; padding: 0; flex: 1; text-align: left; }
+    :global(.wc-jumpnav__num) { display: inline-block; font-family: var(--font-mono); color: var(--jn-ink); margin-right: var(--space-3); }
+    :global(.wc-jumpnav__bullet) { display: none; }
+    :global(.wc-jumpnav__link[aria-current="true"]) { background: var(--wc-gold-dim); color: var(--jn-ink-active); border-radius: var(--radius-sm); }
+    :global(.wc-jumpnav__link[aria-current="true"] .wc-jumpnav__num) { color: var(--jn-fill); opacity: 1; font-weight: 700; }
+  }
+  :global(.wc-jumpnav-backdrop) { position: fixed; inset: 0; background: rgba(10,10,10,.32); z-index: 38; opacity: 0; pointer-events: none; transition: opacity .25s ease-out; }
+  :global(.wc-jumpnav-backdrop.is-visible) { opacity: 1; pointer-events: auto; }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.wc-jumpnav__bullet), :global(.wc-jumpnav__label), :global(.wc-jumpnav-fab), :global(.wc-jumpnav-fab__icon span), :global(.wc-jumpnav-backdrop) { transition: none !important; }
+  }
+</style>
+
+<script>
+  // Dashboard da Copa 2026 — hidrata Hero+KPIs, Artilharia e Estatísticas a
+  // partir de assets/data/worldcup/*.json. Fetch runtime (base do body, no-cache,
+  // AbortController, fail-soft). SPA-safe: bootstrap em astro:page-load.
+  import { countUpAll } from '../scripts/motion/count-up';
+  import { doughnutChart, readToken } from '../scripts/worldcup/charts';
+
+  interface Team { name?: string; code?: string; flag?: string }
+  interface Scorer { name: string; team?: Team; goals: number; penalties?: number }
+  interface PartidasPayload { total?: number }
+  interface ArtilheirosPayload { scorers?: Scorer[] }
+  interface EstatisticasPayload {
+    total_goals?: number;
+    avg_goals_per_match?: number;
+    goals_first_half?: number;
+    goals_second_half?: number;
+    goals_extra_time?: number;
+    penalties_scored?: number;
+    own_goals?: number;
+    biggest_win?: { match?: string; diff?: number } | null;
+  }
+
+  const el = (id: string): HTMLElement | null => document.getElementById(id);
+  const esc = (s: string): string => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+
+  function safe(label: string, fn: () => void): void {
+    try { fn(); } catch (e) { console.error(`[world-cup] render "${label}" falhou:`, e); }
+  }
+
+  async function fetchJSON<T>(base: string, file: string, ms = 8000): Promise<T | null> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), ms);
+    try {
+      const res = await fetch(`${base}assets/data/worldcup/${file}`, { cache: 'no-cache', signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!res.ok) return null;
+      return (await res.json()) as T;
+    } catch { clearTimeout(timeoutId); return null; }
+  }
+
+  // ── Hero + KPIs ──────────────────────────────────────────────
+  function renderHeroKPIs(partidas: PartidasPayload | null, artil: ArtilheirosPayload | null, stats: EstatisticasPayload | null): void {
+    const matches = partidas?.total ?? 0;
+    const goals = stats?.total_goals ?? 0;
+    const avg = stats?.avg_goals_per_match ?? 0;
+
+    const mEl = el('kpi-total-matches'); if (mEl) mEl.dataset.countTo = String(matches);
+    const gEl = el('kpi-total-goals'); if (gEl) gEl.dataset.countTo = String(goals);
+    const aEl = el('kpi-avg-goals'); if (aEl) { aEl.dataset.countTo = String(avg); aEl.dataset.countDecimals = '2'; }
+
+    const sEl = el('kpi-top-scorer'), stEl = el('kpi-top-scorer-team');
+    const top = artil?.scorers?.[0];
+    if (sEl && stEl) {
+      if (top) {
+        sEl.textContent = top.name;
+        const parts: string[] = [];
+        if (top.team?.flag) parts.push(top.team.flag);
+        if (top.team?.code) parts.push(top.team.code);
+        parts.push(`${top.goals} gols`);
+        stEl.textContent = parts.join(' · ');
+      } else {
+        sEl.textContent = '—';
+        stEl.textContent = 'artilheiro indisponível';
+      }
+    }
+    // count-up compartilhado lê [data-count-to] (respeita prefers-reduced-motion).
+    countUpAll(document.getElementById('wc-hero') ?? document);
+  }
+
+  // ── [01] Artilharia (top-10) ─────────────────────────────────
+  function renderScorers(artil: ArtilheirosPayload | null): void {
+    const body = el('wc-scorers-body'); if (!body) return;
+    const scorers = artil?.scorers;
+    if (!Array.isArray(scorers) || !scorers.length) {
+      body.innerHTML = '<tr><td colspan="5" class="wc-error mono-label">artilharia indisponível — tente recarregar</td></tr>';
+      return;
+    }
+    body.innerHTML = scorers.slice(0, 10).map((s, i) => {
+      const rank = i + 1;
+      const isGold = rank === 1;
+      const flag = s.team?.flag ? esc(s.team.flag) : '';
+      const teamCode = s.team?.code ? esc(s.team.code) : '';
+      const teamName = s.team?.name ? esc(s.team.name) : '';
+      const pen = s.penalties ?? 0;
+      const flagCell = flag
+        ? `<span class="wc-flag" aria-hidden="true">${flag}</span>`
+        : `<span class="wc-flag wc-flag--empty" aria-hidden="true">—</span>`;
+      const goldBadge = isGold ? ' <span class="wc-scorers-table__gold-badge" aria-label="Chuteira de Ouro">🏆 Ouro</span>' : '';
+      return `
+        <tr class="${isGold ? 'wc-scorers-table__row--gold' : ''}">
+          <td class="wc-scorers-table__rank-cell">${rank}${goldBadge}</td>
+          <td>
+            <div class="wc-scorers-table__player-cell">
+              ${flagCell}
+              <span class="wc-scorers-table__name-block">
+                <span class="wc-scorers-table__name">${esc(s.name)}</span>
+                <span class="wc-scorers-table__sub">${teamName}</span>
+              </span>
+            </div>
+          </td>
+          <td><span class="mono-label" style="letter-spacing:var(--tracking-wide)">${teamCode}</span></td>
+          <td class="wc-scorers-table__goals-cell">${s.goals}</td>
+          <td class="wc-scorers-table__pen-cell">${pen}</td>
+        </tr>`;
+    }).join('');
+  }
+
+  // ── [02] Estatísticas — números-chave + doughnut 1º vs 2º tempo ──
+  function renderStats(stats: EstatisticasPayload | null): void {
+    const setTxt = (id: string, v: string): void => { const n = el(id); if (n) n.textContent = v; };
+    if (!stats) {
+      ['wc-stat-avg', 'wc-stat-bigwin', 'wc-stat-pen', 'wc-stat-og'].forEach((id) => setTxt(id, '—'));
+      const box = el('wc-chart-halves'); if (box) box.innerHTML = '<p class="wc-error mono-label">dados indisponíveis — tente recarregar</p>';
+      return;
+    }
+
+    setTxt('wc-stat-avg', (stats.avg_goals_per_match ?? 0).toFixed(2).replace('.', ','));
+    setTxt('wc-stat-avg-sub', `${stats.total_goals ?? 0} gols no total`);
+    setTxt('wc-stat-bigwin', stats.biggest_win?.match ?? '—');
+    setTxt('wc-stat-bigwin-sub', stats.biggest_win?.diff != null ? `saldo de ${stats.biggest_win.diff}` : '');
+    setTxt('wc-stat-pen', String(stats.penalties_scored ?? 0));
+    setTxt('wc-stat-og', String(stats.own_goals ?? 0));
+
+    const box = el('wc-chart-halves'); if (!box) return;
+    const h1 = stats.goals_first_half ?? 0;
+    const h2 = (stats.goals_second_half ?? 0) + (stats.goals_extra_time ?? 0);
+    doughnutChart(box, {
+      ariaLabel: 'Distribuição de gols por tempo: primeiro tempo versus segundo tempo mais prorrogação',
+      segments: [
+        { label: '1º tempo', value: h1, color: readToken('--wc-field-ink', '#0B6B2E') },
+        { label: '2º tempo + prorrogação', value: h2, color: readToken('--wc-gold-ink', '#8A5A06') },
+      ],
+      valueFmt: (v) => `${v} gols`,
+      centerLabel: String(h1 + h2),
+      centerSub: 'gols',
+      legend: true,
+    });
+  }
+
+  async function loadWorldCup(): Promise<void> {
+    const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
+    const [partidas, artil, stats] = await Promise.all([
+      fetchJSON<PartidasPayload>(base, 'partidas.json'),
+      fetchJSON<ArtilheirosPayload>(base, 'artilheiros.json'),
+      fetchJSON<EstatisticasPayload>(base, 'estatisticas.json'),
+    ]);
+    safe('hero-kpis', () => renderHeroKPIs(partidas, artil, stats));
+    safe('scorers', () => renderScorers(artil));
+    safe('stats', () => renderStats(stats));
+  }
+
+  // astro:page-load (não DOMContentLoaded): 1º load + toda navegação SPA.
+  // Guard #wc-hero evita fetch em outras páginas (o listener persiste no document).
+  document.addEventListener('astro:page-load', () => {
+    if (!document.getElementById('wc-hero')) return;
+    loadWorldCup();
+  });
+</script>
+
+<script>
+  // Motion — padrões nomeados (GSAP + ScrollTrigger), guardados por motionOk
+  // (respeita prefers-reduced-motion): `resolve` no herói, `reveal-up` por seção.
+  import { revealUp } from '../scripts/motion/reveal-up';
+  import { resolveHero } from '../scripts/motion/resolve';
+  import { motionOk, STAGGER } from '../scripts/motion/constants';
+
+  function animateWorldCup(): void {
+    if (!motionOk) return;
+    if (!document.getElementById('wc-hero')) return;
+    const heroCard = document.querySelector('#wc-hero .wc-hero__card') as HTMLElement | null;
+    if (heroCard) resolveHero(heroCard);
+    document.querySelectorAll<HTMLElement>('main section[id]').forEach((sec) => {
+      if (sec.id === 'wc-hero') return; // herói já animado pelo resolve
+      const head = sec.querySelector('.section-head') as HTMLElement | null;
+      if (head) revealUp([head], sec, 0);
+      const cards = Array.from(sec.querySelectorAll<HTMLElement>('.wc-kpi, .wc-scorers-wrap, .wc-stat-card'));
+      if (cards.length) revealUp(cards, sec, STAGGER.tight);
+    });
+  }
+  document.addEventListener('astro:page-load', animateWorldCup);
+</script>
+
+<script>
+  // Jump-nav — rail de pontos (desktop) + FAB/bottom-sheet (mobile). Lê as seções
+  // desta página; auto-numera. Active via IntersectionObserver. Portado do
+  // world-cup-dashboard/jumpnav.js (renomeado el-→wc-).
+  const NAV = [
+    { id: 'wc-hero',       fb: 'Início' },
+    { id: 'artilheiros',   fb: 'Artilharia' },
+    { id: 'estatisticas',  fb: 'Estatísticas' },
+  ];
+  const jesc = (s: string): string => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+  const jReduce = (): boolean => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const jMobile = (): boolean => matchMedia('(max-width: 1023px)').matches;
+  let backdrop: HTMLElement | null = null;
+
+  function jRenderList(): void {
+    const list = document.getElementById('wc-jumpnav-list'); if (!list) return;
+    const items = NAV.filter((n) => document.getElementById(n.id));
+    list.innerHTML = items.map((n, i) => `
+      <li class="wc-jumpnav__item">
+        <a href="#${n.id}" class="wc-jumpnav__link" data-target="${n.id}" aria-current="false">
+          <span class="wc-jumpnav__label">${jesc(n.fb)}</span>
+          <span class="wc-jumpnav__bullet" aria-hidden="true"></span>
+          <span class="wc-jumpnav__num">${String(i + 1).padStart(2, '0')}</span>
+        </a>
+      </li>`).join('');
+  }
+  function jSetActive(id: string): void {
+    document.querySelectorAll('.wc-jumpnav__link').forEach((l) => {
+      const on = (l as HTMLElement).dataset.target === id;
+      if (l.getAttribute('aria-current') !== String(on)) l.setAttribute('aria-current', String(on));
+    });
+  }
+  function jEnsureBackdrop(): HTMLElement {
+    if (backdrop) return backdrop;
+    backdrop = document.createElement('div');
+    backdrop.className = 'wc-jumpnav-backdrop';
+    backdrop.setAttribute('aria-hidden', 'true');
+    backdrop.addEventListener('click', jCloseSheet);
+    document.body.appendChild(backdrop);
+    return backdrop;
+  }
+  function jOpenSheet(): void {
+    const nav = document.getElementById('wc-jumpnav'), fab = document.getElementById('wc-jumpnav-fab');
+    if (!nav || !fab) return;
+    (nav as HTMLElement).hidden = false; fab.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(() => jEnsureBackdrop().classList.add('is-visible'));
+    document.body.style.overflow = 'hidden';
+  }
+  function jCloseSheet(): void {
+    const nav = document.getElementById('wc-jumpnav'), fab = document.getElementById('wc-jumpnav-fab');
+    if (!nav || !fab) return;
+    fab.setAttribute('aria-expanded', 'false');
+    backdrop?.classList.remove('is-visible');
+    setTimeout(() => { if (fab.getAttribute('aria-expanded') === 'false') (nav as HTMLElement).hidden = true; }, 250);
+    document.body.style.overflow = '';
+  }
+  function initJumpnav(): void {
+    const nav = document.getElementById('wc-jumpnav'), fab = document.getElementById('wc-jumpnav-fab');
+    if (!nav || !fab) return;
+    if (!document.getElementById('wc-hero')) return;
+    jRenderList();
+    document.getElementById('wc-jumpnav-list')!.addEventListener('click', (e) => {
+      const link = (e.target as HTMLElement).closest('.wc-jumpnav__link') as HTMLElement | null;
+      if (!link) return;
+      e.preventDefault();
+      const id = link.dataset.target!; const target = document.getElementById(id); if (!target) return;
+      const go = () => { target.scrollIntoView({ behavior: jReduce() ? 'auto' : 'smooth', block: 'start' }); history.replaceState(null, '', '#' + id); };
+      if (jMobile() && fab.getAttribute('aria-expanded') === 'true') { jCloseSheet(); setTimeout(go, jReduce() ? 0 : 260); } else go();
+      jSetActive(id);
+    });
+    fab.addEventListener('click', () => (fab.getAttribute('aria-expanded') === 'true' ? jCloseSheet() : jOpenSheet()));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && fab.getAttribute('aria-expanded') === 'true') { jCloseSheet(); fab.focus(); } });
+    matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
+      if (e.matches) { (nav as HTMLElement).hidden = false; fab.setAttribute('aria-expanded', 'false'); backdrop?.classList.remove('is-visible'); document.body.style.overflow = ''; }
+      else { fab.setAttribute('aria-expanded', 'false'); (nav as HTMLElement).hidden = true; }
+    });
+    const els = NAV.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[];
+    if (els[0]) jSetActive(els[0].id);
+    const obs = new IntersectionObserver((ents) => {
+      const vis = ents.filter((x) => x.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+      if (vis[0]) jSetActive(vis[0].target.id);
+    }, { rootMargin: '-30% 0px -50% 0px', threshold: [0, 0.1, 0.3, 0.5, 1] });
+    els.forEach((element) => obs.observe(element));
+    if (jMobile()) { (fab as HTMLElement).hidden = false; (nav as HTMLElement).hidden = true; }
+    else { (nav as HTMLElement).hidden = false; (fab as HTMLElement).hidden = true; }
+  }
+  document.addEventListener('astro:page-load', initJumpnav);
+</script>
