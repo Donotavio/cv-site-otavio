@@ -229,6 +229,22 @@ function revealInjected(root: HTMLElement | null): void {
   nodes.forEach((n) => io.observe(n));
 }
 
+/**
+ * Limpa o "hold" inline que o GSAP (revealUp/gsap.from) pode ter deixado num
+ * host preenchido por innerHTML async: `opacity:0; transform:translate(...)`.
+ * Se o ScrollTrigger (once:true) não disparar antes do render reescrever o
+ * conteúdo, o host fica preso invisível. Zerar essas props inline garante que o
+ * card apareça (o conteúdo já está no DOM). Idempotente e inofensivo se não houver hold.
+ */
+function clearRevealHold(el: HTMLElement | null): void {
+  if (!el) return;
+  el.style.opacity = '';
+  el.style.transform = '';
+  el.style.translate = '';
+  el.style.rotate = '';
+  el.style.scale = '';
+}
+
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Shared module state (resettable for SPA re-entry)                            */
 /* ────────────────────────────────────────────────────────────────────────── */
@@ -1394,6 +1410,7 @@ function renderShotStats(): void {
     statRowHtml('Aproveitamento', fmtPct(homeConv, 0), fmtPct(awayConv, 0), homeConv, awayConv),
   ].join('');
   host.innerHTML = statHeadHtml(home, away) + `<div class="wc-stat-rows">${rows}</div>` + `<span class="wc-stat-compare__source mono-label">fonte: ${esc(m.source || 'ESPN')}</span>`;
+  clearRevealHold(host);
   revealInjected(host);
   host.querySelectorAll<HTMLElement>('.wc-stat-row__bar-home, .wc-stat-row__bar-away').forEach((b) => b.classList.add('is-visible'));
 }
@@ -1425,6 +1442,7 @@ function renderPassStats(): void {
   ].filter(Boolean).join('');
   const rows = buildRows + (defRows ? statSubheadHtml('Defesa & disciplina') + defRows : '');
   host.innerHTML = statHeadHtml(home, away) + `<div class="wc-stat-rows">${rows}</div>` + `<span class="wc-stat-compare__source mono-label">fonte: ${esc(m.source || 'ESPN')}</span>`;
+  clearRevealHold(host);
   revealInjected(host);
   host.querySelectorAll<HTMLElement>('.wc-stat-row__bar-home, .wc-stat-row__bar-away').forEach((b) => b.classList.add('is-visible'));
 }
