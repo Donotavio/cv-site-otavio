@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-07-18T23:39:03.729521+00:00",
+  "updated_at": "2026-07-20T12:05:43.738057+00:00",
   "source": "openfootball/worldcup.json (cálculo local)",
-  "total_matches": 103,
+  "total_matches": 104,
   "total_goals": 300,
-  "avg_goals_per_match": 2.91,
+  "avg_goals_per_match": 2.88,
   "goals_first_half": 109,
   "goals_second_half": 146,
-  "goals_extra_time": 38,
+  "goals_extra_time": 39,
   "penalties_scored": 16,
   "own_goals": 14,
   "biggest_win": {
@@ -56,7 +56,7 @@
     },
     {
       "range": "105-119",
-      "count": 1
+      "count": 2
     },
     {
       "range": "120-134",
@@ -64,19 +64,6 @@
     }
   ],
   "teams_efficiency": [
-    {
-      "name": "Spain",
-      "code": "ESP",
-      "flag": "🇪🇸",
-      "goals_for": 13,
-      "goals_against": 1,
-      "diff": 12,
-      "matches": 7,
-      "wins": 6,
-      "draws": 1,
-      "losses": 0,
-      "diff_per_match": 1.71
-    },
     {
       "name": "Germany",
       "code": "GER",
@@ -104,6 +91,19 @@
       "diff_per_match": 1.5
     },
     {
+      "name": "Spain",
+      "code": "ESP",
+      "flag": "🇪🇸",
+      "goals_for": 13,
+      "goals_against": 1,
+      "diff": 12,
+      "matches": 8,
+      "wins": 6,
+      "draws": 2,
+      "losses": 0,
+      "diff_per_match": 1.5
+    },
+    {
       "name": "Mexico",
       "code": "MEX",
       "flag": "🇲🇽",
@@ -115,19 +115,6 @@
       "draws": 0,
       "losses": 1,
       "diff_per_match": 1.4
-    },
-    {
-      "name": "Argentina",
-      "code": "ARG",
-      "flag": "🇦🇷",
-      "goals_for": 15,
-      "goals_against": 6,
-      "diff": 9,
-      "matches": 7,
-      "wins": 5,
-      "draws": 2,
-      "losses": 0,
-      "diff_per_match": 1.29
     },
     {
       "name": "France",
@@ -154,6 +141,19 @@
       "draws": 1,
       "losses": 1,
       "diff_per_match": 1.2
+    },
+    {
+      "name": "Argentina",
+      "code": "ARG",
+      "flag": "🇦🇷",
+      "goals_for": 15,
+      "goals_against": 6,
+      "diff": 9,
+      "matches": 8,
+      "wins": 5,
+      "draws": 3,
+      "losses": 0,
+      "diff_per_match": 1.12
     },
     {
       "name": "Switzerland",
@@ -275,12 +275,12 @@
   ],
   "tournament_progress": {
     "total_matches": 104,
-    "finished_matches": 103,
-    "remaining_matches": 1,
-    "progress_pct": 99.0,
-    "current_phase": "Final",
-    "current_phase_key": "final",
-    "is_complete": false,
+    "finished_matches": 104,
+    "remaining_matches": 0,
+    "progress_pct": 100.0,
+    "current_phase": "Torneio finalizado",
+    "current_phase_key": "completed",
+    "is_complete": true,
     "phases": [
       {
         "key": "groups",
@@ -334,17 +334,11 @@
         "key": "final",
         "label": "Final",
         "total": 1,
-        "finished": 0,
-        "scheduled": 1,
-        "completed": false
+        "finished": 1,
+        "scheduled": 0,
+        "completed": true
       }
     ],
-    "next_match": {
-      "date": "2026-07-19",
-      "time": "15:00 UTC-4",
-      "round": "Final",
-      "team1": "Spain",
-      "team2": "Argentina"
-    }
+    "next_match": null
   }
 }

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-18T23:39:40.709327+00:00",
+  "updated_at": "2026-07-20T12:06:20.160251+00:00",
   "source": "openfootball (momentum) + ESPN (match stats)",
   "tournament": "FIFA World Cup 2026",
   "note": "Momentum: gols reais por minuto via openfootball. Stats de chute/passe: ESPN. Rastreamento óptico, não telemetria do chip Trionda (privado).",
@@ -651,6 +651,14 @@
       "date": "2026-06-11",
       "goals": 2,
       "has_stats": true,
+      "has_momentum": true
+    },
+    {
+      "id": "esp-arg-2026-07-19",
+      "label": "Spain 0–0 Argentina",
+      "date": "2026-07-19",
+      "goals": 1,
+      "has_stats": false,
       "has_momentum": true
     },
     {
@@ -16725,6 +16733,95 @@
             "team": "home",
             "player": "Raúl Jiménez",
             "cum": 2
+          }
+        ]
+      },
+      "esp-arg-2026-07-19": {
+        "id": "esp-arg-2026-07-19",
+        "label": "Spain 0–0 Argentina",
+        "date": "2026-07-19",
+        "total_goals": 1,
+        "metric": "goals",
+        "metric_label": "Gols acumulados",
+        "labels": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          85,
+          90
+        ],
+        "home": {
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "name": "Spain",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "away": {
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "name": "Argentina",
+          "cum": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "goals": [
+          {
+            "minute": 106,
+            "team": "home",
+            "player": "Ferran Torres",
+            "cum": 1
           }
         ]
       },
