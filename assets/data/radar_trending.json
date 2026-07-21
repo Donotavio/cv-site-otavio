@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-07-21T16:48:19.759026+00:00",
+  "gerado_em": "2026-07-21T16:57:54.818504+00:00",
   "insufficient_history": false,
   "mode": "semana",
   "window_label": "semana mais recente vs. semana anterior",
@@ -9,32 +9,32 @@
     {
       "tool": "apache-airflow",
       "mentions_recent": 90.0,
-      "mentions_prior": 1.0,
-      "share_recent_pct": 21.9,
-      "share_prior_pct": 10.0,
-      "delta_pp": 11.9,
+      "mentions_prior": 4.0,
+      "share_recent_pct": 22.6,
+      "share_prior_pct": 9.5,
+      "delta_pp": 13.1,
       "direction": "up"
     },
     {
-      "tool": "mlflow",
-      "mentions_recent": 14.0,
-      "mentions_prior": 0.0,
-      "share_recent_pct": 3.4,
-      "share_prior_pct": 0.0,
-      "delta_pp": 3.4,
+      "tool": "dbt",
+      "mentions_recent": 37.0,
+      "mentions_prior": 1.0,
+      "share_recent_pct": 9.3,
+      "share_prior_pct": 2.4,
+      "delta_pp": 6.9,
+      "direction": "up"
+    },
+    {
+      "tool": "apache-kafka",
+      "mentions_recent": 32.0,
+      "mentions_prior": 2.0,
+      "share_recent_pct": 8.0,
+      "share_prior_pct": 4.8,
+      "delta_pp": 3.2,
       "direction": "up"
     },
     {
       "tool": "apache-iceberg",
-      "mentions_recent": 4.0,
-      "mentions_prior": 0.0,
-      "share_recent_pct": 1.0,
-      "share_prior_pct": 0.0,
-      "delta_pp": 1.0,
-      "direction": "up"
-    },
-    {
-      "tool": "dagster",
       "mentions_recent": 4.0,
       "mentions_prior": 0.0,
       "share_recent_pct": 1.0,
@@ -55,18 +55,18 @@
       "tool": "airbyte",
       "mentions_recent": 3.0,
       "mentions_prior": 0.0,
-      "share_recent_pct": 0.7,
+      "share_recent_pct": 0.8,
       "share_prior_pct": 0.0,
-      "delta_pp": 0.7,
+      "delta_pp": 0.8,
       "direction": "up"
     },
     {
       "tool": "duckdb",
       "mentions_recent": 1.0,
       "mentions_prior": 0.0,
-      "share_recent_pct": 0.2,
+      "share_recent_pct": 0.3,
       "share_prior_pct": 0.0,
-      "delta_pp": 0.2,
+      "delta_pp": 0.3,
       "direction": "up"
     },
     {
@@ -106,48 +106,48 @@
       "direction": "flat"
     },
     {
-      "tool": "dbt",
-      "mentions_recent": 36.0,
+      "tool": "mlflow",
+      "mentions_recent": 13.0,
+      "mentions_prior": 2.0,
+      "share_recent_pct": 3.3,
+      "share_prior_pct": 4.8,
+      "delta_pp": -1.5,
+      "direction": "down"
+    },
+    {
+      "tool": "dagster",
+      "mentions_recent": 3.0,
       "mentions_prior": 1.0,
-      "share_recent_pct": 8.8,
-      "share_prior_pct": 10.0,
-      "delta_pp": -1.2,
+      "share_recent_pct": 0.8,
+      "share_prior_pct": 2.4,
+      "delta_pp": -1.6,
       "direction": "down"
     },
     {
       "tool": "apache-spark",
-      "mentions_recent": 116.0,
-      "mentions_prior": 3.0,
-      "share_recent_pct": 28.2,
-      "share_prior_pct": 30.0,
-      "delta_pp": -1.8,
-      "direction": "down"
-    },
-    {
-      "tool": "apache-kafka",
-      "mentions_recent": 30.0,
-      "mentions_prior": 1.0,
-      "share_recent_pct": 7.3,
-      "share_prior_pct": 10.0,
+      "mentions_recent": 113.0,
+      "mentions_prior": 13.0,
+      "share_recent_pct": 28.3,
+      "share_prior_pct": 31.0,
       "delta_pp": -2.7,
       "direction": "down"
     },
     {
       "tool": "delta-lake",
-      "mentions_recent": 18.0,
-      "mentions_prior": 1.0,
-      "share_recent_pct": 4.4,
-      "share_prior_pct": 10.0,
-      "delta_pp": -5.6,
+      "mentions_recent": 15.0,
+      "mentions_prior": 4.0,
+      "share_recent_pct": 3.8,
+      "share_prior_pct": 9.5,
+      "delta_pp": -5.7,
       "direction": "down"
     },
     {
       "tool": "databricks",
-      "mentions_recent": 91.0,
-      "mentions_prior": 3.0,
-      "share_recent_pct": 22.1,
-      "share_prior_pct": 30.0,
-      "delta_pp": -7.9,
+      "mentions_recent": 84.0,
+      "mentions_prior": 15.0,
+      "share_recent_pct": 21.1,
+      "share_prior_pct": 35.7,
+      "delta_pp": -14.6,
       "direction": "down"
     }
   ]
