@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-07-31T16:59:48.840177+00:00",
+  "gerado_em": "2026-07-31T17:07:42.965413+00:00",
   "insufficient_history": false,
   "mode": "semana",
   "window_label": "semana mais recente vs. semana anterior",
@@ -9,46 +9,55 @@
     {
       "tool": "apache-airflow",
       "mentions_recent": 87.0,
-      "mentions_prior": 8.0,
-      "share_recent_pct": 21.0,
-      "share_prior_pct": 16.7,
-      "delta_pp": 4.3,
-      "direction": "up"
-    },
-    {
-      "tool": "dbt",
-      "mentions_recent": 43.0,
-      "mentions_prior": 3.0,
-      "share_recent_pct": 10.4,
-      "share_prior_pct": 6.3,
-      "delta_pp": 4.1,
+      "mentions_prior": 11.0,
+      "share_recent_pct": 20.5,
+      "share_prior_pct": 15.3,
+      "delta_pp": 5.2,
       "direction": "up"
     },
     {
       "tool": "apache-kafka",
       "mentions_recent": 34.0,
+      "mentions_prior": 4.0,
+      "share_recent_pct": 8.0,
+      "share_prior_pct": 5.6,
+      "delta_pp": 2.4,
+      "direction": "up"
+    },
+    {
+      "tool": "delta-lake",
+      "mentions_recent": 19.0,
       "mentions_prior": 2.0,
-      "share_recent_pct": 8.2,
-      "share_prior_pct": 4.2,
-      "delta_pp": 4.0,
+      "share_recent_pct": 4.5,
+      "share_prior_pct": 2.8,
+      "delta_pp": 1.7,
+      "direction": "up"
+    },
+    {
+      "tool": "dbt",
+      "mentions_recent": 42.0,
+      "mentions_prior": 6.0,
+      "share_recent_pct": 9.9,
+      "share_prior_pct": 8.3,
+      "delta_pp": 1.6,
       "direction": "up"
     },
     {
       "tool": "prefect",
-      "mentions_recent": 5.0,
+      "mentions_recent": 6.0,
       "mentions_prior": 0.0,
-      "share_recent_pct": 1.2,
+      "share_recent_pct": 1.4,
       "share_prior_pct": 0.0,
-      "delta_pp": 1.2,
+      "delta_pp": 1.4,
       "direction": "up"
     },
     {
       "tool": "airbyte",
       "mentions_recent": 4.0,
       "mentions_prior": 0.0,
-      "share_recent_pct": 1.0,
+      "share_recent_pct": 0.9,
       "share_prior_pct": 0.0,
-      "delta_pp": 1.0,
+      "delta_pp": 0.9,
       "direction": "up"
     },
     {
@@ -68,6 +77,15 @@
       "share_prior_pct": 0.0,
       "delta_pp": 0.2,
       "direction": "up"
+    },
+    {
+      "tool": "apache-iceberg",
+      "mentions_recent": 6.0,
+      "mentions_prior": 1.0,
+      "share_recent_pct": 1.4,
+      "share_prior_pct": 1.4,
+      "delta_pp": 0.0,
+      "direction": "flat"
     },
     {
       "tool": "dlt",
@@ -106,48 +124,30 @@
       "direction": "flat"
     },
     {
-      "tool": "delta-lake",
-      "mentions_recent": 16.0,
-      "mentions_prior": 2.0,
-      "share_recent_pct": 3.9,
-      "share_prior_pct": 4.2,
-      "delta_pp": -0.3,
-      "direction": "down"
-    },
-    {
-      "tool": "apache-iceberg",
-      "mentions_recent": 6.0,
-      "mentions_prior": 1.0,
-      "share_recent_pct": 1.4,
-      "share_prior_pct": 2.1,
-      "delta_pp": -0.7,
-      "direction": "down"
-    },
-    {
       "tool": "apache-spark",
-      "mentions_recent": 115.0,
-      "mentions_prior": 15.0,
+      "mentions_recent": 118.0,
+      "mentions_prior": 22.0,
       "share_recent_pct": 27.8,
-      "share_prior_pct": 31.3,
-      "delta_pp": -3.5,
+      "share_prior_pct": 30.6,
+      "delta_pp": -2.8,
       "direction": "down"
     },
     {
       "tool": "mlflow",
-      "mentions_recent": 12.0,
-      "mentions_prior": 4.0,
-      "share_recent_pct": 2.9,
+      "mentions_recent": 11.0,
+      "mentions_prior": 6.0,
+      "share_recent_pct": 2.6,
       "share_prior_pct": 8.3,
-      "delta_pp": -5.4,
+      "delta_pp": -5.7,
       "direction": "down"
     },
     {
       "tool": "databricks",
-      "mentions_recent": 88.0,
-      "mentions_prior": 13.0,
-      "share_recent_pct": 21.3,
-      "share_prior_pct": 27.1,
-      "delta_pp": -5.8,
+      "mentions_recent": 93.0,
+      "mentions_prior": 20.0,
+      "share_recent_pct": 21.9,
+      "share_prior_pct": 27.8,
+      "delta_pp": -5.9,
       "direction": "down"
     }
   ]
