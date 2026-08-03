@@ -1,18 +1,54 @@
 {
-  "gerado_em": "2026-08-03T17:21:55.464612+00:00",
+  "gerado_em": "2026-08-03T17:27:38.703610+00:00",
   "insufficient_history": false,
   "mode": "semana",
   "window_label": "semana mais recente vs. semana anterior",
   "nota": "Variação da fatia (share, em pontos percentuais) de cada ferramenta nas menções de vaga do universo do radar: semana mais recente vs. semana anterior. Share (não contagem) para ser robusto à entrada de novas fontes. A partir de 8 semanas, a janela passa a usar a média de 4 semanas (mais suave).",
-  "weeks_available": 5,
+  "weeks_available": 6,
   "tools": [
+    {
+      "tool": "dbt",
+      "mentions_recent": 38.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 9.6,
+      "share_prior_pct": 0.0,
+      "delta_pp": 9.6,
+      "direction": "up"
+    },
+    {
+      "tool": "apache-spark",
+      "mentions_recent": 111.0,
+      "mentions_prior": 1.0,
+      "share_recent_pct": 28.2,
+      "share_prior_pct": 20.0,
+      "delta_pp": 8.2,
+      "direction": "up"
+    },
+    {
+      "tool": "apache-kafka",
+      "mentions_recent": 29.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 7.4,
+      "share_prior_pct": 0.0,
+      "delta_pp": 7.4,
+      "direction": "up"
+    },
     {
       "tool": "delta-lake",
       "mentions_recent": 19.0,
-      "mentions_prior": 3.0,
+      "mentions_prior": 0.0,
       "share_recent_pct": 4.8,
-      "share_prior_pct": 2.7,
-      "delta_pp": 2.1,
+      "share_prior_pct": 0.0,
+      "delta_pp": 4.8,
+      "direction": "up"
+    },
+    {
+      "tool": "apache-iceberg",
+      "mentions_recent": 7.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 1.8,
+      "share_prior_pct": 0.0,
+      "delta_pp": 1.8,
       "direction": "up"
     },
     {
@@ -34,39 +70,12 @@
       "direction": "up"
     },
     {
-      "tool": "apache-iceberg",
-      "mentions_recent": 7.0,
-      "mentions_prior": 1.0,
-      "share_recent_pct": 1.8,
-      "share_prior_pct": 0.9,
-      "delta_pp": 0.9,
-      "direction": "up"
-    },
-    {
       "tool": "dagster",
       "mentions_recent": 3.0,
       "mentions_prior": 0.0,
       "share_recent_pct": 0.8,
       "share_prior_pct": 0.0,
       "delta_pp": 0.8,
-      "direction": "up"
-    },
-    {
-      "tool": "apache-airflow",
-      "mentions_recent": 78.0,
-      "mentions_prior": 21.0,
-      "share_recent_pct": 19.8,
-      "share_prior_pct": 19.1,
-      "delta_pp": 0.7,
-      "direction": "up"
-    },
-    {
-      "tool": "dbt",
-      "mentions_recent": 38.0,
-      "mentions_prior": 10.0,
-      "share_recent_pct": 9.7,
-      "share_prior_pct": 9.1,
-      "delta_pp": 0.6,
       "direction": "up"
     },
     {
@@ -115,39 +124,30 @@
       "direction": "flat"
     },
     {
-      "tool": "apache-kafka",
-      "mentions_recent": 29.0,
-      "mentions_prior": 9.0,
-      "share_recent_pct": 7.4,
-      "share_prior_pct": 8.2,
-      "delta_pp": -0.8,
-      "direction": "down"
-    },
-    {
-      "tool": "apache-spark",
-      "mentions_recent": 110.0,
-      "mentions_prior": 32.0,
-      "share_recent_pct": 28.0,
-      "share_prior_pct": 29.1,
-      "delta_pp": -1.1,
+      "tool": "apache-airflow",
+      "mentions_recent": 78.0,
+      "mentions_prior": 1.0,
+      "share_recent_pct": 19.8,
+      "share_prior_pct": 20.0,
+      "delta_pp": -0.2,
       "direction": "down"
     },
     {
       "tool": "mlflow",
       "mentions_recent": 11.0,
-      "mentions_prior": 6.0,
+      "mentions_prior": 1.0,
       "share_recent_pct": 2.8,
-      "share_prior_pct": 5.5,
-      "delta_pp": -2.7,
+      "share_prior_pct": 20.0,
+      "delta_pp": -17.2,
       "direction": "down"
     },
     {
       "tool": "databricks",
       "mentions_recent": 87.0,
-      "mentions_prior": 28.0,
+      "mentions_prior": 2.0,
       "share_recent_pct": 22.1,
-      "share_prior_pct": 25.5,
-      "delta_pp": -3.4,
+      "share_prior_pct": 40.0,
+      "delta_pp": -17.9,
       "direction": "down"
     }
   ]
