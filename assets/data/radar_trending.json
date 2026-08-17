@@ -1,63 +1,90 @@
 {
-  "gerado_em": "2026-08-17T15:44:49.448896+00:00",
+  "gerado_em": "2026-08-17T15:52:49.116260+00:00",
   "insufficient_history": false,
-  "mode": "semana",
-  "window_label": "semana mais recente vs. semana anterior",
-  "nota": "Variação da fatia (share, em pontos percentuais) de cada ferramenta nas menções de vaga do universo do radar: semana mais recente vs. semana anterior. Share (não contagem) para ser robusto à entrada de novas fontes. A partir de 8 semanas, a janela passa a usar a média de 4 semanas (mais suave).",
-  "weeks_available": 7,
+  "mode": "media_4s",
+  "window_label": "4 semanas recentes vs. 4 anteriores",
+  "nota": "Variação da fatia (share, em pontos percentuais) de cada ferramenta nas menções de vaga do universo do radar: 4 semanas recentes vs. 4 anteriores. Share (não contagem) para ser robusto à entrada de novas fontes. A partir de 8 semanas, a janela passa a usar a média de 4 semanas (mais suave).",
+  "weeks_available": 8,
   "tools": [
     {
-      "tool": "databricks",
-      "mentions_recent": 100.0,
-      "mentions_prior": 14.0,
-      "share_recent_pct": 23.9,
-      "share_prior_pct": 20.0,
-      "delta_pp": 3.9,
-      "direction": "up"
-    },
-    {
-      "tool": "delta-lake",
-      "mentions_recent": 26.0,
-      "mentions_prior": 2.0,
-      "share_recent_pct": 6.2,
-      "share_prior_pct": 2.9,
-      "delta_pp": 3.3,
+      "tool": "dbt",
+      "mentions_recent": 55.0,
+      "mentions_prior": 21.0,
+      "share_recent_pct": 9.6,
+      "share_prior_pct": 7.6,
+      "delta_pp": 2.0,
       "direction": "up"
     },
     {
       "tool": "apache-airflow",
-      "mentions_recent": 83.0,
-      "mentions_prior": 12.0,
-      "share_recent_pct": 19.8,
-      "share_prior_pct": 17.1,
-      "delta_pp": 2.7,
+      "mentions_recent": 109.0,
+      "mentions_prior": 48.0,
+      "share_recent_pct": 19.0,
+      "share_prior_pct": 17.3,
+      "delta_pp": 1.7,
       "direction": "up"
     },
     {
-      "tool": "mlflow",
-      "mentions_recent": 14.0,
+      "tool": "prefect",
+      "mentions_recent": 7.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 1.2,
+      "share_prior_pct": 0.0,
+      "delta_pp": 1.2,
+      "direction": "up"
+    },
+    {
+      "tool": "delta-lake",
+      "mentions_recent": 33.0,
+      "mentions_prior": 13.0,
+      "share_recent_pct": 5.7,
+      "share_prior_pct": 4.7,
+      "delta_pp": 1.0,
+      "direction": "up"
+    },
+    {
+      "tool": "airbyte",
+      "mentions_recent": 8.0,
+      "mentions_prior": 2.0,
+      "share_recent_pct": 1.4,
+      "share_prior_pct": 0.7,
+      "delta_pp": 0.7,
+      "direction": "up"
+    },
+    {
+      "tool": "apache-iceberg",
+      "mentions_recent": 8.0,
+      "mentions_prior": 2.0,
+      "share_recent_pct": 1.4,
+      "share_prior_pct": 0.7,
+      "delta_pp": 0.7,
+      "direction": "up"
+    },
+    {
+      "tool": "dagster",
+      "mentions_recent": 5.0,
       "mentions_prior": 1.0,
-      "share_recent_pct": 3.3,
-      "share_prior_pct": 1.4,
-      "delta_pp": 1.9,
+      "share_recent_pct": 0.9,
+      "share_prior_pct": 0.4,
+      "delta_pp": 0.5,
+      "direction": "up"
+    },
+    {
+      "tool": "duckdb",
+      "mentions_recent": 2.0,
+      "mentions_prior": 0.0,
+      "share_recent_pct": 0.3,
+      "share_prior_pct": 0.0,
+      "delta_pp": 0.3,
       "direction": "up"
     },
     {
       "tool": "polars",
       "mentions_recent": 2.0,
       "mentions_prior": 0.0,
-      "share_recent_pct": 0.5,
+      "share_recent_pct": 0.3,
       "share_prior_pct": 0.0,
-      "delta_pp": 0.5,
-      "direction": "up"
-    },
-    {
-      "tool": "duckdb",
-      "mentions_recent": 1.0,
-      "mentions_prior": 0.0,
-      "share_recent_pct": 0.2,
-      "share_prior_pct": 0.0,
-      "delta_pp": 0.2,
+      "delta_pp": 0.3,
       "direction": "up"
     },
     {
@@ -88,66 +115,39 @@
       "direction": "flat"
     },
     {
-      "tool": "prefect",
-      "mentions_recent": 6.0,
-      "mentions_prior": 1.0,
-      "share_recent_pct": 1.4,
-      "share_prior_pct": 1.4,
-      "delta_pp": 0.0,
-      "direction": "flat"
-    },
-    {
-      "tool": "apache-spark",
-      "mentions_recent": 113.0,
-      "mentions_prior": 19.0,
-      "share_recent_pct": 27.0,
-      "share_prior_pct": 27.1,
+      "tool": "apache-kafka",
+      "mentions_recent": 41.0,
+      "mentions_prior": 20.0,
+      "share_recent_pct": 7.1,
+      "share_prior_pct": 7.2,
       "delta_pp": -0.1,
       "direction": "flat"
     },
     {
-      "tool": "dagster",
-      "mentions_recent": 4.0,
-      "mentions_prior": 1.0,
-      "share_recent_pct": 1.0,
-      "share_prior_pct": 1.4,
-      "delta_pp": -0.4,
-      "direction": "down"
+      "tool": "mlflow",
+      "mentions_recent": 18.0,
+      "mentions_prior": 9.0,
+      "share_recent_pct": 3.1,
+      "share_prior_pct": 3.2,
+      "delta_pp": -0.1,
+      "direction": "flat"
     },
     {
-      "tool": "dbt",
-      "mentions_recent": 36.0,
-      "mentions_prior": 7.0,
-      "share_recent_pct": 8.6,
-      "share_prior_pct": 10.0,
-      "delta_pp": -1.4,
-      "direction": "down"
-    },
-    {
-      "tool": "airbyte",
-      "mentions_recent": 6.0,
-      "mentions_prior": 2.0,
-      "share_recent_pct": 1.4,
-      "share_prior_pct": 2.9,
+      "tool": "apache-spark",
+      "mentions_recent": 153.0,
+      "mentions_prior": 78.0,
+      "share_recent_pct": 26.6,
+      "share_prior_pct": 28.1,
       "delta_pp": -1.5,
       "direction": "down"
     },
     {
-      "tool": "apache-iceberg",
-      "mentions_recent": 2.0,
-      "mentions_prior": 3.0,
-      "share_recent_pct": 0.5,
-      "share_prior_pct": 4.3,
-      "delta_pp": -3.8,
-      "direction": "down"
-    },
-    {
-      "tool": "apache-kafka",
-      "mentions_recent": 26.0,
-      "mentions_prior": 8.0,
-      "share_recent_pct": 6.2,
-      "share_prior_pct": 11.4,
-      "delta_pp": -5.2,
+      "tool": "databricks",
+      "mentions_recent": 134.0,
+      "mentions_prior": 84.0,
+      "share_recent_pct": 23.3,
+      "share_prior_pct": 30.2,
+      "delta_pp": -6.9,
       "direction": "down"
     }
   ]
