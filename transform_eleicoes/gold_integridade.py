@@ -1,8 +1,8 @@
 """
-Observatório Eleições 2026 — Gold: situação jurídica (integridade)
-==================================================================
+Observatório Eleições 2026 — Gold: situação de registro (integridade)
+========================================================================
 Lê o bronze do coletor de integridade e escreve o envelope consumido pela
-seção [13] do painel: metodologia, disclaimer, estágios, fontes e
+seção [13] do painel: metodologia, disclaimer, situações possíveis, fontes e
 itens_por_candidato (agrupado por nome canônico).
 
 Uso:
@@ -12,8 +12,9 @@ Saída:
     data/gold/eleicoes_integridade.parquet
     assets/data/eleicoes_integridade.json
 
-Enquanto não há dado oficial por candidato (pré-registro), itens_por_candidato
-sai vazio — o frontend mostra o arcabouço + links oficiais. Idempotente.
+Enquanto o download do TSE falhar (bloqueio de rede — ver
+tse_dados_abertos.py), itens_por_candidato sai vazio e o frontend mostra o
+arcabouço + links oficiais, igual antes. Idempotente.
 """
 
 from __future__ import annotations
@@ -27,9 +28,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from ingestion_eleicoes.catalog import (  # noqa: E402
     INTEGRIDADE_DISCLAIMER,
-    INTEGRIDADE_ESTAGIOS,
     INTEGRIDADE_FONTES,
     INTEGRIDADE_METODOLOGIA,
+    INTEGRIDADE_SITUACOES,
 )
 
 BRONZE_DIR = Path("data/bronze/eleicoes_integridade")
@@ -46,29 +47,25 @@ def _latest_bronze() -> Path:
     return files[-1]
 
 
-def _itens_por_candidato(df) -> dict[str, list[dict]]:
-    ids_validos = {e["id"] for e in INTEGRIDADE_ESTAGIOS}
-    out: dict[str, list[dict]] = {}
+def _itens_por_candidato(df) -> dict[str, dict]:
+    out: dict[str, dict] = {}
     for _, row in df.iterrows():
         nome = str(row.get("nome", "")).strip()
-        if not nome:
+        info_raw = row.get("info")
+        if not nome or not info_raw or (isinstance(info_raw, float)):  # NaN do parquet
             continue
         try:
-            itens = json.loads(row.get("itens") or "[]")
+            info = json.loads(info_raw)
         except (ValueError, TypeError):
-            itens = []
-        # Só emite candidatos com pelo menos 1 item válido e com fonte citável.
-        limpos = [
-            it for it in itens
-            if isinstance(it, dict) and it.get("estagio") in ids_validos and it.get("descricao")
-        ]
-        if limpos:
-            out[nome] = limpos
+            continue
+        if not isinstance(info, dict) or not info.get("situacao_id"):
+            continue
+        out[nome] = info
     return out
 
 
 def main() -> int:
-    print("🗳  Observatório Eleições 2026 — gold de situação jurídica (integridade)")
+    print("🗳  Observatório Eleições 2026 — gold de situação de registro (integridade)")
     try:
         bronze = _latest_bronze()
     except RuntimeError as e:
@@ -84,7 +81,7 @@ def main() -> int:
         "gerado_em": datetime.now(timezone.utc).isoformat(),
         "metodologia": INTEGRIDADE_METODOLOGIA,
         "disclaimer": INTEGRIDADE_DISCLAIMER,
-        "estagios": INTEGRIDADE_ESTAGIOS,
+        "situacoes": [{"id": s["id"], "label": s["label"]} for s in INTEGRIDADE_SITUACOES],
         "fontes": INTEGRIDADE_FONTES,
         "itens_por_candidato": itens_por_candidato,
     }
@@ -99,7 +96,7 @@ def main() -> int:
         json.dumps(payload, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
     )
     n_cand = len(itens_por_candidato)
-    print(f"  ✓ {out_json} ({n_cand} candidato(s) com itens · {len(df)} no roster)")
+    print(f"  ✓ {out_json} ({n_cand} candidato(s) com situação · {len(df)} no roster)")
     return 0
 
 

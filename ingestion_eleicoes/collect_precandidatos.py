@@ -41,6 +41,7 @@ from ingestion_eleicoes.catalog import (  # noqa: E402
     META_COL_KEYS,
     WIKIPEDIA_API,
     WIKIPEDIA_PRESIDENCIAL_TITLE,
+    normalizar_instituto,
 )
 
 BRONZE_DIR = Path("data/bronze/eleicoes_precandidatos")
@@ -157,7 +158,7 @@ def _linhas_da_tabela(df, meta_idx, cand_cols, cenario, year, pos) -> list[dict]
         inst_raw = str(r.iloc[meta_idx["inst"]])
         if inst_raw == "nan" or "contratante" in inst_raw.lower():
             continue
-        inst = re.sub(r"\[.*?\]", "", inst_raw).strip()  # remove refs [1]
+        inst = normalizar_instituto(re.sub(r"\[.*?\]", "", inst_raw).strip())  # remove refs [1]
         dt_fim = (
             _parse_dt_fim(r.iloc[meta_idx["data"]], year) if "data" in meta_idx else None
         )

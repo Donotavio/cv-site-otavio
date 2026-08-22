@@ -35,7 +35,7 @@ jobs:
         run: pip install -r ingestion_eleicoes/requirements.txt
 
       - name: Criar diretórios de dados
-        run: mkdir -p data/bronze/eleicoes_pesquisas data/bronze/eleicoes_precandidatos data/bronze/eleicoes_estaduais data/bronze/eleicoes_integridade data/gold
+        run: mkdir -p data/bronze/eleicoes_pesquisas data/bronze/eleicoes_precandidatos data/bronze/eleicoes_estaduais data/bronze/eleicoes_integridade data/bronze/eleicoes_patrimonio data/bronze/eleicoes_prestacao_contas data/gold
 
       # Resiliência: o CDN do TSE (cdn.tse.jus.br) às vezes recusa/atrasa
       # conexões de IPs de nuvem (timeout no runner). Antes esse passo era o
@@ -69,15 +69,37 @@ jobs:
         continue-on-error: true
         run: python transform_eleicoes/gold_estaduais.py
 
-      # Situação jurídica: roster do painel + TSE DivulgaCand (fonte oficial).
-      # Dados por candidato só após o registro (15/08); até lá roda fail-soft.
-      - name: Coletar situação jurídica (roster + TSE DivulgaCand)
+      # Situação de registro: roster do painel + TSE Dados Abertos (consulta_cand).
+      # O CDN do TSE (cdn.tse.jus.br) recusa conexões de IPs de nuvem com HTTP 403
+      # de forma consistente — roda fail-soft e mantém o JSON anterior.
+      - name: Coletar situação de registro (roster + TSE Dados Abertos)
         continue-on-error: true
         run: python ingestion_eleicoes/collect_integridade.py
 
-      - name: Gold — situação jurídica dos pré-candidatos
+      - name: Gold — situação de registro dos pré-candidatos
         continue-on-error: true
         run: python transform_eleicoes/gold_integridade.py
+
+      # Patrimônio declarado: mesma fonte (TSE Dados Abertos), 2026 vs. 2022 por CPF.
+      - name: Coletar patrimônio declarado (TSE Dados Abertos, 2026 + 2022)
+        continue-on-error: true
+        run: python ingestion_eleicoes/collect_patrimonio.py
+
+      - name: Gold — patrimônio declarado (2022→2026)
+        continue-on-error: true
+        run: python transform_eleicoes/gold_patrimonio.py
+
+      # Prestação de contas (receitas + despesas): sem dado real até o prazo
+      # da prestação parcial (13/09/2026) — até lá roda fail-soft e o JSON sai
+      # vazio por definição, não por falha. Fica ligado agora para começar a
+      # aparecer sozinho assim que o TSE publicar, sem precisar de novo deploy.
+      - name: Coletar prestação de contas (TSE Dados Abertos)
+        continue-on-error: true
+        run: python ingestion_eleicoes/collect_prestacao_contas.py
+
+      - name: Gold — prestação de contas (receitas + despesas)
+        continue-on-error: true
+        run: python transform_eleicoes/gold_prestacao_contas.py
 
       # Deflator IPCA do Fundo Eleitoral (BACEN SGS 433): múltiplo real vs. nominal.
       - name: Gold — deflator IPCA do Fundo Eleitoral
@@ -96,10 +118,12 @@ jobs:
           git config user.email "eleicoes-pipeline@users.noreply.github.com"
 
           git add data/bronze/eleicoes_pesquisas/ data/bronze/eleicoes_precandidatos/ \
-                  data/bronze/eleicoes_estaduais/ data/bronze/eleicoes_integridade/ data/gold/ \
+                  data/bronze/eleicoes_estaduais/ data/bronze/eleicoes_integridade/ \
+                  data/bronze/eleicoes_patrimonio/ data/bronze/eleicoes_prestacao_contas/ data/gold/ \
                   assets/data/eleicoes_pesquisas.json assets/data/eleicoes_precandidatos.json \
                   assets/data/eleicoes_estaduais.json assets/data/eleicoes_integridade.json \
-                  assets/data/eleicoes_fundo_ipca.json || true
+                  assets/data/eleicoes_fundo_ipca.json assets/data/eleicoes_patrimonio.json \
+                  assets/data/eleicoes_prestacao_contas.json || true
 
           if git diff --staged --quiet; then
             echo "ℹ Sem mudanças nos dados — nada a commitar."
