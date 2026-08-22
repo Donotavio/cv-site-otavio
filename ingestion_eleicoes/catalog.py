@@ -194,10 +194,34 @@ CANDIDATO_NORMALIZE = {
     "Ratinho": "Ratinho Jr.",
     "Leite": "Eduardo Leite",
     "Ciro": "Ciro Gomes",
+    "Gomes": "Ciro Gomes",
     "Marçal": "Pablo Marçal",
     "Moro": "Sergio Moro",
     "Renan": "Renan (Missão)",
 }
+
+# Normalização de NOME DE INSTITUTO (variações de grafia/capitalização da
+# Wikipedia → nome canônico). Escopo deliberadamente conservador: só funde
+# strings que são inequivocamente o MESMO instituto com erro de digitação ou
+# capitalização diferente. NÃO funde parcerias regionais distintas (ex.: "Doxa
+# (Belém)" vs "Doxa (Santarém)" são o mesmo instituto em praças diferentes,
+# mas contam como medições separadas no ranking "quem mede" — fundir mudaria
+# a métrica sem uma fonte que confirme que deveriam ser 1 linha só).
+INSTITUTO_NORMALIZE = {
+    "Atlasinstel": "AtlasIntel",
+    "AltasIntel": "AtlasIntel",
+    "DataFolha": "Datafolha",
+    "Vox": "Vox Brasil",
+    "Futura/Inteligência": "Futura Inteligência",
+    "Nexus/BTG": "Nexus/BTG Pactual",
+    "100%Cidades/Futura": "100% Cidades/Futura",
+}
+
+
+def normalizar_instituto(nome: str) -> str:
+    """Aplica INSTITUTO_NORMALIZE; devolve o nome original se não houver mapa."""
+    nome = (nome or "").strip()
+    return INSTITUTO_NORMALIZE.get(nome, nome)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -243,6 +267,17 @@ UF_ARTIGO_SUFIXO = {
     "RR": "em Roraima",
 }
 
+# As 27 unidades federativas — usada só para derivar UF_SEM_ARTIGO abaixo
+# (nunca hardcodar essa lista em outro lugar do pipeline).
+TODAS_UFS = {
+    "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS",
+    "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC",
+    "SE", "SP", "TO",
+}
+# UFs sem artigo próprio na Wikipedia hoje (derivado, não mantido à mão — se
+# UF_ARTIGO_SUFIXO ganhar uma entrada nova, esta lista encolhe sozinha).
+UF_SEM_ARTIGO = sorted(TODAS_UFS - set(UF_ARTIGO_SUFIXO.keys()))
+
 # Cenários estaduais.
 CENARIO_GOV_1T = "governador_1t"
 CENARIO_GOV_2T = "governador_2t"
@@ -283,47 +318,158 @@ def split_nome_partido(coluna: str) -> tuple[str, str] | None:
     return None
 
 
-# ══════════════════════════ INTEGRIDADE (situação jurídica) ══════════════════════════
-# Seção [13] do painel. Enquadramento neutro: estágio processual, presunção de
-# inocência, fontes oficiais. Dados POR CANDIDATO passam a existir após o
-# registro das candidaturas (TSE DivulgaCand publica certidões/elegibilidade a
-# partir de 15/08/2026). Até lá, o coletor roda fail-soft e o envelope sai com
-# itens_por_candidato vazio. Nunca inferir/alegar sem fonte oficial citável.
+# ══════════════════════════ INTEGRIDADE (situação de registro) ═══════════════════════
+# Seção [13] do painel. O registro de candidaturas fechou em 15/08/2026; desde
+# então o TSE publica, por candidato, a SITUAÇÃO DE REGISTRO no dataset aberto
+# "Candidatos" (consulta_cand — ver tse_dados_abertos.py). Isso é diferente de
+# "situação jurídica" no sentido de processo criminal: o dataset não tem
+# estágio de investigação/denúncia/condenação — só o resultado administrativo
+# da análise de elegibilidade (deferido, indeferido, sub judice, cancelado,
+# renúncia). A Lei da Ficha Limpa (LC 64/90) É aplicada nessa análise: uma
+# candidatura indeferida por inelegibilidade aparece aqui. Por isso a seção
+# mostra "situação de registro", não os 6 estágios processuais originalmente
+# desenhados (que exigiriam a API DivulgaCand REST — sem documentação pública
+# do código de eleição e bloqueada neste ambiente; ver tse_dados_abertos.py).
+# Nunca inferir/alegar situação sem fonte oficial citável.
 
 INTEGRIDADE_METODOLOGIA = (
-    "Reúne a situação jurídica pública dos pré-candidatos a partir de fontes "
-    "oficiais (TSE, STF/STJ). Cada item traz o órgão, o estágio processual e a "
-    "fonte. Passa a exibir dados por candidato conforme o registro das "
-    "candidaturas (a partir de 15/08/2026), quando o TSE publica certidões e "
-    "condições de elegibilidade."
+    "Reúne a situação de registro de cada candidatura junto à Justiça Eleitoral "
+    "(fonte: TSE — Portal de Dados Abertos, dataset Candidatos). O registro "
+    "fechou em 15/08/2026; candidaturas indeferidas por inelegibilidade "
+    "(inclusive Lei da Ficha Limpa) aparecem aqui com o motivo publicado pelo "
+    "TSE. Recursos em andamento mudam a situação ao longo da campanha — este "
+    "painel reflete o snapshot da última coleta."
 )
 INTEGRIDADE_DISCLAIMER = (
-    "Estágio processual não é condenação. Todos são presumidos inocentes até "
-    "decisão final (trânsito em julgado). Sem juízo de valor nem cor partidária "
-    "— apenas o que o registro público permite."
+    "Situação de registro não é o mesmo que processo criminal — é o resultado "
+    "da análise de elegibilidade feita pela Justiça Eleitoral no momento do "
+    "registro. 'Sub judice' significa recurso pendente: a candidatura concorre "
+    "normalmente até decisão final. Sem juízo de valor nem cor partidária — "
+    "apenas o que o registro público informa."
 )
-# Estágios (ordem crescente de gravidade). Os ids batem com o data-stage do CSS
-# e com estagios[].id lidos pelo frontend.
-INTEGRIDADE_ESTAGIOS = [
-    {"id": "investigacao", "label": "investigação"},
-    {"id": "denuncia", "label": "denúncia recebida"},
-    {"id": "reu", "label": "réu (ação penal)"},
-    {"id": "condenacao_1a", "label": "condenação em 1ª instância"},
-    {"id": "transito", "label": "trânsito em julgado"},
-    {"id": "ficha_limpa", "label": "Ficha Limpa · elegível"},
+# Situações de registro (rótulo em pt-BR do valor DS_SITUACAO_CANDIDATURA do
+# TSE). O id "outro" cobre qualquer valor que apareça no CSV real e não bata
+# com os rótulos abaixo — nunca descartar um candidato por situação
+# desconhecida, só rotular como "outro" e mostrar o texto bruto do TSE.
+INTEGRIDADE_SITUACOES = [
+    {"id": "deferido", "label": "Deferido", "match": ["DEFERIDO"]},
+    {"id": "sub_judice", "label": "Sub judice (recurso pendente)", "match": ["SUB JUDICE", "SUB JÚDICE"]},
+    {"id": "indeferido", "label": "Indeferido", "match": ["INDEFERIDO"]},
+    {"id": "cancelado", "label": "Cancelado", "match": ["CANCELADO"]},
+    {"id": "renuncia", "label": "Renúncia", "match": ["RENUNCIA", "RENÚNCIA"]},
+    {"id": "outro", "label": "Outra situação", "match": []},
 ]
 INTEGRIDADE_FONTES = [
-    {"label": "TSE · DivulgaCand", "url": "https://divulgacandcontas.tse.jus.br/divulga/"},
-    {"label": "STF · consulta processual", "url": "https://portal.stf.jus.br/processos/"},
-    {"label": "STJ · consulta processual", "url": "https://processo.stj.jus.br/processo/pesquisa/"},
+    {
+        "label": "TSE · Portal de Dados Abertos — Candidatos",
+        "url": "https://dadosabertos.tse.jus.br/dataset/candidatos-2026",
+    },
+    {"label": "TSE · DivulgaCandContas", "url": "https://divulgacandcontas.tse.jus.br/divulga/"},
 ]
 
-# TSE DivulgaCand — API pública oficial. O código da eleição ordinária 2026 é
-# atribuído no sistema durante o registro; enquanto vazio aqui, o coletor NÃO
-# consulta (produz itens vazios). Preencher após 15/08/2026.
-TSE_DIVULGACAND_API = "https://divulgacandcontas.tse.jus.br/divulga/rest/v1"
-TSE_DIVULGACAND_COD_ELEICAO = ""  # ex.: "2040602026" (definir no registro)
+# TSE Portal de Dados Abertos — mesmo CDN usado por TSE_PESQUISAS_ZIP_URL.
+# {ano} é preenchido pelo coletor (2026 = atual; 2022 = comparação, só p/
+# patrimônio). ATENÇÃO: confirmado bloqueado (HTTP 403) em teste manual de
+# ago/2026 mesmo simulando navegador — fail-soft, ver tse_dados_abertos.py.
+TSE_CONSULTA_CAND_ZIP_URL_FMT = (
+    "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_{ano}.zip"
+)
+TSE_BEM_CANDIDATO_ZIP_URL_FMT = (
+    "https://cdn.tse.jus.br/estatistica/sead/odsele/bem_candidato/bem_candidato_{ano}.zip"
+)
+TSE_CONSULTA_CAND_SUFIXO_BRASIL = "_BRASIL.csv"
+TSE_BEM_CANDIDATO_SUFIXO_BRASIL = "_BRASIL.csv"
+
+# Cargos do roster do painel (presidente + governador) como aparecem em
+# DS_CARGO no consulta_cand — usados para filtrar as ~20 mil candidaturas do
+# CSV nacional só para quem interessa ao painel antes de qualquer join.
+CARGOS_ROSTER_PAINEL = {"PRESIDENTE", "GOVERNADOR"}
 
 # Rosters canônicos já produzidos por outros coletores (join por nome do painel).
 INTEGRIDADE_ROSTER_PRESIDENCIAL = "assets/data/eleicoes_precandidatos.json"
 INTEGRIDADE_ROSTER_ESTADUAL = "assets/data/eleicoes_estaduais.json"
+
+
+# ══════════════════════════ PATRIMÔNIO (bens declarados) ══════════════════════════
+# Seção nova do painel: evolução patrimonial 2022→2026 dos candidatos do
+# roster (presidente + governador), a partir da declaração de bens que cada
+# candidato presta ao TSE no registro (dataset "bem_candidato", mesmo Portal
+# de Dados Abertos). É dado público por desenho — não confundir com sigilo
+# fiscal: NÃO cruza com Receita Federal (dado de pessoa física é sigiloso, sem
+# API pública) nem infere patrimônio não declarado. Mostra só o que o próprio
+# candidato declarou em cada ano, lado a lado.
+PATRIMONIO_ANO_ATUAL = 2026
+PATRIMONIO_ANO_COMPARACAO = 2022
+PATRIMONIO_METODOLOGIA = (
+    "Soma o valor declarado de todos os bens de cada candidato (imóveis, "
+    "veículos, aplicações financeiras, participação societária etc.) no "
+    "registro de candidatura — fonte: TSE, Portal de Dados Abertos, dataset "
+    "Candidatos. Compara a declaração de 2026 com a de 2022 do mesmo "
+    "candidato (join por CPF). Não é patrimônio real nem auditado — é o valor "
+    "autodeclarado; a Justiça Eleitoral não confere com a Receita Federal "
+    "publicamente (dado de pessoa física é sigilo fiscal, sem API pública)."
+)
+PATRIMONIO_DISCLAIMER = (
+    "Valor autodeclarado pelo próprio candidato, sem auditoria pública. "
+    "Ausência de bem declarado não significa ausência de patrimônio. "
+    "Comparação só é possível para quem também foi candidato em 2022."
+)
+PATRIMONIO_FONTES = [
+    {
+        "label": "TSE · Portal de Dados Abertos — Candidatos (bens)",
+        "url": "https://dadosabertos.tse.jus.br/dataset/candidatos-2026",
+    },
+]
+
+
+# ═══════════════════════ PRESTAÇÃO DE CONTAS (campanha) ═══════════════════════
+# Seção nova do painel: dinheiro arrecadado (receitas) e gasto (despesas pagas)
+# por candidato do roster, dataset "Prestação de Contas Eleitorais" do mesmo
+# Portal de Dados Abertos do TSE. SEM DADO REAL até o prazo de entrega da
+# prestação parcial (PRESTACAO_PRAZO_PARCIAL) — antes disso o coletor roda
+# fail-soft e a seção do painel mostra só o arcabouço + contagem regressiva.
+#
+# Único ponto do painel onde um cruzamento com Receita Federal é PUBLICAMENTE
+# possível: para doador pessoa jurídica (CNPJ), o TSE publica ao lado do nome
+# autodeclarado pela campanha (NM_DOADOR) o nome da própria Receita Federal
+# para aquele CNPJ (NM_DOADOR_RFB) — os dois deveriam bater. Para pessoa física
+# (CPF) não existe equivalente público: dado de pessoa física é sigilo fiscal,
+# sem API da Receita Federal. Não fabricar comparação para CPF.
+PRESTACAO_ANO = 2026
+PRESTACAO_PRAZO_PARCIAL = "2026-09-13"  # prestação de contas parcial (curado em eleicoes_contexto.json)
+PRESTACAO_PRAZO_FINAL = "2026-11-03"  # prestação de contas final (só 1º turno)
+
+# ATENÇÃO (URL/schema não confirmados): o mesmo bloqueio de rede do
+# consulta_cand/bem_candidato (ver tse_dados_abertos.py) impediu confirmar a
+# URL exata do zip e o header real do CSV antes do prazo de registro. Segue o
+# padrão estável de nomenclatura do TSE (1 zip por dataset/ano, CSVs por UF +
+# 1 nacional "_BRASIL.csv" dentro) — ajustar aqui se o TSE publicar diferente.
+TSE_PRESTACAO_CONTAS_ZIP_URL_FMT = (
+    "https://cdn.tse.jus.br/estatistica/sead/odsele/prestacao_contas/"
+    "prestacao_de_contas_eleitorais_candidatos_{ano}.zip"
+)
+TSE_RECEITAS_SUFIXO_BRASIL = "receitas_candidatos_{ano}_BRASIL.csv"
+TSE_DESPESAS_SUFIXO_BRASIL = "despesas_pagas_candidatos_{ano}_BRASIL.csv"
+
+PRESTACAO_METODOLOGIA = (
+    "Soma as receitas declaradas (doações + recursos próprios + Fundo "
+    "Eleitoral/partidário) e as despesas pagas de cada candidato do roster "
+    "(presidente + governador) — fonte: TSE, Portal de Dados Abertos, dataset "
+    "Prestação de Contas Eleitorais. Para doador pessoa jurídica, mostra o "
+    "nome declarado pela campanha ao lado do nome da própria Receita Federal "
+    "para aquele CNPJ, quando o TSE publica os dois."
+)
+PRESTACAO_DISCLAIMER = (
+    f"Dado oficial só existe a partir do prazo de entrega da prestação de "
+    f"contas parcial ({PRESTACAO_PRAZO_PARCIAL}); até lá esta seção fica vazia "
+    f"por definição — não é falha do painel. Valor autodeclarado pela própria "
+    f"campanha. Cruzamento com Receita Federal só é publicamente possível "
+    f"para doador pessoa jurídica (CNPJ); para pessoa física (CPF) não existe "
+    f"API pública — sigilo fiscal."
+)
+PRESTACAO_FONTES = [
+    {
+        "label": "TSE · Portal de Dados Abertos — Prestação de Contas Eleitorais",
+        "url": "https://dadosabertos.tse.jus.br/group/prestacao-de-contas-eleitorais",
+    },
+]

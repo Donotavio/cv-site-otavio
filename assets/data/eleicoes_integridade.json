@@ -1,45 +1,41 @@
 {
-  "gerado_em": "2026-08-22T15:28:23.963577+00:00",
-  "metodologia": "Reúne a situação jurídica pública dos pré-candidatos a partir de fontes oficiais (TSE, STF/STJ). Cada item traz o órgão, o estágio processual e a fonte. Passa a exibir dados por candidato conforme o registro das candidaturas (a partir de 15/08/2026), quando o TSE publica certidões e condições de elegibilidade.",
-  "disclaimer": "Estágio processual não é condenação. Todos são presumidos inocentes até decisão final (trânsito em julgado). Sem juízo de valor nem cor partidária — apenas o que o registro público permite.",
-  "estagios": [
+  "gerado_em": "2026-08-22T21:16:50.348888+00:00",
+  "metodologia": "Reúne a situação de registro de cada candidatura junto à Justiça Eleitoral (fonte: TSE — Portal de Dados Abertos, dataset Candidatos). O registro fechou em 15/08/2026; candidaturas indeferidas por inelegibilidade (inclusive Lei da Ficha Limpa) aparecem aqui com o motivo publicado pelo TSE. Recursos em andamento mudam a situação ao longo da campanha — este painel reflete o snapshot da última coleta.",
+  "disclaimer": "Situação de registro não é o mesmo que processo criminal — é o resultado da análise de elegibilidade feita pela Justiça Eleitoral no momento do registro. 'Sub judice' significa recurso pendente: a candidatura concorre normalmente até decisão final. Sem juízo de valor nem cor partidária — apenas o que o registro público informa.",
+  "situacoes": [
     {
-      "id": "investigacao",
-      "label": "investigação"
+      "id": "deferido",
+      "label": "Deferido"
     },
     {
-      "id": "denuncia",
-      "label": "denúncia recebida"
+      "id": "sub_judice",
+      "label": "Sub judice (recurso pendente)"
     },
     {
-      "id": "reu",
-      "label": "réu (ação penal)"
+      "id": "indeferido",
+      "label": "Indeferido"
     },
     {
-      "id": "condenacao_1a",
-      "label": "condenação em 1ª instância"
+      "id": "cancelado",
+      "label": "Cancelado"
     },
     {
-      "id": "transito",
-      "label": "trânsito em julgado"
+      "id": "renuncia",
+      "label": "Renúncia"
     },
     {
-      "id": "ficha_limpa",
-      "label": "Ficha Limpa · elegível"
+      "id": "outro",
+      "label": "Outra situação"
     }
   ],
   "fontes": [
     {
-      "label": "TSE · DivulgaCand",
+      "label": "TSE · Portal de Dados Abertos — Candidatos",
+      "url": "https://dadosabertos.tse.jus.br/dataset/candidatos-2026"
+    },
+    {
+      "label": "TSE · DivulgaCandContas",
       "url": "https://divulgacandcontas.tse.jus.br/divulga/"
-    },
-    {
-      "label": "STF · consulta processual",
-      "url": "https://portal.stf.jus.br/processos/"
-    },
-    {
-      "label": "STJ · consulta processual",
-      "url": "https://processo.stj.jus.br/processo/pesquisa/"
     }
   ],
   "itens_por_candidato": {}

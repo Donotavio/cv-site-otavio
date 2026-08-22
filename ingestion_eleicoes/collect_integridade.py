@@ -1,9 +1,10 @@
 """
-Observatório Eleições 2026 — coleta de situação jurídica (integridade)
-=====================================================================
-Monta o roster de pré-candidatos (presidenciais + governadores) a partir dos
-JSONs já produzidos pelo painel e consulta o TSE DivulgaCand, fonte oficial, a
-situação de elegibilidade / processos por candidato.
+Observatório Eleições 2026 — coleta de situação de registro (integridade)
+===========================================================================
+Baixa o dataset "Candidatos" (consulta_cand) do Portal de Dados Abertos do
+TSE, filtra para presidente + governador (roster do painel) e grava a
+situação de registro (DEFERIDO / INDEFERIDO / SUB JUDICE / ...) declarada
+pelo TSE — join por nome com os rosters já produzidos pelos outros coletores.
 
 Uso:
     python ingestion_eleicoes/collect_integridade.py
@@ -11,11 +12,10 @@ Uso:
 Saída:
     data/bronze/eleicoes_integridade/integridade_{YYYY}_{MM}_{DD}.parquet
 
-Transparência / fail-soft: os dados oficiais POR CANDIDATO só passam a existir
-após o registro das candidaturas (TSE publica certidões/elegibilidade a partir
-de 15/08/2026). Enquanto TSE_DIVULGACAND_COD_ELEICAO estiver vazio no catálogo,
-a consulta não roda e o roster é gravado com itens vazios — sem inferir nem
-alegar nada sem fonte oficial. Nunca falha o pipeline por ausência de dado.
+Fail-soft: o CDN do TSE (cdn.tse.jus.br) é conhecido por recusar conexões de
+datacenter (confirmado bloqueado neste ambiente em ago/2026, ver
+tse_dados_abertos.py). Se o download falhar, o bronze sai com itens vazios —
+nunca falha o pipeline por ausência de dado, nunca infere situação sem fonte.
 """
 
 from __future__ import annotations
@@ -24,31 +24,32 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import requests  # noqa: E402
-
 from ingestion_eleicoes.catalog import (  # noqa: E402
+    ANO_ELEICAO_PRESIDENCIAL,
+    CARGOS_ROSTER_PAINEL,
     INTEGRIDADE_ROSTER_ESTADUAL,
     INTEGRIDADE_ROSTER_PRESIDENCIAL,
-    TSE_DIVULGACAND_API,
-    TSE_DIVULGACAND_COD_ELEICAO,
+    INTEGRIDADE_SITUACOES,
+    TSE_CONSULTA_CAND_SUFIXO_BRASIL,
+    TSE_CONSULTA_CAND_ZIP_URL_FMT,
+)
+from ingestion_eleicoes.tse_dados_abertos import (  # noqa: E402
+    CAND_COLUNAS,
+    baixar_zip_csv_brasil,
+    col,
 )
 
 BRONZE_DIR = Path("data/bronze/eleicoes_integridade")
-TIMEOUT = 45
-HEADERS = {
-    "User-Agent": "observatorio-eleicoes-2026/1.0 (https://github.com/Donotavio/cv-site-otavio; integridade) requests",
-}
 
 
 def _carregar_roster() -> list[dict]:
     """Lê os pré-candidatos do painel (presidenciais + governadores por UF).
 
     Usa os nomes canônicos já normalizados pelos coletores anteriores, para que
-    itens_por_candidato faça join com os cards do painel. Fail-soft: arquivo
+    o join por nome funicone com os cards do painel. Fail-soft: arquivo
     ausente ou malformado → apenas ignora aquela fonte.
     """
     roster: list[dict] = []
@@ -86,37 +87,63 @@ def _carregar_roster() -> list[dict]:
     return roster
 
 
-def _mapear_itens(_data: dict) -> list[dict]:
-    """Mapeia a resposta do DivulgaCand → lista de itens {estagio, descricao, ...}.
+def _situacao_id(valor_tse: str) -> str:
+    """Mapeia DS_SITUACAO_CANDIDATURA (texto bruto do TSE) → id de INTEGRIDADE_SITUACOES.
 
-    O schema exato dos campos de elegibilidade/processos do DivulgaCand só é
-    observável após o registro. Enquanto isso, mantém-se conservador: não emite
-    item sem campo oficial correspondente. Finalizar o mapeamento quando a API
-    responder com dados reais (pós-15/08/2026).
+    Usa startswith, não substring livre: "DEFERIDO" é substring de
+    "INDEFERIDO", então um teste `m in v` classificaria erroneamente um
+    candidato indeferido como deferido (bug real, pego em teste local antes
+    de subir).
     """
-    return []
+    v = (valor_tse or "").strip().upper()
+    for s in INTEGRIDADE_SITUACOES:
+        if any(v.startswith(m) for m in s["match"]):
+            return s["id"]
+    return "outro"
 
 
-def _consultar_tse(nome: str) -> list[dict]:
-    """Consulta a situação de elegibilidade no TSE DivulgaCand (fonte oficial).
+def _nome_bate(nome_urna_tse: str, nome_completo_tse: str, roster_nome: str) -> bool:
+    """Compara por substring (nome de urna costuma ser 1 token: 'LULA', 'TARCÍSIO')."""
+    alvo = roster_nome.casefold()
+    urna = (nome_urna_tse or "").casefold()
+    completo = (nome_completo_tse or "").casefold()
+    if not urna and not completo:
+        return False
+    return urna in alvo or alvo in urna or any(tok in completo for tok in alvo.split() if len(tok) > 3)
 
-    Ativa somente quando TSE_DIVULGACAND_COD_ELEICAO está preenchido no catálogo
-    (após o registro). Fail-soft: 404 / rede / JSON inválido → [].
-    """
-    if not TSE_DIVULGACAND_COD_ELEICAO:
-        return []
-    try:
-        url = (
-            f"{TSE_DIVULGACAND_API}/candidatura/buscar/{TSE_DIVULGACAND_COD_ELEICAO}"
-            f"/2/BR/candidato/{quote(nome)}"
-        )
-        resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
-        if resp.status_code == 404:
-            return []
-        resp.raise_for_status()
-        return _mapear_itens(resp.json())
-    except (requests.RequestException, ValueError):  # noqa: BLE001
-        return []
+
+def _consultar_situacoes(roster: list[dict]) -> dict[str, dict]:
+    """Baixa consulta_cand_2026, filtra presidente/governador e casa com o roster."""
+    url = TSE_CONSULTA_CAND_ZIP_URL_FMT.format(ano=ANO_ELEICAO_PRESIDENCIAL)
+    linhas = baixar_zip_csv_brasil(
+        url, TSE_CONSULTA_CAND_SUFIXO_BRASIL, "consulta_cand (integridade)", colunas=CAND_COLUNAS
+    )
+    if linhas is None:
+        return {}
+
+    candidatos_tse = [
+        row for row in linhas if col(row, CAND_COLUNAS, "cargo").upper() in CARGOS_ROSTER_PAINEL
+    ]
+    print(f"  · {len(candidatos_tse)} candidaturas de presidente/governador no CSV do TSE")
+
+    resultado: dict[str, dict] = {}
+    for r in roster:
+        for row in candidatos_tse:
+            nome_urna = col(row, CAND_COLUNAS, "nome_urna")
+            nome_completo = col(row, CAND_COLUNAS, "nome")
+            if not _nome_bate(nome_urna, nome_completo, r["nome"]):
+                continue
+            situacao_raw = col(row, CAND_COLUNAS, "situacao")
+            detalhe = col(row, CAND_COLUNAS, "situacao_detalhe")
+            resultado[r["nome"]] = {
+                "situacao_id": _situacao_id(situacao_raw),
+                "situacao_raw": situacao_raw,
+                "detalhe": detalhe,
+                "partido_tse": col(row, CAND_COLUNAS, "partido"),
+                "uf_tse": col(row, CAND_COLUNAS, "uf"),
+            }
+            break  # 1ª candidatura do TSE que bate com este nome do roster
+    return resultado
 
 
 def _save_bronze(rows: list[dict]) -> Path:
@@ -134,23 +161,23 @@ def _save_bronze(rows: list[dict]) -> Path:
 
 
 def main() -> int:
-    print("🗳  Observatório Eleições 2026 — coleta de situação jurídica (integridade)")
+    print("🗳  Observatório Eleições 2026 — coleta de situação de registro (integridade)")
     roster = _carregar_roster()
     if not roster:
         print("  ✗ roster vazio — rode collect_precandidatos / collect_estaduais antes.")
         return 1
-    ativo = bool(TSE_DIVULGACAND_COD_ELEICAO)
-    print(f"  · {len(roster)} pré-candidatos | consulta TSE DivulgaCand: {'ativa' if ativo else 'aguardando registro (15/08)'}")
+    print(f"  · {len(roster)} pré-candidatos no roster do painel")
+
+    situacoes = _consultar_situacoes(roster)
 
     rows: list[dict] = []
-    total_itens = 0
     for c in roster:
-        itens = _consultar_tse(c["nome"])
-        total_itens += len(itens)
-        rows.append({**c, "itens": json.dumps(itens, ensure_ascii=False)})
+        info = situacoes.get(c["nome"])
+        rows.append({**c, "info": json.dumps(info, ensure_ascii=False) if info else None})
 
     out_path = _save_bronze(rows)
-    print(f"  ✓ {out_path} ({len(rows)} candidatos · {total_itens} itens)")
+    n_com_dado = sum(1 for r in rows if r["info"])
+    print(f"  ✓ {out_path} ({len(rows)} candidatos no roster · {n_com_dado} com situação encontrada)")
     return 0
 
 

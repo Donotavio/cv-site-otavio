@@ -80,10 +80,17 @@ def _panorama(df) -> list[dict]:
 
 
 def _primeiro_turno(df):
-    """Snapshot recente do 1º turno: média na janela + delta vs. período anterior."""
+    """Snapshot recente do 1º turno: média na janela + delta vs. período anterior.
+
+    Filtra por ANO_ELEICAO_PRESIDENCIAL pelo mesmo motivo do gold_estaduais.py:
+    sem isso, um candidato com pouca cobertura em 2026 poderia herdar médias de
+    um ciclo eleitoral anterior. Hoje o volume de pesquisas 2026 é alto o
+    bastante para que isso não mude o resultado nacional, mas é a mesma
+    fragilidade estrutural que já causou dado errado no painel estadual.
+    """
     import pandas as pd
 
-    t1 = df[df["cenario"] == CENARIO_1T]
+    t1 = df[(df["cenario"] == CENARIO_1T) & (df["ano"] == ANO_ELEICAO_PRESIDENCIAL)]
     if t1.empty:
         return None
     ref = t1["dt_fim"].max()

@@ -1,7 +1,7 @@
 {
   "_curadoria": true,
   "_nota": "Dados de CONTEXTO curados manualmente de fontes oficiais (TSE, Senado, Câmara). Diferente de eleicoes_pesquisas.json e eleicoes_eleitorado.json, que são gerados por pipeline. Cada bloco traz sua fonte e URL. Atualizar quando o TSE publicar números novos.",
-  "atualizado_em": "2026-07-16",
+  "atualizado_em": "2026-08-22",
   "eleicao": {
     "primeiro_turno": "2026-10-04",
     "segundo_turno": "2026-10-25"
@@ -18,11 +18,12 @@
     "fonte_url": "https://www.tse.jus.br/comunicacao/noticias/2026/Janeiro/confira-quais-cargos-estarao-em-disputa-nas-eleicoes-2026"
   },
   "fundo_eleitoral": {
-    "valor_rs": 4900000000,
+    "valor_rs": 4961519777,
     "ref_2018_rs": 1700000000,
     "multiplo_vs_2018": 2.9,
     "top5_partidos_share_pct": 57.6,
     "top3_partidos_share_pct": 40.8,
+    "maior_beneficiario": { "partido": "PL", "valor_rs": 881000000 },
     "cota_mulheres_pct": 30,
     "cota_negros_pct": 30,
     "nota_dobro": "Votos dados a mulheres e a candidatos negros à Câmara contam em dobro na divisão dos recursos (2022–2030).",
@@ -55,11 +56,16 @@
     "fonte_url": "https://www.camara.leg.br/noticias/911393-com-mais-deputados-reeleitos-e-menos-novatos-renovacao-da-camara-sera-de-39/"
   },
   "calendario": [
-    { "data": "2026-08-05", "marco": "Convenções partidárias (escolha de candidatos)" },
+    { "data": "2026-07-20", "marco": "Início das convenções partidárias" },
+    { "data": "2026-08-05", "marco": "Prazo final para convenções partidárias (escolha de candidatos)" },
     { "data": "2026-08-15", "marco": "Prazo final para registro de candidaturas" },
-    { "data": "2026-08-16", "marco": "Início da propaganda eleitoral" },
+    { "data": "2026-08-16", "marco": "Início da propaganda eleitoral (ruas e internet)" },
+    { "data": "2026-08-28", "marco": "Início do horário eleitoral gratuito (rádio e TV)" },
+    { "data": "2026-09-13", "marco": "Prazo da prestação de contas parcial" },
+    { "data": "2026-10-01", "marco": "Fim do horário eleitoral gratuito do 1º turno" },
     { "data": "2026-10-04", "marco": "1º turno" },
     { "data": "2026-10-25", "marco": "2º turno (onde houver)" },
+    { "data": "2026-11-03", "marco": "Prazo da prestação de contas final (só 1º turno)" },
     { "data": "2026-12-19", "marco": "Prazo de diplomação dos eleitos" },
     { "data": "2027-01-01", "marco": "Posse de presidente e governadores eleitos" }
   ],

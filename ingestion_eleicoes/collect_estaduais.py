@@ -42,6 +42,7 @@ from ingestion_eleicoes.catalog import (  # noqa: E402
     WIKIPEDIA_API,
     WIKIPEDIA_ESTADUAL_TITLE_FMT,
     cargo_do_heading,
+    normalizar_instituto,
     split_nome_partido,
 )
 from ingestion_eleicoes.collect_precandidatos import (  # noqa: E402
@@ -147,7 +148,7 @@ def _linhas_uf(uf: str, html: str) -> list[dict]:
             inst_raw = str(r.iloc[meta_idx["inst"]])
             if inst_raw == "nan" or "contratante" in inst_raw.lower():
                 continue
-            inst = re.sub(r"\[.*?\]", "", inst_raw).strip()
+            inst = normalizar_instituto(re.sub(r"\[.*?\]", "", inst_raw).strip())
             dt_fim = _parse_dt_fim(r.iloc[meta_idx["data"]], year)
             medicao_id = f"{uf}:{pos}:{ri}"
             for ci, nome_wiki, partido in cand_cols:

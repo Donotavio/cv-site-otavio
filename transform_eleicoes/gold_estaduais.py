@@ -33,6 +33,7 @@ from ingestion_eleicoes.catalog import (  # noqa: E402
     MIN_PESQUISAS_RECENTES,
     PCT_MIN_RELEVANTE,
     UF_ARTIGO_SUFIXO,
+    UF_SEM_ARTIGO,
     WIKIPEDIA_ESTADUAL_TITLE_FMT,
 )
 
@@ -59,7 +60,14 @@ def _limpar(df):
 
 
 def _snapshot(df) -> dict | None:
-    """Média na janela recente + delta vs. período anterior (governador/senador)."""
+    """Média na janela recente + delta vs. período anterior (governador/senador).
+
+    Só considera medições do ANO_ELEICAO_PRESIDENCIAL (2026) — sem esse filtro,
+    uma UF cuja Wikipedia só publicou pesquisas de um ciclo anterior (ex.: 2024)
+    aparecia com dado antigo disfarçado de atual (achado real: BA/senador só
+    tinha pesquisas de 2024 e ainda assim preenchia o card).
+    """
+    df = df[df["ano"] == ANO_ELEICAO_PRESIDENCIAL]
     if df.empty:
         return None
     ref = df["dt_fim"].max()
@@ -147,6 +155,11 @@ def _agg(df) -> dict:
             "senador": sen,
         }
     ufs = sorted(estados.keys())
+    # UFs com artigo na Wikipedia mas que não renderam nenhum card (ex.: só
+    # pesquisa velha, fora da janela de 90 dias, ou nenhuma com o mínimo de
+    # medições recentes) — diferente de "sem artigo", que nunca foi coletado.
+    ufs_com_artigo = set(UF_ARTIGO_SUFIXO.keys())
+    ufs_sem_dado_recente = sorted(ufs_com_artigo - set(ufs))
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(),
         "fonte": "Wikipedia — agregação de pesquisas estaduais registradas no TSE",
@@ -167,12 +180,23 @@ def _agg(df) -> dict:
                 "Em 2026 cada estado renova 2 das 3 cadeiras do Senado; o painel "
                 "mostra os principais nomes medidos, não um vencedor único."
             ),
-            "cobertura": (
-                f"{len(ufs)} UFs com pesquisas publicadas. Estados sem artigo na "
-                "fonte aparecem indisponíveis no seletor."
-            ),
+            "cobertura": _texto_cobertura(len(ufs), UF_SEM_ARTIGO, ufs_sem_dado_recente),
+            "ufs_sem_artigo": UF_SEM_ARTIGO,
+            "ufs_sem_dado_recente": ufs_sem_dado_recente,
         },
     }
+
+
+def _texto_cobertura(n_ufs: int, sem_artigo: list[str], sem_dado_recente: list[str]) -> str:
+    partes = [f"{n_ufs} UFs com pesquisas recentes publicadas."]
+    if sem_artigo:
+        partes.append(f"Sem artigo na fonte: {', '.join(sem_artigo)}.")
+    if sem_dado_recente:
+        partes.append(
+            f"Com artigo mas sem pesquisa dentro da janela de {JANELA_RECENTE_DIAS} dias: "
+            f"{', '.join(sem_dado_recente)}."
+        )
+    return " ".join(partes)
 
 
 def main() -> int:
