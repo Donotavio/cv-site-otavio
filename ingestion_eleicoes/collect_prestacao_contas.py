@@ -25,7 +25,9 @@ download em qualquer arquivo não derruba o pipeline.
 from __future__ import annotations
 
 import json
+import re
 import sys
+import unicodedata
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -53,6 +55,65 @@ from ingestion_eleicoes.tse_dados_abertos import (  # noqa: E402
 BRONZE_DIR = Path("data/bronze/eleicoes_prestacao_contas")
 TOP_ORIGENS = 6
 TOP_DIVERGENCIAS = 5
+
+
+def _normalizar_nome(nome: str) -> str:
+    """Caixa alta sem acento, pontuação nem espaço duplicado.
+
+    Serve só para COMPARAR nomes (declarado × RFB) — o payload sempre guarda
+    o texto original. Sem isso, acento e caixa viram "divergência" falsa.
+    """
+    base = unicodedata.normalize("NFKD", nome or "")
+    base = "".join(c for c in base if not unicodedata.combining(c))
+    base = re.sub(r"[^A-Za-z0-9 ]+", " ", base)
+    return re.sub(r"\s+", " ", base).strip().upper()
+
+
+def _origem_partidaria(origem: str) -> bool:
+    """Doação vinda de partido/fundo: nome do órgão ≠ razão social na RFB por
+    construção, então comparar os dois só gera ruído."""
+    o = _normalizar_nome(origem)
+    return "PARTIDO" in o or "FUNDO" in o
+
+
+PARTICULAS = {"DE", "DA", "DO", "DAS", "DOS", "E"}
+
+
+def _tokens_nome(nome: str) -> list[str]:
+    return [t for t in _normalizar_nome(nome).split() if t not in PARTICULAS]
+
+
+def _nome_diverge(declarado: str, rfb: str) -> bool:
+    """True só quando os nomes são realmente incompatíveis.
+
+    Absorve as três formas de "diferença" que o dado real do TSE produz sem
+    que haja qualquer divergência de fato (verificado no CSV de 2026):
+      1. acento/caixa/pontuação  → _normalizar_nome
+      2. truncamento do NM_DOADOR (~32 chars) → prefixo
+      3. abreviação do nome do meio ("JOSE M BORTOLI" = "JOSE MARIA BORTOLI")
+         e partículas omitidas ("GONDIM" vs "DE GONDIM") → alinhamento de
+         tokens em ordem, aceitando token abreviado como prefixo.
+    Só o que não casa por nenhuma dessas regras é sinalizado — o objetivo é
+    não insinuar irregularidade onde há apenas forma de cadastro diferente.
+    """
+    a, b = _normalizar_nome(declarado), _normalizar_nome(rfb)
+    if not a or not b or a == b or a.startswith(b) or b.startswith(a):
+        return False
+
+    ta, tb = _tokens_nome(declarado), _tokens_nome(rfb)
+    if not ta or not tb:
+        return False
+    # O nome mais curto costuma ser o declarado (abreviado/truncado); tenta
+    # alinhá-lo, em ordem, contra o mais completo.
+    curto, longo = (ta, tb) if len(ta) <= len(tb) else (tb, ta)
+    i = 0
+    for tok in curto:
+        while i < len(longo) and not (longo[i].startswith(tok) or tok.startswith(longo[i])):
+            i += 1
+        if i == len(longo):
+            return True  # sobrou token do nome curto sem correspondente
+        i += 1
+    return False
 
 
 def _candidatos_roster() -> list[dict]:
@@ -89,14 +150,20 @@ def _receitas_por_sq(sqs_interesse: set[str]) -> dict[str, dict]:
         d["origens"][origem][0] += valor
         d["origens"][origem][1] += 1
 
-        # Cruzamento com Receita Federal: só existe para doador pessoa
-        # jurídica (CNPJ), quando o TSE publica os dois nomes lado a lado.
-        # Ausência da coluna (schema não confirmado) → nunca dispara, sem
-        # fabricar sinal. Comparação exata (casefold), não fuzzy — evita
-        # falso positivo por erro de matching, não por dado real.
+        # Cruzamento doador × Receita Federal. Comparar os dois nomes crus
+        # produz quase só falso positivo — verificado no dado real de 2026:
+        # "Maria Angela de Magalhães Junque" vs "MARIA ANGELA DE MAGALHAES
+        # JUNQUE" é a MESMA pessoa (acento + caixa + truncamento do TSE), e
+        # doação de partido registra o órgão ("Direção Estadual - NOVO")
+        # contra a razão social na RFB ("PARTIDO NOVO - MINAS GERAIS").
+        # Num painel eleitoral, marcar isso como "divergência" insinua
+        # irregularidade onde não há — então normalizamos agressivamente e
+        # só sinalizamos o que sobra de fato diferente.
+        if _origem_partidaria(origem):
+            continue
         nome_declarado = col(row, RECEITAS_COLUNAS, "nome_doador")
         nome_rfb = col(row, RECEITAS_COLUNAS, "nome_doador_rfb")
-        if nome_declarado and nome_rfb and nome_declarado.casefold() != nome_rfb.casefold():
+        if nome_declarado and nome_rfb and _nome_diverge(nome_declarado, nome_rfb):
             d["divergencias"].append(
                 {"doador": nome_declarado, "doador_rfb": nome_rfb, "valor_rs": round(valor, 2)}
             )
@@ -107,7 +174,7 @@ def _despesas_por_sq(sqs_interesse: set[str]) -> dict[str, tuple[float, int]]:
     """{SQ_CANDIDATO: (total_pago, n_despesas)}"""
     url = TSE_PRESTACAO_CONTAS_ZIP_URL_FMT.format(ano=PRESTACAO_ANO)
     sufixo = TSE_DESPESAS_SUFIXO_BRASIL.format(ano=PRESTACAO_ANO)
-    linhas = baixar_zip_csv_brasil(url, sufixo, "despesas_pagas_candidatos (prestação de contas)", colunas=DESPESAS_COLUNAS)
+    linhas = baixar_zip_csv_brasil(url, sufixo, "despesas_contratadas (prestação de contas)", colunas=DESPESAS_COLUNAS)
     if linhas is None:
         return {}
 

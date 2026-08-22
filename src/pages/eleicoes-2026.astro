@@ -2708,7 +2708,7 @@ const base = import.meta.env.BASE_URL;
         <span class="el-kpi__label mono-label">${esc(t('portfolio.eleicoes.prest_kpi_despesas', 'gasto pelo roster'))}</span>
         <span class="el-kpi__value">${esc(fmtRS(totalDespesas))}</span></article>
       <article class="el-kpi${diverg > 0 ? ' el-kpi--star' : ''} crop"><span class="crop-mark-bl" aria-hidden="true"></span>
-        <span class="el-kpi__label mono-label">${esc(t('portfolio.eleicoes.prest_kpi_diverg', 'divergências doador × Receita Federal'))}</span>
+        <span class="el-kpi__label mono-label">${esc(t('portfolio.eleicoes.prest_kpi_diverg', 'doações com nome diferente do cadastro da Receita'))}</span>
         <span class="el-kpi__value">${nf.format(diverg)}</span></article>`;
 
     const semComparaveis = `<p class="el-integ-none mono-label">${esc(t('portfolio.eleicoes.prest_sem_lista', 'sem dado até o prazo'))}</p>`;

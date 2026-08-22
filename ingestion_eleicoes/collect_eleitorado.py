@@ -44,13 +44,15 @@ MAX_RETRIES = 4
 
 
 def _download_zip() -> bytes:
-    import requests
+    # Cliente com fingerprint de browser: o TSE (Akamai Bot Manager) devolve
+    # 403 para `requests` pelo fingerprint TLS — ver tse_dados_abertos.http_get.
+    from ingestion_eleicoes.tse_dados_abertos import http_get
 
     print(f"  • baixando {TSE_ELEITORADO_ZIP_URL} …")
     last_exc: Exception | None = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            resp = requests.get(TSE_ELEITORADO_ZIP_URL, timeout=180)
+            resp = http_get(TSE_ELEITORADO_ZIP_URL, timeout=180)
             if resp.status_code in (429, 503):
                 wait = int(resp.headers.get("Retry-After", 0) or 0) or attempt * 10
                 print(f"    TSE {resp.status_code} — aguardando {wait}s ({attempt}/{MAX_RETRIES})")
@@ -59,7 +61,7 @@ def _download_zip() -> bytes:
             resp.raise_for_status()
             print(f"    {len(resp.content) / 1e6:.1f} MB (zip)")
             return resp.content
-        except requests.RequestException as e:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001 - curl_cffi tem hierarquia própria de erro
             last_exc = e
             if attempt < MAX_RETRIES:
                 wait = attempt * 10

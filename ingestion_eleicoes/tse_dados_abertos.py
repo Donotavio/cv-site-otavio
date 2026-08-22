@@ -29,9 +29,34 @@ from __future__ import annotations
 import csv
 import io
 import zipfile
-from typing import Iterable
 
 import requests
+
+# ── Cliente HTTP para os domínios do TSE ────────────────────────────────────
+# O TSE está atrás do Akamai Bot Manager, que classifica o cliente pelo
+# fingerprint TLS/JA3 — não por IP nem User-Agent. `requests` (via urllib3)
+# tem fingerprint de biblioteca e leva 403 em TUDO, inclusive no site
+# institucional e em arquivos históricos; browser real passa. Diagnosticado em
+# 22/08/2026 comparando os dois clientes lado a lado no mesmo IP:
+#     requests → 403 | curl_cffi(impersonate=chrome) → 200 (3 MB)
+# `curl_cffi` replica o fingerprint do Chrome, então o pipeline volta a ler o
+# dado público que o TSE publica justamente para consumo (Dados Abertos/LAI).
+# Fallback para `requests` se a lib não estiver instalada — aí o download
+# falha fail-soft como antes, sem quebrar o pipeline.
+try:
+    from curl_cffi import requests as _cffi
+
+    _IMPERSONATE = "chrome"
+except ImportError:  # pragma: no cover - só em ambiente sem a dependência
+    _cffi = None
+    _IMPERSONATE = None
+
+
+def http_get(url: str, timeout: int, stream: bool = False):
+    """GET nos domínios do TSE com fingerprint de browser (ver nota acima)."""
+    if _cffi is not None:
+        return _cffi.get(url, impersonate=_IMPERSONATE, timeout=timeout, stream=stream)
+    return requests.get(url, headers=HEADERS, timeout=timeout, stream=stream)
 
 HEADERS = {
     "User-Agent": (
@@ -54,7 +79,10 @@ CAND_COLUNAS = {
     "uf": "SG_UF",
     "partido": "SG_PARTIDO",
     "situacao": "DS_SITUACAO_CANDIDATURA",
-    "situacao_detalhe": "DS_DETALHE_SITUACAO_CAND",
+    # Não existe coluna de "detalhe da situação" no consulta_cand (confirmado
+    # contra o CSV real de 2026 em 22/08/2026 — checar_colunas() acusou a
+    # ausência). DS_SIT_TOT_TURNO existe mas é resultado da totalização do
+    # turno, semântica diferente: não usar como substituto.
     "ano_eleicao": "ANO_ELEICAO",
 }
 
@@ -67,44 +95,50 @@ BEM_COLUNAS = {
     "ano_eleicao": "ANO_ELEICAO",
 }
 
-# Nomes oficiais de coluna do padrão TSE (receitas_candidatos). Diferente de
-# CAND_COLUNAS/BEM_COLUNAS (confirmados em execuções anteriores desta sessão
-# contra o schema estável do TSE), estes nomes NÃO foram confirmados contra
-# um CSV real — o bloqueio de rede (ver docstring do módulo) impediu inspecionar
-# o header do prestação de contas 2026 antes do prazo de registro (13/09/2026).
-# São o melhor palpite a partir do padrão TSE conhecido de ciclos anteriores;
-# `checar_colunas()` loga o header real na primeira execução em CI para ajuste.
+# Colunas de receitas_candidatos_{ano}_BRASIL.csv — CONFIRMADAS contra o CSV
+# real de 2026 (inspecionado em 22/08/2026). Atenção a dois nomes que fogem do
+# padrão dos outros datasets: o ano é AA_ELEICAO (não ANO_ELEICAO) e o nome do
+# candidato é NM_CANDIDATO (não há NM_URNA_CANDIDATO aqui).
 RECEITAS_COLUNAS = {
     "sq_candidato": "SQ_CANDIDATO",
     "nr_cpf": "NR_CPF_CANDIDATO",
-    "nome_urna": "NM_URNA_CANDIDATO",
+    "nome": "NM_CANDIDATO",
     "cargo": "DS_CARGO",
     "uf": "SG_UF",
     "partido": "SG_PARTIDO",
     "dt_receita": "DT_RECEITA",
     "valor": "VR_RECEITA",
     "origem": "DS_ORIGEM_RECEITA",
+    "especie": "DS_ESPECIE_RECEITA",
     "cpf_cnpj_doador": "NR_CPF_CNPJ_DOADOR",
     "nome_doador": "NM_DOADOR",
+    # Nome que a Receita Federal tem para aquele CPF/CNPJ, publicado pelo
+    # próprio TSE ao lado do nome declarado pela campanha. É o que viabiliza
+    # o cruzamento doador × RFB (confirmado presente no CSV real).
     "nome_doador_rfb": "NM_DOADOR_RFB",
-    "ano_eleicao": "ANO_ELEICAO",
+    "ano_eleicao": "AA_ELEICAO",
 }
 
-# Nomes oficiais de coluna do padrão TSE (despesas_pagas_candidatos). Mesma
-# ressalva de RECEITAS_COLUNAS acima — não confirmado contra CSV real.
+# Colunas de despesas_contratadas_candidatos_{ano}_BRASIL.csv — CONFIRMADAS
+# contra o CSV real de 2026. Usamos "contratadas" e não "pagas" de propósito:
+# despesas_pagas_*_BRASIL.csv não traz identificação do candidato (só
+# SQ_PRESTADOR_CONTAS/VR_PAGTO_DESPESA), enquanto contratadas traz candidato,
+# cargo, partido e ainda o fornecedor com nome RFB.
 DESPESAS_COLUNAS = {
     "sq_candidato": "SQ_CANDIDATO",
     "nr_cpf": "NR_CPF_CANDIDATO",
-    "nome_urna": "NM_URNA_CANDIDATO",
+    "nome": "NM_CANDIDATO",
     "cargo": "DS_CARGO",
     "uf": "SG_UF",
     "partido": "SG_PARTIDO",
-    "dt_pagamento": "DT_PAGAMENTO",
-    "valor": "VR_PAGAMENTO",
+    "dt_despesa": "DT_DESPESA",
+    "valor": "VR_DESPESA_CONTRATADA",
     "tipo": "DS_DESPESA",
+    "origem": "DS_ORIGEM_DESPESA",
     "cpf_cnpj_fornecedor": "NR_CPF_CNPJ_FORNECEDOR",
     "nome_fornecedor": "NM_FORNECEDOR",
-    "ano_eleicao": "ANO_ELEICAO",
+    "nome_fornecedor_rfb": "NM_FORNECEDOR_RFB",
+    "ano_eleicao": "AA_ELEICAO",
 }
 
 
@@ -143,8 +177,8 @@ def baixar_zip_csv_brasil(
     errado (bug real: "bem_candidato" também contém a substring "cand").
     """
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
-    except requests.RequestException as e:  # noqa: BLE001
+        resp = http_get(url, timeout=TIMEOUT)
+    except Exception as e:  # noqa: BLE001 - curl_cffi tem hierarquia própria de erro
         print(f"  ! {rotulo}: falha de rede ao baixar {url}: {e}")
         return None
     if resp.status_code != 200:
