@@ -1313,6 +1313,11 @@ const base = import.meta.env.BASE_URL;
   @media (min-width: 640px) { .el-patr-kpis { grid-template-columns: repeat(3, 1fr); } }
   .el-patr-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
   @media (min-width: 768px) { .el-patr-grid { grid-template-columns: repeat(2, 1fr); } }
+  /* `display` de autor vence o [hidden] do user-agent stylesheet — sem estas
+     regras, esconder via `el.hidden = true` não surte efeito num grid/flex.
+     Mesmo padrão de .el-chart-tip[hidden] acima. */
+  .el-patr-grid[hidden] { display: none; }
+  .el-patr-table-wrap[hidden] { display: none; }
   #el-patrimonio :global(.el-patr-item) { display: flex; align-items: baseline; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
   #el-patrimonio :global(.el-patr-item:last-child) { border-bottom: 0; }
   #el-patrimonio :global(.el-patr-item__name) { font-family: var(--font-display); font-size: var(--text-base); color: var(--ink); flex: 1; min-width: 140px; }
@@ -1347,6 +1352,17 @@ const base = import.meta.env.BASE_URL;
   #el-prestacao :global(.el-prest-origens__l) { color: var(--ink-faint); font-size: var(--text-xs); margin-right: var(--space-2); }
   #el-prestacao :global(.el-prest-origens__v) { color: var(--ink-soft); font-size: var(--text-xs); float: right; }
   #el-prestacao :global(.el-prest-pending) { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); padding: var(--space-8) var(--space-6); background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); }
+
+  /* Bloco "aguardando coleta" — usado por [13]/[14] enquanto o TSE recusa
+     acesso automatizado. Injetado via innerHTML em mais de uma seção, então
+     :global() sem prefixo de ancestral (ver .el-kpi acima). Tom neutro, não
+     de erro: o pipeline está saudável, o que falta é o dado da fonte. */
+  :global(.el-await) { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); padding: var(--space-8) var(--space-6); background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); }
+  :global(.el-await__title) { font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--ink-faint); }
+  :global(.el-await__text) { margin: 0; max-width: 68ch; color: var(--ink-soft); font-size: var(--text-sm); line-height: var(--leading-normal); }
+  :global(.el-await__srcs) { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  :global(.el-await__src) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line); }
+  :global(.el-await__src:hover) { color: var(--wc-gold-ink); border-color: var(--wc-gold-line); }
 </style>
 
 <script>
@@ -2526,6 +2542,10 @@ const base = import.meta.env.BASE_URL;
     const cands = integCandidatos(scope);
     if (!cands.length) { box.innerHTML = `<p class="el-error mono-label">${esc(t('portfolio.eleicoes.integ_empty_scope', 'sem pré-candidatos neste recorte'))}</p>`; return; }
     const itensMap = integridade?.itens_por_candidato ?? {};
+    // Nenhum candidato do roster tem situação coletada → o dado inteiro está
+    // ausente (não é "este candidato não consta"). Um aviso único é honesto;
+    // dezenas de cards "sem registros" parecem falha de renderização.
+    if (!Object.keys(itensMap).length) { box.innerHTML = awaitBlockHTML(integridade?.fontes); return; }
     const sitLabel = (id: string): string => (integridade?.situacoes ?? []).find((s) => s.id === id)?.label ?? id;
     const consulta = (integridade?.fontes ?? []).map((f) => `<a class="el-integ-src" href="${esc(f.url)}" target="_blank" rel="noopener noreferrer">${esc(f.label)} <span aria-hidden="true">↗</span></a>`).join('');
     box.innerHTML = cands.map((c) => {
@@ -2567,19 +2587,48 @@ const base = import.meta.env.BASE_URL;
     const arrow = up ? '▲' : c.variacao_pct < 0 ? '▼' : '–';
     return `<span class="el-patr-var ${cls}">${arrow} ${Math.abs(c.variacao_pct).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>`;
   }
+  // ── Estado "aguardando coleta" (compartilhado pelas seções que dependem do
+  //    TSE Dados Abertos). O CDN do TSE está atrás da Akamai e passou a recusar
+  //    acesso automatizado de datacenter com HTTP 403 (confirmado em ago/2026
+  //    tanto localmente quanto no runner do GitHub Actions — o dado real parou
+  //    de entrar em 18/08). Sem isso, [13] renderizava dezenas de cards vazios
+  //    e [14] um card de erro cujo texto ainda dizia "o TSE publica após o
+  //    registro" — factualmente errado, já que o registro passou: o que falta
+  //    é acesso, não publicação. Estado de espera honesto > erro enganoso. ──
+  function awaitBlockHTML(fontes?: { label: string; url: string }[]): string {
+    // Classes próprias (.el-await__*) em vez de reusar .el-integ-src/-consulta:
+    // aquelas têm CSS prefixado por #el-integridade, então não alcançariam este
+    // bloco quando ele é injetado em #el-patrimonio.
+    const links = (fontes ?? []).map((f) =>
+      `<a class="el-await__src" href="${esc(f.url)}" target="_blank" rel="noopener noreferrer">${esc(f.label)} <span aria-hidden="true">↗</span></a>`
+    ).join('');
+    return `<div class="el-await crop">
+      <span class="crop-mark-bl" aria-hidden="true"></span><span class="crop-mark-br" aria-hidden="true"></span>
+      <span class="el-await__title">${esc(t('portfolio.eleicoes.await_title', 'aguardando coleta do TSE'))}</span>
+      <p class="el-await__text">${esc(t('portfolio.eleicoes.await_text', 'O portal de dados abertos do TSE passou a recusar acesso automatizado (HTTP 403), então esta seção ainda não tem dado coletado. O pipeline diário continua tentando — assim que o acesso voltar, ela popula sozinha. Enquanto isso, a consulta pode ser feita direto na fonte oficial.'))}</p>
+      ${links ? `<div class="el-await__srcs">${links}</div>` : ''}
+    </div>`;
+  }
   function renderPatrimonio(p: PatrimonioPayload | null): void {
     const kpis = el('el-patr-kpis'), altaBox = el('el-patr-alta-list'), quedaBox = el('el-patr-queda-list');
     const tbody = el('el-patr-tbody'), nota = el('el-patr-nota');
+    const tableWrap = el('el-patr-table')?.closest('.el-patr-table-wrap') as HTMLElement | null;
+    const grid = el('el-patr-alta')?.parentElement as HTMLElement | null;
     const cands = p?.candidatos ?? [];
     if (!cands.length) {
-      const msg = `<p class="el-error mono-label">${esc(t('portfolio.eleicoes.patr_unavailable', 'dados de patrimônio indisponíveis nesta coleta — o TSE publica após o registro'))}</p>`;
-      if (kpis) kpis.innerHTML = msg;
+      // Some as sub-estruturas vazias (painéis de alta/queda + tabela) e deixa
+      // só o bloco de espera — 3 caixas vazias empilhadas parecem bug.
+      if (kpis) kpis.innerHTML = awaitBlockHTML(p?.fontes);
+      if (grid) grid.hidden = true;
+      if (tableWrap) tableWrap.hidden = true;
       if (altaBox) altaBox.innerHTML = '';
       if (quedaBox) quedaBox.innerHTML = '';
-      if (tbody) tbody.innerHTML = `<tr><td colspan="4">${msg}</td></tr>`;
+      if (tbody) tbody.innerHTML = '';
       if (nota) nota.textContent = `${p?.metodologia ?? ''} ${p?.disclaimer ?? ''}`.trim();
       return;
     }
+    if (grid) grid.hidden = false;
+    if (tableWrap) tableWrap.hidden = false;
     const maior = cands[0];
     if (kpis) kpis.innerHTML = `
       <article class="el-kpi crop"><span class="crop-mark-bl" aria-hidden="true"></span>

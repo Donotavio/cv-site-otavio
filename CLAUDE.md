@@ -28,7 +28,16 @@ python3 scripts/translate_projects.py       # Regenerate translated project stri
 python3 scripts/build_profile_data.py       # Build consolidated profile.json
 ```
 
-There are no automated tests. Verify changes manually: language switcher, timeline interactions, responsive layout.
+There are no unit tests. Verify changes manually: language switcher, timeline interactions, responsive layout.
+
+Dois checks automatizáveis existem e valem rodar antes de commitar mudança de página/dados:
+
+```bash
+python3 scripts/validate_i18n.py            # paridade de chaves pt-BR/en-US/es-ES (exit≠0 se divergir)
+npm run build && node scripts/render_check.mjs --page eleicoes-2026   # smoke test de render (precisa: npm i jsdom --no-save)
+```
+
+`render_check.mjs` existe porque **build verde ≠ página correta**: as páginas de dashboard montam quase tudo em runtime via `innerHTML` a partir dos JSONs, então uma seção pode ir ao ar vazia, sem estilo ou presa em "carregando…" com `astro check`/`astro build` passando. Ele carrega o HTML buildado + o bundle JS real em jsdom, serve os assets do disco e relata, por seção, se renderizou (`✓`), está aguardando dado (`⏳`), quebrou (`✗`) ou ficou presa no placeholder. Útil sobretudo em ambiente headless sem browser. Limitação conhecida: páginas cujo script principal é módulo ES com `import` (hoje: `brasil-cockpit`) não são executáveis por `window.eval` — o script reporta **INCONCLUSIVO** (exit 3) em vez de um falso OK.
 
 ## Architecture
 
@@ -133,6 +142,7 @@ python transform_eleicoes/gold_fundo_ipca.py       # → eleicoes_fundo_ipca.jso
 ```
 
 - `ingestion_eleicoes/catalog.py` — fonte única (URLs TSE + Wikipedia, mapa de colunas, normalização de candidatos/institutos, sufixos de UF, regras). Nunca hardcodar fora daqui.
+- ⚠ **BLOQUEIO ATIVO DO TSE (desde ~19/08/2026):** o CDN do TSE está atrás da Akamai e passou a recusar acesso automatizado de IP de datacenter com **HTTP 403** (`Access Denied … errors.edgesuite.net`) — em **todos** os hosts (`cdn.tse.jus.br`, `dadosabertos.tse.jus.br`, `divulgacandcontas.tse.jus.br`). Vale igualmente para o runner do GitHub Actions (confirmado no log do `eleicoes-pipeline`) e para máquina local em nuvem. Consequência: **todo dado de origem TSE está congelado** — a última coleta real de pesquisas é de 18/08 e os pipelines de integridade/patrimônio/prestação nunca coletaram nada; os JSONs seguem sendo regerados do bronze antigo (só o `gerado_em` muda). Wikipedia e BACEN (usados por outras seções) continuam normais, então a página não está "quebrada" — só as seções TSE ficam no estado "aguardando coleta". Se for restabelecer: a coleta funciona de IP residencial brasileiro, então rodar os `collect_*.py` na máquina local e commitar o resultado popula tudo (o dado de registro/bens é praticamente estático após o registro de 15/08). Não remover os pipelines: eles voltam sozinhos se/quando o bloqueio cair.
 - `ingestion_eleicoes/tse_dados_abertos.py` — helper compartilhado p/ TSE Dados Abertos (`dadosabertos.tse.jus.br`/`cdn.tse.jus.br`): baixa e faz parse dos ZIPs `consulta_cand_{ano}.zip` (registro), `bem_candidato_{ano}.zip` (patrimônio) e `prestacao_de_contas_eleitorais_candidatos_{ano}.zip` (receitas/despesas), latin-1/`;`-delimited, usado por `collect_integridade.py`, `collect_patrimonio.py` e `collect_prestacao_contas.py`. **O CDN do TSE recusa conexões de IPs de nuvem/datacenter com HTTP 403 de forma consistente** (mesmo bloqueio já conhecido da API DivulgaCand) — todo download é fail-soft (`baixar_zip_csv_brasil()` retorna `None` em vez de propagar erro) e detecção de coluna é defensiva (`checar_colunas()` só loga aviso; passar o dict de colunas esperado explicitamente via `colunas=` — inferir pelo texto do rótulo não funciona, todo nome de arquivo do TSE contém a substring "cand"). Colunas de `RECEITAS_COLUNAS`/`DESPESAS_COLUNAS` são o melhor palpite a partir do padrão TSE conhecido — **não confirmadas contra CSV real** (bloqueio de rede + dado só existe após 13/09/2026); ajustar no primeiro run real em CI se `checar_colunas()` acusar divergência.
 - `assets/data/eleicoes_contexto.json` — **curado à mão** de fontes oficiais (cargos, Fundo Eleitoral, calendário, exterior, renovação). Cada bloco traz `fonte`/`fonte_url`. Atualizar quando o TSE publicar números novos (não é pipeline).
 - **Fundo Eleitoral — múltiplo real (deflator IPCA):** `eleicoes_fundo_ipca.json` é gerado por `transform_eleicoes/gold_fundo_ipca.py` (companion do contexto, **não** o sobrescreve). Lê os valores curados do fundo em `eleicoes_contexto.json` (não hardcoda valores) e puxa o IPCA (BACEN SGS série 433, mesma série do Brasil Cockpit) via API REST — só `requests`. Deflaciona o FEFC de 2018 para reais do último mês publicado e emite o múltiplo REAL (~1,9×) ao lado do nominal (~2,9×) + `acima_inflacao_pct`. A seção [09] funde o companion no card e degrada para só-nominal se o JSON faltar. Fail-soft: se o BACEN cair, mantém o JSON existente.
