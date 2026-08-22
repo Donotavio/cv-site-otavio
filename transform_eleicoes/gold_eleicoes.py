@@ -74,14 +74,24 @@ def _agg(df) -> dict:
     total = int(len(df))
     validos = df.dropna(subset=["dt_divulgacao"])
 
-    # timeline mensal (intensidade de pesquisas rumo à eleição)
+    # timeline mensal (intensidade de pesquisas rumo à eleição).
+    # `agendadas` separa o que ainda NÃO foi ao ar: o TSE registra a pesquisa
+    # com a data de divulgação PREVISTA, então o mês corrente sempre mistura
+    # divulgado com agendado (em 22/08/2026: 155 das 392 de agosto, 40%).
+    # Sem essa coluna a última barra afirma "divulgadas" o que em parte ainda
+    # vai ser — e é justamente a barra que o painel destaca como pico.
+    hoje = pd.Timestamp.now(tz="UTC").tz_localize(None).normalize()
+    marcado = validos.assign(
+        mes=validos["dt_divulgacao"].dt.strftime("%Y-%m"),
+        futura=validos["dt_divulgacao"] > hoje,
+    )
     por_mes = (
-        validos.assign(mes=validos["dt_divulgacao"].dt.strftime("%Y-%m"))
-        .groupby("mes")
-        .size()
-        .reset_index(name="n")
+        marcado.groupby("mes")
+        .agg(n=("mes", "size"), agendadas=("futura", "sum"))
+        .reset_index()
         .sort_values("mes")
     )
+    por_mes["agendadas"] = por_mes["agendadas"].astype(int)
 
     # top institutos (nº de pesquisas + investimento declarado)
     inst = (
