@@ -134,11 +134,9 @@ def _consultar_situacoes(roster: list[dict]) -> dict[str, dict]:
             if not _nome_bate(nome_urna, nome_completo, r["nome"]):
                 continue
             situacao_raw = col(row, CAND_COLUNAS, "situacao")
-            detalhe = col(row, CAND_COLUNAS, "situacao_detalhe")
             resultado[r["nome"]] = {
                 "situacao_id": _situacao_id(situacao_raw),
                 "situacao_raw": situacao_raw,
-                "detalhe": detalhe,
                 "partido_tse": col(row, CAND_COLUNAS, "partido"),
                 "uf_tse": col(row, CAND_COLUNAS, "uf"),
             }

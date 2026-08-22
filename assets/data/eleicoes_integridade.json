@@ -1,7 +1,7 @@
 {
-  "gerado_em": "2026-08-22T21:16:50.348888+00:00",
-  "metodologia": "Reúne a situação de registro de cada candidatura junto à Justiça Eleitoral (fonte: TSE — Portal de Dados Abertos, dataset Candidatos). O registro fechou em 15/08/2026; candidaturas indeferidas por inelegibilidade (inclusive Lei da Ficha Limpa) aparecem aqui com o motivo publicado pelo TSE. Recursos em andamento mudam a situação ao longo da campanha — este painel reflete o snapshot da última coleta.",
-  "disclaimer": "Situação de registro não é o mesmo que processo criminal — é o resultado da análise de elegibilidade feita pela Justiça Eleitoral no momento do registro. 'Sub judice' significa recurso pendente: a candidatura concorre normalmente até decisão final. Sem juízo de valor nem cor partidária — apenas o que o registro público informa.",
+  "gerado_em": "2026-08-22T23:03:04.059488+00:00",
+  "metodologia": "Reúne a situação de registro de cada candidatura junto à Justiça Eleitoral (fonte: TSE — Portal de Dados Abertos, dataset Candidatos). O prazo de registro fechou em 15/08/2026 e o julgamento dos pedidos leva semanas: enquanto a Justiça Eleitoral não decide, o TSE publica a situação como não preenchida e este painel mostra 'aguardando julgamento'. Conforme as decisões saem, cada candidatura passa a deferida, indeferida ou sub judice — o painel reflete o snapshot da última coleta.",
+  "disclaimer": "Situação de registro não é o mesmo que processo criminal — é o resultado da análise de elegibilidade feita pela Justiça Eleitoral. 'Aguardando julgamento' significa que o pedido ainda não foi decidido, não que haja qualquer problema com a candidatura. 'Sub judice' significa recurso pendente: a candidatura concorre normalmente até decisão final. Sem juízo de valor nem cor partidária — apenas o que o registro público informa.",
   "situacoes": [
     {
       "id": "deferido",
@@ -24,6 +24,10 @@
       "label": "Renúncia"
     },
     {
+      "id": "aguardando",
+      "label": "Aguardando julgamento"
+    },
+    {
       "id": "outro",
       "label": "Outra situação"
     }
@@ -38,5 +42,474 @@
       "url": "https://divulgacandcontas.tse.jus.br/divulga/"
     }
   ],
-  "itens_por_candidato": {}
+  "itens_por_candidato": {
+    "Lula": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PT",
+      "uf_tse": "BR"
+    },
+    "Flávio Bolsonaro": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PL",
+      "uf_tse": "BR"
+    },
+    "Ronaldo Caiado": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSD",
+      "uf_tse": "BR"
+    },
+    "Renan (Missão)": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "MDB",
+      "uf_tse": "AL"
+    },
+    "Romeu Zema": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "NOVO",
+      "uf_tse": "BR"
+    },
+    "Alan Rick": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "REPUBLICANOS",
+      "uf_tse": "AC"
+    },
+    "Mailza Assis": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PCO",
+      "uf_tse": "PE"
+    },
+    "Tião Bocalom": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSDB",
+      "uf_tse": "AC"
+    },
+    "Thor Dantas": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSB",
+      "uf_tse": "AC"
+    },
+    "JHC": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSDB",
+      "uf_tse": "AL"
+    },
+    "Renan Filho": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSOL",
+      "uf_tse": "PE"
+    },
+    "Omar Aziz": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSD",
+      "uf_tse": "AM"
+    },
+    "Maria do Carmo": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PCO",
+      "uf_tse": "BA"
+    },
+    "Roberto Cidade": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSOL",
+      "uf_tse": "MS"
+    },
+    "David Almeida": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "DC",
+      "uf_tse": "RN"
+    },
+    "Dr. Furlan": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSD",
+      "uf_tse": "AP"
+    },
+    "Clécio Luís": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "MISSÃO",
+      "uf_tse": "MA"
+    },
+    "ACM Neto": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "UNIÃO",
+      "uf_tse": "BA"
+    },
+    "Jerônimo": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PT",
+      "uf_tse": "BA"
+    },
+    "Ciro Gomes": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "DC",
+      "uf_tse": "MS"
+    },
+    "Elmano de Freitas": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PT",
+      "uf_tse": "CE"
+    },
+    "Eduardo Girão": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PP",
+      "uf_tse": "MS"
+    },
+    "Ricardo Ferraço": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "MDB",
+      "uf_tse": "ES"
+    },
+    "Lorenzo Pazolini": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "REPUBLICANOS",
+      "uf_tse": "ES"
+    },
+    "Paulo Hartung": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSD",
+      "uf_tse": "AP"
+    },
+    "Helder Salomão": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PT",
+      "uf_tse": "ES"
+    },
+    "Daniel Vilela": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PODE",
+      "uf_tse": "PA"
+    },
+    "Marconi Perillo": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSDB",
+      "uf_tse": "GO"
+    },
+    "Wilder Morais": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PL",
+      "uf_tse": "PB"
+    },
+    "Luis Cesar Bueno": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PCB",
+      "uf_tse": "MG"
+    },
+    "Eduardo Braide": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PP",
+      "uf_tse": "MS"
+    },
+    "Orleans Brandão": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "MDB",
+      "uf_tse": "MA"
+    },
+    "Felipe Camarão": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "NOVO",
+      "uf_tse": "CE"
+    },
+    "Roberto Rocha": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSOL",
+      "uf_tse": "MS"
+    },
+    "Cleitinho": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "REPUBLICANOS",
+      "uf_tse": "MG"
+    },
+    "Alexandre Kalil": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PDT",
+      "uf_tse": "MG"
+    },
+    "Patrus Ananias": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PT",
+      "uf_tse": "MG"
+    },
+    "Mateus Simões": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSD",
+      "uf_tse": "MG"
+    },
+    "Gabriel Azevedo": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "REPUBLICANOS",
+      "uf_tse": "MG"
+    },
+    "Daniel Santos": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "DC",
+      "uf_tse": "BA"
+    },
+    "Hana Ghassan": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "MDB",
+      "uf_tse": "PA"
+    },
+    "Cleber Rabelo": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSTU",
+      "uf_tse": "PA"
+    },
+    "Lucas Ribeiro": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSTU",
+      "uf_tse": "MG"
+    },
+    "Cícero Lucena": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "MDB",
+      "uf_tse": "PB"
+    },
+    "Efraim Filho": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSOL",
+      "uf_tse": "PE"
+    },
+    "Raquel Lyra": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PCO",
+      "uf_tse": "RN"
+    },
+    "João Campos": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "NOVO",
+      "uf_tse": "MS"
+    },
+    "Rafael Fonteles": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "UP",
+      "uf_tse": "ES"
+    },
+    "Joel Rodrigues": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSOL",
+      "uf_tse": "RN"
+    },
+    "Sergio Moro": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PL",
+      "uf_tse": "PR"
+    },
+    "Requião Filho": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PDT",
+      "uf_tse": "PR"
+    },
+    "Sandro Alex": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSD",
+      "uf_tse": "PR"
+    },
+    "Rafael Greca": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "UP",
+      "uf_tse": "ES"
+    },
+    "Eduardo Paes": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PP",
+      "uf_tse": "MS"
+    },
+    "Douglas Ruas": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PL",
+      "uf_tse": "RJ"
+    },
+    "Anthony Garotinho": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "REPUBLICANOS",
+      "uf_tse": "RJ"
+    },
+    "Allyson": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "UNIÃO",
+      "uf_tse": "RN"
+    },
+    "Álvaro Dias": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PCO",
+      "uf_tse": "SC"
+    },
+    "Cadu de Lula": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PT",
+      "uf_tse": "BR"
+    },
+    "Marcos Rogério": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PL",
+      "uf_tse": "RO"
+    },
+    "Hildon Chaves": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "UNIÃO",
+      "uf_tse": "RO"
+    },
+    "Expedito Netto": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PCO",
+      "uf_tse": "DF"
+    },
+    "Luciano Zucco": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PL",
+      "uf_tse": "RS"
+    },
+    "Juliana Brizola": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PDT",
+      "uf_tse": "RS"
+    },
+    "Gabriel Souza": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "UP",
+      "uf_tse": "CE"
+    },
+    "Marcelo Maranata": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSDB",
+      "uf_tse": "RS"
+    },
+    "Jorginho Mello": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PDT",
+      "uf_tse": "PR"
+    },
+    "João Rodrigues": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "NOVO",
+      "uf_tse": "MS"
+    },
+    "Gelson Merisio": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSB",
+      "uf_tse": "SC"
+    },
+    "Fábio Mitidieri": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSD",
+      "uf_tse": "SE"
+    },
+    "Valmir de Francisquinho": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "REPUBLICANOS",
+      "uf_tse": "SE"
+    },
+    "Ricardo Marques": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "MDB",
+      "uf_tse": "ES"
+    },
+    "Tarcísio de Freitas": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PT",
+      "uf_tse": "CE"
+    },
+    "Fernando Haddad": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PL",
+      "uf_tse": "PR"
+    },
+    "Professora Dorinha": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "UNIÃO",
+      "uf_tse": "TO"
+    },
+    "Vicentinho Júnior": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSDB",
+      "uf_tse": "TO"
+    },
+    "Laurez Moreira": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSD",
+      "uf_tse": "TO"
+    },
+    "Ataídes Oliveira": {
+      "situacao_id": "aguardando",
+      "situacao_raw": "#NE",
+      "partido_tse": "PSDB",
+      "uf_tse": "SE"
+    }
+  }
 }

@@ -34,6 +34,7 @@ from ingestion_eleicoes.catalog import (  # noqa: E402
     TSE_CSV_NACIONAL,
     TSE_PESQUISAS_ZIP_URL,
 )
+from ingestion_eleicoes.tse_dados_abertos import http_get  # noqa: E402
 
 BRONZE_DIR = Path("data/bronze/eleicoes_pesquisas")
 TIMEOUT = 60
@@ -43,19 +44,16 @@ MAX_RETRIES = 4
 def _baixar_csv_nacional() -> str:
     """Baixa o zip do TSE (com retry/backoff) e devolve o CSV nacional (texto).
 
-    O CDN do TSE (cdn.tse.jus.br) às vezes atrasa/recusa conexões de IPs de
-    nuvem — timeout transitório no runner. Repete com backoff e respeita
-    Retry-After em 429/503. Se esgotar as tentativas, propaga a última exceção
-    (o main() trata como fail-soft).
+    Usa o cliente com fingerprint de browser (`tse_dados_abertos.http_get`):
+    o TSE está atrás do Akamai Bot Manager, que barra `requests` com 403 pelo
+    fingerprint TLS — foi o que congelou esta coleta a partir de 19/08/2026.
+    Mantém o retry/backoff com Retry-After para 429/503. Se esgotar as
+    tentativas, propaga a última exceção (o main() trata como fail-soft).
     """
     last_exc: Exception | None = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            resp = requests.get(
-                TSE_PESQUISAS_ZIP_URL,
-                headers={"User-Agent": "observatorio-eleicoes-2026/1.0"},
-                timeout=TIMEOUT,
-            )
+            resp = http_get(TSE_PESQUISAS_ZIP_URL, timeout=TIMEOUT)
             if resp.status_code in (429, 503):
                 wait = int(resp.headers.get("Retry-After", 0) or 0) or attempt * 5
                 print(f"  · TSE {resp.status_code} — aguardando {wait}s ({attempt}/{MAX_RETRIES})")
@@ -65,7 +63,7 @@ def _baixar_csv_nacional() -> str:
             with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
                 with zf.open(TSE_CSV_NACIONAL) as fh:
                     return fh.read().decode(CSV_ENCODING)
-        except requests.RequestException as e:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001 - curl_cffi tem hierarquia própria de erro
             last_exc = e
             if attempt < MAX_RETRIES:
                 wait = attempt * 5

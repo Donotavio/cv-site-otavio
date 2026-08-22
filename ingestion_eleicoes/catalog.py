@@ -334,18 +334,20 @@ def split_nome_partido(coluna: str) -> tuple[str, str] | None:
 
 INTEGRIDADE_METODOLOGIA = (
     "Reúne a situação de registro de cada candidatura junto à Justiça Eleitoral "
-    "(fonte: TSE — Portal de Dados Abertos, dataset Candidatos). O registro "
-    "fechou em 15/08/2026; candidaturas indeferidas por inelegibilidade "
-    "(inclusive Lei da Ficha Limpa) aparecem aqui com o motivo publicado pelo "
-    "TSE. Recursos em andamento mudam a situação ao longo da campanha — este "
-    "painel reflete o snapshot da última coleta."
+    "(fonte: TSE — Portal de Dados Abertos, dataset Candidatos). O prazo de "
+    "registro fechou em 15/08/2026 e o julgamento dos pedidos leva semanas: "
+    "enquanto a Justiça Eleitoral não decide, o TSE publica a situação como "
+    "não preenchida e este painel mostra 'aguardando julgamento'. Conforme as "
+    "decisões saem, cada candidatura passa a deferida, indeferida ou sub "
+    "judice — o painel reflete o snapshot da última coleta."
 )
 INTEGRIDADE_DISCLAIMER = (
     "Situação de registro não é o mesmo que processo criminal — é o resultado "
-    "da análise de elegibilidade feita pela Justiça Eleitoral no momento do "
-    "registro. 'Sub judice' significa recurso pendente: a candidatura concorre "
-    "normalmente até decisão final. Sem juízo de valor nem cor partidária — "
-    "apenas o que o registro público informa."
+    "da análise de elegibilidade feita pela Justiça Eleitoral. 'Aguardando "
+    "julgamento' significa que o pedido ainda não foi decidido, não que haja "
+    "qualquer problema com a candidatura. 'Sub judice' significa recurso "
+    "pendente: a candidatura concorre normalmente até decisão final. Sem juízo "
+    "de valor nem cor partidária — apenas o que o registro público informa."
 )
 # Situações de registro (rótulo em pt-BR do valor DS_SITUACAO_CANDIDATURA do
 # TSE). O id "outro" cobre qualquer valor que apareça no CSV real e não bata
@@ -357,6 +359,12 @@ INTEGRIDADE_SITUACOES = [
     {"id": "indeferido", "label": "Indeferido", "match": ["INDEFERIDO"]},
     {"id": "cancelado", "label": "Cancelado", "match": ["CANCELADO"]},
     {"id": "renuncia", "label": "Renúncia", "match": ["RENUNCIA", "RENÚNCIA"]},
+    # '#NE' e '#NULO' são os marcadores do TSE para "campo não preenchido na
+    # base". Em 22/08/2026 TODAS as 20.708 candidaturas vinham assim: o prazo
+    # de registro fechou em 15/08 e a Justiça Eleitoral ainda não julgou os
+    # pedidos. Mapear isso para "outra situação" seria enganoso — sugere algo
+    # anômalo onde só falta o julgamento acontecer.
+    {"id": "aguardando", "label": "Aguardando julgamento", "match": ["#NE", "#NULO", "#NULO#"]},
     {"id": "outro", "label": "Outra situação", "match": []},
 ]
 INTEGRIDADE_FONTES = [
@@ -439,33 +447,35 @@ PRESTACAO_ANO = 2026
 PRESTACAO_PRAZO_PARCIAL = "2026-09-13"  # prestação de contas parcial (curado em eleicoes_contexto.json)
 PRESTACAO_PRAZO_FINAL = "2026-11-03"  # prestação de contas final (só 1º turno)
 
-# ATENÇÃO (URL/schema não confirmados): o mesmo bloqueio de rede do
-# consulta_cand/bem_candidato (ver tse_dados_abertos.py) impediu confirmar a
-# URL exata do zip e o header real do CSV antes do prazo de registro. Segue o
-# padrão estável de nomenclatura do TSE (1 zip por dataset/ano, CSVs por UF +
-# 1 nacional "_BRASIL.csv" dentro) — ajustar aqui se o TSE publicar diferente.
+# URL e nomes de arquivo CONFIRMADOS contra o zip real de 2026 (112 arquivos:
+# CSVs por UF + um "_BRASIL" consolidado por dataset).
 TSE_PRESTACAO_CONTAS_ZIP_URL_FMT = (
     "https://cdn.tse.jus.br/estatistica/sead/odsele/prestacao_contas/"
     "prestacao_de_contas_eleitorais_candidatos_{ano}.zip"
 )
 TSE_RECEITAS_SUFIXO_BRASIL = "receitas_candidatos_{ano}_BRASIL.csv"
-TSE_DESPESAS_SUFIXO_BRASIL = "despesas_pagas_candidatos_{ano}_BRASIL.csv"
+# "contratadas", não "pagas": só este traz identificação do candidato —
+# ver comentário em DESPESAS_COLUNAS (tse_dados_abertos.py).
+TSE_DESPESAS_SUFIXO_BRASIL = "despesas_contratadas_candidatos_{ano}_BRASIL.csv"
 
 PRESTACAO_METODOLOGIA = (
-    "Soma as receitas declaradas (doações + recursos próprios + Fundo "
-    "Eleitoral/partidário) e as despesas pagas de cada candidato do roster "
-    "(presidente + governador) — fonte: TSE, Portal de Dados Abertos, dataset "
-    "Prestação de Contas Eleitorais. Para doador pessoa jurídica, mostra o "
-    "nome declarado pela campanha ao lado do nome da própria Receita Federal "
-    "para aquele CNPJ, quando o TSE publica os dois."
+    "Soma as receitas declaradas (doações, recursos próprios, Fundo "
+    "Eleitoral/partidário) e as despesas contratadas de cada candidato a "
+    "presidente ou governador — fonte: TSE, Portal de Dados Abertos, dataset "
+    "Prestação de Contas Eleitorais. Usa 'despesas contratadas' porque o "
+    "arquivo de despesas pagas do TSE não identifica o candidato. Os valores "
+    "são cumulativos e crescem a cada relatório financeiro enviado durante a "
+    "campanha."
 )
 PRESTACAO_DISCLAIMER = (
-    f"Dado oficial só existe a partir do prazo de entrega da prestação de "
-    f"contas parcial ({PRESTACAO_PRAZO_PARCIAL}); até lá esta seção fica vazia "
-    f"por definição — não é falha do painel. Valor autodeclarado pela própria "
-    f"campanha. Cruzamento com Receita Federal só é publicamente possível "
-    f"para doador pessoa jurídica (CNPJ); para pessoa física (CPF) não existe "
-    f"API pública — sigilo fiscal."
+    f"Valores autodeclarados pela própria campanha, ainda sem julgamento das "
+    f"contas pela Justiça Eleitoral. O TSE republica os relatórios financeiros "
+    f"ao longo da campanha, então o total sobe com o tempo — o retrato é da "
+    f"última coleta, não o gasto final (prestação parcial até "
+    f"{PRESTACAO_PRAZO_PARCIAL}, final até {PRESTACAO_PRAZO_FINAL}). "
+    f"O confronto doador × Receita Federal usa o nome que o próprio TSE "
+    f"publica para o CPF/CNPJ ao lado do declarado pela campanha; divergência "
+    f"aqui indica cadastro desatualizado ou grafia diferente, não irregularidade."
 )
 PRESTACAO_FONTES = [
     {

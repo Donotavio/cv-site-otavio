@@ -1,4 +1,8 @@
 requests>=2.31.0
+# Necessário para os domínios do TSE: o Akamai Bot Manager barra `requests`
+# pelo fingerprint TLS (403 em tudo, de qualquer IP). curl_cffi replica o
+# fingerprint do Chrome. Ver ingestion_eleicoes/tse_dados_abertos.http_get.
+curl_cffi>=0.7.0
 pandas>=2.0.0
 pyarrow>=14.0.0
 lxml>=5.0.0
