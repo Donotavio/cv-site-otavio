@@ -1,25 +1,26 @@
 name: World Cup Dashboard — Data Pipeline
 
-# A cada hora, das 13h às 00h (meia-noite) no Horário de Brasília (UTC-3).
-# Em UTC isso equivale às 16h–03h (do dia seguinte). Janela completa dos
-# jogos da Copa 2026 (sedes EUA/Canadá/México), do 1º jogo (horário de
-# Los Angeles) até o fim do último jogo da Costa Leste.
+# ⛔ ENCERRADO em 22/08/2026 — a Copa 2026 terminou em 19/07/2026.
 #
-# Conversão UTC ↔ BRT (UTC-3):
-#   16:00 UTC = 13:00 BRT   ← 1º jogo do dia (horário de Los Angeles)
-#   ...
-#   03:00 UTC = 00:00 BRT   ← fim da janela (após último jogo)
+# O cron horário (`0 16-23,0-3 * * *` = 13h–00h BRT, janela de jogos) foi
+# removido conforme previsto no desenho original ("roda até o fim da Copa,
+# depois desativar"). O torneio acabou: não há partida, artilheiro nem
+# classificação nova para coletar — os JSONs em `assets/data/worldcup/`
+# estão congelados no resultado final e o painel segue no ar lendo eles.
 #
-# Roda até o fim da Copa (19/07/2026). Após isso, desativar manualmente.
+# Além de não ter mais o que coletar, o pipeline passou a falhar de forma
+# crônica: o openfootball removeu `2022/worldcup.teams.json` (HTTP 404), o
+# que quebra `comparativo_copas.json` e faz o scraper sair com exit 1 a
+# cada hora. Reativar o cron exige antes corrigir essa fonte.
 #
-# `workflow_dispatch` permite rodar manualmente (útil para validar).
+# `workflow_dispatch` fica mantido para rodada manual (ex.: recoletar dado
+# histórico depois de consertar a fonte). Para voltar ao agendamento,
+# reponha o bloco `schedule` acima.
 on:
-  schedule:
-    - cron: '0 16-23,0-3 * * *'
   workflow_dispatch: {}
 
-# Cancela runs horárias sobrepostas (evita race condition no git push
-# se um job atrasar). Schedule em group próprio por branch.
+# Cancela runs sobrepostas (evita race condition no git push se um job
+# atrasar). Mantido para os disparos manuais.
 concurrency:
   group: worldcup-pipeline-${{ github.ref }}
   cancel-in-progress: true

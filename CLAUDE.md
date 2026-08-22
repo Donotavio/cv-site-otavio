@@ -193,6 +193,13 @@ python ingestion_worldcup/fetch_classics_statsbomb.py  # classics_2022.json (one
   ataque inferida do x médio dos chutes (frame fixo do StatsBomb). Não há evento
   aberto p/ 2026 → nunca fabricar intervalo/PPDA de 2026. **One-off** (dado 2022 é
   estático): rodar e commitar; não entra no cron diário.
-- CI: `.github/workflows/update-world-cup.yml` (horário na janela de jogos; roda
-  `scraper.py` + `fetch_ball_level.py`, commita `data:`, dispara build-and-deploy).
-  O `fetch_classics_statsbomb.py` **não** está no workflow (dado imutável).
+- CI: `.github/workflows/update-world-cup.yml` (roda `scraper.py` +
+  `fetch_ball_level.py`, commita `data:`, dispara build-and-deploy). O
+  `fetch_classics_statsbomb.py` **não** está no workflow (dado imutável).
+  ⛔ **Cron encerrado em 22/08/2026** — a Copa acabou em 19/07/2026, então não há
+  partida/artilheiro/classificação nova e os JSONs de `assets/data/worldcup/`
+  estão congelados no resultado final (o painel segue no ar lendo eles). Só
+  `workflow_dispatch` continua. Antes de religar o agendamento, conserte a fonte:
+  o openfootball removeu `2022/worldcup.teams.json` (HTTP 404) e isso quebra
+  `comparativo_copas.json` com `'list' object has no attribute 'get'` → o scraper
+  saía com exit 1 a cada hora (era essa a falha crônica no CI).
