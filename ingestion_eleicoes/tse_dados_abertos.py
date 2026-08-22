@@ -163,6 +163,26 @@ def valor_num(raw: str | None) -> float:
         return 0.0
 
 
+# Marcadores do TSE para "campo não preenchido" — os mesmos que aparecem em
+# DS_SITUACAO_CANDIDATURA e que a §13 mapeia para "aguardando julgamento".
+TSE_MARCADORES_NULOS = {"#NE", "#NE#", "#NULO", "#NULO#"}
+
+
+def lancamento_vazio(valor: float, descricao: str | None) -> bool:
+    """True quando a linha é um registro sem movimento, não um lançamento real.
+
+    Ao entregar um relatório financeiro sem nada a declarar, a campanha gera
+    uma linha com valor 0,00 e o campo descritivo preenchido com o marcador de
+    ausência do TSE. No dado de 2026 isso é 2.507 das 8.484 linhas de despesa
+    (30%) e 347 das 10.076 de receita. Contá-las como lançamento faz o painel
+    exibir "1 despesa · R$ 0,00" para uma campanha que apenas ainda não
+    declarou gasto — sugere "gastou zero" onde o correto é "não declarou",
+    leitura oposta à real. Só descarta quando as DUAS condições valem: linha
+    de valor 0 com descrição real (rara, mas existe) segue contando.
+    """
+    return valor == 0.0 and (descricao or "").strip().upper() in TSE_MARCADORES_NULOS
+
+
 def baixar_zip_csv_brasil(
     url: str, sufixo_arquivo: str, rotulo: str, colunas: dict[str, str] | None = None
 ) -> list[dict] | None:

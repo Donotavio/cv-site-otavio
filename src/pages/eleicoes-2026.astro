@@ -392,6 +392,7 @@ const base = import.meta.env.BASE_URL;
           <div class="el-barchart__svg el-band__svg" id="el-barchart-svg"><p class="el-loading mono-label">carregando série…</p></div>
           <div class="el-chart-tip" id="el-barchart-tip" role="status" aria-hidden="true" hidden></div>
         </figure>
+        <p class="el-nota mono-label" id="el-barchart-nota" hidden></p>
       </div>
     </section>
 
@@ -437,10 +438,10 @@ const base = import.meta.env.BASE_URL;
           <table class="el-rank-table" aria-labelledby="el-inst-title">
             <thead>
               <tr>
-                <th class="el-rank-table__rank">#</th>
-                <th data-i18n-key="portfolio.eleicoes.th_instituto">Instituto</th>
-                <th class="el-rank-table__num" data-i18n-key="portfolio.eleicoes.th_pesquisas">Pesquisas</th>
-                <th class="el-rank-table__num" data-i18n-key="portfolio.eleicoes.th_investimento">Investimento</th>
+                <th scope="col" class="el-rank-table__rank">#</th>
+                <th scope="col" data-i18n-key="portfolio.eleicoes.th_instituto">Instituto</th>
+                <th scope="col" class="el-rank-table__num" data-i18n-key="portfolio.eleicoes.th_pesquisas">Pesquisas</th>
+                <th scope="col" class="el-rank-table__num" data-i18n-key="portfolio.eleicoes.th_investimento">Investimento</th>
               </tr>
             </thead>
             <tbody id="el-rank-body">
@@ -644,10 +645,10 @@ const base = import.meta.env.BASE_URL;
             <table class="el-patr-table" id="el-patr-table">
               <thead>
                 <tr>
-                  <th data-i18n-key="portfolio.eleicoes.patr_col_nome">candidato</th>
-                  <th data-i18n-key="portfolio.eleicoes.patr_col_cargo">cargo · uf</th>
-                  <th data-i18n-key="portfolio.eleicoes.patr_col_2026">patrimônio 2026</th>
-                  <th data-i18n-key="portfolio.eleicoes.patr_col_var">variação vs. 2022</th>
+                  <th scope="col" data-i18n-key="portfolio.eleicoes.patr_col_nome">candidato</th>
+                  <th scope="col" data-i18n-key="portfolio.eleicoes.patr_col_cargo">cargo · uf</th>
+                  <th scope="col" data-i18n-key="portfolio.eleicoes.patr_col_2026">patrimônio 2026</th>
+                  <th scope="col" data-i18n-key="portfolio.eleicoes.patr_col_var">variação vs. 2022</th>
                 </tr>
               </thead>
               <tbody id="el-patr-tbody">
@@ -691,11 +692,11 @@ const base = import.meta.env.BASE_URL;
             <table class="el-patr-table" id="el-prest-table">
               <thead>
                 <tr>
-                  <th data-i18n-key="portfolio.eleicoes.prest_col_nome">candidato</th>
-                  <th data-i18n-key="portfolio.eleicoes.patr_col_cargo">cargo · uf</th>
-                  <th data-i18n-key="portfolio.eleicoes.prest_col_receitas">arrecadado</th>
-                  <th data-i18n-key="portfolio.eleicoes.prest_col_despesas">gasto</th>
-                  <th data-i18n-key="portfolio.eleicoes.prest_col_saldo">saldo</th>
+                  <th scope="col" data-i18n-key="portfolio.eleicoes.prest_col_nome">candidato</th>
+                  <th scope="col" data-i18n-key="portfolio.eleicoes.patr_col_cargo">cargo · uf</th>
+                  <th scope="col" data-i18n-key="portfolio.eleicoes.prest_col_receitas">arrecadado</th>
+                  <th scope="col" data-i18n-key="portfolio.eleicoes.prest_col_despesas">gasto</th>
+                  <th scope="col" data-i18n-key="portfolio.eleicoes.prest_col_saldo">saldo</th>
                 </tr>
               </thead>
               <tbody id="el-prest-tbody">
@@ -914,6 +915,9 @@ const base = import.meta.env.BASE_URL;
   .el-band__svg :global(.el-band-line--soft) { stroke: var(--ink-soft); stroke-width: 1.25; }
   .el-band__svg :global(.el-band-line--faint) { stroke: var(--ink-faint); stroke-width: 1.25; }
   .el-band__svg :global(.el-band-line--gold) { stroke: var(--wc-gold-ink); stroke-width: 2; }
+  /* Fatia da barra ainda não divulgada (registro com data futura): preenchimento
+     rebaixado + contorno tracejado, para ler como "previsto", não "realizado". */
+  .el-band__svg :global(.el-band-bar--agendada) { fill-opacity: 0.16; stroke-width: 1; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }
   .el-band__svg :global(.el-band-marker) { stroke: var(--paper-card); stroke-width: 1.5; }
   .el-band__svg :global(.el-band-markerval) { font-family: var(--font-mono); font-size: 10px; font-weight: 500; fill: var(--ink); font-variant-numeric: var(--num-tabular); }
   /* Rótulo de nome no fim da linha — halo de papel garante leitura sobre as linhas */
@@ -1326,6 +1330,9 @@ const base = import.meta.env.BASE_URL;
   #el-patrimonio :global(.el-patr-var--up) { color: var(--wc-gold-ink); }
   #el-patrimonio :global(.el-patr-var--down) { color: var(--ink-soft); }
   #el-patrimonio :global(.el-patr-var--none) { color: var(--ink-faint); font-style: italic; }
+  /* Ausência de declaração — mesmo tratamento visual do "sem comparação" da §14:
+     apagado e em itálico, para não ser lido como um valor medido. */
+  #el-prestacao :global(.el-prest-nd) { color: var(--ink-faint); font-style: italic; }
   .el-patr-table-wrap { overflow-x: auto; }
   #el-patrimonio :global(.el-patr-table) { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
   #el-patrimonio :global(.el-patr-table th) { text-align: left; font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--ink-faint); padding: var(--space-3); border-bottom: 1px solid var(--line-strong); white-space: nowrap; }
@@ -1372,10 +1379,11 @@ const base = import.meta.env.BASE_URL;
   // window.i18n.t() + re-render em `languageChanged`.
   interface Records { maior_amostra?: number | null; pesquisa_mais_cara_rs?: number | null; instituto_mais_ativo?: { empresa: string; n: number; investimento_rs: number } | null; mes_pico?: { mes: string; n: number } | null; }
   interface ElPayload {
+    gerado_em?: string;
     janela?: { primeira_divulgacao?: string; ultima_divulgacao?: string };
     kpis?: { total_pesquisas?: number; n_institutos?: number; investimento_total_rs?: number; mediana_entrevistados?: number; custo_medio_rs?: number | null };
     concentracao?: { top1_share_pct?: number; top5_share_pct?: number; hhi?: number };
-    por_mes?: { mes: string; n: number }[];
+    por_mes?: { mes: string; n: number; agendadas?: number }[];
     por_nivel?: { presidencial?: number; estadual?: number };
     top_institutos?: { empresa: string; n: number; investimento_rs: number }[];
     por_uf?: { uf: string; n: number }[];
@@ -1502,7 +1510,10 @@ const base = import.meta.env.BASE_URL;
   const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
   const fmtMes = (m: string): string => { const [y, mm] = m.split('-'); return `${MESES[parseInt(mm, 10) - 1]}/${y.slice(2)}`; };
   const fmtMesLong = (m: string): string => { const [y, mm] = m.split('-'); return `${MESES[parseInt(mm, 10) - 1]} ${y}`; };
-  function fmtDate(iso?: string): string { if (!iso) return '—'; const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; }
+  // Aceita 'YYYY-MM-DD' e timestamp ISO completo ('…T22:51:30+00:00') — os
+  // campos `gerado_em` dos payloads trazem hora, e sem o corte no 'T' o dia
+  // sairia como "22T22:51:30+00:00".
+  function fmtDate(iso?: string): string { if (!iso) return '—'; const [y, m, d] = iso.split('T')[0].split('-'); return `${d}/${m}/${y}`; }
   function esc(s: string): string { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
   // ── Escala de eixo com ticks arredondados (Heckbert) — portado do
@@ -1558,7 +1569,11 @@ const base = import.meta.env.BASE_URL;
     if (el('kpi-star-name')) el('kpi-star-name')!.textContent = star?.empresa ?? '—';
     if (el('kpi-star-meta') && star) el('kpi-star-meta')!.textContent =
       `${nf.format(star.n)} ${t('portfolio.eleicoes.rk_pesq', 'pesq')} · ${fmtRS(star.investimento_rs)}`;
-    if (el('el-updated-date')) el('el-updated-date')!.textContent = fmtDate(p.janela?.ultima_divulgacao);
+    // `gerado_em` (quando o pipeline rodou), não `ultima_divulgacao`: esta é a
+    // maior data de divulgação PREVISTA das pesquisas registradas e cai no
+    // futuro sempre que um instituto registra a pesquisa antes de divulgá-la
+    // — o badge chegou a anunciar "atualizado · 27/08" no dia 22/08.
+    if (el('el-updated-date')) el('el-updated-date')!.textContent = fmtDate(p.gerado_em ?? p.janela?.ultima_divulgacao);
   }
 
   function renderMiniStats(p: ElPayload): void {
@@ -1670,11 +1685,23 @@ const base = import.meta.env.BASE_URL;
         + `<text class="el-band-ticklabel" x="${PAD.l - 6}" y="${(yy + 3).toFixed(1)}" text-anchor="end">${nf.format(v)}</text>`;
     }).join('');
 
+    // A barra do mês corrente mistura pesquisa já divulgada com pesquisa
+    // apenas registrada, cuja divulgação o instituto agendou para depois de
+    // hoje. Empilhar a fatia agendada em traço aberto deixa visível que o topo
+    // da barra (e o próprio pico) ainda não foi ao ar.
     const bars = data.map((d, i) => {
       const y = yAt(d.n), h = (H - PAD.b) - y;
       const x = PAD.l + i * cw + (cw - bw) / 2;
       const isPeak = d.mes === peak;
-      return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="2" fill="var(${isPeak ? '--wc-gold-ink' : '--ink-soft'})"></rect>
+      const cor = `var(${isPeak ? '--wc-gold-ink' : '--ink-soft'})`;
+      const agendadas = Math.min(d.agendadas ?? 0, d.n);
+      const divulgadas = d.n - agendadas;
+      const yDiv = yAt(divulgadas);
+      const corpo = agendadas > 0
+        ? `<rect x="${x.toFixed(1)}" y="${yDiv.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, (H - PAD.b) - yDiv).toFixed(1)}" rx="2" fill="${cor}"></rect>
+           <rect class="el-band-bar--agendada" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, yDiv - y).toFixed(1)}" rx="2" fill="${cor}" stroke="${cor}"></rect>`
+        : `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="2" fill="${cor}"></rect>`;
+      return `${corpo}
         <text x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle" class="el-band-val">${nf.format(d.n)}</text>
         <text x="${(x + bw / 2).toFixed(1)}" y="${H - PAD.b + 15}" text-anchor="middle" class="el-band-axislabel">${esc(fmtMes(d.mes))}</text>`;
     }).join('');
@@ -1682,13 +1709,28 @@ const base = import.meta.env.BASE_URL;
     const capture = `<rect class="el-band-capture" x="0" y="0" width="${W}" height="${H}"></rect>`;
     box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('portfolio.eleicoes.chart_mes_aria', 'Pesquisas por mês de divulgação'))}">${tickEls}${bars}${baseline}${capture}</svg>`;
 
+    const nota = el('el-barchart-nota');
+    if (nota) {
+      const totAg = data.reduce((s, d) => s + Math.min(d.agendadas ?? 0, d.n), 0);
+      nota.hidden = totAg === 0;
+      nota.textContent = totAg === 0 ? '' : t(
+        'portfolio.eleicoes.chart_nota_agendadas',
+        'O trecho em traço aberto é pesquisa já registrada no TSE cuja divulgação o instituto agendou para os próximos dias — {n} no mês corrente. Ela conta como registro, mas ainda não foi ao ar.',
+      ).replace('{n}', nf.format(totAg));
+    }
+
     attachChartHover(box, el('el-barchart'), el('el-barchart-tip'), W, PAD.t, H - PAD.b,
       (vx) => Math.max(0, Math.min(data.length - 1, Math.floor((vx - PAD.l) / cw))),
       (idx) => {
         const d = data[idx]; if (!d) return null;
         const gx = PAD.l + idx * cw + cw / 2, isPeak = d.mes === peak;
         const head = `<div class="el-tip-head">${esc(fmtMesLong(d.mes))}</div>`;
-        const body = `<div class="el-tip-row${isPeak ? ' is-leader' : ''}"><span class="el-tip-name">${esc(t('portfolio.eleicoes.kpi_total', 'pesquisas'))}</span><span class="el-tip-val">${nf.format(d.n)}</span></div>`;
+        const agendadas = Math.min(d.agendadas ?? 0, d.n);
+        let body = `<div class="el-tip-row${isPeak ? ' is-leader' : ''}"><span class="el-tip-name">${esc(t('portfolio.eleicoes.kpi_total', 'pesquisas'))}</span><span class="el-tip-val">${nf.format(d.n)}</span></div>`;
+        if (agendadas > 0) {
+          body += `<div class="el-tip-row"><span class="el-tip-name">${esc(t('portfolio.eleicoes.chart_divulgadas', 'já divulgadas'))}</span><span class="el-tip-val">${nf.format(d.n - agendadas)}</span></div>`
+            + `<div class="el-tip-row"><span class="el-tip-name">${esc(t('portfolio.eleicoes.chart_agendadas', 'divulgação agendada'))}</span><span class="el-tip-val">${nf.format(agendadas)}</span></div>`;
+        }
         return { gx, dots: [{ x: gx, y: yAt(d.n), color: isPeak ? 'var(--wc-gold-ink)' : 'var(--ink-soft)' }], html: head + body };
       });
   }
@@ -2726,13 +2768,21 @@ const base = import.meta.env.BASE_URL;
     if (arrBox) arrBox.innerHTML = arr.length ? arr.map((c, i) => itemHTML(c, c.receitas_total_rs, i === 0)).join('') : semComparaveis;
     if (gasBox) gasBox.innerHTML = gas.length ? gas.map((c) => itemHTML(c, c.despesas_total_rs, false)).join('') : semComparaveis;
 
-    if (tbody) tbody.innerHTML = cands.map((c) => `<tr>
+    // Campanha sem lançamento no relatório ainda não declarou — que é
+    // diferente de ter arrecadado ou gasto R$ 0. Exibir "R$ 0" nesse caso
+    // afirma um fato que o dado não sustenta.
+    const naoDeclarado = `<span class="el-prest-nd mono-label">${esc(t('portfolio.eleicoes.prest_nao_declarado', 'não declarado'))}</span>`;
+    const cell = (valor: number, n: number): string => (n > 0 ? esc(fmtRS(valor)) : naoDeclarado);
+    if (tbody) tbody.innerHTML = cands.map((c) => {
+      const semNada = !c.n_doacoes && !c.n_despesas;
+      return `<tr>
         <td>${esc(c.nome_urna)}</td>
         <td class="mono-label">${esc(c.cargo.toLowerCase())} · ${esc(c.uf)}</td>
-        <td>${esc(fmtRS(c.receitas_total_rs))}</td>
-        <td>${esc(fmtRS(c.despesas_total_rs))}</td>
-        <td class="${c.saldo_rs < 0 ? 'el-patr-var--down' : ''}">${esc(fmtRS(c.saldo_rs))}</td>
-      </tr>`).join('');
+        <td>${cell(c.receitas_total_rs, c.n_doacoes)}</td>
+        <td>${cell(c.despesas_total_rs, c.n_despesas)}</td>
+        <td class="${c.saldo_rs < 0 ? 'el-patr-var--down' : ''}">${semNada ? naoDeclarado : esc(fmtRS(c.saldo_rs))}</td>
+      </tr>`;
+    }).join('');
     if (nota) nota.textContent = `${p.metodologia ?? ''} ${p.disclaimer ?? ''}`.trim();
   }
 

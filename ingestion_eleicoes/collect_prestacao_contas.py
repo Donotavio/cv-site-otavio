@@ -49,6 +49,7 @@ from ingestion_eleicoes.tse_dados_abertos import (  # noqa: E402
     RECEITAS_COLUNAS,
     baixar_zip_csv_brasil,
     col,
+    lancamento_vazio,
     valor_num,
 )
 
@@ -143,7 +144,11 @@ def _receitas_por_sq(sqs_interesse: set[str]) -> dict[str, dict]:
         if sq not in sqs_interesse:
             continue
         valor = valor_num(row.get(RECEITAS_COLUNAS["valor"]))
-        origem = col(row, RECEITAS_COLUNAS, "origem") or "não informado"
+        origem_raw = col(row, RECEITAS_COLUNAS, "origem")
+        # Relatório entregue sem receita a declarar não é uma doação de R$ 0.
+        if lancamento_vazio(valor, origem_raw):
+            continue
+        origem = origem_raw or "não informado"
         d = out[sq]
         d["total"] += valor
         d["n"] += 1
@@ -184,7 +189,11 @@ def _despesas_por_sq(sqs_interesse: set[str]) -> dict[str, tuple[float, int]]:
         sq = col(row, DESPESAS_COLUNAS, "sq_candidato")
         if sq not in sqs_interesse:
             continue
-        totais[sq] += valor_num(row.get(DESPESAS_COLUNAS["valor"]))
+        valor = valor_num(row.get(DESPESAS_COLUNAS["valor"]))
+        # Relatório entregue sem despesa a declarar não é um gasto de R$ 0.
+        if lancamento_vazio(valor, col(row, DESPESAS_COLUNAS, "tipo")):
+            continue
+        totais[sq] += valor
         contagem[sq] += 1
     return {sq: (totais[sq], contagem[sq]) for sq in totais}
 
