@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-08-22T23:39:56.327553+00:00",
+  "gerado_em": "2026-08-23T00:41:56.837675+00:00",
   "metodologia": "Soma as receitas declaradas (doações, recursos próprios, Fundo Eleitoral/partidário) e as despesas contratadas de cada candidato a presidente ou governador — fonte: TSE, Portal de Dados Abertos, dataset Prestação de Contas Eleitorais. Usa 'despesas contratadas' porque o arquivo de despesas pagas do TSE não identifica o candidato. Os valores são cumulativos e crescem a cada relatório financeiro enviado durante a campanha.",
   "disclaimer": "Valores autodeclarados pela própria campanha, ainda sem julgamento das contas pela Justiça Eleitoral. O TSE republica os relatórios financeiros ao longo da campanha, então o total sobe com o tempo — o retrato é da última coleta, não o gasto final (prestação parcial até 2026-09-13, final até 2026-11-03). O confronto doador × Receita Federal usa o nome que o próprio TSE publica para o CPF/CNPJ ao lado do declarado pela campanha; divergência aqui indica cadastro desatualizado ou grafia diferente, não irregularidade.",
   "fontes": [
@@ -3490,6 +3490,154 @@
         }
       ],
       "doador_rfb_divergencias": []
+    }
+  ],
+  "despesas_categorias": [
+    {
+      "categoria": "Produção de programas de rádio, televisão ou vídeo",
+      "valor_rs": 1522000.0,
+      "n": 9,
+      "pct": 26.7
+    },
+    {
+      "categoria": "Serviços prestados por terceiros",
+      "valor_rs": 1319067.5,
+      "n": 37,
+      "pct": 23.1
+    },
+    {
+      "categoria": "Despesa com Impulsionamento de Conteúdos",
+      "valor_rs": 498996.99,
+      "n": 41,
+      "pct": 8.7
+    },
+    {
+      "categoria": "Publicidade por adesivos",
+      "valor_rs": 470400.0,
+      "n": 12,
+      "pct": 8.2
+    },
+    {
+      "categoria": "Serviços contábeis",
+      "valor_rs": 320000.0,
+      "n": 2,
+      "pct": 5.6
+    },
+    {
+      "categoria": "Locação/cessão de bens imóveis",
+      "valor_rs": 286000.0,
+      "n": 5,
+      "pct": 5.0
+    },
+    {
+      "categoria": "Pesquisas ou testes eleitorais",
+      "valor_rs": 259000.0,
+      "n": 1,
+      "pct": 4.5
+    },
+    {
+      "categoria": "Serviços advocatícios",
+      "valor_rs": 226000.0,
+      "n": 4,
+      "pct": 4.0
+    },
+    {
+      "categoria": "Outras",
+      "valor_rs": 807150.68,
+      "n": 73,
+      "pct": 14.1
+    }
+  ],
+  "top_fornecedores": [
+    {
+      "nome": "MXM GRAFICA E EMBALAGENS LTDA",
+      "uf": "",
+      "valor_rs": 546000.0,
+      "n_despesas": 11,
+      "n_candidatos": 1
+    },
+    {
+      "nome": "ESTUDIO 66 LTDA",
+      "uf": "",
+      "valor_rs": 500000.0,
+      "n_despesas": 1,
+      "n_candidatos": 1
+    },
+    {
+      "nome": "JADER RODOLPHO FINAMORE 30112218806",
+      "uf": "",
+      "valor_rs": 495000.0,
+      "n_despesas": 1,
+      "n_candidatos": 1
+    },
+    {
+      "nome": "REFRAME IT CONSULTORIA E INTERMEDIACAO LTDA",
+      "uf": "",
+      "valor_rs": 350000.0,
+      "n_despesas": 1,
+      "n_candidatos": 1
+    },
+    {
+      "nome": "NUCLEO ESTRATEGICO DE PESQUISA LTDA.",
+      "uf": "",
+      "valor_rs": 259000.0,
+      "n_despesas": 1,
+      "n_candidatos": 1
+    },
+    {
+      "nome": "FACEBOOK SERVICOS ONLINE DO BRASIL LTDA.",
+      "uf": "",
+      "valor_rs": 228996.99,
+      "n_despesas": 21,
+      "n_candidatos": 7
+    },
+    {
+      "nome": "GS CONTADORES ASSOCIADOS LTDA",
+      "uf": "",
+      "valor_rs": 220000.0,
+      "n_despesas": 1,
+      "n_candidatos": 1
+    },
+    {
+      "nome": "DLOCAL BRASIL INSTITUICAO DE PAGAMENTO S.A.",
+      "uf": "",
+      "valor_rs": 185000.0,
+      "n_despesas": 18,
+      "n_candidatos": 4
+    }
+  ],
+  "nota_fornecedores": "O ranking de fornecedores agrega por CNPJ e considera apenas pessoa jurídica. Fornecedor pessoa física não é destacado nominalmente pelo painel — não é figura pública —, mas seu valor segue contado nos totais por candidato e por categoria.",
+  "cnae_cobertura_pct": 92.3,
+  "gastos_por_cnae": [
+    {
+      "setor": "Fabricação de embalagens de papel",
+      "valor_rs": 546000.0,
+      "pct": 9.6
+    },
+    {
+      "setor": "Atividades de produção cinematográfica, de vídeos e de programas de televisão",
+      "valor_rs": 500000.0,
+      "pct": 8.8
+    },
+    {
+      "setor": "Artes cênicas, espetáculos e atividades complementares",
+      "valor_rs": 495000.0,
+      "pct": 8.7
+    },
+    {
+      "setor": "Atividades profissionais, científicas e técnicas não especificadas anteriormente",
+      "valor_rs": 383240.7,
+      "pct": 6.7
+    },
+    {
+      "setor": "Portais, provedores de conteúdo e outros serviços de informação na Internet",
+      "valor_rs": 363083.0,
+      "pct": 6.4
+    },
+    {
+      "setor": "Atividades de pós-produção cinematográfica, de vídeos e de programas de televisão",
+      "valor_rs": 315000.0,
+      "pct": 5.5
     }
   ]
 }

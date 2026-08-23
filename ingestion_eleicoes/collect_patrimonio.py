@@ -11,7 +11,9 @@ Uso:
 
 Saída:
     data/bronze/eleicoes_patrimonio/patrimonio_{YYYY}_{MM}_{DD}.parquet
-    (schema: cpf, nome_urna, cargo, uf, partido, ano, patrimonio_total_rs, n_bens)
+    (schema: cpf, nome_urna, cargo, uf, partido, ano, patrimonio_total_rs, n_bens,
+     tipos_breakdown [json: composição por DS_TIPO_BEM_CANDIDATO, rótulo cru do
+     TSE — o agrupamento em categorias legíveis é papel do gold])
 
 Fail-soft: mesmo bloqueio de rede do consulta_cand/bem_candidato descrito em
 tse_dados_abertos.py — falha de download em qualquer um dos 4 arquivos (2
@@ -21,6 +23,7 @@ simplesmente não aparece no bronze.
 
 from __future__ import annotations
 
+import json
 import sys
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -42,6 +45,7 @@ from ingestion_eleicoes.tse_dados_abertos import (  # noqa: E402
     CAND_COLUNAS,
     baixar_zip_csv_brasil,
     col,
+    lancamento_vazio,
     valor_num,
 )
 
@@ -59,23 +63,39 @@ def _candidatos_do_ano(ano: int) -> list[dict]:
     return [row for row in linhas if col(row, CAND_COLUNAS, "cargo").upper() in CARGOS_ROSTER_PAINEL]
 
 
-def _patrimonio_por_sq(ano: int, sqs_interesse: set[str]) -> dict[str, tuple[float, int]]:
-    """{SQ_CANDIDATO: (valor_total, n_bens)} só para os sequenciais de interesse."""
+def _patrimonio_por_sq(ano: int, sqs_interesse: set[str]) -> dict[str, dict]:
+    """{SQ_CANDIDATO: {"total": R$, "n": n_bens, "tipos": {tipo: [R$, n]}}}.
+
+    `total`/`n` mantêm a semântica original (toda linha do CSV conta). O
+    breakdown `tipos` é aditivo e guarda o rótulo CRU de DS_TIPO_BEM_CANDIDATO
+    — o agrupamento em categorias legíveis fica no gold. Nele aplicamos o
+    mesmo filtro de linha-placeholder da prestação de contas
+    (`lancamento_vazio`): registro de R$ 0,00 com tipo '#NULO' não é um bem.
+    """
     url = TSE_BEM_CANDIDATO_ZIP_URL_FMT.format(ano=ano)
     linhas = baixar_zip_csv_brasil(
         url, TSE_BEM_CANDIDATO_SUFIXO_BRASIL, f"bem_candidato {ano} (patrimônio)", colunas=BEM_COLUNAS
     )
     if linhas is None:
         return {}
-    totais: dict[str, float] = defaultdict(float)
-    contagem: dict[str, int] = defaultdict(int)
+    out: dict[str, dict] = defaultdict(
+        lambda: {"total": 0.0, "n": 0, "tipos": defaultdict(lambda: [0.0, 0])}
+    )
     for row in linhas:
         sq = col(row, BEM_COLUNAS, "sq_candidato")
         if sq not in sqs_interesse:
             continue
-        totais[sq] += valor_num(row.get(BEM_COLUNAS["valor"]))
-        contagem[sq] += 1
-    return {sq: (totais[sq], contagem[sq]) for sq in totais}
+        valor = valor_num(row.get(BEM_COLUNAS["valor"]))
+        d = out[sq]
+        d["total"] += valor
+        d["n"] += 1
+        tipo = col(row, BEM_COLUNAS, "tipo_bem")
+        if lancamento_vazio(valor, tipo):
+            continue
+        t = d["tipos"][tipo or "não informado"]
+        t[0] += valor
+        t[1] += 1
+    return dict(out)
 
 
 def _coletar_ano(ano: int) -> list[dict]:
@@ -89,7 +109,15 @@ def _coletar_ano(ano: int) -> list[dict]:
     rows: list[dict] = []
     for c in candidatos:
         sq = col(c, CAND_COLUNAS, "sq_candidato")
-        valor, n_bens = patrimonio.get(sq, (0.0, 0))
+        info = patrimonio.get(sq) or {"total": 0.0, "n": 0, "tipos": {}}
+        tipos_breakdown = sorted(
+            (
+                {"tipo": tipo, "valor_rs": round(v, 2), "n": n}
+                for tipo, (v, n) in info["tipos"].items()
+            ),
+            key=lambda x: x["valor_rs"],
+            reverse=True,
+        )
         rows.append(
             {
                 "ano": ano,
@@ -100,8 +128,9 @@ def _coletar_ano(ano: int) -> list[dict]:
                 "cargo": col(c, CAND_COLUNAS, "cargo"),
                 "uf": col(c, CAND_COLUNAS, "uf"),
                 "partido": col(c, CAND_COLUNAS, "partido"),
-                "patrimonio_total_rs": valor,
-                "n_bens": n_bens,
+                "patrimonio_total_rs": info["total"],
+                "n_bens": info["n"],
+                "tipos_breakdown": json.dumps(tipos_breakdown, ensure_ascii=False),
             }
         )
     return rows

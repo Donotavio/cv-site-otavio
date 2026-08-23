@@ -13,7 +13,12 @@ Saída:
     data/bronze/eleicoes_prestacao_contas/prestacao_contas_{YYYY}_{MM}_{DD}.parquet
     (schema: sq_candidato, cpf, nome_urna, cargo, uf, partido,
      receitas_total_rs, despesas_total_rs, n_doacoes,
-     origem_breakdown [json], doador_rfb_divergencias [json])
+     origem_breakdown [json], doador_rfb_divergencias [json],
+     despesa_categorias [json: DS_ORIGEM_DESPESA por candidato],
+     fornecedores_pj [json: só pessoa jurídica, agregado por CNPJ],
+     cnae_breakdown [json: DS_CNAE_FORNECEDOR por candidato] —
+     os três guardam a lista COMPLETA por candidato; top-N e agregado do
+     roster são papel do gold)
 
 SEM DADO REAL até o prazo da prestação de contas parcial
 (PRESTACAO_PRAZO_PARCIAL, ver catalog.py) — antes disso o candidato nem
@@ -47,6 +52,7 @@ from ingestion_eleicoes.tse_dados_abertos import (  # noqa: E402
     CAND_COLUNAS,
     DESPESAS_COLUNAS,
     RECEITAS_COLUNAS,
+    TSE_MARCADORES_NULOS,
     baixar_zip_csv_brasil,
     col,
     lancamento_vazio,
@@ -175,16 +181,53 @@ def _receitas_por_sq(sqs_interesse: set[str]) -> dict[str, dict]:
     return out
 
 
-def _despesas_por_sq(sqs_interesse: set[str]) -> dict[str, tuple[float, int]]:
-    """{SQ_CANDIDATO: (total_pago, n_despesas)}"""
+def _texto_limpo(raw: str) -> str:
+    """Texto do TSE sem os marcadores de campo vazio ('#NULO' → '')."""
+    texto = (raw or "").strip()
+    return "" if texto.upper() in TSE_MARCADORES_NULOS else texto
+
+
+def _apenas_digitos(raw: str) -> str:
+    return re.sub(r"\D", "", raw or "")
+
+
+def _fornecedor_pj(cnpj_digits: str, tipo_fornecedor: str) -> bool:
+    """Pessoa jurídica: CNPJ tem 14 dígitos (CPF tem 11); DS_TIPO_FORNECEDOR
+    confirma como fallback quando o número vier truncado/mascarado."""
+    if len(cnpj_digits) == 14:
+        return True
+    return "JURIDICA" in _normalizar_nome(tipo_fornecedor)
+
+
+def _despesas_por_sq(sqs_interesse: set[str]) -> dict[str, dict]:
+    """{SQ_CANDIDATO: {"total", "n", "categorias", "fornecedores_pj", "cnae"}}.
+
+    `total`/`n` mantêm a semântica original. Os três breakdowns são aditivos e
+    passam pelo MESMO filtro `lancamento_vazio` do total (linha-placeholder de
+    relatório sem movimento não é despesa em nenhum agregado):
+      categorias      {DS_ORIGEM_DESPESA: [valor, n]}
+      fornecedores_pj {cnpj: {nome, nome_rfb, uf, valor, n}} — SÓ pessoa
+                      jurídica; fornecedor pessoa física não é destacado
+                      nominalmente pelo painel (recorte editorial), embora o
+                      valor siga contado em total/categorias/cnae.
+      cnae            {DS_CNAE_FORNECEDOR: [valor, n]} — só linhas com CNAE
+                      preenchido; a cobertura é medida no gold.
+    """
     url = TSE_PRESTACAO_CONTAS_ZIP_URL_FMT.format(ano=PRESTACAO_ANO)
     sufixo = TSE_DESPESAS_SUFIXO_BRASIL.format(ano=PRESTACAO_ANO)
     linhas = baixar_zip_csv_brasil(url, sufixo, "despesas_contratadas (prestação de contas)", colunas=DESPESAS_COLUNAS)
     if linhas is None:
         return {}
 
-    totais: dict[str, float] = defaultdict(float)
-    contagem: dict[str, int] = defaultdict(int)
+    out: dict[str, dict] = defaultdict(
+        lambda: {
+            "total": 0.0,
+            "n": 0,
+            "categorias": defaultdict(lambda: [0.0, 0]),
+            "fornecedores_pj": {},
+            "cnae": defaultdict(lambda: [0.0, 0]),
+        }
+    )
     for row in linhas:
         sq = col(row, DESPESAS_COLUNAS, "sq_candidato")
         if sq not in sqs_interesse:
@@ -193,9 +236,35 @@ def _despesas_por_sq(sqs_interesse: set[str]) -> dict[str, tuple[float, int]]:
         # Relatório entregue sem despesa a declarar não é um gasto de R$ 0.
         if lancamento_vazio(valor, col(row, DESPESAS_COLUNAS, "tipo")):
             continue
-        totais[sq] += valor
-        contagem[sq] += 1
-    return {sq: (totais[sq], contagem[sq]) for sq in totais}
+        d = out[sq]
+        d["total"] += valor
+        d["n"] += 1
+
+        origem = _texto_limpo(col(row, DESPESAS_COLUNAS, "origem")) or "não informada"
+        c = d["categorias"][origem]
+        c[0] += valor
+        c[1] += 1
+
+        cnpj = _apenas_digitos(col(row, DESPESAS_COLUNAS, "cpf_cnpj_fornecedor"))
+        if cnpj and _fornecedor_pj(cnpj, col(row, DESPESAS_COLUNAS, "tipo_fornecedor")):
+            f = d["fornecedores_pj"].setdefault(
+                cnpj, {"nome": "", "nome_rfb": "", "uf": "", "valor": 0.0, "n": 0}
+            )
+            f["valor"] += valor
+            f["n"] += 1
+            if not f["nome"]:
+                f["nome"] = _texto_limpo(col(row, DESPESAS_COLUNAS, "nome_fornecedor"))
+            if not f["nome_rfb"]:
+                f["nome_rfb"] = _texto_limpo(col(row, DESPESAS_COLUNAS, "nome_fornecedor_rfb"))
+            if not f["uf"]:
+                f["uf"] = _texto_limpo(col(row, DESPESAS_COLUNAS, "uf_fornecedor"))
+
+        cnae = _texto_limpo(col(row, DESPESAS_COLUNAS, "cnae_fornecedor"))
+        if cnae:
+            k = d["cnae"][cnae]
+            k[0] += valor
+            k[1] += 1
+    return dict(out)
 
 
 def _coletar() -> list[dict]:
@@ -212,7 +281,7 @@ def _coletar() -> list[dict]:
     for c in candidatos:
         sq = col(c, CAND_COLUNAS, "sq_candidato")
         r = receitas.get(sq)
-        desp_total, n_desp = despesas.get(sq, (0.0, 0))
+        d = despesas.get(sq)
 
         origem_breakdown: list[dict] = []
         divergencias: list[dict] = []
@@ -224,6 +293,36 @@ def _coletar() -> list[dict]:
             top = sorted(r["origens"].items(), key=lambda kv: kv[1][0], reverse=True)[:TOP_ORIGENS]
             origem_breakdown = [{"origem": o, "valor_rs": round(v, 2), "n": n} for o, (v, n) in top]
             divergencias = sorted(r["divergencias"], key=lambda x: x["valor_rs"], reverse=True)[:TOP_DIVERGENCIAS]
+
+        desp_total = 0.0
+        n_desp = 0
+        despesa_categorias: list[dict] = []
+        fornecedores_pj: list[dict] = []
+        cnae_breakdown: list[dict] = []
+        if d is not None:
+            desp_total = d["total"]
+            n_desp = d["n"]
+            despesa_categorias = [
+                {"categoria": cat, "valor_rs": round(v, 2), "n": n}
+                for cat, (v, n) in sorted(d["categorias"].items(), key=lambda kv: kv[1][0], reverse=True)
+            ]
+            fornecedores_pj = [
+                {
+                    "cnpj": cnpj,
+                    "nome": f["nome"],
+                    "nome_rfb": f["nome_rfb"],
+                    "uf": f["uf"],
+                    "valor_rs": round(f["valor"], 2),
+                    "n": f["n"],
+                }
+                for cnpj, f in sorted(
+                    d["fornecedores_pj"].items(), key=lambda kv: kv[1]["valor"], reverse=True
+                )
+            ]
+            cnae_breakdown = [
+                {"cnae": cnae, "valor_rs": round(v, 2), "n": n}
+                for cnae, (v, n) in sorted(d["cnae"].items(), key=lambda kv: kv[1][0], reverse=True)
+            ]
 
         rows.append(
             {
@@ -239,6 +338,9 @@ def _coletar() -> list[dict]:
                 "n_despesas": n_desp,
                 "origem_breakdown": json.dumps(origem_breakdown, ensure_ascii=False),
                 "doador_rfb_divergencias": json.dumps(divergencias, ensure_ascii=False),
+                "despesa_categorias": json.dumps(despesa_categorias, ensure_ascii=False),
+                "fornecedores_pj": json.dumps(fornecedores_pj, ensure_ascii=False),
+                "cnae_breakdown": json.dumps(cnae_breakdown, ensure_ascii=False),
             }
         )
     return rows

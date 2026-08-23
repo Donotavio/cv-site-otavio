@@ -1,7 +1,7 @@
 {
-  "gerado_em": "2026-08-22T22:49:38.393435+00:00",
-  "metodologia": "Soma o valor declarado de todos os bens de cada candidato (imóveis, veículos, aplicações financeiras, participação societária etc.) no registro de candidatura — fonte: TSE, Portal de Dados Abertos, dataset Candidatos. Compara a declaração de 2026 com a de 2022 do mesmo candidato (join por CPF). Não é patrimônio real nem auditado — é o valor autodeclarado; a Justiça Eleitoral não confere com a Receita Federal publicamente (dado de pessoa física é sigilo fiscal, sem API pública).",
-  "disclaimer": "Valor autodeclarado pelo próprio candidato, sem auditoria pública. Ausência de bem declarado não significa ausência de patrimônio. Comparação só é possível para quem também foi candidato em 2022.",
+  "gerado_em": "2026-08-23T00:39:51.252396+00:00",
+  "metodologia": "Soma o valor declarado de todos os bens de cada candidato (imóveis, veículos, aplicações financeiras, participação societária etc.) no registro de candidatura — fonte: TSE, Portal de Dados Abertos, dataset Candidatos. Compara a declaração de 2026 com a de 2022 do mesmo candidato (join por CPF). Não é patrimônio real nem auditado — é o valor autodeclarado; a Justiça Eleitoral não confere com a Receita Federal publicamente (dado de pessoa física é sigilo fiscal, sem API pública). A composição por tipo de bem agrupa a categoria declarada ao TSE (DS_TIPO_BEM_CANDIDATO) em famílias legíveis — imóveis, veículos, aplicações financeiras etc.",
+  "disclaimer": "Valor autodeclarado pelo próprio candidato, sem auditoria pública. Ausência de bem declarado não significa ausência de patrimônio. Comparação só é possível para quem também foi candidato em 2022. A composição usa o valor de aquisição autodeclarado de cada bem — o TSE não corrige pela inflação nem reavalia a preço de mercado.",
   "fontes": [
     {
       "label": "TSE · Portal de Dados Abertos — Candidatos (bens)",
@@ -20,6 +20,20 @@
       "partido": "REPUBLICANOS",
       "patrimonio_2026_rs": 575680870.95,
       "n_bens_2026": 22,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 573100533.4
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 1459290.17
+        },
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 1070500.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -29,6 +43,20 @@
       "partido": "AVANTE",
       "patrimonio_2026_rs": 242281162.52,
       "n_bens_2026": 56,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 125495623.95
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 54780522.07
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 39243068.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -38,6 +66,20 @@
       "partido": "NOVO",
       "patrimonio_2026_rs": 178707610.09,
       "n_bens_2026": 18,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 115444343.16
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 62478539.48
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 774864.25
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 129795313.7,
       "variacao_pct": 37.7
@@ -49,6 +91,20 @@
       "partido": "PRTB",
       "patrimonio_2026_rs": 149986151.74,
       "n_bens_2026": 43,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 142663254.05
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 6026910.33
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 1295890.26
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 96942541.15,
       "variacao_pct": 54.7
@@ -60,6 +116,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 118473769.48,
       "n_bens_2026": 27,
+      "tipos_top": [
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 92049602.08
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 15637902.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 5444036.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -69,6 +139,20 @@
       "partido": "UNIÃO",
       "patrimonio_2026_rs": 84888809.63,
       "n_bens_2026": 44,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 52035890.43
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 14640395.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 8924646.68
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 41718572.69,
       "variacao_pct": 103.5
@@ -80,6 +164,12 @@
       "partido": "PL",
       "patrimonio_2026_rs": 65160903.35,
       "n_bens_2026": 10,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 65160903.35
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -89,6 +179,20 @@
       "partido": "NOVO",
       "patrimonio_2026_rs": 54458902.0,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 53375000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 780000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 303902.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -98,6 +202,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 52557930.98,
       "n_bens_2026": 14,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 36567064.96
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 10489480.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 4292156.74
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 24874436.19,
       "variacao_pct": 111.3
@@ -109,6 +227,12 @@
       "partido": "DEMOCRATA",
       "patrimonio_2026_rs": 50000000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 50000000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -118,6 +242,20 @@
       "partido": "NOVO",
       "patrimonio_2026_rs": 47383036.13,
       "n_bens_2026": 25,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 29670679.19
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 11316397.97
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 3442000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -127,6 +265,20 @@
       "partido": "UNIÃO",
       "patrimonio_2026_rs": 30330625.02,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 26862310.37
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 3150529.65
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 317785.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -136,6 +288,20 @@
       "partido": "MOBILIZA",
       "patrimonio_2026_rs": 27695000.0,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 15045000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 10000000.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 2500000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -145,6 +311,20 @@
       "partido": "MDB",
       "patrimonio_2026_rs": 27668789.55,
       "n_bens_2026": 31,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 16974903.71
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 7183635.61
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 3169799.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -154,6 +334,20 @@
       "partido": "PP",
       "patrimonio_2026_rs": 16147849.34,
       "n_bens_2026": 17,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 14334222.42
+        },
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 624344.36
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 565590.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 20744288.42,
       "variacao_pct": -22.2
@@ -165,6 +359,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 13350362.21,
       "n_bens_2026": 25,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 8472304.14
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 2250000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 1921788.66
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -174,6 +382,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 13132463.0,
       "n_bens_2026": 28,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 6379200.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 3356483.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 1742800.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -183,6 +405,20 @@
       "partido": "PSDB",
       "patrimonio_2026_rs": 11876815.71,
       "n_bens_2026": 24,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 5621312.78
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 3901507.79
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 2134093.14
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -192,6 +428,20 @@
       "partido": "PSDB",
       "patrimonio_2026_rs": 10844220.79,
       "n_bens_2026": 4,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 5307200.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 2989385.26
+        },
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 2292635.53
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -201,6 +451,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 9615406.23,
       "n_bens_2026": 21,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 5201300.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 2759743.94
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 721875.95
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -210,6 +474,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 8186555.83,
       "n_bens_2026": 9,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 6226043.8
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 1202532.8
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 568730.23
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -219,6 +497,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 7344667.74,
       "n_bens_2026": 23,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 3591075.84
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 2309449.73
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1101399.26
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -228,6 +520,20 @@
       "partido": "PDT",
       "patrimonio_2026_rs": 5941176.84,
       "n_bens_2026": 42,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 3126754.56
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 1435959.23
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 580896.17
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 3652820.88,
       "variacao_pct": 62.6
@@ -239,6 +545,20 @@
       "partido": "MDB",
       "patrimonio_2026_rs": 5627385.99,
       "n_bens_2026": 15,
+      "tipos_top": [
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 2607582.6
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1439265.57
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 903000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -248,6 +568,20 @@
       "partido": "REPUBLICANOS",
       "patrimonio_2026_rs": 5244567.72,
       "n_bens_2026": 25,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 3455898.56
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1319000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 306686.82
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -257,6 +591,12 @@
       "partido": "PT",
       "patrimonio_2026_rs": 5208193.72,
       "n_bens_2026": 5,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 5208193.72
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -266,6 +606,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 4775650.64,
       "n_bens_2026": 18,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 3701457.09
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 739223.52
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 179298.96
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 7423725.78,
       "variacao_pct": -35.7
@@ -277,6 +631,20 @@
       "partido": "PODE",
       "patrimonio_2026_rs": 4753760.8,
       "n_bens_2026": 10,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 4150760.8
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 391000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 112000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -286,6 +654,16 @@
       "partido": "PRTB",
       "patrimonio_2026_rs": 4380000.0,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 4300000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 80000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -295,6 +673,20 @@
       "partido": "UNIÃO",
       "patrimonio_2026_rs": 4285400.8,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 3838289.9
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 275105.97
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 172004.93
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -304,6 +696,20 @@
       "partido": "PSDB",
       "patrimonio_2026_rs": 3983398.0,
       "n_bens_2026": 10,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 2380000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 713000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 493905.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -313,6 +719,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 3670880.45,
       "n_bens_2026": 30,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 1742763.39
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1532662.8
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 203080.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -322,6 +742,20 @@
       "partido": "PSB",
       "patrimonio_2026_rs": 3631297.68,
       "n_bens_2026": 18,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1885000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 710000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 500000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -331,6 +765,20 @@
       "partido": "PRTB",
       "patrimonio_2026_rs": 3557270.39,
       "n_bens_2026": 19,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 1975383.65
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 532300.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 453591.64
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -340,6 +788,20 @@
       "partido": "MDB",
       "patrimonio_2026_rs": 2936485.0,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1569500.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 986985.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 200000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -349,6 +811,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 2917179.51,
       "n_bens_2026": 14,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 2492552.05
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 198846.72
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 140000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -358,6 +834,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 2904492.23,
       "n_bens_2026": 28,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 2008661.29
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 675953.56
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 157701.58
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -367,6 +857,20 @@
       "partido": "PSB",
       "patrimonio_2026_rs": 2892723.46,
       "n_bens_2026": 5,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 2751926.66
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 100000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 40796.8
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -376,6 +880,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 2818036.89,
       "n_bens_2026": 11,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 1688000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 419283.13
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 380828.68
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 2414260.41,
       "variacao_pct": 16.7
@@ -387,6 +905,16 @@
       "partido": "REPUBLICANOS",
       "patrimonio_2026_rs": 2696808.4,
       "n_bens_2026": 4,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 2137160.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 559648.4
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 2342161.77,
       "variacao_pct": 15.1
@@ -398,6 +926,20 @@
       "partido": "DEMOCRATA",
       "patrimonio_2026_rs": 2590509.25,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1689000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 761402.32
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 136789.93
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -407,6 +949,20 @@
       "partido": "MDB",
       "patrimonio_2026_rs": 2517809.94,
       "n_bens_2026": 22,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1416763.62
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 306260.06
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 303740.31
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -416,6 +972,20 @@
       "partido": "MDB",
       "patrimonio_2026_rs": 2515192.39,
       "n_bens_2026": 9,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 1312197.62
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 590000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 381071.75
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -425,6 +995,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 2376169.92,
       "n_bens_2026": 9,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1070000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 1025521.2
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 238259.64
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 2327000.0,
       "variacao_pct": 2.1
@@ -436,6 +1020,20 @@
       "partido": "UNIÃO",
       "patrimonio_2026_rs": 2352740.28,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1555513.69
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 475880.59
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 321346.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -445,6 +1043,20 @@
       "partido": "PSDB",
       "patrimonio_2026_rs": 2244732.19,
       "n_bens_2026": 8,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1550776.57
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 524567.6
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 70000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -454,6 +1066,16 @@
       "partido": "PSOL",
       "patrimonio_2026_rs": 2194367.82,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 2088700.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 105667.82
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -463,6 +1085,16 @@
       "partido": "MOBILIZA",
       "patrimonio_2026_rs": 2159005.73,
       "n_bens_2026": 4,
+      "tipos_top": [
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 2150000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 9005.73
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -472,6 +1104,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 2122223.43,
       "n_bens_2026": 8,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 1920060.0
+        },
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 156157.29
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 31426.76
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -481,6 +1127,16 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 2070608.0,
       "n_bens_2026": 5,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 1080474.61
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 990133.39
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -490,6 +1146,20 @@
       "partido": "REPUBLICANOS",
       "patrimonio_2026_rs": 1930000.0,
       "n_bens_2026": 5,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1500000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 360000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 70000.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 1935000.0,
       "variacao_pct": -0.3
@@ -501,6 +1171,20 @@
       "partido": "PDT",
       "patrimonio_2026_rs": 1876342.14,
       "n_bens_2026": 11,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1450000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 348648.0
+        },
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 49261.26
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -510,6 +1194,20 @@
       "partido": "UP",
       "patrimonio_2026_rs": 1867106.94,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 906760.46
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 872651.48
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 57695.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -519,6 +1217,20 @@
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 1831261.11,
       "n_bens_2026": 5,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 951500.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 566761.11
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 313000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -528,6 +1240,20 @@
       "partido": "DC",
       "patrimonio_2026_rs": 1820760.17,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1444602.39
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 376006.08
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 151.7
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -537,6 +1263,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 1799948.6,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 950000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 560000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 202374.37
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 1649200.0,
       "variacao_pct": 9.1
@@ -548,6 +1288,20 @@
       "partido": "MDB",
       "patrimonio_2026_rs": 1785449.87,
       "n_bens_2026": 8,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 859000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 389209.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 269317.37
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -557,6 +1311,20 @@
       "partido": "PSDB",
       "patrimonio_2026_rs": 1756648.94,
       "n_bens_2026": 11,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1270578.55
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 190000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 179771.22
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 3039761.97,
       "variacao_pct": -42.2
@@ -568,6 +1336,20 @@
       "partido": "MDB",
       "patrimonio_2026_rs": 1702153.88,
       "n_bens_2026": 33,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1328332.88
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 307331.44
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 35000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -577,6 +1359,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 1698945.66,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1093287.17
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 480990.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 74546.79
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 1248575.87,
       "variacao_pct": 36.1
@@ -588,6 +1384,20 @@
       "partido": "PP",
       "patrimonio_2026_rs": 1688256.2,
       "n_bens_2026": 10,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1280000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 350800.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 31893.97
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -597,6 +1407,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 1682784.38,
       "n_bens_2026": 9,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 937432.66
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 549295.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 164115.73
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -606,6 +1430,20 @@
       "partido": "MDB",
       "patrimonio_2026_rs": 1670461.0,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 900000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 480000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 190000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -615,6 +1453,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 1667125.53,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1013076.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 273000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 230686.6
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -624,6 +1476,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 1665086.74,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1165000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 500000.0
+        },
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 86.74
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -633,6 +1499,16 @@
       "partido": "REDE",
       "patrimonio_2026_rs": 1657000.0,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1500000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 157000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -642,6 +1518,20 @@
       "partido": "PRD",
       "patrimonio_2026_rs": 1596431.07,
       "n_bens_2026": 9,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1252476.97
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 217000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 124412.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -651,6 +1541,16 @@
       "partido": "NOVO",
       "patrimonio_2026_rs": 1592808.0,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 802808.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 790000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -660,6 +1560,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 1467687.88,
       "n_bens_2026": 18,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 699685.88
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 525000.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 243000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -669,6 +1583,20 @@
       "partido": "AVANTE",
       "patrimonio_2026_rs": 1432848.4,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1150000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 180000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 80000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -678,6 +1606,16 @@
       "partido": "PRD",
       "patrimonio_2026_rs": 1426599.97,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 1365726.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 60873.97
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 1768000.0,
       "variacao_pct": -19.3
@@ -689,6 +1627,20 @@
       "partido": "DC",
       "patrimonio_2026_rs": 1267700.0,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 640000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 477700.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 100000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -698,6 +1650,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 1247212.54,
       "n_bens_2026": 9,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 1011084.82
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 161457.61
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 49210.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -707,6 +1673,20 @@
       "partido": "PSB",
       "patrimonio_2026_rs": 1226908.08,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 730000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 326863.12
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 170044.96
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -716,6 +1696,20 @@
       "partido": "PSDB",
       "patrimonio_2026_rs": 1216500.0,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1080000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 118000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 10500.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -725,6 +1719,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 1206682.23,
       "n_bens_2026": 10,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 638724.67
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 537978.84
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 29978.72
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -734,6 +1742,16 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 1168464.77,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1053464.77
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 115000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -743,6 +1761,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 1048910.76,
       "n_bens_2026": 8,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 796540.06
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 160000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 90575.3
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -752,6 +1784,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 1036642.25,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 370753.26
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 283463.07
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 223364.88
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -761,6 +1807,16 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 1035000.0,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1005000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 30000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -770,6 +1826,20 @@
       "partido": "REPUBLICANOS",
       "patrimonio_2026_rs": 1002342.77,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 868514.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 100286.11
+        },
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 32957.09
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -779,6 +1849,20 @@
       "partido": "DC",
       "patrimonio_2026_rs": 998500.0,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 650000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 200000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 148500.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -788,6 +1872,20 @@
       "partido": "REPUBLICANOS",
       "patrimonio_2026_rs": 956564.03,
       "n_bens_2026": 11,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 518900.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 300000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 77848.17
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -797,6 +1895,16 @@
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 950000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 750000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 200000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -806,6 +1914,20 @@
       "partido": "MDB",
       "patrimonio_2026_rs": 935461.08,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 583527.71
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 326734.03
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 25199.34
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -815,6 +1937,20 @@
       "partido": "DC",
       "patrimonio_2026_rs": 922938.36,
       "n_bens_2026": 5,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 683333.33
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 147500.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 92105.03
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -824,6 +1960,12 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 900000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 900000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -833,6 +1975,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 886548.53,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 784759.32
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 100000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 1789.21
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 515216.13,
       "variacao_pct": 72.1
@@ -844,6 +2000,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 884607.32,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 701821.22
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 176900.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 3880.13
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -853,6 +2023,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 861217.25,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 436790.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 183000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 140456.26
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 595059.29,
       "variacao_pct": 44.7
@@ -864,6 +2048,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 857485.32,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 857485.32
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 679428.21,
       "variacao_pct": 26.2
@@ -875,6 +2065,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 830170.98,
       "n_bens_2026": 10,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 476635.23
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 198000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 54189.78
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -884,6 +2088,20 @@
       "partido": "PSDB",
       "patrimonio_2026_rs": 799134.68,
       "n_bens_2026": 8,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 478234.68
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 250000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 60000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -893,6 +2111,20 @@
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 795089.0,
       "n_bens_2026": 4,
+      "tipos_top": [
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 300000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 275329.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 219760.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -902,6 +2134,20 @@
       "partido": "PSB",
       "patrimonio_2026_rs": 761462.79,
       "n_bens_2026": 27,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 534255.03
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 199900.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 24869.88
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -911,6 +2157,20 @@
       "partido": "UNIÃO",
       "patrimonio_2026_rs": 748869.84,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 395975.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 167270.44
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 160000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -920,6 +2180,20 @@
       "partido": "PP",
       "patrimonio_2026_rs": 741354.91,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 674581.25
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 65009.56
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 1764.1
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -929,6 +2203,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 709304.0,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 336955.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 270000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 98492.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -938,6 +2226,12 @@
       "partido": "DEMOCRATA",
       "patrimonio_2026_rs": 700000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 700000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -947,6 +2241,20 @@
       "partido": "NOVO",
       "patrimonio_2026_rs": 660300.0,
       "n_bens_2026": 4,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 552500.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 67800.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 40000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -956,6 +2264,20 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 656409.64,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 320000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 237209.64
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 99200.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -965,6 +2287,20 @@
       "partido": "PSB",
       "patrimonio_2026_rs": 652953.78,
       "n_bens_2026": 8,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 430000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 170546.75
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 49525.63
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -974,6 +2310,16 @@
       "partido": "PSDB",
       "patrimonio_2026_rs": 600000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 500000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 100000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -983,6 +2329,12 @@
       "partido": "DC",
       "patrimonio_2026_rs": 600000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 600000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -992,6 +2344,20 @@
       "partido": "NOVO",
       "patrimonio_2026_rs": 588097.38,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 382000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 111271.95
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 90500.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1001,6 +2367,20 @@
       "partido": "PL",
       "patrimonio_2026_rs": 578525.64,
       "n_bens_2026": 8,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 300000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 266595.64
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 11930.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 578525.64,
       "variacao_pct": 0.0
@@ -1012,6 +2392,12 @@
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 550000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 550000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1021,6 +2407,20 @@
       "partido": "PSOL",
       "patrimonio_2026_rs": 534231.19,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 435000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 54898.72
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 34408.48
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1030,6 +2430,16 @@
       "partido": "DC",
       "patrimonio_2026_rs": 502200.0,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 452700.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 49500.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1039,6 +2449,12 @@
       "partido": "PSOL",
       "patrimonio_2026_rs": 500000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 500000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1048,6 +2464,12 @@
       "partido": "DC",
       "patrimonio_2026_rs": 500000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 500000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1057,6 +2479,16 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 498000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 480000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 18000.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 520000.0,
       "variacao_pct": -4.2
@@ -1068,6 +2500,16 @@
       "partido": "UNIÃO",
       "patrimonio_2026_rs": 497990.0,
       "n_bens_2026": 4,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 313000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 184990.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 88520.23,
       "variacao_pct": 462.6
@@ -1079,6 +2521,16 @@
       "partido": "PCB",
       "patrimonio_2026_rs": 454485.68,
       "n_bens_2026": 4,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 350000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 104485.68
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1088,6 +2540,16 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 450000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 300000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 150000.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 100000.0,
       "variacao_pct": 350.0
@@ -1099,6 +2561,20 @@
       "partido": "PP",
       "patrimonio_2026_rs": 440131.39,
       "n_bens_2026": 5,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 280000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 107210.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 36245.35
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1108,6 +2584,12 @@
       "partido": "AGIR",
       "patrimonio_2026_rs": 420000.0,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 420000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1117,6 +2599,20 @@
       "partido": "NOVO",
       "patrimonio_2026_rs": 407503.55,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 300000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 100000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 7501.55
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1126,6 +2622,16 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 385400.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 358000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 27400.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 164760.0,
       "variacao_pct": 133.9
@@ -1137,6 +2643,20 @@
       "partido": "PDT",
       "patrimonio_2026_rs": 376137.78,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 220578.75
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 155500.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 59.03
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1146,6 +2666,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 366457.71,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 277700.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 55000.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 20000.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 72162.76,
       "variacao_pct": 407.8
@@ -1157,6 +2691,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 359498.33,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 289574.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 69923.33
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 1.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 340576.99,
       "variacao_pct": 5.6
@@ -1168,6 +2716,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 351226.0,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 300000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 49899.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 1327.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1177,6 +2739,16 @@
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 345182.87,
       "n_bens_2026": 29,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 344113.53
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 1069.34
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1186,6 +2758,12 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 300000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 300000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1195,6 +2773,12 @@
       "partido": "PT",
       "patrimonio_2026_rs": 285000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 285000.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 285000.0,
       "variacao_pct": 0.0
@@ -1206,6 +2790,16 @@
       "partido": "REPUBLICANOS",
       "patrimonio_2026_rs": 258000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 233000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 25000.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 260000.0,
       "variacao_pct": -0.8
@@ -1217,6 +2811,16 @@
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 256000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 170000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 86000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1226,6 +2830,20 @@
       "partido": "AGIR",
       "patrimonio_2026_rs": 251374.0,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 121500.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 117374.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 12500.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1235,6 +2853,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 250000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 250000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1244,6 +2868,20 @@
       "partido": "PSDB",
       "patrimonio_2026_rs": 249805.0,
       "n_bens_2026": 8,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 124180.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 82500.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 31915.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1253,6 +2891,16 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 228000.0,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 200000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 28000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1262,6 +2910,16 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 215000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 200000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 15000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1271,6 +2929,16 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 200590.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 150000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 50590.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 200590.0,
       "variacao_pct": 0.0
@@ -1282,6 +2950,12 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 200000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 200000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1291,6 +2965,16 @@
       "partido": "MOBILIZA",
       "patrimonio_2026_rs": 190750.0,
       "n_bens_2026": 15,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 188750.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 2000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1300,6 +2984,20 @@
       "partido": "PSD",
       "patrimonio_2026_rs": 189210.63,
       "n_bens_2026": 7,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 150000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 32860.96
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 6349.67
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1309,6 +3007,16 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 170000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 120000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 50000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1318,6 +3026,16 @@
       "partido": "REPUBLICANOS",
       "patrimonio_2026_rs": 167585.05,
       "n_bens_2026": 8,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 120585.05
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 47000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1327,6 +3045,12 @@
       "partido": "PP",
       "patrimonio_2026_rs": 167482.91,
       "n_bens_2026": 5,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 167482.91
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1336,6 +3060,12 @@
       "partido": "PCB",
       "patrimonio_2026_rs": 165000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 165000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1345,6 +3075,16 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 157000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 140000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 17000.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 105000.0,
       "variacao_pct": 49.5
@@ -1356,6 +3096,16 @@
       "partido": "AVANTE",
       "patrimonio_2026_rs": 148000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 100000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 48000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1365,6 +3115,12 @@
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 144999.99,
       "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 144999.99
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1374,6 +3130,12 @@
       "partido": "PSOL",
       "patrimonio_2026_rs": 120000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 120000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1383,6 +3145,12 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 117000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 117000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1392,6 +3160,16 @@
       "partido": "UP",
       "patrimonio_2026_rs": 115000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 60000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 55000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1401,6 +3179,16 @@
       "partido": "DC",
       "patrimonio_2026_rs": 108000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 98000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 10000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1410,6 +3198,12 @@
       "partido": "PSOL",
       "patrimonio_2026_rs": 100000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 100000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1419,6 +3213,12 @@
       "partido": "PT",
       "patrimonio_2026_rs": 100000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 100000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1428,6 +3228,20 @@
       "partido": "DEMOCRATA",
       "patrimonio_2026_rs": 91600.52,
       "n_bens_2026": 6,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 90000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 1545.52
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 55.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 90000.0,
       "variacao_pct": 1.8
@@ -1439,6 +3253,20 @@
       "partido": "PSOL",
       "patrimonio_2026_rs": 91397.22,
       "n_bens_2026": 5,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 60000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 30000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 973.52
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1448,6 +3276,20 @@
       "partido": "UP",
       "patrimonio_2026_rs": 88094.69,
       "n_bens_2026": 4,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 41500.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 23717.54
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 22877.15
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 177915.5,
       "variacao_pct": -50.5
@@ -1459,6 +3301,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 85000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 85000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1468,6 +3316,16 @@
       "partido": "PSOL",
       "patrimonio_2026_rs": 81452.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 80000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 1452.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1477,6 +3335,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 80000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 80000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1486,6 +3350,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 69196.63,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 69196.63
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1495,6 +3365,12 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 52292.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 52292.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 40000.0,
       "variacao_pct": 30.7
@@ -1506,6 +3382,16 @@
       "partido": "UP",
       "patrimonio_2026_rs": 50550.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 41900.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 8650.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1515,6 +3401,16 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 49166.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 48416.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 750.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1524,6 +3420,12 @@
       "partido": "PSOL",
       "patrimonio_2026_rs": 47000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 47000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1533,6 +3435,16 @@
       "partido": "UP",
       "patrimonio_2026_rs": 33000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 29000.0
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 4000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1542,6 +3454,16 @@
       "partido": "PCB",
       "patrimonio_2026_rs": 27000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 15000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 12000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1551,6 +3473,12 @@
       "partido": "PSOL",
       "patrimonio_2026_rs": 15000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 15000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1560,6 +3488,12 @@
       "partido": "AGIR",
       "patrimonio_2026_rs": 12500.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 12500.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1569,6 +3503,12 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 5000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 5000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1578,6 +3518,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 1000.0,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 1000.0
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1587,6 +3533,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 967.43,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 967.43
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1596,6 +3548,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 518.45,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 518.45
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1605,6 +3563,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 479.89,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 479.89
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 136.07,
       "variacao_pct": 252.7
@@ -1616,6 +3580,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 353.89,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Créditos e consórcios",
+          "valor_rs": 353.89
+        }
+      ],
       "tem_comparacao": false
     },
     {
@@ -1625,6 +3595,7 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1634,6 +3605,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1643,6 +3615,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1652,6 +3625,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1661,6 +3635,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1670,6 +3645,7 @@
       "partido": "AGIR",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1679,6 +3655,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1688,6 +3665,7 @@
       "partido": "NOVO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1697,6 +3675,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1706,6 +3685,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1715,6 +3695,7 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1724,6 +3705,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1733,6 +3715,7 @@
       "partido": "DEMOCRATA",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1742,6 +3725,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1751,6 +3735,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1760,6 +3745,7 @@
       "partido": "PL",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1769,6 +3755,7 @@
       "partido": "DC",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1778,6 +3765,7 @@
       "partido": "UP",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1787,6 +3775,7 @@
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1796,6 +3785,7 @@
       "partido": "PCB",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1805,6 +3795,7 @@
       "partido": "DEMOCRATA",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1814,6 +3805,7 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1823,6 +3815,7 @@
       "partido": "PCB",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1832,6 +3825,7 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1841,6 +3835,7 @@
       "partido": "SOLIDARIEDADE",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1850,6 +3845,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1859,6 +3855,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1868,6 +3865,7 @@
       "partido": "DEMOCRATA",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1877,6 +3875,7 @@
       "partido": "AGIR",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1886,6 +3885,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1895,6 +3895,7 @@
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1904,6 +3905,7 @@
       "partido": "UP",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 203.99,
       "variacao_pct": -100.0
@@ -1915,6 +3917,7 @@
       "partido": "UP",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1924,6 +3927,7 @@
       "partido": "DC",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1933,6 +3937,7 @@
       "partido": "AGIR",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1942,6 +3947,7 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 8805.0,
       "variacao_pct": -100.0
@@ -1953,6 +3959,7 @@
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1962,6 +3969,7 @@
       "partido": "PSOL",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     },
     {
@@ -1971,6 +3979,7 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": false
     }
   ],
@@ -1982,6 +3991,16 @@
       "partido": "UNIÃO",
       "patrimonio_2026_rs": 497990.0,
       "n_bens_2026": 4,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 313000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 184990.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 88520.23,
       "variacao_pct": 462.6
@@ -1993,6 +4012,20 @@
       "partido": "PT",
       "patrimonio_2026_rs": 366457.71,
       "n_bens_2026": 12,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 277700.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 55000.0
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 20000.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 72162.76,
       "variacao_pct": 407.8
@@ -2004,6 +4037,16 @@
       "partido": "PCO",
       "patrimonio_2026_rs": 450000.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 300000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 150000.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 100000.0,
       "variacao_pct": 350.0
@@ -2015,6 +4058,12 @@
       "partido": "UP",
       "patrimonio_2026_rs": 479.89,
       "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 479.89
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 136.07,
       "variacao_pct": 252.7
@@ -2026,6 +4075,16 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 385400.0,
       "n_bens_2026": 2,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 358000.0
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 27400.0
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 164760.0,
       "variacao_pct": 133.9
@@ -2039,6 +4098,7 @@
       "partido": "UP",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 203.99,
       "variacao_pct": -100.0
@@ -2050,6 +4110,7 @@
       "partido": "PSTU",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
+      "tipos_top": [],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 8805.0,
       "variacao_pct": -100.0
@@ -2061,6 +4122,20 @@
       "partido": "UP",
       "patrimonio_2026_rs": 88094.69,
       "n_bens_2026": 4,
+      "tipos_top": [
+        {
+          "tipo": "Veículos",
+          "valor_rs": 41500.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 23717.54
+        },
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 22877.15
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 177915.5,
       "variacao_pct": -50.5
@@ -2072,6 +4147,20 @@
       "partido": "PSDB",
       "patrimonio_2026_rs": 1756648.94,
       "n_bens_2026": 11,
+      "tipos_top": [
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 1270578.55
+        },
+        {
+          "tipo": "Veículos",
+          "valor_rs": 190000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 179771.22
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 3039761.97,
       "variacao_pct": -42.2
@@ -2083,9 +4172,67 @@
       "partido": "PT",
       "patrimonio_2026_rs": 4775650.64,
       "n_bens_2026": 18,
+      "tipos_top": [
+        {
+          "tipo": "Aplicações financeiras",
+          "valor_rs": 3701457.09
+        },
+        {
+          "tipo": "Imóveis",
+          "valor_rs": 739223.52
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 179298.96
+        }
+      ],
       "tem_comparacao": true,
       "patrimonio_2022_rs": 7423725.78,
       "variacao_pct": -35.7
+    }
+  ],
+  "composicao_tipos": [
+    {
+      "tipo": "Aplicações financeiras",
+      "valor_rs": 832201515.43,
+      "n": 372,
+      "pct": 42.2
+    },
+    {
+      "tipo": "Participações societárias",
+      "valor_rs": 312603690.52,
+      "n": 187,
+      "pct": 15.9
+    },
+    {
+      "tipo": "Imóveis",
+      "valor_rs": 202210037.46,
+      "n": 383,
+      "pct": 10.3
+    },
+    {
+      "tipo": "Créditos e consórcios",
+      "valor_rs": 106754182.18,
+      "n": 48,
+      "pct": 5.4
+    },
+    {
+      "tipo": "Veículos",
+      "valor_rs": 21872800.39,
+      "n": 165,
+      "pct": 1.1
+    },
+    {
+      "tipo": "Dinheiro e contas",
+      "valor_rs": 9329978.44,
+      "n": 152,
+      "pct": 0.5
+    },
+    {
+      "tipo": "Outros bens e direitos",
+      "valor_rs": 486488640.55,
+      "n": 170,
+      "pct": 24.7
     }
   ]
 }
