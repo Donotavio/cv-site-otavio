@@ -372,11 +372,61 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [05] INTENSIDADE (bar chart) ═══════════════════════ -->
-    <section id="el-intensidade" class="section el-alt" aria-labelledby="el-int-title">
+    <!-- ═══════════════════════ [05] QUEM SE CANDIDATA ═══════════════════════ -->
+    <section id="el-candidaturas" class="section el-alt" aria-labelledby="el-cand-title">
       <div class="container">
         <div class="section-head">
           <span class="mono-label">05</span>
+          <h2 id="el-cand-title" class="el-h2" data-i18n-key="portfolio.eleicoes.cand_title">Quem se candidata</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.cand_lead">
+            As candidaturas registradas no TSE, lado a lado com o perfil de quem vota. A distância entre os dois é o retrato da representação.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+        <div class="el-elt-bento">
+          <article class="el-elt-hero crop" aria-labelledby="el-cand-total">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <span class="el-kpi__label" data-i18n-key="portfolio.eleicoes.cand_total_label">candidaturas registradas</span>
+            <span class="el-elt-total" id="el-cand-total">···</span>
+            <div class="el-elt-chips" id="el-cand-chips"></div>
+          </article>
+          <article class="el-panel crop" aria-labelledby="el-cand-genero-t">
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <span class="el-panel__title mono-label" id="el-cand-genero-t" data-i18n-key="portfolio.eleicoes.cand_genero">por sexo — candidaturas × eleitorado</span>
+            <div id="el-cand-genero" class="el-pair"><p class="el-loading mono-label">···</p></div>
+          </article>
+          <article class="el-panel crop" aria-labelledby="el-cand-faixa-t">
+            <span class="el-panel__title mono-label" id="el-cand-faixa-t" data-i18n-key="portfolio.eleicoes.cand_faixa">por faixa etária — candidaturas × eleitorado</span>
+            <div id="el-cand-faixa" class="el-pair"><p class="el-loading mono-label">···</p></div>
+          </article>
+          <article class="el-panel crop" aria-labelledby="el-cand-escol-t">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="el-panel__title mono-label" id="el-cand-escol-t" data-i18n-key="portfolio.eleicoes.cand_escol">por escolaridade — candidaturas × eleitorado</span>
+            <div id="el-cand-escol" class="el-pair"><p class="el-loading mono-label">···</p></div>
+          </article>
+        </div>
+        <div class="el-patr-grid el-cand-grid2">
+          <article class="el-panel crop" aria-labelledby="el-cand-cargo-t">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="el-panel__title mono-label" id="el-cand-cargo-t" data-i18n-key="portfolio.eleicoes.cand_cargo">% de mulheres por cargo</span>
+            <div id="el-cand-cargo" class="el-bars"><p class="el-loading mono-label">···</p></div>
+          </article>
+          <article class="el-panel crop" aria-labelledby="el-cand-ocup-t">
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <span class="el-panel__title mono-label" id="el-cand-ocup-t" data-i18n-key="portfolio.eleicoes.cand_ocup">ocupações mais declaradas</span>
+            <div id="el-cand-ocup" class="el-bars"><p class="el-loading mono-label">···</p></div>
+          </article>
+        </div>
+        <p class="el-nota mono-label" id="el-cand-nota"></p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ [06] INTENSIDADE (bar chart) ═══════════════════════ -->
+    <section id="el-intensidade" class="section el-alt" aria-labelledby="el-int-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">06</span>
           <h2 id="el-int-title" class="el-h2" data-i18n-key="portfolio.eleicoes.timeline_title">A rampa das pesquisas</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.timeline_lead">
             Pesquisas divulgadas por mês. A intensidade acelera conforme a eleição se aproxima.
@@ -396,11 +446,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════ [06] INTENSIDADE REAL POR UF (índice normalizado) ═══════════════ -->
+    <!-- ═══════════════ [07] INTENSIDADE REAL POR UF (índice normalizado) ═══════════════ -->
     <section id="el-intensidade-uf" class="section" aria-labelledby="el-iuf-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">06</span>
+          <span class="mono-label">07</span>
           <h2 id="el-iuf-title" class="el-h2" data-i18n-key="portfolio.eleicoes.iuf_title">Onde a disputa está quente de verdade</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.iuf_lead">
             Contagem bruta favorece estados grandes. Aqui, pesquisas por milhão de eleitores — cruzando o registro do TSE com o Cadastro de Eleitores. Revela onde se mede com mais intensidade, independentemente do tamanho.
@@ -421,11 +471,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [07] QUEM MEDE (tabela) ═══════════════════════ -->
+    <!-- ═══════════════════════ [08] QUEM MEDE (tabela) ═══════════════════════ -->
     <section id="el-institutos" class="section el-alt" aria-labelledby="el-inst-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">07</span>
+          <span class="mono-label">08</span>
           <h2 id="el-inst-title" class="el-h2" data-i18n-key="portfolio.eleicoes.institutos_title">Quem mede o eleitorado</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.institutos_lead">
             Institutos por volume de pesquisas registradas e investimento declarado (R$). Mercado pulverizado — o líder detém <span id="el-conc-inline">···</span> do total.
@@ -453,11 +503,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [08] COMO MEDEM ═══════════════════════ -->
+    <!-- ═══════════════════════ [09] COMO MEDEM ═══════════════════════ -->
     <section id="el-como" class="section" aria-labelledby="el-como-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">08</span>
+          <span class="mono-label">09</span>
           <h2 id="el-como-title" class="el-h2" data-i18n-key="portfolio.eleicoes.como_title">Como medem</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.como_lead">
             Nível da disputa, origem da encomenda e rigor amostral.
@@ -488,11 +538,64 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [09] COBERTURA POR UF ═══════════════════════ -->
+    <!-- ═══════════════════════ [10] RETROVISOR 2022 ═══════════════════════ -->
+    <section id="el-retrovisor" class="section el-alt" aria-labelledby="el-retro-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="mono-label">10</span>
+          <h2 id="el-retro-title" class="el-h2" data-i18n-key="portfolio.eleicoes.retro_title">O retrovisor de 2022</h2>
+          <p class="el-lead" data-i18n-key="portfolio.eleicoes.retro_lead">
+            Quão perto a última medição de cada instituto chegou da urna em 2022, a assinatura metodológica de cada um em 2026 — e quanto a máquina de pesquisas cresceu de um ciclo para o outro.
+          </p>
+        </div>
+        <hr class="section-line" aria-hidden="true" />
+
+        <div class="el-retro-official" id="el-retro-official" hidden></div>
+        <div class="el-patr-table-wrap">
+          <table class="el-patr-table" id="el-retro-table">
+            <thead>
+              <tr>
+                <th scope="col" data-i18n-key="portfolio.eleicoes.retro_col_inst">instituto</th>
+                <th scope="col" data-i18n-key="portfolio.eleicoes.retro_col_data">última pesquisa</th>
+                <th scope="col" data-i18n-key="portfolio.eleicoes.retro_col_erro">erro médio (pp)</th>
+                <th scope="col" data-i18n-key="portfolio.eleicoes.retro_col_margem">erro na margem (pp)</th>
+                <th scope="col" data-i18n-key="portfolio.eleicoes.retro_col_vies">direção do viés</th>
+              </tr>
+            </thead>
+            <tbody id="el-retro-tbody">
+              <tr><td colspan="5"><p class="el-loading mono-label">···</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="el-nota" id="el-retro-acc-nota"></p>
+
+        <div class="el-chartcard crop el-house" id="el-house" hidden>
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <div class="el-chartcard__head">
+            <span class="mono-label" data-i18n-key="portfolio.eleicoes.house_title">a assinatura dos institutos em 2026 (house effect)</span>
+          </div>
+          <div class="el-patr-table-wrap">
+            <table class="el-patr-table" id="el-house-table"></table>
+          </div>
+          <p class="el-nota" id="el-house-nota"></p>
+        </div>
+
+        <div class="el-maquina" id="el-maquina" hidden>
+          <div class="el-chartcard__head">
+            <span class="mono-label" data-i18n-key="portfolio.eleicoes.maquina_title">a máquina de medição: 2022 × 2026, na mesma altura do ciclo</span>
+          </div>
+          <div class="el-patr-kpis" id="el-maquina-kpis"></div>
+          <p class="el-nota mono-label" id="el-maquina-nota"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ [11] COBERTURA POR UF ═══════════════════════ -->
     <section id="el-cobertura" class="section el-alt" aria-labelledby="el-uf-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">09</span>
+          <span class="mono-label">11</span>
           <h2 id="el-uf-title" class="el-h2" data-i18n-key="portfolio.eleicoes.uf_title">Onde se mede mais</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.uf_lead">
             Pesquisas estaduais por UF (exclui a disputa presidencial/nacional).
@@ -507,11 +610,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════ [10] EXPLORAR POR ESTADO (interativo) ═══════════════════ -->
+    <!-- ═══════════════════ [12] EXPLORAR POR ESTADO (interativo) ═══════════════════ -->
     <section id="el-explorar" class="section el-alt" aria-labelledby="el-exp-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">10</span>
+          <span class="mono-label">12</span>
           <h2 id="el-exp-title" class="el-h2" data-i18n-key="portfolio.eleicoes.explorar_title">Explore por estado</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.explorar_lead">
             Escolha uma UF e veja o recorte local: volume de pesquisas, rigor amostral e os institutos que mais medem ali.
@@ -541,11 +644,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [11] O QUE ESTÁ EM JOGO ═══════════════════════ -->
+    <!-- ═══════════════════════ [13] O QUE ESTÁ EM JOGO ═══════════════════════ -->
     <section id="el-jogo" class="section" aria-labelledby="el-jogo-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">11</span>
+          <span class="mono-label">13</span>
           <h2 id="el-jogo-title" class="el-h2" data-i18n-key="portfolio.eleicoes.jogo_title">O que está em jogo</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.jogo_lead">
             Os cargos em disputa e o dinheiro público de campanha — o tamanho da aposta de 2026.
@@ -559,14 +662,23 @@ const base = import.meta.env.BASE_URL;
           <p class="el-loading mono-label">···</p>
         </div>
         <div class="el-jogo-infra" id="el-jogo-infra"></div>
+        <div class="el-fundo crop el-fundo-partidos" id="el-fundo-partidos" hidden>
+          <span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="crop-mark-br" aria-hidden="true"></span>
+          <div class="el-chartcard__head">
+            <span class="mono-label" data-i18n-key="portfolio.eleicoes.fundop_title">a divisão oficial do fundo, partido a partido</span>
+          </div>
+          <div id="el-fundo-partidos-bars" class="el-bars"></div>
+          <p class="el-nota mono-label" id="el-fundo-partidos-nota"></p>
+        </div>
       </div>
     </section>
 
-    <!-- ═══════════════════════ [12] RELÓGIO DA DEMOCRACIA ═══════════════════════ -->
+    <!-- ═══════════════════════ [14] RELÓGIO DA DEMOCRACIA ═══════════════════════ -->
     <section id="el-relogio" class="section el-alt" aria-labelledby="el-rel-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">12</span>
+          <span class="mono-label">14</span>
           <h2 id="el-rel-title" class="el-h2" data-i18n-key="portfolio.eleicoes.rel_title">O relógio da democracia</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.rel_lead">
             Os marcos oficiais do calendário eleitoral de 2026 — da convenção à posse.
@@ -583,11 +695,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [13] SITUAÇÃO DE REGISTRO DOS PRÉ-CANDIDATOS ═══════════════════════ -->
+    <!-- ═══════════════════════ [15] SITUAÇÃO DE REGISTRO DOS PRÉ-CANDIDATOS ═══════════════════════ -->
     <section id="el-integridade" class="section el-alt" aria-labelledby="el-integ-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">13</span>
+          <span class="mono-label">15</span>
           <h2 id="el-integ-title" class="el-h2" data-i18n-key="portfolio.eleicoes.integ_title">Situação de registro dos pré-candidatos</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.integ_lead">
             A situação de cada candidatura junto à Justiça Eleitoral, direto do TSE — deferida, indeferida ou sub judice. Não é acusação: é o resultado oficial da análise de elegibilidade.
@@ -614,11 +726,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [14] PATRIMÔNIO DECLARADO ═══════════════════════ -->
+    <!-- ═══════════════════════ [16] PATRIMÔNIO DECLARADO ═══════════════════════ -->
     <section id="el-patrimonio" class="section" aria-labelledby="el-patr-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">14</span>
+          <span class="mono-label">16</span>
           <h2 id="el-patr-title" class="el-h2" data-i18n-key="portfolio.eleicoes.patr_title">Patrimônio declarado</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.patr_lead">
             O que cada pré-candidato a presidente ou governador declarou de bens ao TSE em 2026 — e como isso mudou desde 2022, quando o mesmo nome também concorreu.
@@ -629,6 +741,12 @@ const base = import.meta.env.BASE_URL;
           <div class="el-patr-kpis" id="el-patr-kpis">
             <p class="el-loading mono-label">···</p>
           </div>
+          <article class="el-panel crop" id="el-patr-comp" hidden aria-labelledby="el-patr-comp-t">
+            <span class="crop-mark-bl" aria-hidden="true"></span>
+            <span class="crop-mark-br" aria-hidden="true"></span>
+            <span class="el-panel__title mono-label" id="el-patr-comp-t" data-i18n-key="portfolio.eleicoes.patr_comp">de que é feito o patrimônio do conjunto</span>
+            <div id="el-patr-comp-bars" class="el-bars"></div>
+          </article>
           <div class="el-patr-grid">
             <article class="el-panel crop" id="el-patr-alta">
               <span class="crop-mark-bl" aria-hidden="true"></span>
@@ -661,11 +779,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [15] PRESTAÇÃO DE CONTAS ═══════════════════════ -->
+    <!-- ═══════════════════════ [17] PRESTAÇÃO DE CONTAS ═══════════════════════ -->
     <section id="el-prestacao" class="section el-alt" aria-labelledby="el-prest-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">15</span>
+          <span class="mono-label">17</span>
           <h2 id="el-prest-title" class="el-h2" data-i18n-key="portfolio.eleicoes.prest_title">Prestação de contas</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.prest_lead">
             Quanto cada pré-candidato a presidente ou governador arrecadou e gastou de campanha, direto do TSE. Dado oficial só existe a partir do prazo da prestação parcial.
@@ -688,6 +806,23 @@ const base = import.meta.env.BASE_URL;
               <div class="el-patr-list" id="el-prest-gasta-list"><p class="el-loading mono-label">···</p></div>
             </article>
           </div>
+          <div class="el-patr-grid el-prest-destino" id="el-prest-destino" hidden>
+            <article class="el-panel crop" aria-labelledby="el-prest-cat-t">
+              <span class="crop-mark-bl" aria-hidden="true"></span>
+              <span class="el-panel__title mono-label" id="el-prest-cat-t" data-i18n-key="portfolio.eleicoes.prest_cat">para onde vai o dinheiro</span>
+              <div id="el-prest-categorias" class="el-bars"></div>
+            </article>
+            <article class="el-panel crop" aria-labelledby="el-prest-forn-t">
+              <span class="el-panel__title mono-label" id="el-prest-forn-t" data-i18n-key="portfolio.eleicoes.prest_forn">maiores fornecedores (pessoa jurídica)</span>
+              <div id="el-prest-fornecedores" class="el-patr-list"></div>
+            </article>
+            <article class="el-panel crop" aria-labelledby="el-prest-cnae-t">
+              <span class="crop-mark-br" aria-hidden="true"></span>
+              <span class="el-panel__title mono-label" id="el-prest-cnae-t" data-i18n-key="portfolio.eleicoes.prest_cnae">por setor do fornecedor (CNAE)</span>
+              <div id="el-prest-cnae" class="el-bars"></div>
+            </article>
+          </div>
+          <p class="el-nota mono-label" id="el-prest-forn-nota" hidden></p>
           <div class="el-patr-table-wrap">
             <table class="el-patr-table" id="el-prest-table">
               <thead>
@@ -709,11 +844,11 @@ const base = import.meta.env.BASE_URL;
       </div>
     </section>
 
-    <!-- ═══════════════════════ [16] TRANSPARÊNCIA & FONTES ═══════════════════════ -->
+    <!-- ═══════════════════════ [18] TRANSPARÊNCIA & FONTES ═══════════════════════ -->
     <section id="el-transparencia" class="section" aria-labelledby="el-tr-title">
       <div class="container">
         <div class="section-head">
-          <span class="mono-label">16</span>
+          <span class="mono-label">18</span>
           <h2 id="el-tr-title" class="el-h2" data-i18n-key="portfolio.eleicoes.tr_title">Como este painel trata a intenção de voto</h2>
           <p class="el-lead" data-i18n-key="portfolio.eleicoes.tr_lead">
             Um recorte honesto do que o dado público permite — medição, não previsão.
@@ -1333,6 +1468,62 @@ const base = import.meta.env.BASE_URL;
   /* Ausência de declaração — mesmo tratamento visual do "sem comparação" da §14:
      apagado e em itálico, para não ser lido como um valor medido. */
   #el-prestacao :global(.el-prest-nd) { color: var(--ink-faint); font-style: italic; }
+
+  /* ── [05] Quem se candidata — barras pareadas candidaturas × eleitorado ──
+     A barra grossa é a fatia nas candidaturas; a fina, dourada, é a mesma
+     fatia no eleitorado (a ordem segue o título do painel). */
+  .el-pair { display: flex; flex-direction: column; gap: var(--space-3); }
+  .el-pair :global(.el-pair-row) { display: grid; grid-template-columns: 6.5rem 1fr auto; gap: var(--space-2); align-items: center; }
+  .el-pair :global(.el-bar-lbl) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); }
+  .el-pair :global(.el-pair-tracks) { display: flex; flex-direction: column; gap: 3px; }
+  .el-pair :global(.el-bar-track) { height: 8px; background: var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  .el-pair :global(.el-pair-track--elt) { height: 4px; }
+  .el-pair :global(.el-bar-fill) { display: block; height: 100%; background: var(--ink-soft); }
+  .el-pair :global(.el-pair-fill--elt) { background: var(--wc-gold-ink); }
+  .el-pair :global(.el-pair-n) { font-size: var(--text-xs); color: var(--ink-soft); text-align: right; font-variant-numeric: var(--num-tabular); white-space: nowrap; }
+  .el-pair :global(.el-pair-n--elt) { color: var(--wc-gold-ink); }
+  .el-pair :global(.el-pair-row[data-tip]:hover .el-bar-track) { box-shadow: 0 0 0 2px var(--wc-gold-dim); }
+  .el-cand-grid2 { margin-top: var(--space-5); }
+  #el-candidaturas :global(.el-bar-lbl) { overflow-wrap: anywhere; }
+
+  /* ── [10] Retrovisor 2022 ── */
+  .el-retro-official { position: relative; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-6); margin-bottom: var(--space-5); }
+  .el-retro-official[hidden] { display: none; }
+  .el-retro-official :global(.el-retro-official__grid) { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); margin-top: var(--space-3); }
+  .el-retro-official :global(.el-retro-official__item) { display: inline-flex; align-items: baseline; gap: var(--space-2); }
+  .el-retro-official :global(.el-retro-official__nome) { font-size: var(--text-sm); color: var(--ink); }
+  .el-retro-official :global(.el-retro-official__pct) { color: var(--wc-gold-ink); font-variant-numeric: var(--num-tabular); }
+  .el-retro-official :global(.el-retro-official__meta) { margin-top: var(--space-4); color: var(--ink-faint); font-size: var(--text-xs); line-height: 1.6; }
+  #el-retrovisor :global(.el-retro-vies) { font-size: var(--text-xs); color: var(--ink-soft); }
+  .el-house { margin-top: var(--space-8); }
+  .el-house[hidden] { display: none; }
+  #el-retrovisor :global(.el-house-sig) { color: var(--wc-gold-ink); font-weight: 600; }
+  .el-maquina { margin-top: var(--space-8); }
+  .el-maquina[hidden] { display: none; }
+  .el-maquina .el-patr-kpis { margin-top: var(--space-4); grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .el-maquina .el-patr-kpis { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .el-maquina .el-patr-kpis { grid-template-columns: repeat(3, 1fr); } }
+  #el-retrovisor :global(.el-maq-val) { font-size: var(--text-xl); }
+  #el-retrovisor :global(.el-maq-seta) { color: var(--ink-faint); }
+  #el-retrovisor :global(.el-maq-var) { font-family: var(--font-mono); }
+  #el-retrovisor :global(.el-maq-var.is-up) { color: var(--wc-gold-ink); font-weight: 600; }
+
+  /* ── [13] Fundo por partido + painéis de rótulo longo (§16/§17) ── */
+  .el-fundo-partidos { margin-top: var(--space-5); display: block; }
+  .el-fundo-partidos[hidden] { display: none; }
+  .el-fundo-partidos .el-bars { margin-top: var(--space-4); }
+  .el-fundo-partidos .el-bars :global(.el-bar-row) { grid-template-columns: 5.5rem 1fr auto; }
+  .el-fundo-partidos .el-bars :global(.el-fundop-resto .el-bar-fill),
+  .el-fundo-partidos .el-bars :global(.el-bar-row.el-fundop-resto .el-bar-fill) { background: var(--ink-faint); }
+  #el-patr-comp { margin-bottom: var(--space-5); }
+  #el-patr-comp[hidden] { display: none; }
+  #el-patr-comp .el-bars :global(.el-bar-row),
+  .el-prest-destino .el-bars :global(.el-bar-row) { grid-template-columns: minmax(7rem, 12rem) 1fr auto; }
+  #el-patr-comp .el-bars :global(.el-bar-lbl),
+  .el-prest-destino .el-bars :global(.el-bar-lbl) { overflow-wrap: anywhere; }
+  .el-prest-destino { margin-top: var(--space-5); }
+  .el-prest-destino[hidden] { display: none; }
+  @media (min-width: 1024px) { .el-prest-destino { grid-template-columns: repeat(3, 1fr); } }
   .el-patr-table-wrap { overflow-x: auto; }
   #el-patrimonio :global(.el-patr-table) { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
   #el-patrimonio :global(.el-patr-table th) { text-align: left; font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--ink-faint); padding: var(--space-3); border-bottom: 1px solid var(--line-strong); white-space: nowrap; }
@@ -1460,7 +1651,8 @@ const base = import.meta.env.BASE_URL;
     fontes?: { label: string; url: string }[];
     itens_por_candidato?: Record<string, IntegItem>;
   }
-  interface PatrCand { nome_urna: string; cargo: string; uf: string; partido: string; patrimonio_2026_rs: number; n_bens_2026: number; tem_comparacao: boolean; patrimonio_2022_rs?: number; variacao_pct?: number }
+  interface PatrTipo { tipo: string; valor_rs: number; n?: number; pct?: number }
+  interface PatrCand { nome_urna: string; cargo: string; uf: string; partido: string; patrimonio_2026_rs: number; n_bens_2026: number; tem_comparacao: boolean; patrimonio_2022_rs?: number; variacao_pct?: number; tipos_top?: PatrTipo[] }
   interface PatrimonioPayload {
     metodologia?: string;
     disclaimer?: string;
@@ -1472,6 +1664,7 @@ const base = import.meta.env.BASE_URL;
     candidatos?: PatrCand[];
     maior_alta?: PatrCand[];
     maior_queda?: PatrCand[];
+    composicao_tipos?: PatrTipo[];
   }
   interface PrestOrigem { origem: string; valor_rs: number; n: number }
   interface PrestDivergencia { doador: string; doador_rfb: string; valor_rs: number }
@@ -1494,6 +1687,58 @@ const base = import.meta.env.BASE_URL;
     candidatos?: PrestCand[];
     top_arrecadadores?: PrestCand[];
     top_gastadores?: PrestCand[];
+    despesas_categorias?: { categoria: string; valor_rs: number; n: number; pct: number }[];
+    top_fornecedores?: { nome: string; uf?: string; valor_rs: number; n_despesas: number; n_candidatos: number }[];
+    nota_fornecedores?: string;
+    gastos_por_cnae?: { setor: string; valor_rs: number; pct: number }[];
+    cnae_cobertura_pct?: number;
+  }
+  interface CandDist { label: string; n: number; pct: number }
+  interface CandidaturasPayload {
+    fonte?: string; fonte_url?: string; metodologia?: string; disclaimer?: string; nota_comparacao?: string;
+    total_candidaturas?: number;
+    genero?: CandDist[]; cor_raca?: CandDist[]; grau_instrucao?: CandDist[];
+    faixa_etaria?: CandDist[]; top_ocupacoes?: CandDist[];
+    por_cargo?: { label: string; n: number; pct: number; pct_feminino: number; pct_negros: number }[];
+    por_uf?: { uf: string; n: number; pct: number }[];
+  }
+  interface AcurCandLinha { nome: string; partido: string; pct_pesquisa: number; pct_pesquisa_validos: number; pct_urna: number; erro_pp: number; erro_validos_pp: number }
+  interface AcurInstituto {
+    instituto: string; contratante?: string; data_pesquisa?: string; amostra?: number; margem_erro_pp?: number;
+    candidatos: AcurCandLinha[]; erro_medio_abs_pp: number; erro_medio_abs_validos_pp: number;
+    margem_medida_pp?: number; margem_real_pp?: number; erro_margem_pp: number; direcao_vies?: string;
+  }
+  interface AcurTurno {
+    janela?: { regra?: string; inicio?: string; fim?: string }; cenario?: string;
+    institutos: AcurInstituto[];
+    agregado?: { n_institutos?: number; mediana_erro_medio_abs_pp?: number; mediana_erro_medio_abs_validos_pp?: number; mediana_erro_margem_abs_pp?: number };
+  }
+  interface AcuraciaPayload {
+    fontes?: { label: string; url: string }[];
+    metodologia?: { acuracia?: string; maquina?: string };
+    disclaimer?: string;
+    acuracia?: {
+      resultado_oficial?: Record<string, { data?: string; percentuais_validos?: Record<string, number>; fonte?: string; fonte_url?: string }>;
+      turno1?: AcurTurno; turno2?: AcurTurno; notas?: string[];
+    };
+    maquina?: {
+      corte?: { regra?: string; a2022?: string; a2026?: string };
+      a2022?: { total_pesquisas?: number; institutos?: number; investimento_nominal_rs?: number; mediana_entrevistados?: number; custo_medio_rs?: number; investimento_corrigido_ipca_rs?: number };
+      a2026?: { total_pesquisas?: number; institutos?: number; investimento_nominal_rs?: number; mediana_entrevistados?: number; custo_medio_rs?: number };
+      variacao?: { pesquisas_pct?: number; institutos_pct?: number; investimento_nominal_pct?: number; investimento_real_pct?: number | null };
+      ipca?: { acumulado_pct?: number; ref_mes?: string; fonte_url?: string };
+    };
+  }
+  interface HouseEfeito { candidato: string; efeito_pp: number; n_pontos: number; significativo: boolean }
+  interface HousePayload {
+    fonte?: string; fonte_url?: string; metodologia?: string; disclaimer?: string;
+    janela_dias?: number; criterio_significancia?: string;
+    candidatos?: { nome: string; n_institutos_avaliados: number }[];
+    institutos?: { nome: string; n_pesquisas_total: number; efeitos: HouseEfeito[] }[];
+  }
+  interface FundoPartidosPayload {
+    atualizado_em?: string; fonte?: string; fonte_url?: string; total_rs?: number; disclaimer?: string;
+    partidos?: { sigla: string; valor_rs: number; pct: number }[];
   }
 
   const nf = new Intl.NumberFormat('pt-BR');
@@ -2052,6 +2297,10 @@ const base = import.meta.env.BASE_URL;
   let contexto: ContextoPayload | null = null;
   let precand: PrecandPayload | null = null;
   let presReg: PresRegioesPayload | null = null;
+  let candidaturas: CandidaturasPayload | null = null;
+  let acuracia: AcuraciaPayload | null = null;
+  let houseEffect: HousePayload | null = null;
+  let fundoPartidos: FundoPartidosPayload | null = null;
 
   function fmtNum(v: number): string {
     if (v >= 1_000_000) return `${(v / 1_000_000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mi`;
@@ -2419,6 +2668,78 @@ const base = import.meta.env.BASE_URL;
     distBars('el-elt-escol', e.escolaridade ?? []);
   }
 
+  // ── [05] Quem se candidata — candidaturas × eleitorado ──
+  // Barra dupla por rótulo: a grossa é a fatia nas candidaturas, a fina (dourada)
+  // é a mesma fatia no eleitorado. Os rótulos dos dois payloads foram alinhados
+  // 1:1 no pipeline de propósito — o pareamento aqui é por label, sem mapa.
+  function pairBars(boxId: string, cand: CandDist[] | undefined, elt: Dist[] | undefined): void {
+    const box = el(boxId); if (!box) return;
+    const items = (cand ?? []).filter((d) => d.n > 0);
+    if (!items.length) { box.innerHTML = '<p class="el-error">indisponível</p>'; return; }
+    const eltPct: Record<string, number> = {};
+    (elt ?? []).forEach((d) => { eltPct[d.label] = d.pct; });
+    const max = Math.max(...items.map((d) => d.pct), ...items.map((d) => eltPct[d.label] ?? 0), 1);
+    const pctFmt = (v: number): string => `${v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`;
+    box.innerHTML = items.map((d) => {
+      const ev = eltPct[d.label];
+      return `<div class="el-pair-row"${barTip(d.label, [
+        [t('portfolio.eleicoes.tip_candidaturas', 'candidaturas'), `${nf.format(d.n)} · ${pctFmt(d.pct)}`],
+        [t('portfolio.eleicoes.tip_eleitorado', 'eleitorado'), ev != null ? pctFmt(ev) : '—'],
+      ])}>
+        <span class="el-bar-lbl">${esc(d.label)}</span>
+        <span class="el-pair-tracks">
+          <span class="el-bar-track"><span class="el-bar-fill" style="width:${(d.pct / max) * 100}%"></span></span>
+          <span class="el-bar-track el-pair-track--elt"><span class="el-bar-fill el-pair-fill--elt" style="width:${ev != null ? (ev / max) * 100 : 0}%"></span></span>
+        </span>
+        <span class="el-pair-n mono-label">${pctFmt(d.pct)} <span class="el-pair-n--elt">× ${ev != null ? pctFmt(ev) : '—'}</span></span>
+      </div>`;
+    }).join('');
+  }
+  function renderCandidaturas(c: CandidaturasPayload | null): void {
+    const sec = document.getElementById('el-candidaturas');
+    if (!c) {
+      ['el-cand-genero', 'el-cand-faixa', 'el-cand-escol', 'el-cand-cargo', 'el-cand-ocup'].forEach((id) => { const b = el(id); if (b) b.innerHTML = '<p class="el-error">perfil indisponível — tente recarregar</p>'; });
+      if (el('el-cand-total')) el('el-cand-total')!.textContent = '—';
+      return;
+    }
+    if (sec) sec.hidden = false;
+    if (el('el-cand-total')) el('el-cand-total')!.textContent = c.total_candidaturas ? nf.format(c.total_candidaturas) : '—';
+    const chips: string[] = [];
+    const fem = (c.genero ?? []).find((g) => g.label.toLowerCase().startsWith('fem'));
+    if (fem) chips.push(`${fem.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% ${t('portfolio.eleicoes.cand_chip_mulheres', 'mulheres')}`);
+    const negros = (c.cor_raca ?? []).filter((r) => ['preta', 'parda'].includes(r.label.toLowerCase())).reduce((s, r) => s + r.pct, 0);
+    if (negros) chips.push(`${negros.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% ${t('portfolio.eleicoes.cand_chip_negros', 'pretos e pardos')}`);
+    const sup = (c.grau_instrucao ?? []).find((g) => g.label.toLowerCase().includes('superior completo'));
+    if (sup) chips.push(`${sup.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% ${t('portfolio.eleicoes.cand_chip_superior', 'com superior completo')}`);
+    const chipsBox = el('el-cand-chips');
+    if (chipsBox) chipsBox.innerHTML = chips.map((x) => `<span class="el-chip">${esc(x)}</span>`).join('');
+    pairBars('el-cand-genero', c.genero, eleitorado?.genero);
+    pairBars('el-cand-faixa', c.faixa_etaria, eleitorado?.faixa_etaria);
+    pairBars('el-cand-escol', c.grau_instrucao, eleitorado?.escolaridade);
+    // Funil de gênero por cargo — só os cargos-cabeça (vice/suplente concorre
+    // colado na chapa, não em disputa própria; incluí-los diluiria o funil).
+    const cargoBox = el('el-cand-cargo');
+    if (cargoBox) {
+      const cargos = (c.por_cargo ?? []).filter((cg) => !/suplente|vice/i.test(cg.label));
+      if (!cargos.length) { cargoBox.innerHTML = '<p class="el-error">indisponível</p>'; }
+      else {
+        const max = Math.max(...cargos.map((cg) => cg.pct_feminino), 1);
+        cargoBox.innerHTML = cargos.map((cg) => `<div class="el-bar-row"${barTip(cg.label, [
+          [t('portfolio.eleicoes.tip_candidaturas', 'candidaturas'), nf.format(cg.n)],
+          [t('portfolio.eleicoes.tip_pct_fem', '% mulheres'), `${cg.pct_feminino.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`],
+          [t('portfolio.eleicoes.tip_pct_negros', '% pretos e pardos'), `${cg.pct_negros.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`],
+        ])}>
+          <span class="el-bar-lbl">${esc(cg.label)}</span>
+          <span class="el-bar-track"><span class="el-bar-fill" style="width:${(cg.pct_feminino / max) * 100}%"></span></span>
+          <span class="el-bar-n">${cg.pct_feminino.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
+        </div>`).join('');
+      }
+    }
+    distBars('el-cand-ocup', (c.top_ocupacoes ?? []) as Dist[]);
+    const nota = el('el-cand-nota');
+    if (nota) nota.textContent = [c.nota_comparacao, c.disclaimer].filter(Boolean).join(' ');
+  }
+
   // ── [04] Índice de intensidade por UF (pesquisas ÷ eleitores em milhões) ──
   function renderIntensidadeUF(p: ElPayload, e: EleitoradoPayload | null): void {
     const box = el('el-iuf-body'); if (!box) return;
@@ -2663,6 +2984,7 @@ const base = import.meta.env.BASE_URL;
       if (kpis) kpis.innerHTML = awaitBlockHTML(p?.fontes);
       if (grid) grid.hidden = true;
       if (tableWrap) tableWrap.hidden = true;
+      const compVazio = el('el-patr-comp'); if (compVazio) compVazio.hidden = true;
       if (altaBox) altaBox.innerHTML = '';
       if (quedaBox) quedaBox.innerHTML = '';
       if (tbody) tbody.innerHTML = '';
@@ -2671,6 +2993,22 @@ const base = import.meta.env.BASE_URL;
     }
     if (grid) grid.hidden = false;
     if (tableWrap) tableWrap.hidden = false;
+    // Composição agregada do patrimônio do roster, por categoria de bem.
+    const comp = el('el-patr-comp'), compBars = el('el-patr-comp-bars');
+    const tipos = (p?.composicao_tipos ?? []).filter((tp) => tp.valor_rs > 0);
+    if (comp) comp.hidden = !tipos.length;
+    if (compBars && tipos.length) {
+      const max = Math.max(...tipos.map((tp) => tp.pct ?? 0), 1);
+      compBars.innerHTML = tipos.map((tp) => `<div class="el-bar-row"${barTip(tp.tipo, [
+        [t('portfolio.eleicoes.tip_valor', 'valor declarado'), fmtRS(tp.valor_rs)],
+        [t('portfolio.eleicoes.tip_bens', 'bens'), tp.n != null ? nf.format(tp.n) : '—'],
+        [t('portfolio.eleicoes.tip_percentual', 'percentual'), `${(tp.pct ?? 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`],
+      ])}>
+        <span class="el-bar-lbl">${esc(tp.tipo)}</span>
+        <span class="el-bar-track"><span class="el-bar-fill" style="width:${((tp.pct ?? 0) / max) * 100}%"></span></span>
+        <span class="el-bar-n">${(tp.pct ?? 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
+      </div>`).join('');
+    }
     const maior = cands[0];
     if (kpis) kpis.innerHTML = `
       <article class="el-kpi crop"><span class="crop-mark-bl" aria-hidden="true"></span>
@@ -2705,6 +3043,9 @@ const base = import.meta.env.BASE_URL;
   function renderPrestacao(p: PrestacaoPayload | null): void {
     const kpis = el('el-prest-kpis'), arrBox = el('el-prest-arrecada-list'), gasBox = el('el-prest-gasta-list');
     const tbody = el('el-prest-tbody'), nota = el('el-prest-nota');
+    const destino = el('el-prest-destino'), fornNota = el('el-prest-forn-nota');
+    if (destino) destino.hidden = true;
+    if (fornNota) fornNota.hidden = true;
     if (!p) {
       const msg = `<p class="el-error mono-label">${esc(t('portfolio.eleicoes.prest_unavailable', 'prestação de contas indisponível'))}</p>`;
       if (kpis) kpis.innerHTML = msg;
@@ -2768,6 +3109,48 @@ const base = import.meta.env.BASE_URL;
     if (arrBox) arrBox.innerHTML = arr.length ? arr.map((c, i) => itemHTML(c, c.receitas_total_rs, i === 0)).join('') : semComparaveis;
     if (gasBox) gasBox.innerHTML = gas.length ? gas.map((c) => itemHTML(c, c.despesas_total_rs, false)).join('') : semComparaveis;
 
+    // Destino do dinheiro: categorias de gasto + fornecedores PJ + setor CNAE.
+    const categorias = (p.despesas_categorias ?? []).filter((cg) => cg.valor_rs > 0);
+    const fornecedores = p.top_fornecedores ?? [];
+    const cnae = (p.gastos_por_cnae ?? []).filter((s) => s.valor_rs > 0);
+    if (destino && (categorias.length || fornecedores.length)) {
+      destino.hidden = false;
+      const catBox = el('el-prest-categorias');
+      if (catBox) {
+        const max = Math.max(...categorias.map((cg) => cg.pct), 1);
+        catBox.innerHTML = categorias.length ? categorias.map((cg) => `<div class="el-bar-row"${barTip(cg.categoria, [
+          [t('portfolio.eleicoes.tip_valor', 'valor declarado'), fmtRS(cg.valor_rs)],
+          [t('portfolio.eleicoes.tip_lancamentos', 'lançamentos'), nf.format(cg.n)],
+          [t('portfolio.eleicoes.tip_percentual', 'percentual'), `${cg.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`],
+        ])}>
+          <span class="el-bar-lbl">${esc(cg.categoria)}</span>
+          <span class="el-bar-track"><span class="el-bar-fill" style="width:${(cg.pct / max) * 100}%"></span></span>
+          <span class="el-bar-n">${cg.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
+        </div>`).join('') : `<p class="el-integ-none mono-label">${esc(t('portfolio.eleicoes.prest_sem_lista', 'sem dado até o prazo'))}</p>`;
+      }
+      const fornBox = el('el-prest-fornecedores');
+      if (fornBox) fornBox.innerHTML = fornecedores.length ? fornecedores.map((f) => `<div class="el-patr-item">
+          <span class="el-patr-item__name">${esc(f.nome)}</span>
+          <span class="el-patr-item__meta mono-label">${nf.format(f.n_despesas)} ${esc(t('portfolio.eleicoes.forn_despesas', 'despesas'))}${f.n_candidatos > 1 ? ` · <strong>${nf.format(f.n_candidatos)} ${esc(t('portfolio.eleicoes.forn_candidatos', 'candidatos'))}</strong>` : ''}</span>
+          <span class="el-prest-item__v mono-label">${esc(fmtRS(f.valor_rs))}</span>
+        </div>`).join('') : `<p class="el-integ-none mono-label">${esc(t('portfolio.eleicoes.prest_sem_lista', 'sem dado até o prazo'))}</p>`;
+      const cnaeBox = el('el-prest-cnae');
+      const cnaeCard = cnaeBox?.closest('article') as HTMLElement | null;
+      if (cnaeCard) cnaeCard.hidden = !cnae.length;
+      if (cnaeBox && cnae.length) {
+        const maxC = Math.max(...cnae.map((s) => s.pct), 1);
+        cnaeBox.innerHTML = cnae.map((s) => `<div class="el-bar-row"${barTip(s.setor, [
+          [t('portfolio.eleicoes.tip_valor', 'valor declarado'), fmtRS(s.valor_rs)],
+          [t('portfolio.eleicoes.tip_percentual', 'percentual'), `${s.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`],
+        ])}>
+          <span class="el-bar-lbl">${esc(s.setor)}</span>
+          <span class="el-bar-track"><span class="el-bar-fill" style="width:${(s.pct / maxC) * 100}%"></span></span>
+          <span class="el-bar-n">${s.pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
+        </div>`).join('');
+      }
+      if (fornNota && p.nota_fornecedores) { fornNota.hidden = false; fornNota.textContent = p.nota_fornecedores; }
+    }
+
     // Campanha sem lançamento no relatório ainda não declarou — que é
     // diferente de ter arrecadado ou gasto R$ 0. Exibir "R$ 0" nesse caso
     // afirma um fato que o dado não sustenta.
@@ -2786,7 +3169,117 @@ const base = import.meta.env.BASE_URL;
     if (nota) nota.textContent = `${p.metodologia ?? ''} ${p.disclaimer ?? ''}`.trim();
   }
 
-  // ── [16] Fontes ──
+  // ── [10] Retrovisor 2022 — acurácia × urna, house effect e máquina 2022×2026 ──
+  function renderRetrovisor(a: AcuraciaPayload | null, h: HousePayload | null): void {
+    const tbody = el('el-retro-tbody'), official = el('el-retro-official'), accNota = el('el-retro-acc-nota');
+    const fmt1 = (v: number | undefined | null): string => (v != null ? v.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—');
+    const sinal = (v: number): string => `${v > 0 ? '+' : ''}${fmt1(v)}`;
+    const t1 = a?.acuracia?.turno1;
+    if (!a || !t1?.institutos?.length) {
+      if (tbody) tbody.innerHTML = `<tr><td colspan="5"><p class="el-error mono-label">${esc(t('portfolio.eleicoes.retro_unavailable', 'retrovisor indisponível — tente recarregar'))}</p></td></tr>`;
+    } else {
+      // Painel do resultado oficial (a régua da comparação) + medianas.
+      const of1 = a.acuracia?.resultado_oficial?.turno1;
+      if (official && of1?.percentuais_validos) {
+        const linhas = Object.entries(of1.percentuais_validos)
+          .map(([nome, pct]) => `<span class="el-retro-official__item"><span class="el-retro-official__nome">${esc(nome)}</span><span class="el-retro-official__pct mono-label">${fmt1(pct)}%</span></span>`).join('');
+        const ag = t1.agregado ?? {};
+        official.hidden = false;
+        official.innerHTML = `
+          <span class="el-panel__title mono-label">${esc(t('portfolio.eleicoes.retro_official_t', 'a régua: urna do 1º turno de 2022 (% válidos)'))}</span>
+          <div class="el-retro-official__grid">${linhas}</div>
+          <p class="el-retro-official__meta mono-label">${esc(t('portfolio.eleicoes.retro_mediana', 'mediana do erro da última medição'))}: ${fmt1(ag.mediana_erro_medio_abs_pp)} pp (${fmt1(ag.mediana_erro_medio_abs_validos_pp)} pp ${esc(t('portfolio.eleicoes.retro_validos', 'em % válidos'))}) · ${nf.format(ag.n_institutos ?? 0)} ${esc(t('portfolio.eleicoes.retro_institutos', 'institutos'))}${of1.fonte_url ? ` · <a class="el-source-link" href="${esc(of1.fonte_url)}" target="_blank" rel="noopener noreferrer">${esc(t('portfolio.eleicoes.retro_fonte_tse', 'fonte: TSE'))} ↗</a>` : ''}</p>`;
+      }
+      const inst = [...t1.institutos].sort((x, y) => x.erro_medio_abs_pp - y.erro_medio_abs_pp);
+      if (tbody) tbody.innerHTML = inst.map((i, idx) => `<tr class="${idx === 0 ? 'is-leader' : ''}"${barTip(i.instituto, [
+          [t('portfolio.eleicoes.tip_amostra', 'amostra'), i.amostra ? nf.format(i.amostra) : '—'],
+          [t('portfolio.eleicoes.tip_margem_erro', 'margem de erro'), i.margem_erro_pp != null ? `±${fmt1(i.margem_erro_pp)} pp` : '—'],
+          [t('portfolio.eleicoes.retro_col_erro_validos', 'erro médio em % válidos'), `${fmt1(i.erro_medio_abs_validos_pp)} pp`],
+        ])}>
+          <td><span class="el-rk-name">${esc(i.instituto)}</span></td>
+          <td class="mono-label">${esc(fmtDate(i.data_pesquisa))}</td>
+          <td class="mono-label">${fmt1(i.erro_medio_abs_pp)}</td>
+          <td class="mono-label">${esc(sinal(i.erro_margem_pp))}</td>
+          <td class="el-retro-vies">${esc(i.direcao_vies ?? '—')}</td>
+        </tr>`).join('');
+      const t2ag = a.acuracia?.turno2?.agregado;
+      if (accNota) accNota.textContent = [
+        t2ag ? `${t('portfolio.eleicoes.retro_t2_resumo', '2º turno: mediana de')} ${fmt1(t2ag.mediana_erro_medio_abs_pp)} pp (${fmt1(t2ag.mediana_erro_medio_abs_validos_pp)} pp ${t('portfolio.eleicoes.retro_validos', 'em % válidos')}, ${nf.format(t2ag.n_institutos ?? 0)} ${t('portfolio.eleicoes.retro_institutos', 'institutos')}).` : '',
+        a.metodologia?.acuracia ?? '', a.disclaimer ?? '',
+      ].filter(Boolean).join(' ');
+    }
+
+    // House effect — a assinatura de cada instituto em 2026.
+    const houseWrap = el('el-house'), houseTable = el('el-house-table'), houseNota = el('el-house-nota');
+    const cands = h?.candidatos ?? [], instHouse = h?.institutos ?? [];
+    if (houseWrap) houseWrap.hidden = !(cands.length && instHouse.length);
+    if (houseTable && cands.length && instHouse.length) {
+      const head = `<thead><tr><th scope="col">${esc(t('portfolio.eleicoes.retro_col_inst', 'instituto'))}</th><th scope="col">${esc(t('portfolio.eleicoes.house_col_n', 'pesquisas'))}</th>${cands.map((c) => `<th scope="col">${esc(c.nome)}</th>`).join('')}</tr></thead>`;
+      const rows = instHouse.map((i) => {
+        const porCand: Record<string, HouseEfeito> = {};
+        i.efeitos.forEach((e) => { porCand[e.candidato] = e; });
+        return `<tr><td><span class="el-rk-name">${esc(i.nome)}</span></td><td class="mono-label">${nf.format(i.n_pesquisas_total)}</td>${cands.map((c) => {
+          const e = porCand[c.nome];
+          if (!e) return '<td class="mono-label">—</td>';
+          return `<td class="mono-label${e.significativo ? ' el-house-sig' : ''}">${esc(sinal(e.efeito_pp))}${e.significativo ? '<span aria-hidden="true">★</span>' : ''}</td>`;
+        }).join('')}</tr>`;
+      }).join('');
+      houseTable.innerHTML = head + `<tbody>${rows}</tbody>`;
+    }
+    if (houseNota && h) houseNota.textContent = `${h.metodologia ?? ''} ${h.disclaimer ?? ''} ${h.criterio_significancia ? `★ = ${h.criterio_significancia}` : ''}`.trim();
+
+    // Máquina 2022 × 2026 — corte espelhado na mesma altura do ciclo.
+    const maq = a?.maquina, maqWrap = el('el-maquina'), maqKpis = el('el-maquina-kpis'), maqNota = el('el-maquina-nota');
+    if (maqWrap) maqWrap.hidden = !(maq?.a2022 && maq?.a2026);
+    if (maqKpis && maq?.a2022 && maq?.a2026) {
+      const v = maq.variacao ?? {};
+      const card = (label: string, de: string, para: string, varPct?: number | null): string => `
+        <article class="el-kpi crop"><span class="crop-mark-bl" aria-hidden="true"></span>
+          <span class="el-kpi__label mono-label">${esc(label)}</span>
+          <span class="el-kpi__value el-maq-val">${esc(de)} <span class="el-maq-seta" aria-hidden="true">→</span> ${esc(para)}</span>
+          ${varPct != null ? `<span class="el-kpi__meta mono-label el-maq-var${varPct >= 0 ? ' is-up' : ''}">${varPct > 0 ? '+' : ''}${varPct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>` : ''}
+        </article>`;
+      maqKpis.innerHTML =
+        card(t('portfolio.eleicoes.maq_pesquisas', 'pesquisas registradas'), nf.format(maq.a2022.total_pesquisas ?? 0), nf.format(maq.a2026.total_pesquisas ?? 0), v.pesquisas_pct) +
+        card(t('portfolio.eleicoes.maq_institutos', 'institutos ativos'), nf.format(maq.a2022.institutos ?? 0), nf.format(maq.a2026.institutos ?? 0), v.institutos_pct) +
+        card(t('portfolio.eleicoes.maq_invest', 'investimento declarado (nominal)'), fmtRS(maq.a2022.investimento_nominal_rs ?? 0), fmtRS(maq.a2026.investimento_nominal_rs ?? 0), v.investimento_nominal_pct) +
+        (v.investimento_real_pct != null && maq.a2022.investimento_corrigido_ipca_rs
+          ? card(`${t('portfolio.eleicoes.maq_invest_real', 'investimento em R$ de')} ${maq.ipca?.ref_mes ?? ''} (IPCA)`, fmtRS(maq.a2022.investimento_corrigido_ipca_rs), fmtRS(maq.a2026.investimento_nominal_rs ?? 0), v.investimento_real_pct)
+          : '') +
+        card(t('portfolio.eleicoes.maq_custo', 'custo médio por pesquisa'), fmtRS(maq.a2022.custo_medio_rs ?? 0), fmtRS(maq.a2026.custo_medio_rs ?? 0), null);
+      if (maqNota) maqNota.textContent = [
+        maq.corte?.regra ? `${t('portfolio.eleicoes.maq_corte', 'corte')}: ${maq.corte.regra} (${fmtDate(maq.corte.a2022)} × ${fmtDate(maq.corte.a2026)}).` : '',
+        a?.metodologia?.maquina ?? '',
+      ].filter(Boolean).join(' ');
+    }
+  }
+
+  // ── [13] Fundo Eleitoral por partido — tabela oficial do TSE, curada ──
+  function renderFundoPartidos(fp: FundoPartidosPayload | null): void {
+    const wrap = el('el-fundo-partidos'), bars = el('el-fundo-partidos-bars'), nota = el('el-fundo-partidos-nota');
+    const partidos = fp?.partidos ?? [];
+    if (wrap) wrap.hidden = !partidos.length;
+    if (!bars || !partidos.length) return;
+    const TOP = 8;
+    const top = partidos.slice(0, TOP);
+    const resto = partidos.slice(TOP);
+    const max = Math.max(...top.map((p) => p.valor_rs), 1);
+    const row = (label: string, valor: number, pct: number, dim = false): string => `<div class="el-bar-row${dim ? ' el-fundop-resto' : ''}"${barTip(label, [
+      [t('portfolio.eleicoes.tip_valor', 'valor declarado'), fmtRS(valor)],
+      [t('portfolio.eleicoes.tip_percentual', 'percentual'), `${pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`],
+    ])}>
+      <span class="el-bar-lbl">${esc(label)}</span>
+      <span class="el-bar-track"><span class="el-bar-fill" style="width:${(valor / max) * 100}%"></span></span>
+      <span class="el-bar-n">${esc(fmtRS(valor))} · ${pct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
+    </div>`;
+    const restoValor = resto.reduce((s, p) => s + p.valor_rs, 0);
+    const restoPct = resto.reduce((s, p) => s + p.pct, 0);
+    bars.innerHTML = top.map((p) => row(p.sigla, p.valor_rs, p.pct)).join('')
+      + (resto.length ? row(`${t('portfolio.eleicoes.fundop_demais', 'demais')} ${nf.format(resto.length)} ${t('portfolio.eleicoes.fundop_partidos', 'partidos')}`, restoValor, restoPct, true) : '');
+    if (nota) nota.innerHTML = `${esc(fp?.disclaimer ?? '')}${fp?.fonte_url ? ` <a class="el-source-link" href="${esc(fp.fonte_url)}" target="_blank" rel="noopener noreferrer">${esc(fp?.fonte ?? 'TSE')} ↗</a>` : ''}`;
+  }
+
+  // ── [18] Fontes ──
   function renderSources(): void {
     const box = el('el-sources'); if (!box) return;
     const srcs: [string, string][] = [
@@ -2801,6 +3294,10 @@ const base = import.meta.env.BASE_URL;
     (integridade?.fontes ?? []).forEach((f) => srcs.push([f.label, f.url]));
     if (patrimonio?.fontes?.length) patrimonio.fontes.forEach((f) => srcs.push([f.label, f.url]));
     if (prestacao?.fontes?.length) prestacao.fontes.forEach((f) => srcs.push([f.label, f.url]));
+    if (candidaturas?.fonte_url) srcs.push([candidaturas.fonte ?? t('portfolio.eleicoes.src_candidaturas', 'Candidaturas 2026 — TSE Dados Abertos'), candidaturas.fonte_url]);
+    (acuracia?.fontes ?? []).forEach((f) => srcs.push([f.label, f.url]));
+    if (houseEffect?.fonte_url) srcs.push([t('portfolio.eleicoes.src_house', 'House effect 2026 — cálculo próprio sobre pesquisas agregadas (Wikipedia/TSE)'), houseEffect.fonte_url]);
+    if (fundoPartidos?.fonte_url) srcs.push([fundoPartidos.fonte ?? t('portfolio.eleicoes.src_fundop', 'FEFC 2026 por partido — TSE'), fundoPartidos.fonte_url]);
     box.innerHTML = srcs.map(([label, url]) =>
       `<li><a href="${esc(url)}" target="_blank" rel="noopener noreferrer" class="el-source-link">${esc(label)} <span aria-hidden="true">↗</span></a></li>`
     ).join('');
@@ -2828,8 +3325,11 @@ const base = import.meta.env.BASE_URL;
     safe('presregioes', () => renderPresRegioes(presReg));
     safe('estaduais', () => renderEstaduais(estaduais));
     safe('eleitorado', () => renderEleitorado(eleitorado));
+    safe('candidaturas', () => renderCandidaturas(candidaturas));
     safe('intensidadeuf', () => renderIntensidadeUF(data, eleitorado));
+    safe('retrovisor', () => renderRetrovisor(acuracia, houseEffect));
     safe('jogo', () => renderJogo(contexto));
+    safe('fundopartidos', () => renderFundoPartidos(fundoPartidos));
     safe('relogio', () => renderRelogio(contexto));
     safe('integridade', () => renderIntegridade());
     safe('patrimonio', () => renderPatrimonio(patrimonio));
@@ -2859,7 +3359,7 @@ const base = import.meta.env.BASE_URL;
     estBuilt = false; estCb = null; estMap = null; currentEstUf = '';
     presRegBuilt = false; integBuilt = false;
     const base: string = (document.body as HTMLElement).dataset.baseurl ?? '';
-    const [pdata, edata, cdata, prdata, estdata, intdata, fipca, fregdata, patrdata, prestdata] = await Promise.all([
+    const [pdata, edata, cdata, prdata, estdata, intdata, fipca, fregdata, patrdata, prestdata, canddata, acurdata, housedata, fpdata] = await Promise.all([
       fetchJSON<ElPayload>(base, 'eleicoes_pesquisas.json'),
       fetchJSON<EleitoradoPayload>(base, 'eleicoes_eleitorado.json'),
       fetchJSON<ContextoPayload>(base, 'eleicoes_contexto.json'),
@@ -2870,6 +3370,10 @@ const base = import.meta.env.BASE_URL;
       fetchJSON<PresRegioesPayload>(base, 'eleicoes_presidencial_regioes.json'),
       fetchJSON<PatrimonioPayload>(base, 'eleicoes_patrimonio.json'),
       fetchJSON<PrestacaoPayload>(base, 'eleicoes_prestacao_contas.json'),
+      fetchJSON<CandidaturasPayload>(base, 'eleicoes_candidaturas.json'),
+      fetchJSON<AcuraciaPayload>(base, 'eleicoes_acuracia_2022.json'),
+      fetchJSON<HousePayload>(base, 'eleicoes_house_effect.json'),
+      fetchJSON<FundoPartidosPayload>(base, 'eleicoes_fundo_partidos.json'),
     ]);
     eleitorado = edata;
     contexto = cdata;
@@ -2891,6 +3395,10 @@ const base = import.meta.env.BASE_URL;
     presReg = fregdata;
     patrimonio = patrdata;
     prestacao = prestdata;
+    candidaturas = canddata;
+    acuracia = acurdata;
+    houseEffect = housedata;
+    fundoPartidos = fpdata;
     if (pdata && pdata.kpis) {
       payload = pdata;
       renderAll(pdata);
@@ -2903,7 +3411,10 @@ const base = import.meta.env.BASE_URL;
       safe('presregioes', () => renderPresRegioes(presReg));
       safe('estaduais', () => renderEstaduais(estaduais));
       safe('eleitorado', () => renderEleitorado(eleitorado));
+      safe('candidaturas', () => renderCandidaturas(candidaturas));
+      safe('retrovisor', () => renderRetrovisor(acuracia, houseEffect));
       safe('jogo', () => renderJogo(contexto));
+      safe('fundopartidos', () => renderFundoPartidos(fundoPartidos));
       safe('relogio', () => renderRelogio(contexto));
       safe('integridade', () => renderIntegridade());
       safe('patrimonio', () => renderPatrimonio(patrimonio));

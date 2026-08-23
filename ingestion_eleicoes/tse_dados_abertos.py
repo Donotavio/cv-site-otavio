@@ -138,6 +138,11 @@ DESPESAS_COLUNAS = {
     "cpf_cnpj_fornecedor": "NR_CPF_CNPJ_FORNECEDOR",
     "nome_fornecedor": "NM_FORNECEDOR",
     "nome_fornecedor_rfb": "NM_FORNECEDOR_RFB",
+    # Perfil do fornecedor (pessoa física × jurídica, setor CNAE, UF) — usado
+    # pelos agregados de fornecedores/categorias da prestação de contas.
+    "tipo_fornecedor": "DS_TIPO_FORNECEDOR",
+    "cnae_fornecedor": "DS_CNAE_FORNECEDOR",
+    "uf_fornecedor": "SG_UF_FORNECEDOR",
     "ano_eleicao": "AA_ELEICAO",
 }
 

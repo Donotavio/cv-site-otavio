@@ -483,3 +483,178 @@ PRESTACAO_FONTES = [
         "url": "https://dadosabertos.tse.jus.br/group/prestacao-de-contas-eleitorais",
     },
 ]
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Retrovisor 2022 — acurácia dos institutos (última medição × urna) e
+# máquina de pesquisas 2022 × 2026
+# ═══════════════════════════════════════════════════════════════════════════
+# Bloco A (acurácia): compara a ÚLTIMA pesquisa publicada por cada instituto
+# antes de cada turno de 2022 (fonte agregadora: Wikipedia PT, que compila as
+# pesquisas registradas no TSE) com o resultado oficial das urnas (fonte: TSE).
+# Não é ranking de confiabilidade — pesquisa mede o momento do campo, não prevê
+# o dia da urna; o enquadramento obrigatório vive em ACURACIA_2022_METODOLOGIA/
+# _DISCLAIMER e acompanha o payload sempre.
+# Bloco B (máquina): compara o dataset de REGISTRO de pesquisas do TSE de 2022
+# com o de 2026 na MESMA altura do ciclo (corte espelhado por dia/mês).
+
+ANO_RETROVISOR = 2022
+
+WIKIPEDIA_ACURACIA_2022_TITLE = (
+    "Pesquisas de opinião para a eleição presidencial no Brasil em 2022"
+)
+WIKIPEDIA_ACURACIA_2022_URL = (
+    "https://pt.wikipedia.org/wiki/"
+    "Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2022"
+)
+
+# Datas oficiais dos dois turnos de 2022 e janelas de "última medição":
+# 1º turno = campo encerrado nos 14 dias anteriores à eleição (18/09–01/10);
+# 2º turno = última semana antes do confronto final (23/10–29/10). Véspera
+# inclusa, dia da eleição excluso (medição no dia = boca de urna, outro objeto).
+RETROVISOR_T1_DATA = "2022-10-02"
+RETROVISOR_T2_DATA = "2022-10-30"
+RETROVISOR_JANELA_T1_DIAS = 14
+RETROVISOR_JANELA_T2_DIAS = 7
+
+# Gate de seção do artigo 2022 (h2/h3 mais próximos acima da wikitable, por
+# substring em minúsculas). Estrutura confirmada contra o HTML real em
+# 22/08/2026: 1º turno vive sob h2 "Primeiro turno" → h3 "2022"; o confronto
+# final sob h2 "Segundo turno" → h3 "Bolsonaro x Lula" (as seções "Hipóteses…"
+# são cenários especulativos e ficam de fora por construção).
+RETROVISOR_SECAO_T1 = ("primeiro turno", "2022")
+RETROVISOR_SECAO_T2 = ("segundo turno", "bolsonaro x lula")
+
+# Cabeçalho da coluna de instituto nas wikitables de 2022 — varia por tabela
+# ("Contratante / Pesquisa", "Publicação / Pesquisa", "Instituto de Pesquisa").
+# Casado por substring em minúsculas. "Agregador" NÃO está aqui de propósito:
+# exclui as tabelas de agregação (Poder360 etc.), que não são pesquisas.
+RETROVISOR_META_INST_NEEDLES = ("contratante", "instituto", "publica")
+
+# Normalização de instituto ESPECÍFICA do artigo de 2022 (aplicada sobre o
+# último segmento de "Contratante/Instituto"). Escopo mínimo: só grafias que
+# são inequivocamente o mesmo instituto no mesmo ciclo.
+RETROVISOR_INSTITUTO_NORMALIZE = {
+    "IPEC": "Ipec",
+    "Atlas": "AtlasIntel",   # aparece abreviado em parte das linhas de 2º turno
+}
+
+# Rótulos de turno usados no bronze/gold do retrovisor.
+RETROVISOR_TURNO_1 = "turno1"
+RETROVISOR_TURNO_2 = "turno2"
+
+# Os 4 principais candidatos do 1º turno (nome curto na wikitable → canônico).
+# Juntos somaram 98,83% dos votos válidos; os demais ficam fora da métrica de
+# erro (mas entram na renormalização de "válidos", ver gold).
+RETROVISOR_CANDIDATOS_T1 = {
+    "Lula": "Lula",
+    "Bolsonaro": "Jair Bolsonaro",
+    "Gomes": "Ciro Gomes",
+    "Tebet": "Simone Tebet",
+}
+RETROVISOR_CANDIDATOS_T2 = {
+    "Lula": "Lula",
+    "Bolsonaro": "Jair Bolsonaro",
+}
+
+# Resultado oficial 2022 (% dos votos VÁLIDOS), curado de fonte oficial.
+# Verificado em 22/08/2026 contra as notícias oficiais de totalização do TSE
+# ("100% das seções totalizadas", 1º e 2º turnos; corroborado pela Agência
+# Brasil/EBC citando o TSE: Lula 57.259.504 votos = 48,43% e Bolsonaro
+# 51.072.345 = 43,20% no 1º turno; Lula 60.345.999 = 50,90% e Bolsonaro
+# 58.206.354 = 49,10% no 2º).
+RESULTADO_OFICIAL_2022 = {
+    "turno1": {
+        "data": "2022-10-02",
+        "percentuais_validos": {
+            "Lula": 48.43,
+            "Jair Bolsonaro": 43.20,
+            "Simone Tebet": 4.16,
+            "Ciro Gomes": 3.04,
+        },
+        "fonte": "TSE — totalização oficial do 1º turno (100% das seções)",
+        "fonte_url": (
+            "https://www.tse.jus.br/comunicacao/noticias/2022/Outubro/"
+            "100-das-secoes-totalizadas-confira-como-ficou-o-quadro-eleitoral-apos-o-1o-turno"
+        ),
+    },
+    "turno2": {
+        "data": "2022-10-30",
+        "percentuais_validos": {
+            "Lula": 50.90,
+            "Jair Bolsonaro": 49.10,
+        },
+        "fonte": "TSE — totalização oficial do 2º turno (100% das seções)",
+        "fonte_url": (
+            "https://www.tse.jus.br/comunicacao/noticias/2022/Outubro/"
+            "100-das-secoes-totalizadas-confira-como-ficou-o-quadro-eleitoral-apos-o-2o-turno"
+        ),
+    },
+}
+
+# Bloco B — dataset de REGISTRO de pesquisas de 2022 (mesmo layout do de 2026;
+# URL confirmada HTTP 200 via tse_dados_abertos.http_get em 22/08/2026).
+TSE_PESQUISAS_2022_ZIP_URL = (
+    "https://cdn.tse.jus.br/estatistica/sead/odsele/pesquisa_eleitoral/"
+    "pesquisa_eleitoral_2022.zip"
+)
+TSE_CSV_NACIONAL_2022 = "pesquisa_eleitoral_2022_BRASIL.csv"
+DATASET_PAGE_2022 = "https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2022"
+
+
+def instituto_canonico_2022(raw: str) -> tuple[str, str | None]:
+    """Célula de instituto do artigo 2022 → (instituto, contratante|None).
+
+    'Globo/Datafolha[11] BR-00245/2022' → ('Datafolha', 'Globo');
+    'Paraná Pesquisas[16] BR-07917/2022' → ('Paraná Pesquisas', None);
+    'Arko Advice/AtlasIntel[14]' → ('AtlasIntel', 'Arko Advice').
+    Remove refs [n] e o protocolo TSE 'BR-XXXXX/AAAA'; o instituto é o último
+    segmento de 'Contratante/Instituto' (convenção do artigo).
+    """
+    import re as _re
+
+    s = _re.sub(r"\[.*?\]", "", raw or "")
+    s = _re.sub(r"\bBR-\d{3,7}/\d{4}\b", "", s)
+    s = _re.sub(r"\s+", " ", s).strip("  -–—")
+    if not s:
+        return "", None
+    partes = [p.strip() for p in s.split("/") if p.strip()]
+    inst = partes[-1] if partes else s
+    contratante = "/".join(partes[:-1]) or None
+    inst = RETROVISOR_INSTITUTO_NORMALIZE.get(inst, INSTITUTO_NORMALIZE.get(inst, inst))
+    return inst, contratante
+
+
+ACURACIA_2022_METODOLOGIA = (
+    "Para cada instituto, toma a ÚLTIMA pesquisa presidencial publicada com "
+    "trabalho de campo encerrado na janela final de 2022 (1º turno: 14 dias "
+    "anteriores a 02/10, cenário estimulado; 2º turno: última semana antes de "
+    "30/10) e compara com o resultado oficial das urnas apurado pelo TSE. "
+    "As pesquisas publicam percentuais sobre o TOTAL de entrevistados "
+    "(incluindo indecisos, brancos e nulos), enquanto o TSE apura percentuais "
+    "de votos VÁLIDOS — parte da diferença bruta vem dessa base distinta. Por "
+    "isso o painel traz também o erro sobre os percentuais renormalizados "
+    "entre os candidatos testados (proxy de votos válidos). O erro médio usa "
+    "os 4 principais candidatos do 1º turno (98,83% dos válidos somados). "
+    "Fonte das pesquisas: Wikipedia PT, que agrega as pesquisas registradas "
+    "no TSE, com cada medição atribuída a instituto, data e amostra."
+)
+ACURACIA_2022_DISCLAIMER = (
+    "Isto NÃO é um ranking de confiabilidade. Pesquisa eleitoral mede o "
+    "momento do trabalho de campo — não prevê o dia da urna: entre a última "
+    "medição publicada e a votação existem dias de campanha, movimentação de "
+    "véspera e voto útil, que deslocam eleitores de verdade. Diferenças "
+    "dentro da margem de erro declarada não são 'erro' em sentido "
+    "estatístico. A distância medição × urna é apresentada como registro "
+    "público do ciclo 2022, sem juízo de valor sobre institutos e sem "
+    "qualquer leitura partidária."
+)
+MAQUINA_2022_METODOLOGIA = (
+    "Compara o dataset oficial de REGISTRO de pesquisas do TSE (metadados: "
+    "instituto, amostra, custo declarado, datas — não percentuais) entre os "
+    "ciclos 2022 e 2026, recortando os DOIS anos na mesma altura do ciclo: "
+    "só registros com data de divulgação até o mesmo dia/mês do ano da "
+    "coleta. Investimento é o custo declarado pelos contratantes no registro "
+    "(nominal); a leitura em reais de 2026 corrige o total de 2022 pelo IPCA "
+    "(BACEN SGS, série 433) acumulado desde o mês do corte."
+)

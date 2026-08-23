@@ -1,19 +1,19 @@
 {
   "_curadoria": true,
-  "_nota": "Recorte REGIONAL de UMA pesquisa (Genial/Quaest, jul/2026) — não é agregado de institutos como o restante da seção presidencial. A Quaest agrupa Norte + Centro-Oeste numa faixa só → 4 macrorregiões (não as 5 do IBGE). Curado à mão de fonte citável e verificado no texto. Atualizar quando sair rodada nova com recorte regional. Percentuais lidos literalmente; onde a fonte não trouxe o candidato, ele não aparece.",
-  "atualizado_em": "2026-07-17",
-  "instituto": "Genial/Quaest",
-  "contratante": "Banco Genial",
-  "periodo": "10–13 jul 2026",
-  "data_ref": "2026-07-13",
+  "_nota": "Recorte REGIONAL de UMA pesquisa (Quaest p/ Globo, rodada 1 de ago/2026) — não é agregado de institutos como o restante da seção presidencial. A Quaest agrupa Norte + Centro-Oeste numa faixa só → 4 macrorregiões (não as 5 do IBGE). Percentuais copiados do relatório oficial registrado no TSE (BR-06773/2026), slide 'Intenção de voto para Presidente - 1º turno | Região' (p. 17 do PDF, espelho PollingData) — rótulos explícitos por candidato/região; conferidos com a cobertura em texto (nacional 38×31 idêntico em Poder360/Gazeta do Povo; NE 57 e o avanço de Flávio no Sudeste citados na imprensa). Candidatos com ≥1% na região; 0% omitido. A rodada Genial/Quaest anterior (campo 31/07–03/08, BR-06591/2026) só publicou NE e Sul em texto, por isso não foi usada. Atualizar quando sair rodada nova com recorte regional.",
+  "atualizado_em": "2026-08-22",
+  "instituto": "Quaest",
+  "contratante": "Globo Comunicação e Participações S/A / Editora Globo S/A",
+  "periodo": "10–13 ago 2026",
+  "data_ref": "2026-08-13",
   "amostra": 2004,
   "margem_erro_pp": 2,
-  "registro_tse": "BR-07181/2026",
+  "registro_tse": "BR-06773/2026",
   "cenario": "1º turno · estimulado",
-  "fonte": "Genial/Quaest — presidencial jul/2026 (recorte por região)",
-  "fonte_url": "https://www.gazetadopovo.com.br/eleicoes/2026/pesquisa-eleitoral-2026/genial-quaest-presidente-julho-2026/",
-  "fonte_url_tabela": "https://www.oestopim.com/post/nordeste-amplia-vantagem-de-lula-fl%C3%A1vio-bolsonaro-lidera-apenas-no-sul",
-  "disclaimer": "Medição por região de uma única pesquisa (Genial/Quaest) — não é agregado nem cobre todos os institutos. Norte e Centro-Oeste vêm agrupados pela própria Quaest. É medição, não previsão. Sem cor partidária.",
+  "fonte": "Quaest/Globo — presidencial ago/2026, rodada 1 (recorte por região)",
+  "fonte_url": "https://www.gazetadopovo.com.br/eleicoes/2026/pesquisa-eleitoral-2026/quaest-pesquisa-presidente-agosto-2026/",
+  "fonte_url_tabela": "https://www.pollingdata.com.br/links/relatorio_BR-06773-2026_Quaest.pdf",
+  "disclaimer": "Medição por região de uma única pesquisa (Quaest/Globo) — não é agregado nem cobre todos os institutos. Norte e Centro-Oeste vêm agrupados pela própria Quaest; margem de erro por região é maior que a nacional (SE 3pp · NE 4pp · CO/N 5pp · Sul 6pp). É medição, não previsão. Sem cor partidária.",
   "ufs_por_regiao": {
     "NE": ["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"],
     "SE": ["ES", "MG", "RJ", "SP"],
@@ -24,39 +24,47 @@
     "NE": {
       "nome": "Nordeste",
       "candidatos": [
-        { "nome": "Lula", "partido": "PT", "pct": 55 },
-        { "nome": "Flávio Bolsonaro", "partido": "PL", "pct": 24 },
-        { "nome": "Ronaldo Caiado", "partido": "PSD", "pct": 3 },
-        { "nome": "Renan (Missão)", "partido": "Missão", "pct": 3 }
+        { "nome": "Lula", "partido": "PT", "pct": 57 },
+        { "nome": "Flávio Bolsonaro", "partido": "PL", "pct": 23 },
+        { "nome": "Renan Santos", "partido": "Missão", "pct": 4 },
+        { "nome": "Augusto Cury", "partido": "Avante", "pct": 2 },
+        { "nome": "Ronaldo Caiado", "partido": "PSD", "pct": 1 }
       ]
     },
     "SE": {
       "nome": "Sudeste",
       "candidatos": [
-        { "nome": "Lula", "partido": "PT", "pct": 35 },
-        { "nome": "Flávio Bolsonaro", "partido": "PL", "pct": 28 }
+        { "nome": "Flávio Bolsonaro", "partido": "PL", "pct": 35 },
+        { "nome": "Lula", "partido": "PT", "pct": 32 },
+        { "nome": "Romeu Zema", "partido": "Novo", "pct": 4 },
+        { "nome": "Renan Santos", "partido": "Missão", "pct": 3 },
+        { "nome": "Ronaldo Caiado", "partido": "PSD", "pct": 3 },
+        { "nome": "Augusto Cury", "partido": "Avante", "pct": 2 },
+        { "nome": "Samara Martins", "partido": "UP", "pct": 1 }
       ]
     },
     "S": {
       "nome": "Sul",
       "candidatos": [
-        { "nome": "Flávio Bolsonaro", "partido": "PL", "pct": 37 },
-        { "nome": "Lula", "partido": "PT", "pct": 29 },
+        { "nome": "Flávio Bolsonaro", "partido": "PL", "pct": 40 },
+        { "nome": "Lula", "partido": "PT", "pct": 25 },
+        { "nome": "Renan Santos", "partido": "Missão", "pct": 5 },
         { "nome": "Ronaldo Caiado", "partido": "PSD", "pct": 3 },
-        { "nome": "Renan (Missão)", "partido": "Missão", "pct": 3 },
         { "nome": "Romeu Zema", "partido": "Novo", "pct": 3 },
-        { "nome": "Joaquim Barbosa", "partido": "—", "pct": 3 }
+        { "nome": "Augusto Cury", "partido": "Avante", "pct": 1 },
+        { "nome": "Samara Martins", "partido": "UP", "pct": 1 }
       ]
     },
     "CON": {
       "nome": "Centro-Oeste + Norte",
       "agrupada": true,
       "candidatos": [
-        { "nome": "Lula", "partido": "PT", "pct": 39 },
-        { "nome": "Flávio Bolsonaro", "partido": "PL", "pct": 24 },
-        { "nome": "Ronaldo Caiado", "partido": "PSD", "pct": 13 },
-        { "nome": "Renan (Missão)", "partido": "Missão", "pct": 4 },
-        { "nome": "Romeu Zema", "partido": "Novo", "pct": 2 }
+        { "nome": "Lula", "partido": "PT", "pct": 36 },
+        { "nome": "Flávio Bolsonaro", "partido": "PL", "pct": 26 },
+        { "nome": "Ronaldo Caiado", "partido": "PSD", "pct": 10 },
+        { "nome": "Renan Santos", "partido": "Missão", "pct": 3 },
+        { "nome": "Augusto Cury", "partido": "Avante", "pct": 3 },
+        { "nome": "Romeu Zema", "partido": "Novo", "pct": 1 }
       ]
     }
   }
