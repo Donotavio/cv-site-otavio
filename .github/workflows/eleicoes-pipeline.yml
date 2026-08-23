@@ -35,7 +35,7 @@ jobs:
         run: pip install -r ingestion_eleicoes/requirements.txt
 
       - name: Criar diretórios de dados
-        run: mkdir -p data/bronze/eleicoes_pesquisas data/bronze/eleicoes_precandidatos data/bronze/eleicoes_estaduais data/bronze/eleicoes_integridade data/bronze/eleicoes_patrimonio data/bronze/eleicoes_prestacao_contas data/gold
+        run: mkdir -p data/bronze/eleicoes_pesquisas data/bronze/eleicoes_precandidatos data/bronze/eleicoes_estaduais data/bronze/eleicoes_integridade data/bronze/eleicoes_patrimonio data/bronze/eleicoes_prestacao_contas data/bronze/eleicoes_candidaturas data/bronze/eleicoes_acuracia_2022 data/gold
 
       # Resiliência: o CDN do TSE (cdn.tse.jus.br) às vezes recusa/atrasa
       # conexões de IPs de nuvem (timeout no runner). Antes esse passo era o
@@ -60,6 +60,12 @@ jobs:
       - name: Gold — pré-candidatos + intenção presidencial
         continue-on-error: true
         run: python transform_eleicoes/gold_precandidatos.py
+
+      # House effect: transform puro sobre o bronze de precandidatos recém-
+      # coletado (zero rede) — por isso roda logo depois do gold acima.
+      - name: Gold — house effect dos institutos (leave-one-out)
+        continue-on-error: true
+        run: python transform_eleicoes/gold_house_effect.py
 
       - name: Coletar intenção estadual (Wikipedia por UF → agrega TSE)
         continue-on-error: true
@@ -101,6 +107,27 @@ jobs:
         continue-on-error: true
         run: python transform_eleicoes/gold_prestacao_contas.py
 
+      # Perfil das candidaturas: consulta_cand completo (todos os cargos),
+      # mesma fonte/bloqueio do TSE Dados Abertos — fail-soft idem.
+      - name: Coletar perfil das candidaturas (TSE Dados Abertos)
+        continue-on-error: true
+        run: python ingestion_eleicoes/collect_candidaturas.py
+
+      - name: Gold — perfil das candidaturas × eleitorado
+        continue-on-error: true
+        run: python transform_eleicoes/gold_candidaturas.py
+
+      # Retrovisor 2022: Wikipedia 2022 + pesquisa_eleitoral_2022.zip (dado
+      # imutável) e o comparativo da máquina usa o bronze 2026 coletado acima —
+      # o corte espelhado acompanha sozinho o snapshot mais novo.
+      - name: Coletar acurácia 2022 (Wikipedia 2022 + TSE)
+        continue-on-error: true
+        run: python ingestion_eleicoes/collect_acuracia_2022.py
+
+      - name: Gold — retrovisor 2022 (acurácia + máquina 2022×2026)
+        continue-on-error: true
+        run: python transform_eleicoes/gold_acuracia_2022.py
+
       # Deflator IPCA do Fundo Eleitoral (BACEN SGS 433): múltiplo real vs. nominal.
       - name: Gold — deflator IPCA do Fundo Eleitoral
         continue-on-error: true
@@ -119,11 +146,13 @@ jobs:
 
           git add data/bronze/eleicoes_pesquisas/ data/bronze/eleicoes_precandidatos/ \
                   data/bronze/eleicoes_estaduais/ data/bronze/eleicoes_integridade/ \
-                  data/bronze/eleicoes_patrimonio/ data/bronze/eleicoes_prestacao_contas/ data/gold/ \
+                  data/bronze/eleicoes_patrimonio/ data/bronze/eleicoes_prestacao_contas/ \
+                  data/bronze/eleicoes_candidaturas/ data/bronze/eleicoes_acuracia_2022/ data/gold/ \
                   assets/data/eleicoes_pesquisas.json assets/data/eleicoes_precandidatos.json \
                   assets/data/eleicoes_estaduais.json assets/data/eleicoes_integridade.json \
                   assets/data/eleicoes_fundo_ipca.json assets/data/eleicoes_patrimonio.json \
-                  assets/data/eleicoes_prestacao_contas.json || true
+                  assets/data/eleicoes_prestacao_contas.json assets/data/eleicoes_candidaturas.json \
+                  assets/data/eleicoes_acuracia_2022.json assets/data/eleicoes_house_effect.json || true
 
           if git diff --staged --quiet; then
             echo "ℹ Sem mudanças nos dados — nada a commitar."
