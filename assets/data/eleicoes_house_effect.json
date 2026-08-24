@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-08-23T15:28:00.194067+00:00",
+  "gerado_em": "2026-08-24T15:44:50.882756+00:00",
   "fonte": "Wikipedia — agregação de pesquisas de institutos registrados no TSE",
   "fonte_url": "https://pt.wikipedia.org/wiki/Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2026",
   "ano_eleicao": 2026,
@@ -10,20 +10,20 @@
   "universo": {
     "cenario": "primeiro_turno",
     "ano": 2026,
-    "n_pontos_medicao": 380,
+    "n_pontos_medicao": 384,
     "n_institutos": 21,
     "n_pontos_descartados_janela": 0,
     "periodo": {
       "primeira": "2026-01-11",
-      "ultima": "2026-08-20"
+      "ultima": "2026-08-23"
     }
   },
   "sanity_check": {
     "descricao": "Propriedade do leave-one-out: a média dos efeitos ponderada pelo número de pontos deve ficar próxima de 0 pp para cada candidato (tolerância ±0.3 pp).",
     "media_ponderada_pp": {
-      "Flávio Bolsonaro": 0.04,
+      "Flávio Bolsonaro": 0.05,
       "Lula": 0.02,
-      "Renan (Missão)": -0.03,
+      "Renan (Missão)": -0.04,
       "Romeu Zema": 0.0
     },
     "ok": true
@@ -49,30 +49,30 @@
   "institutos": [
     {
       "nome": "Nexus/BTG Pactual",
-      "n_pesquisas_total": 10,
+      "n_pesquisas_total": 11,
       "efeitos": [
         {
           "candidato": "Flávio Bolsonaro",
           "efeito_pp": 1.6,
-          "n_pontos": 10,
+          "n_pontos": 11,
           "significativo": true
         },
         {
           "candidato": "Lula",
           "efeito_pp": 1.0,
-          "n_pontos": 10,
+          "n_pontos": 11,
           "significativo": true
         },
         {
           "candidato": "Renan (Missão)",
-          "efeito_pp": 0.2,
-          "n_pontos": 10,
+          "efeito_pp": 0.1,
+          "n_pontos": 11,
           "significativo": false
         },
         {
           "candidato": "Romeu Zema",
           "efeito_pp": 0.3,
-          "n_pontos": 10,
+          "n_pontos": 11,
           "significativo": false
         }
       ]
@@ -119,7 +119,7 @@
         },
         {
           "candidato": "Lula",
-          "efeito_pp": -3.3,
+          "efeito_pp": -3.2,
           "n_pontos": 9,
           "significativo": true
         },
@@ -209,7 +209,7 @@
         },
         {
           "candidato": "Lula",
-          "efeito_pp": -0.1,
+          "efeito_pp": -0.2,
           "n_pontos": 7,
           "significativo": false
         },
@@ -263,7 +263,7 @@
       "efeitos": [
         {
           "candidato": "Flávio Bolsonaro",
-          "efeito_pp": 1.6,
+          "efeito_pp": 1.5,
           "n_pontos": 5,
           "significativo": false
         },
