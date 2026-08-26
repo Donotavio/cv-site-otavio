@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-08-25T15:50:33.042147+00:00",
+  "gerado_em": "2026-08-26T16:23:40.546704+00:00",
   "metodologia": "Soma o valor declarado de todos os bens de cada candidato (imóveis, veículos, aplicações financeiras, participação societária etc.) no registro de candidatura — fonte: TSE, Portal de Dados Abertos, dataset Candidatos. Compara a declaração de 2026 com a de 2022 do mesmo candidato (join por CPF). Não é patrimônio real nem auditado — é o valor autodeclarado; a Justiça Eleitoral não confere com a Receita Federal publicamente (dado de pessoa física é sigilo fiscal, sem API pública). A composição por tipo de bem agrupa a categoria declarada ao TSE (DS_TIPO_BEM_CANDIDATO) em famílias legíveis — imóveis, veículos, aplicações financeiras etc.",
   "disclaimer": "Valor autodeclarado pelo próprio candidato, sem auditoria pública. Ausência de bem declarado não significa ausência de patrimônio. Comparação só é possível para quem também foi candidato em 2022. A composição usa o valor de aquisição autodeclarado de cada bem — o TSE não corrige pela inflação nem reavalia a preço de mercado.",
   "fontes": [
@@ -282,7 +282,7 @@
       "tem_comparacao": false
     },
     {
-      "nome_urna": "ALEXANDRE SALOMÃO",
+      "nome_urna": "DOUTOR ALEXANDRE SALOMÃO",
       "cargo": "GOVERNADOR",
       "uf": "PR",
       "partido": "MOBILIZA",
@@ -2304,6 +2304,21 @@
       "tem_comparacao": false
     },
     {
+      "nome_urna": "ESTÊVÃO",
+      "cargo": "GOVERNADOR",
+      "uf": "BA",
+      "partido": "DC",
+      "patrimonio_2026_rs": 600000.0,
+      "n_bens_2026": 1,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 600000.0
+        }
+      ],
+      "tem_comparacao": false
+    },
+    {
       "nome_urna": "EMANUEL CACHO",
       "cargo": "GOVERNADOR",
       "uf": "SE",
@@ -2318,21 +2333,6 @@
         {
           "tipo": "Veículos",
           "valor_rs": 100000.0
-        }
-      ],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "ESTÊVÃO",
-      "cargo": "GOVERNADOR",
-      "uf": "BA",
-      "partido": "DC",
-      "patrimonio_2026_rs": 600000.0,
-      "n_bens_2026": 1,
-      "tipos_top": [
-        {
-          "tipo": "Participações societárias",
-          "valor_rs": 600000.0
         }
       ],
       "tem_comparacao": false
@@ -2443,12 +2443,12 @@
       "tem_comparacao": false
     },
     {
-      "nome_urna": "ARIEL CAPISTRANO",
+      "nome_urna": "LUCIEN REZENDE",
       "cargo": "GOVERNADOR",
-      "uf": "BA",
-      "partido": "DC",
+      "uf": "MS",
+      "partido": "PSOL",
       "patrimonio_2026_rs": 500000.0,
-      "n_bens_2026": 1,
+      "n_bens_2026": 2,
       "tipos_top": [
         {
           "tipo": "Imóveis",
@@ -2458,12 +2458,12 @@
       "tem_comparacao": false
     },
     {
-      "nome_urna": "LUCIEN REZENDE",
+      "nome_urna": "ARIEL CAPISTRANO",
       "cargo": "GOVERNADOR",
-      "uf": "MS",
-      "partido": "PSOL",
+      "uf": "BA",
+      "partido": "DC",
       "patrimonio_2026_rs": 500000.0,
-      "n_bens_2026": 2,
+      "n_bens_2026": 1,
       "tipos_top": [
         {
           "tipo": "Imóveis",
@@ -3329,6 +3329,25 @@
       "tem_comparacao": false
     },
     {
+      "nome_urna": "BEN MENDES",
+      "cargo": "GOVERNADOR",
+      "uf": "MG",
+      "partido": "MISSÃO",
+      "patrimonio_2026_rs": 80000.0,
+      "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 60000.0
+        },
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 20000.0
+        }
+      ],
+      "tem_comparacao": false
+    },
+    {
       "nome_urna": "VIVIAN MENDES",
       "cargo": "GOVERNADOR",
       "uf": "SP",
@@ -3390,6 +3409,29 @@
         {
           "tipo": "Dinheiro e contas",
           "valor_rs": 8650.0
+        }
+      ],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "BRENO BARCELOS",
+      "cargo": "GOVERNADOR",
+      "uf": "ES",
+      "partido": "MISSÃO",
+      "patrimonio_2026_rs": 50001.0,
+      "n_bens_2026": 3,
+      "tipos_top": [
+        {
+          "tipo": "Outros bens e direitos",
+          "valor_rs": 40000.0
+        },
+        {
+          "tipo": "Participações societárias",
+          "valor_rs": 10000.0
+        },
+        {
+          "tipo": "Dinheiro e contas",
+          "valor_rs": 1.0
         }
       ],
       "tem_comparacao": false
@@ -3589,152 +3631,10 @@
       "tem_comparacao": false
     },
     {
-      "nome_urna": "FARAH MESQUITA",
-      "cargo": "GOVERNADOR",
-      "uf": "RR",
-      "partido": "SOLIDARIEDADE",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "MÁRCIO JAMBO",
-      "cargo": "GOVERNADOR",
-      "uf": "AL",
-      "partido": "DEMOCRATA",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "GILBERTO VASCONCELOS",
-      "cargo": "GOVERNADOR",
-      "uf": "AM",
-      "partido": "PSTU",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "BEN MENDES",
-      "cargo": "GOVERNADOR",
-      "uf": "MG",
-      "partido": "MISSÃO",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "PROFESSOR TÚLIO LOPES",
-      "cargo": "GOVERNADOR",
-      "uf": "MG",
-      "partido": "PCB",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "HERTZ DIAS",
-      "cargo": "PRESIDENTE",
-      "uf": "BR",
-      "partido": "PSTU",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "PEDRO BRITO",
-      "cargo": "GOVERNADOR",
-      "uf": "CE",
-      "partido": "NOVO",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "VERA LÚCIA",
+      "nome_urna": "POLICIAL EDJANE",
       "cargo": "GOVERNADOR",
       "uf": "SP",
-      "partido": "PSTU",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": true,
-      "patrimonio_2022_rs": 8805.0,
-      "variacao_pct": -100.0
-    },
-    {
-      "nome_urna": "JEFERSON BEZERRA",
-      "cargo": "GOVERNADOR",
-      "uf": "MS",
       "partido": "AGIR",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "DIMAS CASSIMIRO",
-      "cargo": "GOVERNADOR",
-      "uf": "MA",
-      "partido": "PCO",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "ANDRÉ LUIS",
-      "cargo": "GOVERNADOR",
-      "uf": "MA",
-      "partido": "MISSÃO",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "WELL MACEDO",
-      "cargo": "GOVERNADOR",
-      "uf": "PA",
-      "partido": "PSTU",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "IERI BRAGA",
-      "cargo": "GOVERNADOR",
-      "uf": "CE",
-      "partido": "PCO",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "IZADORA DIAS",
-      "cargo": "GOVERNADOR",
-      "uf": "SP",
-      "partido": "PCO",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "ARINALDA DO MLB",
-      "cargo": "GOVERNADOR",
-      "uf": "RN",
-      "partido": "UP",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
       "tipos_top": [],
@@ -3751,9 +3651,9 @@
       "tem_comparacao": false
     },
     {
-      "nome_urna": "ADRIANO FUNILEIRO",
+      "nome_urna": "LUAN MONTEIRO",
       "cargo": "GOVERNADOR",
-      "uf": "PR",
+      "uf": "RJ",
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
@@ -3761,9 +3661,29 @@
       "tem_comparacao": false
     },
     {
-      "nome_urna": "RUI COSTA PIMENTA",
-      "cargo": "PRESIDENTE",
-      "uf": "BR",
+      "nome_urna": "CARLOS JARARACA",
+      "cargo": "GOVERNADOR",
+      "uf": "RN",
+      "partido": "DC",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "CESAR PONTES",
+      "cargo": "GOVERNADOR",
+      "uf": "RS",
+      "partido": "PCO",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "ADRIANO FUNILEIRO",
+      "cargo": "GOVERNADOR",
+      "uf": "PR",
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
@@ -3781,6 +3701,56 @@
       "tem_comparacao": false
     },
     {
+      "nome_urna": "VICTOR ASSIS",
+      "cargo": "GOVERNADOR",
+      "uf": "PE",
+      "partido": "PCO",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "DELEGADO MARCOS",
+      "cargo": "GOVERNADOR",
+      "uf": "AP",
+      "partido": "DC",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "CLÉBIO GENUÍNO",
+      "cargo": "GOVERNADOR",
+      "uf": "RR",
+      "partido": "PCO",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "ARINALDA DO MLB",
+      "cargo": "GOVERNADOR",
+      "uf": "RN",
+      "partido": "UP",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "WELL MACEDO",
+      "cargo": "GOVERNADOR",
+      "uf": "PA",
+      "partido": "PSTU",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
       "nome_urna": "JAIRO PALHETA",
       "cargo": "GOVERNADOR",
       "uf": "AP",
@@ -3791,9 +3761,29 @@
       "tem_comparacao": false
     },
     {
-      "nome_urna": "POLICIAL EDJANE",
+      "nome_urna": "IZADORA DIAS",
       "cargo": "GOVERNADOR",
       "uf": "SP",
+      "partido": "PCO",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "PROFESSOR TÚLIO LOPES",
+      "cargo": "GOVERNADOR",
+      "uf": "MG",
+      "partido": "PCB",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "JEFERSON BEZERRA",
+      "cargo": "GOVERNADOR",
+      "uf": "MS",
       "partido": "AGIR",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
@@ -3801,21 +3791,9 @@
       "tem_comparacao": false
     },
     {
-      "nome_urna": "JULIETE",
+      "nome_urna": "ANDRÉ LUIS",
       "cargo": "GOVERNADOR",
-      "uf": "RJ",
-      "partido": "UP",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": true,
-      "patrimonio_2022_rs": 203.99,
-      "variacao_pct": -100.0
-    },
-    {
-      "nome_urna": "BRENO BARCELOS",
-      "cargo": "GOVERNADOR",
-      "uf": "ES",
+      "uf": "MA",
       "partido": "MISSÃO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
@@ -3843,50 +3821,62 @@
       "tem_comparacao": false
     },
     {
-      "nome_urna": "HENRIQUE ÁREAS",
+      "nome_urna": "PROF WITER NAVES",
       "cargo": "GOVERNADOR",
-      "uf": "MG",
-      "partido": "PCO",
+      "uf": "TO",
+      "partido": "PSOL",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
       "tipos_top": [],
       "tem_comparacao": false
     },
     {
-      "nome_urna": "RAFAEL DUDA",
+      "nome_urna": "PEDRO BRITO",
       "cargo": "GOVERNADOR",
-      "uf": "MG",
+      "uf": "CE",
+      "partido": "NOVO",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "PROFESSOR JEREMIAS DO BANCO",
+      "cargo": "GOVERNADOR",
+      "uf": "PE",
+      "partido": "DEMOCRATA",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "VERA LÚCIA",
+      "cargo": "GOVERNADOR",
+      "uf": "SP",
       "partido": "PSTU",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
       "tipos_top": [],
-      "tem_comparacao": false
+      "tem_comparacao": true,
+      "patrimonio_2022_rs": 8805.0,
+      "variacao_pct": -100.0
     },
     {
-      "nome_urna": "CARLOS JARARACA",
-      "cargo": "GOVERNADOR",
-      "uf": "RN",
-      "partido": "DC",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "REGINALDO LIMA",
-      "cargo": "GOVERNADOR",
-      "uf": "MA",
-      "partido": "PCB",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "CLÉBIO GENUÍNO",
+      "nome_urna": "FARAH MESQUITA",
       "cargo": "GOVERNADOR",
       "uf": "RR",
-      "partido": "PCO",
+      "partido": "SOLIDARIEDADE",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "MÁRCIO JAMBO",
+      "cargo": "GOVERNADOR",
+      "uf": "AL",
+      "partido": "DEMOCRATA",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
       "tipos_top": [],
@@ -3903,6 +3893,88 @@
       "tem_comparacao": false
     },
     {
+      "nome_urna": "RAFAEL DUDA",
+      "cargo": "GOVERNADOR",
+      "uf": "MG",
+      "partido": "PSTU",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "HERTZ DIAS",
+      "cargo": "PRESIDENTE",
+      "uf": "BR",
+      "partido": "PSTU",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "RUI COSTA PIMENTA",
+      "cargo": "PRESIDENTE",
+      "uf": "BR",
+      "partido": "PCO",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "DIMAS CASSIMIRO",
+      "cargo": "GOVERNADOR",
+      "uf": "MA",
+      "partido": "PCO",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "REGINALDO LIMA",
+      "cargo": "GOVERNADOR",
+      "uf": "MA",
+      "partido": "PCB",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "JULIETE",
+      "cargo": "GOVERNADOR",
+      "uf": "RJ",
+      "partido": "UP",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": true,
+      "patrimonio_2022_rs": 203.99,
+      "variacao_pct": -100.0
+    },
+    {
+      "nome_urna": "GILBERTO VASCONCELOS",
+      "cargo": "GOVERNADOR",
+      "uf": "AM",
+      "partido": "PSTU",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
+      "nome_urna": "HENRIQUE ÁREAS",
+      "cargo": "GOVERNADOR",
+      "uf": "MG",
+      "partido": "PCO",
+      "patrimonio_2026_rs": 0.0,
+      "n_bens_2026": 0,
+      "tipos_top": [],
+      "tem_comparacao": false
+    },
+    {
       "nome_urna": "CAMILO DUARTE",
       "cargo": "GOVERNADOR",
       "uf": "PB",
@@ -3913,9 +3985,9 @@
       "tem_comparacao": false
     },
     {
-      "nome_urna": "VICTOR ASSIS",
+      "nome_urna": "IERI BRAGA",
       "cargo": "GOVERNADOR",
-      "uf": "PE",
+      "uf": "CE",
       "partido": "PCO",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
@@ -3927,56 +3999,6 @@
       "cargo": "GOVERNADOR",
       "uf": "MS",
       "partido": "PCO",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "DELEGADO MARCOS",
-      "cargo": "GOVERNADOR",
-      "uf": "AP",
-      "partido": "DC",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "LUAN MONTEIRO",
-      "cargo": "GOVERNADOR",
-      "uf": "RJ",
-      "partido": "PCO",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "CESAR PONTES",
-      "cargo": "GOVERNADOR",
-      "uf": "RS",
-      "partido": "PCO",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "PROF WITER NAVES",
-      "cargo": "GOVERNADOR",
-      "uf": "TO",
-      "partido": "PSOL",
-      "patrimonio_2026_rs": 0.0,
-      "n_bens_2026": 0,
-      "tipos_top": [],
-      "tem_comparacao": false
-    },
-    {
-      "nome_urna": "PROFESSOR JEREMIAS DO BANCO",
-      "cargo": "GOVERNADOR",
-      "uf": "PE",
-      "partido": "DEMOCRATA",
       "patrimonio_2026_rs": 0.0,
       "n_bens_2026": 0,
       "tipos_top": [],
@@ -4200,8 +4222,8 @@
     },
     {
       "tipo": "Participações societárias",
-      "valor_rs": 312603690.52,
-      "n": 187,
+      "valor_rs": 312673690.52,
+      "n": 190,
       "pct": 15.9
     },
     {
@@ -4224,14 +4246,14 @@
     },
     {
       "tipo": "Dinheiro e contas",
-      "valor_rs": 9329978.44,
-      "n": 152,
+      "valor_rs": 9329979.44,
+      "n": 153,
       "pct": 0.5
     },
     {
       "tipo": "Outros bens e direitos",
-      "valor_rs": 486488640.55,
-      "n": 170,
+      "valor_rs": 486548640.55,
+      "n": 172,
       "pct": 24.7
     }
   ]
