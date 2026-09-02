@@ -1,49 +1,59 @@
 {
-  "gerado_em": "2026-09-01T18:18:31.451055+00:00",
+  "gerado_em": "2026-09-02T18:31:45.926914+00:00",
   "fonte": "TSE — Portal de Dados Abertos, consulta_cand 2026",
   "fonte_url": "https://dadosabertos.tse.jus.br/dataset/candidatos-2026",
   "metodologia": "Contagem simples de todas as candidaturas do arquivo nacional consolidado consulta_cand 2026 do TSE (todos os cargos, incluindo vices e suplentes), agregada por gênero, cor/raça, grau de instrução, faixa etária (idade em 04/10/2026, data do 1º turno), ocupação declarada, cargo e UF. Candidaturas a presidente e vice-presidente têm âmbito nacional e aparecem com UF 'BR'.",
   "disclaimer": "Dados autodeclarados pelas próprias candidaturas no pedido de registro ao TSE. Em agosto de 2026 o TSE publica a situação de registro como campo não preenchido (#NE) para todas as candidaturas — o universo inclui, portanto, candidaturas que ainda aguardam julgamento, e os totais podem mudar conforme os registros forem deferidos ou indeferidos.",
   "nota_comparacao": "Comparação-chave com o perfil do eleitorado: mulheres são 35.0% das candidaturas registradas para 2026, ante 52.8% do eleitorado apto a votar. Os demais recortes (cor/raça, grau de instrução, faixa etária) usam o mesmo formato do perfil do eleitorado para leitura lado a lado.",
   "ano_eleicao": 2026,
-  "total_candidaturas": 20829,
+  "total_candidaturas": 20844,
   "genero": [
     {
       "label": "Masculino",
-      "n": 13549,
+      "n": 13551,
       "pct": 65.0
     },
     {
       "label": "Feminino",
-      "n": 7280,
+      "n": 7290,
       "pct": 35.0
+    },
+    {
+      "label": "Não Divulgável",
+      "n": 3,
+      "pct": 0.0
     }
   ],
   "cor_raca": [
     {
       "label": "Branca",
-      "n": 10442,
+      "n": 10447,
       "pct": 50.1
     },
     {
       "label": "Parda",
-      "n": 7253,
+      "n": 7257,
       "pct": 34.8
     },
     {
       "label": "Preta",
-      "n": 2830,
+      "n": 2832,
       "pct": 13.6
     },
     {
       "label": "Indígena",
-      "n": 195,
+      "n": 196,
       "pct": 0.9
     },
     {
       "label": "Amarela",
       "n": 109,
       "pct": 0.5
+    },
+    {
+      "label": "Não Divulgável",
+      "n": 3,
+      "pct": 0.0
     }
   ],
   "grau_instrucao": [
@@ -59,12 +69,12 @@
     },
     {
       "label": "Ensino Fundamental Completo",
-      "n": 542,
+      "n": 543,
       "pct": 2.6
     },
     {
       "label": "Ensino Médio Incompleto",
-      "n": 718,
+      "n": 716,
       "pct": 3.4
     },
     {
@@ -74,13 +84,18 @@
     },
     {
       "label": "Superior Incompleto",
-      "n": 2193,
+      "n": 2195,
       "pct": 10.5
     },
     {
       "label": "Superior Completo",
-      "n": 12203,
+      "n": 12214,
       "pct": 58.6
+    },
+    {
+      "label": "Não Divulgável",
+      "n": 3,
+      "pct": 0.0
     }
   ],
   "faixa_etaria": [
@@ -91,54 +106,59 @@
     },
     {
       "label": "25–34",
-      "n": 1883,
+      "n": 1884,
       "pct": 9.0
     },
     {
       "label": "35–44",
-      "n": 5236,
+      "n": 5242,
       "pct": 25.1
     },
     {
       "label": "45–59",
-      "n": 9311,
+      "n": 9315,
       "pct": 44.7
     },
     {
       "label": "60–69",
-      "n": 3156,
+      "n": 3159,
       "pct": 15.2
     },
     {
       "label": "70+",
-      "n": 959,
+      "n": 957,
       "pct": 4.6
+    },
+    {
+      "label": "Não Informado",
+      "n": 3,
+      "pct": 0.0
     }
   ],
   "top_ocupacoes": [
     {
       "label": "Outros",
-      "n": 2784,
+      "n": 2787,
       "pct": 13.4
     },
     {
       "label": "Empresário",
-      "n": 2616,
+      "n": 2619,
       "pct": 12.6
     },
     {
       "label": "Advogado",
-      "n": 1709,
+      "n": 1707,
       "pct": 8.2
     },
     {
       "label": "Deputado",
-      "n": 878,
+      "n": 879,
       "pct": 4.2
     },
     {
       "label": "Vereador",
-      "n": 819,
+      "n": 820,
       "pct": 3.9
     },
     {
@@ -148,7 +168,7 @@
     },
     {
       "label": "Médico",
-      "n": 567,
+      "n": 566,
       "pct": 2.7
     },
     {
@@ -158,7 +178,7 @@
     },
     {
       "label": "Servidor Público Estadual",
-      "n": 533,
+      "n": 534,
       "pct": 2.6
     },
     {
@@ -168,21 +188,21 @@
     },
     {
       "label": "Demais ocupações",
-      "n": 9267,
+      "n": 9276,
       "pct": 44.5
     }
   ],
   "por_cargo": [
     {
       "label": "Deputado Estadual",
-      "n": 11233,
+      "n": 11243,
       "pct": 53.9,
       "pct_feminino": 34.6,
       "pct_negros": 49.9
     },
     {
       "label": "Deputado Federal",
-      "n": 7753,
+      "n": 7756,
       "pct": 37.2,
       "pct_feminino": 36.7,
       "pct_negros": 47.0
@@ -196,17 +216,17 @@
     },
     {
       "label": "2º Suplente",
-      "n": 336,
+      "n": 337,
       "pct": 1.6,
-      "pct_feminino": 31.0,
-      "pct_negros": 51.8
+      "pct_feminino": 30.9,
+      "pct_negros": 51.6
     },
     {
       "label": "1º Suplente",
-      "n": 331,
+      "n": 332,
       "pct": 1.6,
-      "pct_feminino": 29.9,
-      "pct_negros": 39.3
+      "pct_feminino": 29.8,
+      "pct_negros": 39.5
     },
     {
       "label": "Senador",
@@ -225,7 +245,7 @@
     {
       "label": "Governador",
       "n": 198,
-      "pct": 1.0,
+      "pct": 0.9,
       "pct_feminino": 17.2,
       "pct_negros": 40.4
     },
@@ -247,17 +267,17 @@
   "por_uf": [
     {
       "uf": "SP",
-      "n": 2622,
+      "n": 2623,
       "pct": 12.6
     },
     {
       "uf": "RJ",
-      "n": 2043,
+      "n": 2045,
       "pct": 9.8
     },
     {
       "uf": "MG",
-      "n": 1826,
+      "n": 1828,
       "pct": 8.8
     },
     {
@@ -267,7 +287,7 @@
     },
     {
       "uf": "PR",
-      "n": 1086,
+      "n": 1087,
       "pct": 5.2
     },
     {
@@ -282,12 +302,12 @@
     },
     {
       "uf": "GO",
-      "n": 898,
+      "n": 899,
       "pct": 4.3
     },
     {
       "uf": "PA",
-      "n": 732,
+      "n": 733,
       "pct": 3.5
     },
     {
@@ -323,11 +343,11 @@
     {
       "uf": "MT",
       "n": 448,
-      "pct": 2.2
+      "pct": 2.1
     },
     {
       "uf": "PB",
-      "n": 446,
+      "n": 447,
       "pct": 2.1
     },
     {
@@ -342,17 +362,17 @@
     },
     {
       "uf": "SE",
-      "n": 406,
-      "pct": 1.9
+      "n": 408,
+      "pct": 2.0
     },
     {
       "uf": "RR",
-      "n": 403,
+      "n": 405,
       "pct": 1.9
     },
     {
       "uf": "PI",
-      "n": 397,
+      "n": 398,
       "pct": 1.9
     },
     {
@@ -372,7 +392,7 @@
     },
     {
       "uf": "AP",
-      "n": 318,
+      "n": 319,
       "pct": 1.5
     },
     {
