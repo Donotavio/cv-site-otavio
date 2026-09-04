@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-09-03T18:26:27.703865+00:00",
+  "gerado_em": "2026-09-04T18:13:32.540732+00:00",
   "fonte": "Wikipedia — agregação de pesquisas de institutos registrados no TSE",
   "fonte_url": "https://pt.wikipedia.org/wiki/Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2026",
   "ano_eleicao": 2026,
@@ -10,325 +10,71 @@
   "universo": {
     "cenario": "primeiro_turno",
     "ano": 2026,
-    "n_pontos_medicao": 400,
-    "n_institutos": 25,
-    "n_pontos_descartados_janela": 6,
+    "n_pontos_medicao": 40,
+    "n_institutos": 4,
+    "n_pontos_descartados_janela": 0,
     "periodo": {
-      "primeira": "2026-01-04",
-      "ultima": "2026-12-31"
+      "primeira": "2026-09-01",
+      "ultima": "2026-09-02"
     }
   },
   "sanity_check": {
     "descricao": "Propriedade do leave-one-out: a média dos efeitos ponderada pelo número de pontos deve ficar próxima de 0 pp para cada candidato (tolerância ±0.3 pp).",
     "media_ponderada_pp": {
-      "Lula": 0.05,
-      "Romeu Zema": 0.05,
-      "Ronaldo Caiado": 0.06
+      "Cury": 0.0,
+      "Dias": 0.0,
+      "Flávio Bolsonaro": 0.0,
+      "Grassi": 0.0,
+      "Lula": 0.0,
+      "Pimenta": 0.0,
+      "Renan (Missão)": -0.0,
+      "Romeu Zema": 0.0,
+      "Ronaldo Caiado": 0.0,
+      "Samara": 0.0
     },
     "ok": true
   },
   "candidatos": [
     {
+      "nome": "Cury",
+      "n_institutos_avaliados": 0
+    },
+    {
+      "nome": "Flávio Bolsonaro",
+      "n_institutos_avaliados": 0
+    },
+    {
+      "nome": "Dias",
+      "n_institutos_avaliados": 0
+    },
+    {
       "nome": "Lula",
-      "n_institutos_avaliados": 12
+      "n_institutos_avaliados": 0
+    },
+    {
+      "nome": "Grassi",
+      "n_institutos_avaliados": 0
     },
     {
       "nome": "Ronaldo Caiado",
-      "n_institutos_avaliados": 12
+      "n_institutos_avaliados": 0
     },
     {
       "nome": "Romeu Zema",
-      "n_institutos_avaliados": 12
+      "n_institutos_avaliados": 0
+    },
+    {
+      "nome": "Pimenta",
+      "n_institutos_avaliados": 0
+    },
+    {
+      "nome": "Renan (Missão)",
+      "n_institutos_avaliados": 0
+    },
+    {
+      "nome": "Samara",
+      "n_institutos_avaliados": 0
     }
   ],
-  "institutos": [
-    {
-      "nome": "AtlasIntel",
-      "n_pesquisas_total": 13,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": 8.1,
-          "n_pontos": 12,
-          "significativo": true
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": 0.5,
-          "n_pontos": 11,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": 0.8,
-          "n_pontos": 12,
-          "significativo": false
-        }
-      ]
-    },
-    {
-      "nome": "Gerp",
-      "n_pesquisas_total": 13,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": -4.2,
-          "n_pontos": 13,
-          "significativo": true
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": -0.9,
-          "n_pontos": 13,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": -1.7,
-          "n_pontos": 13,
-          "significativo": true
-        }
-      ]
-    },
-    {
-      "nome": "Paraná Pesquisas",
-      "n_pesquisas_total": 13,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": -1.1,
-          "n_pontos": 12,
-          "significativo": true
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": 3.6,
-          "n_pontos": 10,
-          "significativo": true
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": 0.4,
-          "n_pontos": 12,
-          "significativo": false
-        }
-      ]
-    },
-    {
-      "nome": "Nexus/BTG Pactual",
-      "n_pesquisas_total": 12,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": 1.1,
-          "n_pontos": 12,
-          "significativo": true
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": -0.2,
-          "n_pontos": 12,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": 0.3,
-          "n_pontos": 12,
-          "significativo": false
-        }
-      ]
-    },
-    {
-      "nome": "Apex/Futura",
-      "n_pesquisas_total": 11,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": -0.4,
-          "n_pontos": 11,
-          "significativo": false
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": 1.8,
-          "n_pontos": 11,
-          "significativo": true
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": 3.0,
-          "n_pontos": 11,
-          "significativo": true
-        }
-      ]
-    },
-    {
-      "nome": "Genial/Quaest",
-      "n_pesquisas_total": 11,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": -1.2,
-          "n_pontos": 10,
-          "significativo": true
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": -0.7,
-          "n_pontos": 10,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": -0.8,
-          "n_pontos": 10,
-          "significativo": false
-        }
-      ]
-    },
-    {
-      "nome": "Datafolha",
-      "n_pesquisas_total": 8,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": 0.5,
-          "n_pontos": 8,
-          "significativo": false
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": -0.5,
-          "n_pontos": 8,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": -0.5,
-          "n_pontos": 8,
-          "significativo": false
-        }
-      ]
-    },
-    {
-      "nome": "Meio/Ideia",
-      "n_pesquisas_total": 8,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": 1.7,
-          "n_pontos": 8,
-          "significativo": true
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": -0.5,
-          "n_pontos": 8,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": 0.9,
-          "n_pontos": 8,
-          "significativo": false
-        }
-      ]
-    },
-    {
-      "nome": "PoderData/Aya",
-      "n_pesquisas_total": 7,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": -0.2,
-          "n_pontos": 7,
-          "significativo": false
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": -0.4,
-          "n_pontos": 7,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": -0.9,
-          "n_pontos": 7,
-          "significativo": false
-        }
-      ]
-    },
-    {
-      "nome": "Real Time Big Data",
-      "n_pesquisas_total": 7,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": -0.2,
-          "n_pontos": 7,
-          "significativo": false
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": -0.8,
-          "n_pontos": 7,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": 0.6,
-          "n_pontos": 7,
-          "significativo": false
-        }
-      ]
-    },
-    {
-      "nome": "CNT/MDA",
-      "n_pesquisas_total": 6,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": 0.2,
-          "n_pontos": 6,
-          "significativo": false
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": 0.0,
-          "n_pontos": 5,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": -0.7,
-          "n_pontos": 5,
-          "significativo": false
-        }
-      ]
-    },
-    {
-      "nome": "Vox Brasil",
-      "n_pesquisas_total": 6,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": -0.7,
-          "n_pontos": 6,
-          "significativo": false
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": -0.1,
-          "n_pontos": 6,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": 0.9,
-          "n_pontos": 6,
-          "significativo": false
-        }
-      ]
-    }
-  ]
+  "institutos": []
 }
