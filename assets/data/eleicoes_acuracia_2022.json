@@ -1,0 +1,1330 @@
+{
+  "gerado_em": "2026-09-05T17:16:02.725338+00:00",
+  "fontes": [
+    {
+      "label": "Wikipedia PT — Pesquisas de opinião para a eleição presidencial no Brasil em 2022 (agrega pesquisas registradas no TSE)",
+      "url": "https://pt.wikipedia.org/wiki/Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2022"
+    },
+    {
+      "label": "TSE — Portal de Dados Abertos, Pesquisas Eleitorais 2022",
+      "url": "https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2022"
+    },
+    {
+      "label": "TSE — Portal de Dados Abertos, Pesquisas Eleitorais 2026",
+      "url": "https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026"
+    },
+    {
+      "label": "TSE — totalização oficial do 1º turno (100% das seções)",
+      "url": "https://www.tse.jus.br/comunicacao/noticias/2022/Outubro/100-das-secoes-totalizadas-confira-como-ficou-o-quadro-eleitoral-apos-o-1o-turno"
+    },
+    {
+      "label": "TSE — totalização oficial do 2º turno (100% das seções)",
+      "url": "https://www.tse.jus.br/comunicacao/noticias/2022/Outubro/100-das-secoes-totalizadas-confira-como-ficou-o-quadro-eleitoral-apos-o-2o-turno"
+    },
+    {
+      "label": "Banco Central do Brasil — SGS série 433 (IPCA, variação % mensal)",
+      "url": "https://www3.bcb.gov.br/sgspub/consultarvalores/telaCvsSelecionarSeries.paint?method=consultarSeries&codigoSerie=433"
+    }
+  ],
+  "metodologia": {
+    "acuracia": "Para cada instituto, toma a ÚLTIMA pesquisa presidencial publicada com trabalho de campo encerrado na janela final de 2022 (1º turno: 14 dias anteriores a 02/10, cenário estimulado; 2º turno: última semana antes de 30/10) e compara com o resultado oficial das urnas apurado pelo TSE. As pesquisas publicam percentuais sobre o TOTAL de entrevistados (incluindo indecisos, brancos e nulos), enquanto o TSE apura percentuais de votos VÁLIDOS — parte da diferença bruta vem dessa base distinta. Por isso o painel traz também o erro sobre os percentuais renormalizados entre os candidatos testados (proxy de votos válidos). O erro médio usa os 4 principais candidatos do 1º turno (98,83% dos válidos somados). Fonte das pesquisas: Wikipedia PT, que agrega as pesquisas registradas no TSE, com cada medição atribuída a instituto, data e amostra.",
+    "maquina": "Compara o dataset oficial de REGISTRO de pesquisas do TSE (metadados: instituto, amostra, custo declarado, datas — não percentuais) entre os ciclos 2022 e 2026, recortando os DOIS anos na mesma altura do ciclo: só registros com data de divulgação até o mesmo dia/mês do ano da coleta. Investimento é o custo declarado pelos contratantes no registro (nominal); a leitura em reais de 2026 corrige o total de 2022 pelo IPCA (BACEN SGS, série 433) acumulado desde o mês do corte."
+  },
+  "disclaimer": "Isto NÃO é um ranking de confiabilidade. Pesquisa eleitoral mede o momento do trabalho de campo — não prevê o dia da urna: entre a última medição publicada e a votação existem dias de campanha, movimentação de véspera e voto útil, que deslocam eleitores de verdade. Diferenças dentro da margem de erro declarada não são 'erro' em sentido estatístico. A distância medição × urna é apresentada como registro público do ciclo 2022, sem juízo de valor sobre institutos e sem qualquer leitura partidária.",
+  "acuracia": {
+    "resultado_oficial": {
+      "turno1": {
+        "data": "2022-10-02",
+        "percentuais_validos": {
+          "Lula": 48.43,
+          "Jair Bolsonaro": 43.2,
+          "Simone Tebet": 4.16,
+          "Ciro Gomes": 3.04
+        },
+        "fonte": "TSE — totalização oficial do 1º turno (100% das seções)",
+        "fonte_url": "https://www.tse.jus.br/comunicacao/noticias/2022/Outubro/100-das-secoes-totalizadas-confira-como-ficou-o-quadro-eleitoral-apos-o-1o-turno"
+      },
+      "turno2": {
+        "data": "2022-10-30",
+        "percentuais_validos": {
+          "Lula": 50.9,
+          "Jair Bolsonaro": 49.1
+        },
+        "fonte": "TSE — totalização oficial do 2º turno (100% das seções)",
+        "fonte_url": "https://www.tse.jus.br/comunicacao/noticias/2022/Outubro/100-das-secoes-totalizadas-confira-como-ficou-o-quadro-eleitoral-apos-o-2o-turno"
+      }
+    },
+    "turno1": {
+      "janela": {
+        "regra": "última pesquisa de cada instituto com campo encerrado nos 14 dias anteriores à eleição (véspera inclusa; dia da urna excluso)",
+        "inicio": "2022-09-18",
+        "fim": "2022-10-01"
+      },
+      "cenario": "estimulado",
+      "institutos": [
+        {
+          "instituto": "AtlasIntel",
+          "contratante": "Arko Advice",
+          "data_pesquisa": "2022-09-30",
+          "amostra": 4500,
+          "margem_erro_pp": 1.0,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 49.8,
+              "pct_pesquisa_validos": 50.4,
+              "pct_urna": 48.43,
+              "erro_pp": 1.37,
+              "erro_validos_pp": 1.97
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 40.7,
+              "pct_pesquisa_validos": 41.19,
+              "pct_urna": 43.2,
+              "erro_pp": -2.5,
+              "erro_validos_pp": -2.01
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 2.6,
+              "pct_pesquisa_validos": 2.63,
+              "pct_urna": 4.16,
+              "erro_pp": -1.56,
+              "erro_validos_pp": -1.53
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 3.9,
+              "pct_pesquisa_validos": 3.95,
+              "pct_urna": 3.04,
+              "erro_pp": 0.86,
+              "erro_validos_pp": 0.91
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 98.8,
+          "erro_medio_abs_pp": 1.57,
+          "erro_medio_abs_validos_pp": 1.6,
+          "margem_medida_pp": 9.1,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": 3.87,
+          "direcao_vies": "subestimou Jair Bolsonaro em 2,5 pp"
+        },
+        {
+          "instituto": "Instituto Veritá",
+          "contratante": null,
+          "data_pesquisa": "2022-09-29",
+          "amostra": 51169,
+          "margem_erro_pp": 2.0,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 41.6,
+              "pct_pesquisa_validos": 42.62,
+              "pct_urna": 48.43,
+              "erro_pp": -6.83,
+              "erro_validos_pp": -5.81
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 44.6,
+              "pct_pesquisa_validos": 45.7,
+              "pct_urna": 43.2,
+              "erro_pp": 1.4,
+              "erro_validos_pp": 2.5
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 4.2,
+              "pct_pesquisa_validos": 4.3,
+              "pct_urna": 4.16,
+              "erro_pp": 0.04,
+              "erro_validos_pp": 0.14
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 4.1,
+              "pct_pesquisa_validos": 4.2,
+              "pct_urna": 3.04,
+              "erro_pp": 1.06,
+              "erro_validos_pp": 1.16
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 97.6,
+          "erro_medio_abs_pp": 2.33,
+          "erro_medio_abs_validos_pp": 2.4,
+          "margem_medida_pp": -3.0,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": -8.23,
+          "direcao_vies": "subestimou Lula em 6,8 pp"
+        },
+        {
+          "instituto": "Ideia",
+          "contratante": "Exame",
+          "data_pesquisa": "2022-09-28",
+          "amostra": 1500,
+          "margem_erro_pp": 3.0,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 47.0,
+              "pct_pesquisa_validos": 48.86,
+              "pct_urna": 48.43,
+              "erro_pp": -1.43,
+              "erro_validos_pp": 0.43
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 37.0,
+              "pct_pesquisa_validos": 38.46,
+              "pct_urna": 43.2,
+              "erro_pp": -6.2,
+              "erro_validos_pp": -4.74
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 5.0,
+              "pct_pesquisa_validos": 5.2,
+              "pct_urna": 4.16,
+              "erro_pp": 0.84,
+              "erro_validos_pp": 1.04
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 6.0,
+              "pct_pesquisa_validos": 6.24,
+              "pct_urna": 3.04,
+              "erro_pp": 2.96,
+              "erro_validos_pp": 3.2
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 96.2,
+          "erro_medio_abs_pp": 2.86,
+          "erro_medio_abs_validos_pp": 2.35,
+          "margem_medida_pp": 10.0,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": 4.77,
+          "direcao_vies": "subestimou Jair Bolsonaro em 6,2 pp"
+        },
+        {
+          "instituto": "Equilíbrio Brasil",
+          "contratante": null,
+          "data_pesquisa": "2022-09-22",
+          "amostra": 11500,
+          "margem_erro_pp": 3.0,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 39.0,
+              "pct_pesquisa_validos": 41.05,
+              "pct_urna": 48.43,
+              "erro_pp": -9.43,
+              "erro_validos_pp": -7.38
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 44.0,
+              "pct_pesquisa_validos": 46.32,
+              "pct_urna": 43.2,
+              "erro_pp": 0.8,
+              "erro_validos_pp": 3.12
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 4.0,
+              "pct_pesquisa_validos": 4.21,
+              "pct_urna": 4.16,
+              "erro_pp": -0.16,
+              "erro_validos_pp": 0.05
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 5.0,
+              "pct_pesquisa_validos": 5.26,
+              "pct_urna": 3.04,
+              "erro_pp": 1.96,
+              "erro_validos_pp": 2.22
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 95.0,
+          "erro_medio_abs_pp": 3.09,
+          "erro_medio_abs_validos_pp": 3.19,
+          "margem_medida_pp": -5.0,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": -10.23,
+          "direcao_vies": "subestimou Lula em 9,4 pp"
+        },
+        {
+          "instituto": "MDA",
+          "contratante": "CNT",
+          "data_pesquisa": "2022-09-30",
+          "amostra": 2002,
+          "margem_erro_pp": 2.2,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 44.2,
+              "pct_pesquisa_validos": 48.31,
+              "pct_urna": 48.43,
+              "erro_pp": -4.23,
+              "erro_validos_pp": -0.12
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 36.3,
+              "pct_pesquisa_validos": 39.67,
+              "pct_urna": 43.2,
+              "erro_pp": -6.9,
+              "erro_validos_pp": -3.53
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 4.3,
+              "pct_pesquisa_validos": 4.7,
+              "pct_urna": 4.16,
+              "erro_pp": 0.14,
+              "erro_validos_pp": 0.54
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 4.5,
+              "pct_pesquisa_validos": 4.92,
+              "pct_urna": 3.04,
+              "erro_pp": 1.46,
+              "erro_validos_pp": 1.88
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 91.5,
+          "erro_medio_abs_pp": 3.18,
+          "erro_medio_abs_validos_pp": 1.52,
+          "margem_medida_pp": 7.9,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": 2.67,
+          "direcao_vies": "subestimou Jair Bolsonaro em 6,9 pp"
+        },
+        {
+          "instituto": "Datafolha",
+          "contratante": "Globo",
+          "data_pesquisa": "2022-10-01",
+          "amostra": 12800,
+          "margem_erro_pp": 2.0,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 48.0,
+              "pct_pesquisa_validos": 50.53,
+              "pct_urna": 48.43,
+              "erro_pp": -0.43,
+              "erro_validos_pp": 2.1
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 34.0,
+              "pct_pesquisa_validos": 35.79,
+              "pct_urna": 43.2,
+              "erro_pp": -9.2,
+              "erro_validos_pp": -7.41
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 6.0,
+              "pct_pesquisa_validos": 6.32,
+              "pct_urna": 4.16,
+              "erro_pp": 1.84,
+              "erro_validos_pp": 2.16
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 5.0,
+              "pct_pesquisa_validos": 5.26,
+              "pct_urna": 3.04,
+              "erro_pp": 1.96,
+              "erro_validos_pp": 2.22
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 95.0,
+          "erro_medio_abs_pp": 3.36,
+          "erro_medio_abs_validos_pp": 3.47,
+          "margem_medida_pp": 14.0,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": 8.77,
+          "direcao_vies": "subestimou Jair Bolsonaro em 9,2 pp"
+        },
+        {
+          "instituto": "Ipec",
+          "contratante": "Globo",
+          "data_pesquisa": "2022-10-01",
+          "amostra": 3008,
+          "margem_erro_pp": 2.0,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 47.0,
+              "pct_pesquisa_validos": 50.54,
+              "pct_urna": 48.43,
+              "erro_pp": -1.43,
+              "erro_validos_pp": 2.11
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 34.0,
+              "pct_pesquisa_validos": 36.56,
+              "pct_urna": 43.2,
+              "erro_pp": -9.2,
+              "erro_validos_pp": -6.64
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 5.0,
+              "pct_pesquisa_validos": 5.38,
+              "pct_urna": 4.16,
+              "erro_pp": 0.84,
+              "erro_validos_pp": 1.22
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 5.0,
+              "pct_pesquisa_validos": 5.38,
+              "pct_urna": 3.04,
+              "erro_pp": 1.96,
+              "erro_validos_pp": 2.34
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 93.0,
+          "erro_medio_abs_pp": 3.36,
+          "erro_medio_abs_validos_pp": 3.08,
+          "margem_medida_pp": 13.0,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": 7.77,
+          "direcao_vies": "subestimou Jair Bolsonaro em 9,2 pp"
+        },
+        {
+          "instituto": "PoderData",
+          "contratante": null,
+          "data_pesquisa": "2022-09-27",
+          "amostra": 4500,
+          "margem_erro_pp": 1.5,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 45.0,
+              "pct_pesquisa_validos": 48.39,
+              "pct_urna": 48.43,
+              "erro_pp": -3.43,
+              "erro_validos_pp": -0.04
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 36.0,
+              "pct_pesquisa_validos": 38.71,
+              "pct_urna": 43.2,
+              "erro_pp": -7.2,
+              "erro_validos_pp": -4.49
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 4.0,
+              "pct_pesquisa_validos": 4.3,
+              "pct_urna": 4.16,
+              "erro_pp": -0.16,
+              "erro_validos_pp": 0.14
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 6.0,
+              "pct_pesquisa_validos": 6.45,
+              "pct_urna": 3.04,
+              "erro_pp": 2.96,
+              "erro_validos_pp": 3.41
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 93.0,
+          "erro_medio_abs_pp": 3.44,
+          "erro_medio_abs_validos_pp": 2.02,
+          "margem_medida_pp": 9.0,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": 3.77,
+          "direcao_vies": "subestimou Jair Bolsonaro em 7,2 pp"
+        },
+        {
+          "instituto": "Paraná Pesquisas",
+          "contratante": null,
+          "data_pesquisa": "2022-09-29",
+          "amostra": 2020,
+          "margem_erro_pp": 2.2,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 43.9,
+              "pct_pesquisa_validos": 47.15,
+              "pct_urna": 48.43,
+              "erro_pp": -4.53,
+              "erro_validos_pp": -1.28
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 37.3,
+              "pct_pesquisa_validos": 40.06,
+              "pct_urna": 43.2,
+              "erro_pp": -5.9,
+              "erro_validos_pp": -3.14
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 5.8,
+              "pct_pesquisa_validos": 6.23,
+              "pct_urna": 4.16,
+              "erro_pp": 1.64,
+              "erro_validos_pp": 2.07
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 4.9,
+              "pct_pesquisa_validos": 5.26,
+              "pct_urna": 3.04,
+              "erro_pp": 1.86,
+              "erro_validos_pp": 2.22
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 93.1,
+          "erro_medio_abs_pp": 3.48,
+          "erro_medio_abs_validos_pp": 2.18,
+          "margem_medida_pp": 6.6,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": 1.37,
+          "direcao_vies": "subestimou Jair Bolsonaro em 5,9 pp"
+        },
+        {
+          "instituto": "FSB",
+          "contratante": "BTG Pactual",
+          "data_pesquisa": "2022-09-25",
+          "amostra": 2000,
+          "margem_erro_pp": 2.0,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 45.0,
+              "pct_pesquisa_validos": 48.39,
+              "pct_urna": 48.43,
+              "erro_pp": -3.43,
+              "erro_validos_pp": -0.04
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 35.0,
+              "pct_pesquisa_validos": 37.63,
+              "pct_urna": 43.2,
+              "erro_pp": -8.2,
+              "erro_validos_pp": -5.57
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 4.0,
+              "pct_pesquisa_validos": 4.3,
+              "pct_urna": 4.16,
+              "erro_pp": -0.16,
+              "erro_validos_pp": 0.14
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 7.0,
+              "pct_pesquisa_validos": 7.53,
+              "pct_urna": 3.04,
+              "erro_pp": 3.96,
+              "erro_validos_pp": 4.49
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 93.0,
+          "erro_medio_abs_pp": 3.94,
+          "erro_medio_abs_validos_pp": 2.56,
+          "margem_medida_pp": 10.0,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": 4.77,
+          "direcao_vies": "subestimou Jair Bolsonaro em 8,2 pp"
+        },
+        {
+          "instituto": "Quaest",
+          "contratante": "Genial",
+          "data_pesquisa": "2022-09-27",
+          "amostra": 2000,
+          "margem_erro_pp": 2.0,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 46.0,
+              "pct_pesquisa_validos": 50.55,
+              "pct_urna": 48.43,
+              "erro_pp": -2.43,
+              "erro_validos_pp": 2.12
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 33.0,
+              "pct_pesquisa_validos": 36.26,
+              "pct_urna": 43.2,
+              "erro_pp": -10.2,
+              "erro_validos_pp": -6.94
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 5.0,
+              "pct_pesquisa_validos": 5.49,
+              "pct_urna": 4.16,
+              "erro_pp": 0.84,
+              "erro_validos_pp": 1.33
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 6.0,
+              "pct_pesquisa_validos": 6.59,
+              "pct_urna": 3.04,
+              "erro_pp": 2.96,
+              "erro_validos_pp": 3.55
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 91.0,
+          "erro_medio_abs_pp": 4.11,
+          "erro_medio_abs_validos_pp": 3.49,
+          "margem_medida_pp": 13.0,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": 7.77,
+          "direcao_vies": "subestimou Jair Bolsonaro em 10,2 pp"
+        },
+        {
+          "instituto": "Ipespe",
+          "contratante": "Abrapel",
+          "data_pesquisa": "2022-09-30",
+          "amostra": 1100,
+          "margem_erro_pp": 3.0,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 46.0,
+              "pct_pesquisa_validos": 48.94,
+              "pct_urna": 48.43,
+              "erro_pp": -2.43,
+              "erro_validos_pp": 0.51
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 33.0,
+              "pct_pesquisa_validos": 35.11,
+              "pct_urna": 43.2,
+              "erro_pp": -10.2,
+              "erro_validos_pp": -8.09
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 6.0,
+              "pct_pesquisa_validos": 6.38,
+              "pct_urna": 4.16,
+              "erro_pp": 1.84,
+              "erro_validos_pp": 2.22
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 7.0,
+              "pct_pesquisa_validos": 7.45,
+              "pct_urna": 3.04,
+              "erro_pp": 3.96,
+              "erro_validos_pp": 4.41
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 94.0,
+          "erro_medio_abs_pp": 4.61,
+          "erro_medio_abs_validos_pp": 3.81,
+          "margem_medida_pp": 13.0,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": 7.77,
+          "direcao_vies": "subestimou Jair Bolsonaro em 10,2 pp"
+        },
+        {
+          "instituto": "Futura",
+          "contratante": "Modalmais",
+          "data_pesquisa": "2022-09-28",
+          "amostra": 2000,
+          "margem_erro_pp": 2.2,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 40.7,
+              "pct_pesquisa_validos": 43.58,
+              "pct_urna": 48.43,
+              "erro_pp": -7.73,
+              "erro_validos_pp": -4.85
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 37.8,
+              "pct_pesquisa_validos": 40.47,
+              "pct_urna": 43.2,
+              "erro_pp": -5.4,
+              "erro_validos_pp": -2.73
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 7.2,
+              "pct_pesquisa_validos": 7.71,
+              "pct_urna": 4.16,
+              "erro_pp": 3.04,
+              "erro_validos_pp": 3.55
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 5.6,
+              "pct_pesquisa_validos": 6.0,
+              "pct_urna": 3.04,
+              "erro_pp": 2.56,
+              "erro_validos_pp": 2.96
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 93.4,
+          "erro_medio_abs_pp": 4.68,
+          "erro_medio_abs_validos_pp": 3.52,
+          "margem_medida_pp": 2.9,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": -2.33,
+          "direcao_vies": "subestimou Lula em 7,7 pp"
+        },
+        {
+          "instituto": "Brasmarket",
+          "contratante": null,
+          "data_pesquisa": "2022-09-28",
+          "amostra": 1600,
+          "margem_erro_pp": 2.45,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 30.9,
+              "pct_pesquisa_validos": 34.64,
+              "pct_urna": 48.43,
+              "erro_pp": -17.53,
+              "erro_validos_pp": -13.79
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 45.4,
+              "pct_pesquisa_validos": 50.9,
+              "pct_urna": 43.2,
+              "erro_pp": 2.2,
+              "erro_validos_pp": 7.7
+            },
+            {
+              "nome": "Simone Tebet",
+              "partido": "MDB",
+              "pct_pesquisa": 5.2,
+              "pct_pesquisa_validos": 5.83,
+              "pct_urna": 4.16,
+              "erro_pp": 1.04,
+              "erro_validos_pp": 1.67
+            },
+            {
+              "nome": "Ciro Gomes",
+              "partido": "PDT",
+              "pct_pesquisa": 6.2,
+              "pct_pesquisa_validos": 6.95,
+              "pct_urna": 3.04,
+              "erro_pp": 3.16,
+              "erro_validos_pp": 3.91
+            }
+          ],
+          "n_candidatos_avaliados": 4,
+          "soma_candidatos_pct": 89.2,
+          "erro_medio_abs_pp": 5.98,
+          "erro_medio_abs_validos_pp": 6.77,
+          "margem_medida_pp": -14.5,
+          "margem_real_pp": 5.23,
+          "erro_margem_pp": -19.73,
+          "direcao_vies": "subestimou Lula em 17,5 pp"
+        }
+      ],
+      "agregado": {
+        "n_institutos": 14,
+        "mediana_erro_medio_abs_pp": 3.4,
+        "mediana_erro_medio_abs_validos_pp": 2.82,
+        "mediana_erro_margem_abs_pp": 6.27
+      }
+    },
+    "turno2": {
+      "janela": {
+        "regra": "última pesquisa de cada instituto com campo encerrado nos 7 dias anteriores à eleição (véspera inclusa; dia da urna excluso)",
+        "inicio": "2022-10-23",
+        "fim": "2022-10-29"
+      },
+      "cenario": "confronto final",
+      "institutos": [
+        {
+          "instituto": "AtlasIntel",
+          "contratante": null,
+          "data_pesquisa": "2022-10-29",
+          "amostra": 7500,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 52.4,
+              "pct_pesquisa_validos": 53.41,
+              "pct_urna": 50.9,
+              "erro_pp": 1.5,
+              "erro_validos_pp": 2.51
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 45.7,
+              "pct_pesquisa_validos": 46.59,
+              "pct_urna": 49.1,
+              "erro_pp": -3.4,
+              "erro_validos_pp": -2.51
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 98.1,
+          "erro_medio_abs_pp": 2.45,
+          "erro_medio_abs_validos_pp": 2.51,
+          "margem_medida_pp": 6.7,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": 4.9,
+          "direcao_vies": "subestimou Jair Bolsonaro em 3,4 pp"
+        },
+        {
+          "instituto": "Datafolha",
+          "contratante": null,
+          "data_pesquisa": "2022-10-29",
+          "amostra": 8308,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 49.0,
+              "pct_pesquisa_validos": 52.13,
+              "pct_urna": 50.9,
+              "erro_pp": -1.9,
+              "erro_validos_pp": 1.23
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 45.0,
+              "pct_pesquisa_validos": 47.87,
+              "pct_urna": 49.1,
+              "erro_pp": -4.1,
+              "erro_validos_pp": -1.23
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 94.0,
+          "erro_medio_abs_pp": 3.0,
+          "erro_medio_abs_validos_pp": 1.23,
+          "margem_medida_pp": 4.0,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": 2.2,
+          "direcao_vies": "subestimou Jair Bolsonaro em 4,1 pp"
+        },
+        {
+          "instituto": "Ipespe",
+          "contratante": "Abrapel",
+          "data_pesquisa": "2022-10-24",
+          "amostra": 1100,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 50.0,
+              "pct_pesquisa_validos": 53.19,
+              "pct_urna": 50.9,
+              "erro_pp": -0.9,
+              "erro_validos_pp": 2.29
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 44.0,
+              "pct_pesquisa_validos": 46.81,
+              "pct_urna": 49.1,
+              "erro_pp": -5.1,
+              "erro_validos_pp": -2.29
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 94.0,
+          "erro_medio_abs_pp": 3.0,
+          "erro_medio_abs_validos_pp": 2.29,
+          "margem_medida_pp": 6.0,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": 4.2,
+          "direcao_vies": "subestimou Jair Bolsonaro em 5,1 pp"
+        },
+        {
+          "instituto": "Futura",
+          "contratante": "Modalmais",
+          "data_pesquisa": "2022-10-26",
+          "amostra": 2000,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 46.6,
+              "pct_pesquisa_validos": 49.68,
+              "pct_urna": 50.9,
+              "erro_pp": -4.3,
+              "erro_validos_pp": -1.22
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 47.2,
+              "pct_pesquisa_validos": 50.32,
+              "pct_urna": 49.1,
+              "erro_pp": -1.9,
+              "erro_validos_pp": 1.22
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 93.8,
+          "erro_medio_abs_pp": 3.1,
+          "erro_medio_abs_validos_pp": 1.22,
+          "margem_medida_pp": -0.6,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": -2.4,
+          "direcao_vies": "subestimou Lula em 4,3 pp"
+        },
+        {
+          "instituto": "Instituto Veritá",
+          "contratante": null,
+          "data_pesquisa": "2022-10-29",
+          "amostra": 17552,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 45.9,
+              "pct_pesquisa_validos": 48.99,
+              "pct_urna": 50.9,
+              "erro_pp": -5.0,
+              "erro_validos_pp": -1.91
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 47.8,
+              "pct_pesquisa_validos": 51.01,
+              "pct_urna": 49.1,
+              "erro_pp": -1.3,
+              "erro_validos_pp": 1.91
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 93.7,
+          "erro_medio_abs_pp": 3.15,
+          "erro_medio_abs_validos_pp": 1.91,
+          "margem_medida_pp": -1.9,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": -3.7,
+          "direcao_vies": "subestimou Lula em 5,0 pp"
+        },
+        {
+          "instituto": "Paraná Pesquisas",
+          "contratante": null,
+          "data_pesquisa": "2022-10-28",
+          "amostra": 2020,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 47.1,
+              "pct_pesquisa_validos": 50.43,
+              "pct_urna": 50.9,
+              "erro_pp": -3.8,
+              "erro_validos_pp": -0.47
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 46.3,
+              "pct_pesquisa_validos": 49.57,
+              "pct_urna": 49.1,
+              "erro_pp": -2.8,
+              "erro_validos_pp": 0.47
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 93.4,
+          "erro_medio_abs_pp": 3.3,
+          "erro_medio_abs_validos_pp": 0.47,
+          "margem_medida_pp": 0.8,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": -1.0,
+          "direcao_vies": "subestimou Lula em 3,8 pp"
+        },
+        {
+          "instituto": "Ipec",
+          "contratante": "Globo",
+          "data_pesquisa": "2022-10-29",
+          "amostra": 4272,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 50.0,
+              "pct_pesquisa_validos": 53.76,
+              "pct_urna": 50.9,
+              "erro_pp": -0.9,
+              "erro_validos_pp": 2.86
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 43.0,
+              "pct_pesquisa_validos": 46.24,
+              "pct_urna": 49.1,
+              "erro_pp": -6.1,
+              "erro_validos_pp": -2.86
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 93.0,
+          "erro_medio_abs_pp": 3.5,
+          "erro_medio_abs_validos_pp": 2.86,
+          "margem_medida_pp": 7.0,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": 5.2,
+          "direcao_vies": "subestimou Jair Bolsonaro em 6,1 pp"
+        },
+        {
+          "instituto": "PoderData",
+          "contratante": null,
+          "data_pesquisa": "2022-10-25",
+          "amostra": 5000,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 49.0,
+              "pct_pesquisa_validos": 52.69,
+              "pct_urna": 50.9,
+              "erro_pp": -1.9,
+              "erro_validos_pp": 1.79
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 44.0,
+              "pct_pesquisa_validos": 47.31,
+              "pct_urna": 49.1,
+              "erro_pp": -5.1,
+              "erro_validos_pp": -1.79
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 93.0,
+          "erro_medio_abs_pp": 3.5,
+          "erro_medio_abs_validos_pp": 1.79,
+          "margem_medida_pp": 5.0,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": 3.2,
+          "direcao_vies": "subestimou Jair Bolsonaro em 5,1 pp"
+        },
+        {
+          "instituto": "MDA",
+          "contratante": "CNT",
+          "data_pesquisa": "2022-10-28",
+          "amostra": 2002,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 46.9,
+              "pct_pesquisa_validos": 51.09,
+              "pct_urna": 50.9,
+              "erro_pp": -4.0,
+              "erro_validos_pp": 0.19
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 44.9,
+              "pct_pesquisa_validos": 48.91,
+              "pct_urna": 49.1,
+              "erro_pp": -4.2,
+              "erro_validos_pp": -0.19
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 91.8,
+          "erro_medio_abs_pp": 4.1,
+          "erro_medio_abs_validos_pp": 0.19,
+          "margem_medida_pp": 2.0,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": 0.2,
+          "direcao_vies": "subestimou Jair Bolsonaro em 4,2 pp"
+        },
+        {
+          "instituto": "Brasmarket",
+          "contratante": null,
+          "data_pesquisa": "2022-10-27",
+          "amostra": 2400,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 42.7,
+              "pct_pesquisa_validos": 46.97,
+              "pct_urna": 50.9,
+              "erro_pp": -8.2,
+              "erro_validos_pp": -3.93
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 48.2,
+              "pct_pesquisa_validos": 53.03,
+              "pct_urna": 49.1,
+              "erro_pp": -0.9,
+              "erro_validos_pp": 3.93
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 90.9,
+          "erro_medio_abs_pp": 4.55,
+          "erro_medio_abs_validos_pp": 3.93,
+          "margem_medida_pp": -5.5,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": -7.3,
+          "direcao_vies": "subestimou Lula em 8,2 pp"
+        },
+        {
+          "instituto": "IFP",
+          "contratante": null,
+          "data_pesquisa": "2022-10-29",
+          "amostra": 2000,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 45.6,
+              "pct_pesquisa_validos": 50.17,
+              "pct_urna": 50.9,
+              "erro_pp": -5.3,
+              "erro_validos_pp": -0.73
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 45.3,
+              "pct_pesquisa_validos": 49.83,
+              "pct_urna": 49.1,
+              "erro_pp": -3.8,
+              "erro_validos_pp": 0.73
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 90.9,
+          "erro_medio_abs_pp": 4.55,
+          "erro_medio_abs_validos_pp": 0.73,
+          "margem_medida_pp": 0.3,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": -1.5,
+          "direcao_vies": "subestimou Lula em 5,3 pp"
+        },
+        {
+          "instituto": "Gerp",
+          "contratante": null,
+          "data_pesquisa": "2022-10-26",
+          "amostra": 2095,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 43.0,
+              "pct_pesquisa_validos": 47.78,
+              "pct_urna": 50.9,
+              "erro_pp": -7.9,
+              "erro_validos_pp": -3.12
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 47.0,
+              "pct_pesquisa_validos": 52.22,
+              "pct_urna": 49.1,
+              "erro_pp": -2.1,
+              "erro_validos_pp": 3.12
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 90.0,
+          "erro_medio_abs_pp": 5.0,
+          "erro_medio_abs_validos_pp": 3.12,
+          "margem_medida_pp": -4.0,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": -5.8,
+          "direcao_vies": "subestimou Lula em 7,9 pp"
+        },
+        {
+          "instituto": "Quaest",
+          "contratante": "Genial",
+          "data_pesquisa": "2022-10-29",
+          "amostra": 2000,
+          "margem_erro_pp": null,
+          "candidatos": [
+            {
+              "nome": "Lula",
+              "partido": "PT",
+              "pct_pesquisa": 46.0,
+              "pct_pesquisa_validos": 51.69,
+              "pct_urna": 50.9,
+              "erro_pp": -4.9,
+              "erro_validos_pp": 0.79
+            },
+            {
+              "nome": "Jair Bolsonaro",
+              "partido": "PL",
+              "pct_pesquisa": 43.0,
+              "pct_pesquisa_validos": 48.31,
+              "pct_urna": 49.1,
+              "erro_pp": -6.1,
+              "erro_validos_pp": -0.79
+            }
+          ],
+          "n_candidatos_avaliados": 2,
+          "soma_candidatos_pct": 89.0,
+          "erro_medio_abs_pp": 5.5,
+          "erro_medio_abs_validos_pp": 0.79,
+          "margem_medida_pp": 3.0,
+          "margem_real_pp": 1.8,
+          "erro_margem_pp": 1.2,
+          "direcao_vies": "subestimou Jair Bolsonaro em 6,1 pp"
+        }
+      ],
+      "agregado": {
+        "n_institutos": 13,
+        "mediana_erro_medio_abs_pp": 3.5,
+        "mediana_erro_medio_abs_validos_pp": 1.79,
+        "mediana_erro_margem_abs_pp": 3.2
+      }
+    },
+    "notas": {
+      "base_percentual": "pct_pesquisa = % sobre o total de entrevistados (como publicado); pct_pesquisa_validos = renormalizado entre os candidatos testados na mesma pesquisa (proxy de votos válidos); pct_urna = % oficial de votos válidos (TSE).",
+      "erro_margem": "margem entre os dois primeiros colocados reais (medida − real); negativo = a pesquisa mediu margem menor (ou invertida) para o vencedor real.",
+      "ordenacao": "institutos ordenados do menor para o maior erro médio absoluto."
+    }
+  },
+  "maquina": {
+    "corte": {
+      "regra": "registros com data de divulgação até o mesmo dia/mês em cada ano (mesma altura do ciclo, espelhada na data do snapshot de 2026)",
+      "a2022": "2022-09-05",
+      "a2026": "2026-09-05"
+    },
+    "a2022": {
+      "total_pesquisas": 1321,
+      "institutos": 177,
+      "investimento_nominal_rs": 57862284.52,
+      "mediana_entrevistados": 1300,
+      "custo_medio_rs": 43801.88,
+      "investimento_corrigido_ipca_rs": 69556252.22
+    },
+    "a2026": {
+      "total_pesquisas": 1933,
+      "institutos": 204,
+      "investimento_nominal_rs": 116687636.87,
+      "mediana_entrevistados": 1220,
+      "custo_medio_rs": 60366.08
+    },
+    "variacao": {
+      "pesquisas_pct": 46.3,
+      "institutos_pct": 15.3,
+      "investimento_nominal_pct": 101.7,
+      "investimento_real_pct": 67.8
+    },
+    "ipca": {
+      "indice": "IPCA",
+      "serie_sgs": 433,
+      "base": "reais de 09/2022 (mês do corte)",
+      "ref_mes": "2026-07",
+      "fator": 1.2021,
+      "acumulado_pct": 20.2,
+      "fonte": "Banco Central do Brasil — SGS série 433 (IPCA, variação % mensal)",
+      "fonte_url": "https://www3.bcb.gov.br/sgspub/consultarvalores/telaCvsSelecionarSeries.paint?method=consultarSeries&codigoSerie=433"
+    }
+  }
+}
