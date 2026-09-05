@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-09-04T18:13:32.540732+00:00",
+  "gerado_em": "2026-09-05T17:14:39.245886+00:00",
   "fonte": "Wikipedia — agregação de pesquisas de institutos registrados no TSE",
   "fonte_url": "https://pt.wikipedia.org/wiki/Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2026",
   "ano_eleicao": 2026,
@@ -10,71 +10,94 @@
   "universo": {
     "cenario": "primeiro_turno",
     "ano": 2026,
-    "n_pontos_medicao": 40,
-    "n_institutos": 4,
+    "n_pontos_medicao": 150,
+    "n_institutos": 15,
     "n_pontos_descartados_janela": 0,
     "periodo": {
-      "primeira": "2026-09-01",
+      "primeira": "2026-08-02",
       "ultima": "2026-09-02"
     }
   },
   "sanity_check": {
     "descricao": "Propriedade do leave-one-out: a média dos efeitos ponderada pelo número de pontos deve ficar próxima de 0 pp para cada candidato (tolerância ±0.3 pp).",
     "media_ponderada_pp": {
-      "Cury": 0.0,
-      "Dias": 0.0,
-      "Flávio Bolsonaro": 0.0,
-      "Grassi": 0.0,
-      "Lula": 0.0,
-      "Pimenta": 0.0,
-      "Renan (Missão)": -0.0,
-      "Romeu Zema": 0.0,
-      "Ronaldo Caiado": 0.0,
-      "Samara": 0.0
+      "Cury": 0.27,
+      "Flávio Bolsonaro": -0.11,
+      "Lula": 0.01,
+      "Renan (Missão)": 0.02,
+      "Romeu Zema": 0.01,
+      "Ronaldo Caiado": -0.01
     },
     "ok": true
   },
   "candidatos": [
     {
       "nome": "Cury",
-      "n_institutos_avaliados": 0
+      "n_institutos_avaliados": 1
     },
     {
       "nome": "Flávio Bolsonaro",
-      "n_institutos_avaliados": 0
-    },
-    {
-      "nome": "Dias",
-      "n_institutos_avaliados": 0
-    },
-    {
-      "nome": "Lula",
-      "n_institutos_avaliados": 0
-    },
-    {
-      "nome": "Grassi",
-      "n_institutos_avaliados": 0
-    },
-    {
-      "nome": "Ronaldo Caiado",
-      "n_institutos_avaliados": 0
+      "n_institutos_avaliados": 1
     },
     {
       "nome": "Romeu Zema",
-      "n_institutos_avaliados": 0
+      "n_institutos_avaliados": 1
     },
     {
-      "nome": "Pimenta",
-      "n_institutos_avaliados": 0
+      "nome": "Ronaldo Caiado",
+      "n_institutos_avaliados": 1
+    },
+    {
+      "nome": "Lula",
+      "n_institutos_avaliados": 1
     },
     {
       "nome": "Renan (Missão)",
-      "n_institutos_avaliados": 0
-    },
-    {
-      "nome": "Samara",
-      "n_institutos_avaliados": 0
+      "n_institutos_avaliados": 1
     }
   ],
-  "institutos": []
+  "institutos": [
+    {
+      "nome": "Nexus/BTG Pactual",
+      "n_pesquisas_total": 5,
+      "efeitos": [
+        {
+          "candidato": "Cury",
+          "efeito_pp": 0.1,
+          "n_pontos": 5,
+          "significativo": false
+        },
+        {
+          "candidato": "Flávio Bolsonaro",
+          "efeito_pp": 1.1,
+          "n_pontos": 5,
+          "significativo": false
+        },
+        {
+          "candidato": "Lula",
+          "efeito_pp": 0.6,
+          "n_pontos": 5,
+          "significativo": false
+        },
+        {
+          "candidato": "Renan (Missão)",
+          "efeito_pp": -0.8,
+          "n_pontos": 5,
+          "significativo": false
+        },
+        {
+          "candidato": "Romeu Zema",
+          "efeito_pp": 0.7,
+          "n_pontos": 5,
+          "significativo": false
+        },
+        {
+          "candidato": "Ronaldo Caiado",
+          "efeito_pp": 1.1,
+          "n_pontos": 5,
+          "significativo": false
+        }
+      ]
+    }
+  ]
 }

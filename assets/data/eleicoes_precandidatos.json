@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-09-04T18:13:31.987133+00:00",
+  "gerado_em": "2026-09-05T17:14:38.598973+00:00",
   "fonte": "Wikipedia — agregação de pesquisas de institutos registrados no TSE",
   "fonte_url": "https://pt.wikipedia.org/wiki/Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2026",
   "ano_eleicao": 2026,
@@ -7,8 +7,8 @@
     "primeira": "2023-07-17",
     "ultima": "2026-09-02"
   },
-  "n_medicoes": 1703,
-  "n_institutos": 27,
+  "n_medicoes": 1997,
+  "n_institutos": 26,
   "institutos": [
     "Alfa Inteligência",
     "Alfa/TMC",
@@ -19,7 +19,6 @@
     "CNT/MDA",
     "Datafolha",
     "Futura Inteligência",
-    "Futura/Apex",
     "Genial/Quaest",
     "Gerp",
     "Indexa",
@@ -42,25 +41,31 @@
     {
       "nome": "Lula",
       "partido": "PT",
-      "n_pesquisas": 798,
+      "n_pesquisas": 826,
       "ultima": "2026-09-02"
     },
     {
       "nome": "Flávio Bolsonaro",
       "partido": "PL",
-      "n_pesquisas": 133,
+      "n_pesquisas": 161,
       "ultima": "2026-09-02"
     },
     {
       "nome": "Ronaldo Caiado",
       "partido": "PSD",
-      "n_pesquisas": 132,
+      "n_pesquisas": 158,
       "ultima": "2026-09-02"
     },
     {
       "nome": "Romeu Zema",
       "partido": "NOVO",
-      "n_pesquisas": 121,
+      "n_pesquisas": 131,
+      "ultima": "2026-09-02"
+    },
+    {
+      "nome": "Renan (Missão)",
+      "partido": "MISSÃO",
+      "n_pesquisas": 91,
       "ultima": "2026-09-02"
     },
     {
@@ -74,12 +79,6 @@
       "partido": "PL",
       "n_pesquisas": 69,
       "ultima": "2026-08-30"
-    },
-    {
-      "nome": "Renan (Missão)",
-      "partido": "MISSÃO",
-      "n_pesquisas": 64,
-      "ultima": "2026-09-02"
     },
     {
       "nome": "Michelle Bolsonaro",
@@ -120,13 +119,13 @@
     {
       "nome": "Pablo Marçal",
       "partido": "PRTB",
-      "n_pesquisas": 13,
+      "n_pesquisas": 19,
       "ultima": "2026-08-31"
     },
     {
       "nome": "Cury",
       "partido": "Avante",
-      "n_pesquisas": 8,
+      "n_pesquisas": 15,
       "ultima": "2026-09-02"
     },
     {
@@ -175,49 +174,60 @@
   "primeiro_turno": {
     "data_ref": "2026-09-02",
     "janela_dias": 90,
-    "n_pesquisas": 61,
+    "n_pesquisas": 355,
     "candidatos": [
       {
         "nome": "Lula",
         "partido": "PT",
-        "media_recente": 37.5,
-        "pct_ultima": 37.0,
-        "instituto_ultima": "PoderData/Aya",
+        "media_recente": 39.4,
+        "pct_ultima": 38.0,
+        "instituto_ultima": "Datafolha",
         "data_ultima": "2026-09-02",
-        "n_pesquisas": 5,
+        "n_pesquisas": 33,
         "delta": null,
         "lider": true
       },
       {
         "nome": "Flávio Bolsonaro",
         "partido": "PL",
-        "media_recente": 31.9,
-        "pct_ultima": 34.0,
-        "instituto_ultima": "PoderData/Aya",
+        "media_recente": 33.9,
+        "pct_ultima": 33.0,
+        "instituto_ultima": "Datafolha",
         "data_ultima": "2026-09-02",
-        "n_pesquisas": 5,
-        "delta": null,
-        "lider": false
-      },
-      {
-        "nome": "Cury",
-        "partido": "Avante",
-        "media_recente": 9.6,
-        "pct_ultima": 10.0,
-        "instituto_ultima": "PoderData/Aya",
-        "data_ultima": "2026-09-02",
-        "n_pesquisas": 5,
+        "n_pesquisas": 33,
         "delta": null,
         "lider": false
       },
       {
         "nome": "Renan (Missão)",
         "partido": "MISSÃO",
-        "media_recente": 3.0,
+        "media_recente": 4.3,
         "pct_ultima": 3.0,
-        "instituto_ultima": "PoderData/Aya",
+        "instituto_ultima": "Datafolha",
         "data_ultima": "2026-09-02",
-        "n_pesquisas": 5,
+        "n_pesquisas": 33,
+        "delta": null,
+        "lider": false
+      },
+      {
+        "nome": "Cury",
+        "partido": "Avante",
+        "media_recente": 4.2,
+        "pct_ultima": 8.0,
+        "instituto_ultima": "Datafolha",
+        "data_ultima": "2026-09-02",
+        "n_pesquisas": 32,
+        "delta": null,
+        "lider": false
+      },
+      {
+        "nome": "Ronaldo Caiado",
+        "partido": "PSD",
+        "media_recente": 4.2,
+        "pct_ultima": 4.0,
+        "instituto_ultima": "Datafolha",
+        "data_ultima": "2026-09-02",
+        "n_pesquisas": 33,
         "delta": null,
         "lider": false
       }
@@ -493,20 +503,29 @@
   ],
   "serie_temporal": {
     "meses": [
+      "2026-08",
       "2026-09"
     ],
     "candidatos": {
       "Cury": [
+        3.2,
         9.6
       ],
       "Flávio Bolsonaro": [
+        34.3,
         31.9
       ],
       "Lula": [
+        39.7,
         37.5
       ],
       "Renan (Missão)": [
+        4.5,
         3.0
+      ],
+      "Ronaldo Caiado": [
+        4.5,
+        2.3
       ]
     }
   },
