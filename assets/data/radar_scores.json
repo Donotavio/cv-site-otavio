@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-09-05T17:31:50.863898+00:00",
+  "gerado_em": "2026-09-06T17:37:59.520364+00:00",
   "metodologia": {
     "job_score": "PERCENT_RANK() sobre menções de skill na semana mais recente de vagas coletadas (Gupy, Greenhouse, Lever, Ashby, InHire e API BR)",
     "github_score": "PERCENT_RANK() sobre repositórios novos (topic search) desde 1º de janeiro do ano vigente",
@@ -19,10 +19,46 @@
   },
   "tools": [
     {
+      "tool": "apache-spark",
+      "category": "processamento",
+      "job_mentions": 125.0,
+      "new_repos_ytd": 911,
+      "downloads_last_month": 46131591.0,
+      "job_score": 100.0,
+      "github_score": 53.3,
+      "pypi_score": 86.7,
+      "total_score": 85.0,
+      "quadrant": "Adopt"
+    },
+    {
+      "tool": "apache-airflow",
+      "category": "orquestração",
+      "job_mentions": 81.0,
+      "new_repos_ytd": 1730,
+      "downloads_last_month": 14389811.0,
+      "job_score": 86.7,
+      "github_score": 66.7,
+      "pypi_score": 66.7,
+      "total_score": 76.7,
+      "quadrant": "Adopt"
+    },
+    {
+      "tool": "mlflow",
+      "category": "mlops",
+      "job_mentions": 18.0,
+      "new_repos_ytd": 1855,
+      "downloads_last_month": 35311884.0,
+      "job_score": 60.0,
+      "github_score": 80.0,
+      "pypi_score": 80.0,
+      "total_score": 70.0,
+      "quadrant": "Trial"
+    },
+    {
       "tool": "databricks",
       "category": "plataforma",
       "job_mentions": 100.0,
-      "new_repos_ytd": 1752,
+      "new_repos_ytd": 1759,
       "downloads_last_month": 0.0,
       "job_score": 93.3,
       "github_score": 73.3,
@@ -31,22 +67,10 @@
       "quadrant": "Trial"
     },
     {
-      "tool": "apache-spark",
-      "category": "processamento",
-      "job_mentions": 125.0,
-      "new_repos_ytd": 906,
-      "downloads_last_month": 0.0,
-      "job_score": 100.0,
-      "github_score": 53.3,
-      "pypi_score": 0.0,
-      "total_score": 63.3,
-      "quadrant": "Trial"
-    },
-    {
       "tool": "dbt",
       "category": "transformação",
       "job_mentions": 37.0,
-      "new_repos_ytd": 2565,
+      "new_repos_ytd": 2578,
       "downloads_last_month": 0.0,
       "job_score": 80.0,
       "github_score": 86.7,
@@ -55,22 +79,10 @@
       "quadrant": "Trial"
     },
     {
-      "tool": "apache-airflow",
-      "category": "orquestração",
-      "job_mentions": 81.0,
-      "new_repos_ytd": 1721,
-      "downloads_last_month": 0.0,
-      "job_score": 86.7,
-      "github_score": 66.7,
-      "pypi_score": 0.0,
-      "total_score": 60.0,
-      "quadrant": "Trial"
-    },
-    {
       "tool": "apache-kafka",
       "category": "streaming",
       "job_mentions": 25.0,
-      "new_repos_ytd": 4127,
+      "new_repos_ytd": 4148,
       "downloads_last_month": 0.0,
       "job_score": 66.7,
       "github_score": 100.0,
@@ -79,22 +91,22 @@
       "quadrant": "Trial"
     },
     {
-      "tool": "prefect",
-      "category": "orquestração",
-      "job_mentions": 6.0,
-      "new_repos_ytd": 147,
-      "downloads_last_month": 11529751.0,
-      "job_score": 53.3,
-      "github_score": 26.7,
+      "tool": "duckdb",
+      "category": "processamento",
+      "job_mentions": 1.0,
+      "new_repos_ytd": 3185,
+      "downloads_last_month": 61647959.0,
+      "job_score": 20.0,
+      "github_score": 93.3,
       "pypi_score": 93.3,
-      "total_score": 56.6,
+      "total_score": 56.7,
       "quadrant": "Trial"
     },
     {
       "tool": "delta-lake",
       "category": "storage",
       "job_mentions": 29.0,
-      "new_repos_ytd": 969,
+      "new_repos_ytd": 974,
       "downloads_last_month": 0.0,
       "job_score": 73.3,
       "github_score": 60.0,
@@ -103,23 +115,11 @@
       "quadrant": "Trial"
     },
     {
-      "tool": "mlflow",
-      "category": "mlops",
-      "job_mentions": 18.0,
-      "new_repos_ytd": 1846,
-      "downloads_last_month": 0.0,
-      "job_score": 60.0,
-      "github_score": 80.0,
-      "pypi_score": 0.0,
-      "total_score": 50.0,
-      "quadrant": "Trial"
-    },
-    {
       "tool": "polars",
       "category": "processamento",
       "job_mentions": 2.0,
-      "new_repos_ytd": 500,
-      "downloads_last_month": 68298581.0,
+      "new_repos_ytd": 503,
+      "downloads_last_month": 66484868.0,
       "job_score": 26.7,
       "github_score": 46.7,
       "pypi_score": 100.0,
@@ -127,22 +127,22 @@
       "quadrant": "Trial"
     },
     {
-      "tool": "airbyte",
-      "category": "ingestão",
-      "job_mentions": 3.0,
-      "new_repos_ytd": 39,
-      "downloads_last_month": 1273030.0,
-      "job_score": 33.3,
-      "github_score": 13.3,
-      "pypi_score": 80.0,
-      "total_score": 40.0,
+      "tool": "prefect",
+      "category": "orquestração",
+      "job_mentions": 6.0,
+      "new_repos_ytd": 149,
+      "downloads_last_month": 11019339.0,
+      "job_score": 53.3,
+      "github_score": 26.7,
+      "pypi_score": 60.0,
+      "total_score": 48.3,
       "quadrant": "Assess"
     },
     {
       "tool": "dagster",
       "category": "orquestração",
       "job_mentions": 5.0,
-      "new_repos_ytd": 205,
+      "new_repos_ytd": 206,
       "downloads_last_month": 0.0,
       "job_score": 46.7,
       "github_score": 40.0,
@@ -151,22 +151,10 @@
       "quadrant": "Assess"
     },
     {
-      "tool": "duckdb",
-      "category": "processamento",
-      "job_mentions": 1.0,
-      "new_repos_ytd": 3161,
-      "downloads_last_month": 0.0,
-      "job_score": 20.0,
-      "github_score": 93.3,
-      "pypi_score": 0.0,
-      "total_score": 33.3,
-      "quadrant": "Assess"
-    },
-    {
       "tool": "apache-iceberg",
       "category": "storage",
       "job_mentions": 3.0,
-      "new_repos_ytd": 172,
+      "new_repos_ytd": 173,
       "downloads_last_month": 0.0,
       "job_score": 33.3,
       "github_score": 33.3,
@@ -175,15 +163,39 @@
       "quadrant": "Hold"
     },
     {
+      "tool": "airbyte",
+      "category": "ingestão",
+      "job_mentions": 3.0,
+      "new_repos_ytd": 39,
+      "downloads_last_month": 0.0,
+      "job_score": 33.3,
+      "github_score": 13.3,
+      "pypi_score": 0.0,
+      "total_score": 20.0,
+      "quadrant": "Hold"
+    },
+    {
+      "tool": "great-expectations",
+      "category": "qualidade",
+      "job_mentions": 0.0,
+      "new_repos_ytd": 0,
+      "downloads_last_month": 23543180.0,
+      "job_score": 0.0,
+      "github_score": 0.0,
+      "pypi_score": 73.3,
+      "total_score": 18.3,
+      "quadrant": "Hold"
+    },
+    {
       "tool": "dlt",
       "category": "ingestão",
       "job_mentions": 0.0,
       "new_repos_ytd": 0,
-      "downloads_last_month": 6392553.0,
+      "downloads_last_month": 6199436.0,
       "job_score": 0.0,
       "github_score": 0.0,
-      "pypi_score": 86.7,
-      "total_score": 21.7,
+      "pypi_score": 53.3,
+      "total_score": 13.3,
       "quadrant": "Hold"
     },
     {
@@ -196,18 +208,6 @@
       "github_score": 20.0,
       "pypi_score": 0.0,
       "total_score": 5.0,
-      "quadrant": "Hold"
-    },
-    {
-      "tool": "great-expectations",
-      "category": "qualidade",
-      "job_mentions": 0.0,
-      "new_repos_ytd": 0,
-      "downloads_last_month": 0.0,
-      "job_score": 0.0,
-      "github_score": 0.0,
-      "pypi_score": 0.0,
-      "total_score": 0.0,
       "quadrant": "Hold"
     }
   ]
