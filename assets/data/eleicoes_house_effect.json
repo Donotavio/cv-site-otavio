@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-09-11T18:18:45.418629+00:00",
+  "gerado_em": "2026-09-12T17:43:30.355974+00:00",
   "fonte": "Wikipedia — agregação de pesquisas de institutos registrados no TSE",
   "fonte_url": "https://pt.wikipedia.org/wiki/Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2026",
   "ano_eleicao": 2026,
@@ -10,23 +10,23 @@
   "universo": {
     "cenario": "primeiro_turno",
     "ano": 2026,
-    "n_pontos_medicao": 204,
+    "n_pontos_medicao": 210,
     "n_institutos": 15,
     "n_pontos_descartados_janela": 0,
     "periodo": {
       "primeira": "2026-08-02",
-      "ultima": "2026-09-10"
+      "ultima": "2026-09-11"
     }
   },
   "sanity_check": {
     "descricao": "Propriedade do leave-one-out: a média dos efeitos ponderada pelo número de pontos deve ficar próxima de 0 pp para cada candidato (tolerância ±0.3 pp).",
     "media_ponderada_pp": {
-      "Cury": -0.04,
-      "Flávio Bolsonaro": 0.08,
+      "Cury": -0.09,
+      "Flávio Bolsonaro": 0.07,
       "Lula": 0.07,
-      "Renan (Missão)": 0.02,
-      "Romeu Zema": 0.01,
-      "Ronaldo Caiado": 0.01
+      "Renan (Missão)": 0.01,
+      "Romeu Zema": 0.02,
+      "Ronaldo Caiado": 0.02
     },
     "ok": true
   },
@@ -81,7 +81,7 @@
         },
         {
           "candidato": "Renan (Missão)",
-          "efeito_pp": -0.8,
+          "efeito_pp": -0.7,
           "n_pontos": 6,
           "significativo": false
         },
