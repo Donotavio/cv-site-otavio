@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-09-14T19:47:10.072634+00:00",
+  "gerado_em": "2026-09-15T18:49:56.207603+00:00",
   "fonte": "Wikipedia — agregação de pesquisas de institutos registrados no TSE",
   "fonte_url": "https://pt.wikipedia.org/wiki/Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2026",
   "ano_eleicao": 2026,
@@ -10,8 +10,8 @@
   "universo": {
     "cenario": "primeiro_turno",
     "ano": 2026,
-    "n_pontos_medicao": 224,
-    "n_institutos": 15,
+    "n_pontos_medicao": 236,
+    "n_institutos": 16,
     "n_pontos_descartados_janela": 0,
     "periodo": {
       "primeira": "2026-08-02",
@@ -21,9 +21,9 @@
   "sanity_check": {
     "descricao": "Propriedade do leave-one-out: a média dos efeitos ponderada pelo número de pontos deve ficar próxima de 0 pp para cada candidato (tolerância ±0.3 pp).",
     "media_ponderada_pp": {
-      "Cury": -0.15,
-      "Flávio Bolsonaro": 0.11,
-      "Lula": 0.07,
+      "Cury": -0.19,
+      "Flávio Bolsonaro": 0.1,
+      "Lula": 0.06,
       "Renan (Missão)": -0.03,
       "Romeu Zema": 0.02,
       "Ronaldo Caiado": 0.05
@@ -40,11 +40,7 @@
       "n_institutos_avaliados": 1
     },
     {
-      "nome": "Cury",
-      "n_institutos_avaliados": 1
-    },
-    {
-      "nome": "Ronaldo Caiado",
+      "nome": "Renan (Missão)",
       "n_institutos_avaliados": 1
     },
     {
@@ -52,7 +48,11 @@
       "n_institutos_avaliados": 1
     },
     {
-      "nome": "Renan (Missão)",
+      "nome": "Ronaldo Caiado",
+      "n_institutos_avaliados": 1
+    },
+    {
+      "nome": "Cury",
       "n_institutos_avaliados": 1
     }
   ],
@@ -81,13 +81,13 @@
         },
         {
           "candidato": "Renan (Missão)",
-          "efeito_pp": -1.0,
+          "efeito_pp": -0.9,
           "n_pontos": 7,
           "significativo": false
         },
         {
           "candidato": "Romeu Zema",
-          "efeito_pp": 0.5,
+          "efeito_pp": 0.6,
           "n_pontos": 7,
           "significativo": false
         },
