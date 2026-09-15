@@ -1,0 +1,1123 @@
+{
+  "gerado_em": "2026-09-15T18:56:21.079167+00:00",
+  "fonte": "BACEN Olinda API — Pix_DadosAbertos / TransacoesPixPorMunicipio",
+  "metodologia": "Ordenado por valor pago por pessoas físicas (VL_PagadorPF desc). Não é o dataset completo (~5.570 municípios) — a API não pagina além de 1000 linhas — mas é seguro para o top 10/15 cidades, dado que as maiores dominam todas as colunas de valor simultaneamente. A agregação por estado é a soma das cidades desse estado presentes na amostra — estados pequenos podem aparecer com amostra_insuficiente.",
+  "anomes": "202609",
+  "ranking": [
+    {
+      "rank": 1,
+      "municipio": "SÃO PAULO",
+      "estado": "SÃO PAULO",
+      "uf": "SP",
+      "regiao": "SUDESTE",
+      "valor_pago": 297679596148.15,
+      "valor_recebido": 319823530758.85
+    },
+    {
+      "rank": 2,
+      "municipio": "RIO DE JANEIRO",
+      "estado": "RIO DE JANEIRO",
+      "uf": "RJ",
+      "regiao": "SUDESTE",
+      "valor_pago": 79927994980.01,
+      "valor_recebido": 80399991068.19
+    },
+    {
+      "rank": 3,
+      "municipio": "BRASÍLIA",
+      "estado": "DISTRITO FEDERAL",
+      "uf": "DF",
+      "regiao": "CENTRO-OESTE",
+      "valor_pago": 27134554540.61,
+      "valor_recebido": 32169925226.19
+    },
+    {
+      "rank": 4,
+      "municipio": "CURITIBA",
+      "estado": "PARANÁ",
+      "uf": "PR",
+      "regiao": "SUL",
+      "valor_pago": 26247827672.0,
+      "valor_recebido": 26688202010.03
+    },
+    {
+      "rank": 5,
+      "municipio": "BELO HORIZONTE",
+      "estado": "MINAS GERAIS",
+      "uf": "MG",
+      "regiao": "SUDESTE",
+      "valor_pago": 24631113382.56,
+      "valor_recebido": 25326042910.45
+    },
+    {
+      "rank": 6,
+      "municipio": "BARUERI",
+      "estado": "SÃO PAULO",
+      "uf": "SP",
+      "regiao": "SUDESTE",
+      "valor_pago": 20992032408.01,
+      "valor_recebido": 16645889270.04
+    },
+    {
+      "rank": 7,
+      "municipio": "FORTALEZA",
+      "estado": "CEARÁ",
+      "uf": "CE",
+      "regiao": "NORDESTE",
+      "valor_pago": 18239324225.71,
+      "valor_recebido": 17848181951.6
+    },
+    {
+      "rank": 8,
+      "municipio": "PORTO ALEGRE",
+      "estado": "RIO GRANDE DO SUL",
+      "uf": "RS",
+      "regiao": "SUL",
+      "valor_pago": 14623903762.85,
+      "valor_recebido": 14440957235.99
+    },
+    {
+      "rank": 9,
+      "municipio": "MANAUS",
+      "estado": "AMAZONAS",
+      "uf": "AM",
+      "regiao": "NORTE",
+      "valor_pago": 14329429718.96,
+      "valor_recebido": 14311017067.65
+    },
+    {
+      "rank": 10,
+      "municipio": "GOIÂNIA",
+      "estado": "GOIÁS",
+      "uf": "GO",
+      "regiao": "CENTRO-OESTE",
+      "valor_pago": 14294390241.16,
+      "valor_recebido": 14621254154.92
+    }
+  ],
+  "estados": [
+    {
+      "uf": "AC",
+      "nome": "Acre",
+      "valor_pago": 2516705759.81,
+      "nivel": 0,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "RIO BRANCO",
+          "valor_pago": 1974258864.37
+        },
+        {
+          "municipio": "CRUZEIRO DO SUL",
+          "valor_pago": 291493814.74
+        },
+        {
+          "municipio": "BRASILÉIA",
+          "valor_pago": 125649673.93
+        },
+        {
+          "municipio": "SENA MADUREIRA",
+          "valor_pago": 125303406.77
+        }
+      ]
+    },
+    {
+      "uf": "AL",
+      "nome": "Alagoas",
+      "valor_pago": 7876984481.8,
+      "nivel": 1,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "MACEIÓ",
+          "valor_pago": 5026891005.29
+        },
+        {
+          "municipio": "ARAPIRACA",
+          "valor_pago": 984070953.44
+        },
+        {
+          "municipio": "CORURIPE",
+          "valor_pago": 394317621.42
+        },
+        {
+          "municipio": "MARECHAL DEODORO",
+          "valor_pago": 241617769.39
+        },
+        {
+          "municipio": "RIO LARGO",
+          "valor_pago": 207103905.65
+        },
+        {
+          "municipio": "PALMEIRA DOS ÍNDIOS",
+          "valor_pago": 171129523.74
+        },
+        {
+          "municipio": "SÃO MIGUEL DOS CAMPOS",
+          "valor_pago": 156193716.53
+        },
+        {
+          "municipio": "SANTANA DO IPANEMA",
+          "valor_pago": 153143234.18
+        }
+      ]
+    },
+    {
+      "uf": "AM",
+      "nome": "Amazonas",
+      "valor_pago": 15822148011.01,
+      "nivel": 1,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "MANAUS",
+          "valor_pago": 14329429718.96
+        },
+        {
+          "municipio": "MANACAPURU",
+          "valor_pago": 280716526.78
+        },
+        {
+          "municipio": "ITACOATIARA",
+          "valor_pago": 237030989.29
+        },
+        {
+          "municipio": "PARINTINS",
+          "valor_pago": 234987531.24
+        },
+        {
+          "municipio": "IRANDUBA",
+          "valor_pago": 200035244.03
+        },
+        {
+          "municipio": "HUMAITÁ",
+          "valor_pago": 169524951.96
+        },
+        {
+          "municipio": "TEFÉ",
+          "valor_pago": 144696524.01
+        },
+        {
+          "municipio": "COARI",
+          "valor_pago": 119572256.39
+        }
+      ]
+    },
+    {
+      "uf": "AP",
+      "nome": "Amapá",
+      "valor_pago": 2884376972.75,
+      "nivel": 0,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "MACAPÁ",
+          "valor_pago": 2179510425.59
+        },
+        {
+          "municipio": "SANTANA",
+          "valor_pago": 474280821.26
+        },
+        {
+          "municipio": "OIAPOQUE",
+          "valor_pago": 120682621.58
+        },
+        {
+          "municipio": "LARANJAL DO JARI",
+          "valor_pago": 109903104.32
+        }
+      ]
+    },
+    {
+      "uf": "BA",
+      "nome": "Bahia",
+      "valor_pago": 39073548286.2,
+      "nivel": 2,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "SALVADOR",
+          "valor_pago": 13612464831.7
+        },
+        {
+          "municipio": "FEIRA DE SANTANA",
+          "valor_pago": 2966861352.34
+        },
+        {
+          "municipio": "LUÍS EDUARDO MAGALHÃES",
+          "valor_pago": 1755663181.23
+        },
+        {
+          "municipio": "CAMAÇARI",
+          "valor_pago": 1735753866.12
+        },
+        {
+          "municipio": "VITÓRIA DA CONQUISTA",
+          "valor_pago": 1482440923.65
+        },
+        {
+          "municipio": "LAURO DE FREITAS",
+          "valor_pago": 1442631800.01
+        },
+        {
+          "municipio": "SÃO FRANCISCO DO CONDE",
+          "valor_pago": 1078467807.97
+        },
+        {
+          "municipio": "JUAZEIRO",
+          "valor_pago": 954187862.91
+        }
+      ]
+    },
+    {
+      "uf": "CE",
+      "nome": "Ceará",
+      "valor_pago": 30107631838.34,
+      "nivel": 2,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "FORTALEZA",
+          "valor_pago": 18239324225.71
+        },
+        {
+          "municipio": "MARACANAÚ",
+          "valor_pago": 1571884337.25
+        },
+        {
+          "municipio": "CAUCAIA",
+          "valor_pago": 1191916391.75
+        },
+        {
+          "municipio": "EUSÉBIO",
+          "valor_pago": 1146068011.28
+        },
+        {
+          "municipio": "JUAZEIRO DO NORTE",
+          "valor_pago": 1011677305.33
+        },
+        {
+          "municipio": "SOBRAL",
+          "valor_pago": 692875342.8
+        },
+        {
+          "municipio": "CRATO",
+          "valor_pago": 362471255.54
+        },
+        {
+          "municipio": "HORIZONTE",
+          "valor_pago": 340153441.42
+        }
+      ]
+    },
+    {
+      "uf": "DF",
+      "nome": "Distrito Federal",
+      "valor_pago": 27134554540.61,
+      "nivel": 2,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "BRASÍLIA",
+          "valor_pago": 27134554540.61
+        }
+      ]
+    },
+    {
+      "uf": "ES",
+      "nome": "Espírito Santo",
+      "valor_pago": 23692429613.74,
+      "nivel": 2,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "VITÓRIA",
+          "valor_pago": 6874936094.8
+        },
+        {
+          "municipio": "CARIACICA",
+          "valor_pago": 4319152255.49
+        },
+        {
+          "municipio": "SERRA",
+          "valor_pago": 3158998541.88
+        },
+        {
+          "municipio": "VILA VELHA",
+          "valor_pago": 2930787744.02
+        },
+        {
+          "municipio": "LINHARES",
+          "valor_pago": 1163117194.21
+        },
+        {
+          "municipio": "CACHOEIRO DE ITAPEMIRIM",
+          "valor_pago": 861626745.05
+        },
+        {
+          "municipio": "COLATINA",
+          "valor_pago": 677873832.57
+        },
+        {
+          "municipio": "ARACRUZ",
+          "valor_pago": 549054080.55
+        }
+      ]
+    },
+    {
+      "uf": "GO",
+      "nome": "Goiás",
+      "valor_pago": 38111199461.01,
+      "nivel": 2,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "GOIÂNIA",
+          "valor_pago": 14294390241.16
+        },
+        {
+          "municipio": "ANÁPOLIS",
+          "valor_pago": 3552906996.01
+        },
+        {
+          "municipio": "APARECIDA DE GOIÂNIA",
+          "valor_pago": 3518434271.47
+        },
+        {
+          "municipio": "RIO VERDE",
+          "valor_pago": 2247534169.17
+        },
+        {
+          "municipio": "LUZIÂNIA",
+          "valor_pago": 878276781.48
+        },
+        {
+          "municipio": "SENADOR CANEDO",
+          "valor_pago": 841394294.12
+        },
+        {
+          "municipio": "JATAÍ",
+          "valor_pago": 837262195.28
+        },
+        {
+          "municipio": "ITUMBIARA",
+          "valor_pago": 795948740.42
+        }
+      ]
+    },
+    {
+      "uf": "MA",
+      "nome": "Maranhão",
+      "valor_pago": 16211930379.98,
+      "nivel": 1,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "SÃO LUÍS",
+          "valor_pago": 6969712731.18
+        },
+        {
+          "municipio": "IMPERATRIZ",
+          "valor_pago": 1557762446.63
+        },
+        {
+          "municipio": "BALSAS",
+          "valor_pago": 1312010975.01
+        },
+        {
+          "municipio": "SÃO JOSÉ DE RIBAMAR",
+          "valor_pago": 622013413.74
+        },
+        {
+          "municipio": "AÇAILÂNDIA",
+          "valor_pago": 526979851.62
+        },
+        {
+          "municipio": "TIMON",
+          "valor_pago": 466611370.03
+        },
+        {
+          "municipio": "PAÇO DO LUMIAR",
+          "valor_pago": 439121575.7
+        },
+        {
+          "municipio": "CAXIAS",
+          "valor_pago": 382265296.96
+        }
+      ]
+    },
+    {
+      "uf": "MG",
+      "nome": "Minas Gerais",
+      "valor_pago": 88759424145.65,
+      "nivel": 3,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "BELO HORIZONTE",
+          "valor_pago": 24631113382.56
+        },
+        {
+          "municipio": "UBERLÂNDIA",
+          "valor_pago": 5526782749.7
+        },
+        {
+          "municipio": "CONTAGEM",
+          "valor_pago": 4886196178.8
+        },
+        {
+          "municipio": "BETIM",
+          "valor_pago": 3098859871.96
+        },
+        {
+          "municipio": "NOVA LIMA",
+          "valor_pago": 2595060107.22
+        },
+        {
+          "municipio": "JUIZ DE FORA",
+          "valor_pago": 2316277850.98
+        },
+        {
+          "municipio": "UBERABA",
+          "valor_pago": 2146116014.77
+        },
+        {
+          "municipio": "SETE LAGOAS",
+          "valor_pago": 1980898914.74
+        }
+      ]
+    },
+    {
+      "uf": "MS",
+      "nome": "Mato Grosso do Sul",
+      "valor_pago": 14534816222.61,
+      "nivel": 1,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "CAMPO GRANDE",
+          "valor_pago": 6307564579.58
+        },
+        {
+          "municipio": "DOURADOS",
+          "valor_pago": 1877744456.57
+        },
+        {
+          "municipio": "TRÊS LAGOAS",
+          "valor_pago": 709996817.27
+        },
+        {
+          "municipio": "CAARAPÓ",
+          "valor_pago": 611320674.38
+        },
+        {
+          "municipio": "PONTA PORÃ",
+          "valor_pago": 577282459.76
+        },
+        {
+          "municipio": "CORUMBÁ",
+          "valor_pago": 560082672.68
+        },
+        {
+          "municipio": "NAVIRAÍ",
+          "valor_pago": 540211393.15
+        },
+        {
+          "municipio": "MARACAJU",
+          "valor_pago": 435227993.61
+        }
+      ]
+    },
+    {
+      "uf": "MT",
+      "nome": "Mato Grosso",
+      "valor_pago": 29088166577.66,
+      "nivel": 2,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "CUIABÁ",
+          "valor_pago": 8161950827.2
+        },
+        {
+          "municipio": "SINOP",
+          "valor_pago": 4149710290.75
+        },
+        {
+          "municipio": "RONDONÓPOLIS",
+          "valor_pago": 2738960732.57
+        },
+        {
+          "municipio": "SORRISO",
+          "valor_pago": 1817712918.44
+        },
+        {
+          "municipio": "VÁRZEA GRANDE",
+          "valor_pago": 1746704446.65
+        },
+        {
+          "municipio": "LUCAS DO RIO VERDE",
+          "valor_pago": 1371557857.36
+        },
+        {
+          "municipio": "PRIMAVERA DO LESTE",
+          "valor_pago": 1115311940.39
+        },
+        {
+          "municipio": "TANGARÁ DA SERRA",
+          "valor_pago": 776182978.99
+        }
+      ]
+    },
+    {
+      "uf": "PA",
+      "nome": "Pará",
+      "valor_pago": 25453769641.66,
+      "nivel": 2,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "BELÉM",
+          "valor_pago": 6638058022.89
+        },
+        {
+          "municipio": "ANANINDEUA",
+          "valor_pago": 2042565302.22
+        },
+        {
+          "municipio": "MARABÁ",
+          "valor_pago": 1509374437.79
+        },
+        {
+          "municipio": "SANTARÉM",
+          "valor_pago": 1456578974.91
+        },
+        {
+          "municipio": "PARAUAPEBAS",
+          "valor_pago": 1313606867.79
+        },
+        {
+          "municipio": "CASTANHAL",
+          "valor_pago": 872837290.62
+        },
+        {
+          "municipio": "BARCARENA",
+          "valor_pago": 795992003.5
+        },
+        {
+          "municipio": "ITAITUBA",
+          "valor_pago": 767921861.37
+        }
+      ]
+    },
+    {
+      "uf": "PB",
+      "nome": "Paraíba",
+      "valor_pago": 9333625943.5,
+      "nivel": 1,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "JOÃO PESSOA",
+          "valor_pago": 4600486111.95
+        },
+        {
+          "municipio": "CAMPINA GRANDE",
+          "valor_pago": 2409333235.18
+        },
+        {
+          "municipio": "CABEDELO",
+          "valor_pago": 403108389.37
+        },
+        {
+          "municipio": "PATOS",
+          "valor_pago": 364416897.92
+        },
+        {
+          "municipio": "SANTA RITA",
+          "valor_pago": 358398522.26
+        },
+        {
+          "municipio": "BAYEUX",
+          "valor_pago": 276478472.63
+        },
+        {
+          "municipio": "SOUSA",
+          "valor_pago": 199138260.58
+        },
+        {
+          "municipio": "GUARABIRA",
+          "valor_pago": 193926604.02
+        }
+      ]
+    },
+    {
+      "uf": "PE",
+      "nome": "Pernambuco",
+      "valor_pago": 28425544406.6,
+      "nivel": 2,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "RECIFE",
+          "valor_pago": 11630495328.63
+        },
+        {
+          "municipio": "JABOATÃO DOS GUARARAPES",
+          "valor_pago": 2561362752.5
+        },
+        {
+          "municipio": "PETROLINA",
+          "valor_pago": 1812998452.76
+        },
+        {
+          "municipio": "CARUARU",
+          "valor_pago": 1554607136.97
+        },
+        {
+          "municipio": "OLINDA",
+          "valor_pago": 1406736399.27
+        },
+        {
+          "municipio": "PAULISTA",
+          "valor_pago": 1073732285.14
+        },
+        {
+          "municipio": "CABO DE SANTO AGOSTINHO",
+          "valor_pago": 991054620.76
+        },
+        {
+          "municipio": "VITÓRIA DE SANTO ANTÃO",
+          "valor_pago": 513223872.14
+        }
+      ]
+    },
+    {
+      "uf": "PI",
+      "nome": "Piauí",
+      "valor_pago": 6244144015.26,
+      "nivel": 1,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "TERESINA",
+          "valor_pago": 4357236476.7
+        },
+        {
+          "municipio": "PARNAÍBA",
+          "valor_pago": 486567643.7
+        },
+        {
+          "municipio": "PICOS",
+          "valor_pago": 368155480.42
+        },
+        {
+          "municipio": "FLORIANO",
+          "valor_pago": 223560503.02
+        },
+        {
+          "municipio": "URUÇUÍ",
+          "valor_pago": 164529455.44
+        },
+        {
+          "municipio": "BOM JESUS",
+          "valor_pago": 153639726.08
+        },
+        {
+          "municipio": "PIRIPIRI",
+          "valor_pago": 144360702.14
+        },
+        {
+          "municipio": "CAMPO MAIOR",
+          "valor_pago": 123119870.96
+        }
+      ]
+    },
+    {
+      "uf": "PR",
+      "nome": "Paraná",
+      "valor_pago": 82922539759.58,
+      "nivel": 3,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "CURITIBA",
+          "valor_pago": 26247827672.0
+        },
+        {
+          "municipio": "SARANDI",
+          "valor_pago": 6692965598.17
+        },
+        {
+          "municipio": "LONDRINA",
+          "valor_pago": 5123734554.91
+        },
+        {
+          "municipio": "MARINGÁ",
+          "valor_pago": 4852236843.39
+        },
+        {
+          "municipio": "CASCAVEL",
+          "valor_pago": 3914927229.34
+        },
+        {
+          "municipio": "CAMPO MOURÃO",
+          "valor_pago": 3366838418.44
+        },
+        {
+          "municipio": "SÃO JOSÉ DOS PINHAIS",
+          "valor_pago": 2424344100.87
+        },
+        {
+          "municipio": "PONTA GROSSA",
+          "valor_pago": 2057011850.06
+        }
+      ]
+    },
+    {
+      "uf": "RJ",
+      "nome": "Rio de Janeiro",
+      "valor_pago": 117015957659.1,
+      "nivel": 3,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "RIO DE JANEIRO",
+          "valor_pago": 79927994980.01
+        },
+        {
+          "municipio": "NITERÓI",
+          "valor_pago": 5259113730.33
+        },
+        {
+          "municipio": "DUQUE DE CAXIAS",
+          "valor_pago": 3640287160.83
+        },
+        {
+          "municipio": "SÃO GONÇALO",
+          "valor_pago": 2699519845.13
+        },
+        {
+          "municipio": "NOVA IGUAÇU",
+          "valor_pago": 2664970892.47
+        },
+        {
+          "municipio": "CAMPOS DOS GOYTACAZES",
+          "valor_pago": 1687661107.24
+        },
+        {
+          "municipio": "MACAÉ",
+          "valor_pago": 1402325047.43
+        },
+        {
+          "municipio": "SÃO JOÃO DE MERITI",
+          "valor_pago": 1367791730.36
+        }
+      ]
+    },
+    {
+      "uf": "RN",
+      "nome": "Rio Grande do Norte",
+      "valor_pago": 8349829755.18,
+      "nivel": 1,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "NATAL",
+          "valor_pago": 4327133700.5
+        },
+        {
+          "municipio": "MOSSORÓ",
+          "valor_pago": 1394531881.84
+        },
+        {
+          "municipio": "PARNAMIRIM",
+          "valor_pago": 1081866770.84
+        },
+        {
+          "municipio": "SÃO GONÇALO DO AMARANTE",
+          "valor_pago": 275108029.39
+        },
+        {
+          "municipio": "CAICÓ",
+          "valor_pago": 212605391.45
+        },
+        {
+          "municipio": "MACAÍBA",
+          "valor_pago": 199307234.16
+        },
+        {
+          "municipio": "SÃO JOSÉ DE MIPIBU",
+          "valor_pago": 186201473.75
+        },
+        {
+          "municipio": "CEARÁ-MIRIM",
+          "valor_pago": 158255694.47
+        }
+      ]
+    },
+    {
+      "uf": "RO",
+      "nome": "Rondônia",
+      "valor_pago": 7002631587.6,
+      "nivel": 1,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "PORTO VELHO",
+          "valor_pago": 2850357382.81
+        },
+        {
+          "municipio": "JI-PARANÁ",
+          "valor_pago": 775628546.03
+        },
+        {
+          "municipio": "ARIQUEMES",
+          "valor_pago": 604204527.74
+        },
+        {
+          "municipio": "VILHENA",
+          "valor_pago": 593065829.13
+        },
+        {
+          "municipio": "CACOAL",
+          "valor_pago": 456976687.12
+        },
+        {
+          "municipio": "JARU",
+          "valor_pago": 302242672.94
+        },
+        {
+          "municipio": "ROLIM DE MOURA",
+          "valor_pago": 264464162.87
+        },
+        {
+          "municipio": "PIMENTA BUENO",
+          "valor_pago": 216152081.65
+        }
+      ]
+    },
+    {
+      "uf": "RR",
+      "nome": "Roraima",
+      "valor_pago": 2984417580.97,
+      "nivel": 0,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "BOA VISTA",
+          "valor_pago": 2470737960.02
+        },
+        {
+          "municipio": "PACARAIMA",
+          "valor_pago": 513679620.95
+        }
+      ]
+    },
+    {
+      "uf": "RS",
+      "nome": "Rio Grande do Sul",
+      "valor_pago": 49706260685.01,
+      "nivel": 2,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "PORTO ALEGRE",
+          "valor_pago": 14623903762.85
+        },
+        {
+          "municipio": "CAXIAS DO SUL",
+          "valor_pago": 3292435703.44
+        },
+        {
+          "municipio": "PASSO FUNDO",
+          "valor_pago": 2305020536.89
+        },
+        {
+          "municipio": "CANOAS",
+          "valor_pago": 1824578784.75
+        },
+        {
+          "municipio": "SANTA MARIA",
+          "valor_pago": 1475115569.53
+        },
+        {
+          "municipio": "NOVO HAMBURGO",
+          "valor_pago": 1432509774.33
+        },
+        {
+          "municipio": "ERECHIM",
+          "valor_pago": 1416638358.24
+        },
+        {
+          "municipio": "PELOTAS",
+          "valor_pago": 1295141322.26
+        }
+      ]
+    },
+    {
+      "uf": "SC",
+      "nome": "Santa Catarina",
+      "valor_pago": 55818275172.0,
+      "nivel": 2,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "ITAJAÍ",
+          "valor_pago": 10752445646.53
+        },
+        {
+          "municipio": "JOINVILLE",
+          "valor_pago": 6300410482.47
+        },
+        {
+          "municipio": "FLORIANÓPOLIS",
+          "valor_pago": 5480675765.57
+        },
+        {
+          "municipio": "BLUMENAU",
+          "valor_pago": 2914175690.91
+        },
+        {
+          "municipio": "CHAPECÓ",
+          "valor_pago": 2911516687.74
+        },
+        {
+          "municipio": "SÃO JOSÉ",
+          "valor_pago": 2087715924.57
+        },
+        {
+          "municipio": "BRUSQUE",
+          "valor_pago": 1832858302.51
+        },
+        {
+          "municipio": "GASPAR",
+          "valor_pago": 1696334524.67
+        }
+      ]
+    },
+    {
+      "uf": "SE",
+      "nome": "Sergipe",
+      "valor_pago": 5992107322.96,
+      "nivel": 1,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "ARACAJU",
+          "valor_pago": 3389631836.71
+        },
+        {
+          "municipio": "NOSSA SENHORA DO SOCORRO",
+          "valor_pago": 652363831.53
+        },
+        {
+          "municipio": "ITABAIANA",
+          "valor_pago": 388313146.09
+        },
+        {
+          "municipio": "LAGARTO",
+          "valor_pago": 324061041.25
+        },
+        {
+          "municipio": "SÃO CRISTÓVÃO",
+          "valor_pago": 254613261.48
+        },
+        {
+          "municipio": "NOSSA SENHORA DA GLÓRIA",
+          "valor_pago": 225331145.95
+        },
+        {
+          "municipio": "ESTÂNCIA",
+          "valor_pago": 222397992.88
+        },
+        {
+          "municipio": "BARRA DOS COQUEIROS",
+          "valor_pago": 175238212.28
+        }
+      ]
+    },
+    {
+      "uf": "SP",
+      "nome": "São Paulo",
+      "valor_pago": 500428420650.35,
+      "nivel": 4,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "SÃO PAULO",
+          "valor_pago": 297679596148.15
+        },
+        {
+          "municipio": "BARUERI",
+          "valor_pago": 20992032408.01
+        },
+        {
+          "municipio": "OSASCO",
+          "valor_pago": 12060226746.55
+        },
+        {
+          "municipio": "CAMPINAS",
+          "valor_pago": 9375464420.29
+        },
+        {
+          "municipio": "GUARULHOS",
+          "valor_pago": 8507325493.84
+        },
+        {
+          "municipio": "SÃO BERNARDO DO CAMPO",
+          "valor_pago": 7169012504.47
+        },
+        {
+          "municipio": "RIBEIRÃO PRETO",
+          "valor_pago": 6176704849.02
+        },
+        {
+          "municipio": "SANTOS",
+          "valor_pago": 4516846015.5
+        }
+      ]
+    },
+    {
+      "uf": "TO",
+      "nome": "Tocantins",
+      "valor_pago": 5314877484.03,
+      "nivel": 1,
+      "amostra_insuficiente": false,
+      "cidades": [
+        {
+          "municipio": "PALMAS",
+          "valor_pago": 2480331880.97
+        },
+        {
+          "municipio": "ARAGUAÍNA",
+          "valor_pago": 1156708942.88
+        },
+        {
+          "municipio": "GURUPI",
+          "valor_pago": 579910805.19
+        },
+        {
+          "municipio": "PORTO NACIONAL",
+          "valor_pago": 324654289.04
+        },
+        {
+          "municipio": "PARAÍSO DO TOCANTINS",
+          "valor_pago": 318278248.11
+        },
+        {
+          "municipio": "COLINAS DO TOCANTINS",
+          "valor_pago": 222920171.39
+        },
+        {
+          "municipio": "GUARAÍ",
+          "valor_pago": 125045774.51
+        },
+        {
+          "municipio": "ARAGUATINS",
+          "valor_pago": 107027371.94
+        }
+      ]
+    }
+  ]
+}
