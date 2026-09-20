@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-09-19T17:58:13.421972+00:00",
+  "gerado_em": "2026-09-20T18:10:27.862420+00:00",
   "metodologia": "Soma as receitas declaradas (doações, recursos próprios, Fundo Eleitoral/partidário) e as despesas contratadas de cada candidato a presidente ou governador — fonte: TSE, Portal de Dados Abertos, dataset Prestação de Contas Eleitorais. Usa 'despesas contratadas' porque o arquivo de despesas pagas do TSE não identifica o candidato. Os valores são cumulativos e crescem a cada relatório financeiro enviado durante a campanha.",
   "disclaimer": "Valores autodeclarados pela própria campanha, ainda sem julgamento das contas pela Justiça Eleitoral. O TSE republica os relatórios financeiros ao longo da campanha, então o total sobe com o tempo — o retrato é da última coleta, não o gasto final (prestação parcial até 2026-09-13, final até 2026-11-03). O confronto doador × Receita Federal usa o nome que o próprio TSE publica para o CPF/CNPJ ao lado do declarado pela campanha; divergência aqui indica cadastro desatualizado ou grafia diferente, não irregularidade.",
   "fontes": [
@@ -12,7 +12,7 @@
   "prazo_parcial": "2026-09-13",
   "prazo_final": "2026-11-03",
   "n_candidatos": 215,
-  "n_com_receita": 173,
+  "n_com_receita": 174,
   "total_divergencias": 60,
   "candidatos": [
     {
@@ -20,11 +20,11 @@
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "PL",
-      "receitas_total_rs": 56177510.77,
-      "despesas_total_rs": 56194552.56,
-      "saldo_rs": -17041.79,
-      "n_doacoes": 96,
-      "n_despesas": 171,
+      "receitas_total_rs": 56440010.91,
+      "despesas_total_rs": 56194554.56,
+      "saldo_rs": 245456.35,
+      "n_doacoes": 106,
+      "n_despesas": 172,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
@@ -33,8 +33,8 @@
         },
         {
           "origem": "Recursos de pessoas físicas",
-          "valor_rs": 2555530.98,
-          "n": 76
+          "valor_rs": 2818031.12,
+          "n": 86
         },
         {
           "origem": "Recursos de Financiamento Coletivo",
@@ -428,35 +428,6 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "REQUIÃO FILHO",
-      "cargo": "GOVERNADOR",
-      "uf": "PR",
-      "partido": "PDT",
-      "receitas_total_rs": 11073005.0,
-      "despesas_total_rs": 2942703.76,
-      "saldo_rs": 8130301.24,
-      "n_doacoes": 15,
-      "n_despesas": 320,
-      "origem_breakdown": [
-        {
-          "origem": "Recursos de partido político",
-          "valor_rs": 11000000.0,
-          "n": 2
-        },
-        {
-          "origem": "Recursos de pessoas físicas",
-          "valor_rs": 47800.0,
-          "n": 5
-        },
-        {
-          "origem": "Recursos de outros candidatos",
-          "valor_rs": 25205.0,
-          "n": 8
-        }
-      ],
-      "doador_rfb_divergencias": []
-    },
-    {
       "nome_urna": "WILDER MORAIS",
       "cargo": "GOVERNADOR",
       "uf": "GO",
@@ -471,6 +442,35 @@
           "origem": "Recursos de partido político",
           "valor_rs": 11050000.0,
           "n": 5
+        }
+      ],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "REQUIÃO FILHO",
+      "cargo": "GOVERNADOR",
+      "uf": "PR",
+      "partido": "PDT",
+      "receitas_total_rs": 11047177.0,
+      "despesas_total_rs": 2942803.76,
+      "saldo_rs": 8104373.24,
+      "n_doacoes": 14,
+      "n_despesas": 321,
+      "origem_breakdown": [
+        {
+          "origem": "Recursos de partido político",
+          "valor_rs": 11000000.0,
+          "n": 2
+        },
+        {
+          "origem": "Recursos de outros candidatos",
+          "valor_rs": 24365.0,
+          "n": 6
+        },
+        {
+          "origem": "Recursos de pessoas físicas",
+          "valor_rs": 22812.0,
+          "n": 6
         }
       ],
       "doador_rfb_divergencias": []
@@ -864,8 +864,8 @@
       ],
       "doador_rfb_divergencias": [
         {
-          "doador": "EDELUIZA CAMPOS PEREIRA",
-          "doador_rfb": "EDILEUZA CAMPOS PEREIRA",
+          "doador": "JOSE EDUARDO DE O BARROSO",
+          "doador_rfb": "JOSE EDUARDO DE OLIVEIRA BARRETO",
           "valor_rs": 1800.0
         },
         {
@@ -874,8 +874,8 @@
           "valor_rs": 1800.0
         },
         {
-          "doador": "JOSE EDUARDO DE O BARROSO",
-          "doador_rfb": "JOSE EDUARDO DE OLIVEIRA BARRETO",
+          "doador": "EDELUIZA CAMPOS PEREIRA",
+          "doador_rfb": "EDILEUZA CAMPOS PEREIRA",
           "valor_rs": 1800.0
         }
       ]
@@ -984,6 +984,41 @@
       ]
     },
     {
+      "nome_urna": "JORGINHO MELLO",
+      "cargo": "GOVERNADOR",
+      "uf": "SC",
+      "partido": "PL",
+      "receitas_total_rs": 6384370.21,
+      "despesas_total_rs": 6071576.34,
+      "saldo_rs": 312793.87,
+      "n_doacoes": 45,
+      "n_despesas": 253,
+      "origem_breakdown": [
+        {
+          "origem": "Recursos de partido político",
+          "valor_rs": 5710000.0,
+          "n": 2
+        },
+        {
+          "origem": "Recursos de pessoas físicas",
+          "valor_rs": 644370.21,
+          "n": 42
+        },
+        {
+          "origem": "Recursos próprios",
+          "valor_rs": 30000.0,
+          "n": 1
+        }
+      ],
+      "doador_rfb_divergencias": [
+        {
+          "doador": "PAULIO SERGIO",
+          "doador_rfb": "PAULO SERGIO LORENZETTI SAKAI",
+          "valor_rs": 20000.0
+        }
+      ]
+    },
+    {
       "nome_urna": "FÁBIO",
       "cargo": "GOVERNADOR",
       "uf": "SE",
@@ -1015,41 +1050,6 @@
           "doador": "JOSE LINNIK SANTOS FARIAS",
           "doador_rfb": "JOSE LYNNIK SANTOS FARIAS",
           "valor_rs": 4000.0
-        }
-      ]
-    },
-    {
-      "nome_urna": "JORGINHO MELLO",
-      "cargo": "GOVERNADOR",
-      "uf": "SC",
-      "partido": "PL",
-      "receitas_total_rs": 6124370.21,
-      "despesas_total_rs": 5855073.64,
-      "saldo_rs": 269296.57,
-      "n_doacoes": 43,
-      "n_despesas": 250,
-      "origem_breakdown": [
-        {
-          "origem": "Recursos de partido político",
-          "valor_rs": 5710000.0,
-          "n": 2
-        },
-        {
-          "origem": "Recursos de pessoas físicas",
-          "valor_rs": 384370.21,
-          "n": 40
-        },
-        {
-          "origem": "Recursos próprios",
-          "valor_rs": 30000.0,
-          "n": 1
-        }
-      ],
-      "doador_rfb_divergencias": [
-        {
-          "doador": "PAULIO SERGIO",
-          "doador_rfb": "PAULO SERGIO LORENZETTI SAKAI",
-          "valor_rs": 20000.0
         }
       ]
     },
@@ -1353,13 +1353,13 @@
       ],
       "doador_rfb_divergencias": [
         {
-          "doador": "CLAUDINEI MERCEIS DA SILVA",
-          "doador_rfb": "CLAUDINEY MERCEIS DA SILVA",
+          "doador": "JULIERMES DANTAS DE CARVALHO",
+          "doador_rfb": "JULLIERMES DANTAS DE CARVALHO",
           "valor_rs": 6000.0
         },
         {
-          "doador": "JULIERMES DANTAS DE CARVALHO",
-          "doador_rfb": "JULLIERMES DANTAS DE CARVALHO",
+          "doador": "CLAUDINEI MERCEIS DA SILVA",
+          "doador_rfb": "CLAUDINEY MERCEIS DA SILVA",
           "valor_rs": 6000.0
         }
       ]
@@ -1576,13 +1576,13 @@
           "valor_rs": 3000.0
         },
         {
-          "doador": "ALINE NEGREIROS MARINHO",
-          "doador_rfb": "ALINE BATISTA NEGREIROS",
+          "doador": "VICTORIA AZEVEDO DINIZ DA SILVA",
+          "doador_rfb": "VICTORIA AZEVEDO DINIZ CRUZ",
           "valor_rs": 176.84
         },
         {
-          "doador": "VICTORIA AZEVEDO DINIZ DA SILVA",
-          "doador_rfb": "VICTORIA AZEVEDO DINIZ CRUZ",
+          "doador": "ALINE NEGREIROS MARINHO",
+          "doador_rfb": "ALINE BATISTA NEGREIROS",
           "valor_rs": 176.84
         }
       ]
@@ -1686,15 +1686,50 @@
       "doador_rfb_divergencias": []
     },
     {
+      "nome_urna": "ALAN RICK",
+      "cargo": "GOVERNADOR",
+      "uf": "AC",
+      "partido": "REPUBLICANOS",
+      "receitas_total_rs": 3572000.0,
+      "despesas_total_rs": 1846707.32,
+      "saldo_rs": 1725292.68,
+      "n_doacoes": 11,
+      "n_despesas": 227,
+      "origem_breakdown": [
+        {
+          "origem": "Recursos de partido político",
+          "valor_rs": 3500000.0,
+          "n": 2
+        },
+        {
+          "origem": "Recursos próprios",
+          "valor_rs": 50000.0,
+          "n": 1
+        },
+        {
+          "origem": "Recursos de pessoas físicas",
+          "valor_rs": 22000.0,
+          "n": 8
+        }
+      ],
+      "doador_rfb_divergencias": [
+        {
+          "doador": "CHISTIANE PAMPLONA RANIERI BASTOS",
+          "doador_rfb": "CHRISTIANE PAMPLONA RANIERI BASTOS",
+          "valor_rs": 3000.0
+        }
+      ]
+    },
+    {
       "nome_urna": "MAILZA ASSIS",
       "cargo": "GOVERNADOR",
       "uf": "AC",
       "partido": "PP",
       "receitas_total_rs": 3557000.0,
-      "despesas_total_rs": 1653972.2,
-      "saldo_rs": 1903027.8,
+      "despesas_total_rs": 1684722.7,
+      "saldo_rs": 1872277.3,
       "n_doacoes": 2,
-      "n_despesas": 11,
+      "n_despesas": 70,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
@@ -1786,10 +1821,10 @@
       "cargo": "GOVERNADOR",
       "uf": "ES",
       "partido": "REPUBLICANOS",
-      "receitas_total_rs": 3480132.54,
+      "receitas_total_rs": 3482132.54,
       "despesas_total_rs": 4284549.6,
-      "saldo_rs": -804417.06,
-      "n_doacoes": 55,
+      "saldo_rs": -802417.06,
+      "n_doacoes": 56,
       "n_despesas": 103,
       "origem_breakdown": [
         {
@@ -1799,8 +1834,8 @@
         },
         {
           "origem": "Recursos de pessoas físicas",
-          "valor_rs": 97992.54,
-          "n": 36
+          "valor_rs": 99992.54,
+          "n": 37
         },
         {
           "origem": "Recursos de outros candidatos",
@@ -1810,13 +1845,13 @@
       ],
       "doador_rfb_divergencias": [
         {
-          "doador": "Orlando Anastcio",
-          "doador_rfb": "ORLANDO ANASTACIO",
+          "doador": "Eduardo Rangel Leo",
+          "doador_rfb": "EDUARDO RANGEL LEAO",
           "valor_rs": 3600.0
         },
         {
-          "doador": "Eduardo Rangel Leo",
-          "doador_rfb": "EDUARDO RANGEL LEAO",
+          "doador": "Orlando Anastcio",
+          "doador_rfb": "ORLANDO ANASTACIO",
           "valor_rs": 3600.0
         },
         {
@@ -2171,13 +2206,13 @@
           "valor_rs": 100.0
         },
         {
-          "doador": "BEATRIZ DA SIL",
-          "doador_rfb": "BEATRIZ MATOS SIQUEIRA",
+          "doador": "Anderson Simao Duarte Jr",
+          "doador_rfb": "ANDERSON SIMAO DUARTE JUNIOR",
           "valor_rs": 100.0
         },
         {
-          "doador": "Anderson Simao Duarte Jr",
-          "doador_rfb": "ANDERSON SIMAO DUARTE JUNIOR",
+          "doador": "BEATRIZ DA SIL",
+          "doador_rfb": "BEATRIZ MATOS SIQUEIRA",
           "valor_rs": 100.0
         },
         {
@@ -2253,41 +2288,6 @@
         }
       ],
       "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "ALAN RICK",
-      "cargo": "GOVERNADOR",
-      "uf": "AC",
-      "partido": "REPUBLICANOS",
-      "receitas_total_rs": 1822000.0,
-      "despesas_total_rs": 1846707.32,
-      "saldo_rs": -24707.32,
-      "n_doacoes": 10,
-      "n_despesas": 227,
-      "origem_breakdown": [
-        {
-          "origem": "Recursos de partido político",
-          "valor_rs": 1750000.0,
-          "n": 1
-        },
-        {
-          "origem": "Recursos próprios",
-          "valor_rs": 50000.0,
-          "n": 1
-        },
-        {
-          "origem": "Recursos de pessoas físicas",
-          "valor_rs": 22000.0,
-          "n": 8
-        }
-      ],
-      "doador_rfb_divergencias": [
-        {
-          "doador": "CHISTIANE PAMPLONA RANIERI BASTOS",
-          "doador_rfb": "CHRISTIANE PAMPLONA RANIERI BASTOS",
-          "valor_rs": 3000.0
-        }
-      ]
     },
     {
       "nome_urna": "CLARIANA BARAO",
@@ -2633,16 +2633,16 @@
       "cargo": "GOVERNADOR",
       "uf": "MG",
       "partido": "REPUBLICANOS",
-      "receitas_total_rs": 734975.0,
+      "receitas_total_rs": 754975.0,
       "despesas_total_rs": 669285.06,
-      "saldo_rs": 65689.94,
-      "n_doacoes": 56,
+      "saldo_rs": 85689.94,
+      "n_doacoes": 57,
       "n_despesas": 152,
       "origem_breakdown": [
         {
           "origem": "Recursos de pessoas físicas",
-          "valor_rs": 734975.0,
-          "n": 56
+          "valor_rs": 754975.0,
+          "n": 57
         }
       ],
       "doador_rfb_divergencias": [
@@ -2935,10 +2935,10 @@
       "cargo": "GOVERNADOR",
       "uf": "AC",
       "partido": "PSB",
-      "receitas_total_rs": 223320.0,
+      "receitas_total_rs": 227320.0,
       "despesas_total_rs": 195138.5,
-      "saldo_rs": 28181.5,
-      "n_doacoes": 6,
+      "saldo_rs": 32181.5,
+      "n_doacoes": 7,
       "n_despesas": 12,
       "origem_breakdown": [
         {
@@ -2947,14 +2947,14 @@
           "n": 1
         },
         {
+          "origem": "Recursos próprios",
+          "valor_rs": 6700.0,
+          "n": 4
+        },
+        {
           "origem": "Recursos de pessoas físicas",
           "valor_rs": 3400.0,
           "n": 2
-        },
-        {
-          "origem": "Recursos próprios",
-          "valor_rs": 2700.0,
-          "n": 3
         }
       ],
       "doador_rfb_divergencias": []
@@ -3133,13 +3133,13 @@
           "valor_rs": 100.0
         },
         {
-          "doador": "Nicky Oliveira da Silva",
-          "doador_rfb": "GUSTAVO OLIVEIRA DA SILVA",
+          "doador": "Suzana Beatriz Verissimo de Melo",
+          "doador_rfb": "SUZANA BEATRIZ VERISSIMO DE MELLO",
           "valor_rs": 50.0
         },
         {
-          "doador": "Suzana Beatriz Verissimo de Melo",
-          "doador_rfb": "SUZANA BEATRIZ VERISSIMO DE MELLO",
+          "doador": "Nicky Oliveira da Silva",
+          "doador_rfb": "GUSTAVO OLIVEIRA DA SILVA",
           "valor_rs": 50.0
         },
         {
@@ -3913,10 +3913,10 @@
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "PCB",
-      "receitas_total_rs": 22891.0,
+      "receitas_total_rs": 23891.0,
       "despesas_total_rs": 18300.22,
-      "saldo_rs": 4590.78,
-      "n_doacoes": 7,
+      "saldo_rs": 5590.78,
+      "n_doacoes": 8,
       "n_despesas": 17,
       "origem_breakdown": [
         {
@@ -3926,8 +3926,8 @@
         },
         {
           "origem": "Recursos de pessoas físicas",
-          "valor_rs": 9720.0,
-          "n": 6
+          "valor_rs": 10720.0,
+          "n": 7
         }
       ],
       "doador_rfb_divergencias": []
@@ -4029,6 +4029,25 @@
       "doador_rfb_divergencias": []
     },
     {
+      "nome_urna": "YURI EZEQUIEL",
+      "cargo": "GOVERNADOR",
+      "uf": "PB",
+      "partido": "UP",
+      "receitas_total_rs": 18248.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 18248.0,
+      "n_doacoes": 6,
+      "n_despesas": 0,
+      "origem_breakdown": [
+        {
+          "origem": "Recursos de partido político",
+          "valor_rs": 18248.0,
+          "n": 6
+        }
+      ],
+      "doador_rfb_divergencias": []
+    },
+    {
       "nome_urna": "LUCIANA AMORIM",
       "cargo": "GOVERNADOR",
       "uf": "GO",
@@ -4096,10 +4115,10 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "CABO DACIOLO",
+      "nome_urna": "HENRIQUE ÁREAS",
       "cargo": "GOVERNADOR",
-      "uf": "AM",
-      "partido": "MOBILIZA",
+      "uf": "MG",
+      "partido": "PCO",
       "receitas_total_rs": 10000.0,
       "despesas_total_rs": 0.0,
       "saldo_rs": 10000.0,
@@ -4115,10 +4134,10 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "HENRIQUE ÁREAS",
+      "nome_urna": "CABO DACIOLO",
       "cargo": "GOVERNADOR",
-      "uf": "MG",
-      "partido": "PCO",
+      "uf": "AM",
+      "partido": "MOBILIZA",
       "receitas_total_rs": 10000.0,
       "despesas_total_rs": 0.0,
       "saldo_rs": 10000.0,
@@ -4295,25 +4314,6 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "REGINALDO LIMA",
-      "cargo": "GOVERNADOR",
-      "uf": "MA",
-      "partido": "PCB",
-      "receitas_total_rs": 5500.0,
-      "despesas_total_rs": 5754.83,
-      "saldo_rs": -254.83,
-      "n_doacoes": 2,
-      "n_despesas": 8,
-      "origem_breakdown": [
-        {
-          "origem": "Recursos de pessoas físicas",
-          "valor_rs": 5500.0,
-          "n": 2
-        }
-      ],
-      "doador_rfb_divergencias": []
-    },
-    {
       "nome_urna": "ELISSON",
       "cargo": "GOVERNADOR",
       "uf": "DF",
@@ -4333,6 +4333,25 @@
           "origem": "Recursos próprios",
           "valor_rs": 2000.0,
           "n": 1
+        }
+      ],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "REGINALDO LIMA",
+      "cargo": "GOVERNADOR",
+      "uf": "MA",
+      "partido": "PCB",
+      "receitas_total_rs": 5500.0,
+      "despesas_total_rs": 5754.83,
+      "saldo_rs": -254.83,
+      "n_doacoes": 2,
+      "n_despesas": 8,
+      "origem_breakdown": [
+        {
+          "origem": "Recursos de pessoas físicas",
+          "valor_rs": 5500.0,
+          "n": 2
         }
       ],
       "doador_rfb_divergencias": []
@@ -4626,75 +4645,23 @@
       ]
     },
     {
-      "nome_urna": "JEFERSON BEZERRA",
-      "cargo": "GOVERNADOR",
-      "uf": "MS",
-      "partido": "AGIR",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "PEDRO BRITO",
-      "cargo": "GOVERNADOR",
-      "uf": "CE",
-      "partido": "NOVO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "CLEBER RABELO",
-      "cargo": "GOVERNADOR",
-      "uf": "PA",
-      "partido": "PSTU",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "MARCELO BRIGADEIRO",
-      "cargo": "GOVERNADOR",
-      "uf": "SC",
-      "partido": "MISSÃO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "DR.LUISINHO",
-      "cargo": "GOVERNADOR",
-      "uf": "AC",
-      "partido": "AGIR",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "RICO PINHEIRO",
+      "nome_urna": "PROFESSORA SAMARA MINEIRO",
       "cargo": "GOVERNADOR",
       "uf": "DF",
-      "partido": "PRTB",
+      "partido": "UP",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 1621.0,
+      "saldo_rs": -1621.0,
+      "n_doacoes": 0,
+      "n_despesas": 1,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "ISAEL MUNDURUKU",
+      "cargo": "GOVERNADOR",
+      "uf": "AM",
+      "partido": "REDE",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
       "saldo_rs": 0.0,
@@ -4704,9 +4671,9 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "CESAR PONTES",
+      "nome_urna": "IERI BRAGA",
       "cargo": "GOVERNADOR",
-      "uf": "RS",
+      "uf": "CE",
       "partido": "PCO",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
@@ -4730,62 +4697,23 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "IERI BRAGA",
+      "nome_urna": "CLÉBIO GENUÍNO",
+      "cargo": "GOVERNADOR",
+      "uf": "RR",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "PEDRO BRITO",
       "cargo": "GOVERNADOR",
       "uf": "CE",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "ADRIANO FUNILEIRO",
-      "cargo": "GOVERNADOR",
-      "uf": "PR",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "GODEIRO LINHARESS",
-      "cargo": "GOVERNADOR",
-      "uf": "RN",
-      "partido": "DC",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "IZADORA DIAS",
-      "cargo": "GOVERNADOR",
-      "uf": "SP",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "ESTÊVÃO",
-      "cargo": "GOVERNADOR",
-      "uf": "BA",
-      "partido": "DC",
+      "partido": "NOVO",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
       "saldo_rs": 0.0,
@@ -4808,149 +4736,6 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "CAMILO DUARTE",
-      "cargo": "GOVERNADOR",
-      "uf": "PB",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "MÁRCIO JAMBO",
-      "cargo": "GOVERNADOR",
-      "uf": "AL",
-      "partido": "DEMOCRATA",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "RAVENNA DA INCLUSÃO",
-      "cargo": "GOVERNADOR",
-      "uf": "PI",
-      "partido": "DEMOCRATA",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "PROFESSORA SAMARA MINEIRO",
-      "cargo": "GOVERNADOR",
-      "uf": "DF",
-      "partido": "UP",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 1621.0,
-      "saldo_rs": -1621.0,
-      "n_doacoes": 0,
-      "n_despesas": 1,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "ECONOMISTA RENATO GOMES",
-      "cargo": "GOVERNADOR",
-      "uf": "MS",
-      "partido": "DC",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "SARGENTO LAUDICÉRIO (LAU)",
-      "cargo": "GOVERNADOR",
-      "uf": "MT",
-      "partido": "AGIR",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "CARLOS JARARACA",
-      "cargo": "GOVERNADOR",
-      "uf": "RN",
-      "partido": "DC",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "DANILO DA SILVA",
-      "cargo": "GOVERNADOR",
-      "uf": "GO",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "JAIRO PALHETA",
-      "cargo": "GOVERNADOR",
-      "uf": "AP",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "BRUNO PEDREIRO DO PCO",
-      "cargo": "GOVERNADOR",
-      "uf": "SC",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "ISAEL MUNDURUKU",
-      "cargo": "GOVERNADOR",
-      "uf": "AM",
-      "partido": "REDE",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
       "nome_urna": "SAMUEL COSTA",
       "cargo": "GOVERNADOR",
       "uf": "RO",
@@ -4964,35 +4749,9 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "HENRIQUE LYRA",
+      "nome_urna": "RICO PINHEIRO",
       "cargo": "GOVERNADOR",
-      "uf": "RN",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "RUTH REIS",
-      "cargo": "GOVERNADOR",
-      "uf": "PA",
-      "partido": "DEMOCRATA",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "LEONARDO AVALANCHE",
-      "cargo": "PRESIDENTE",
-      "uf": "BR",
+      "uf": "DF",
       "partido": "PRTB",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
@@ -5003,114 +4762,10 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "PEDRO COUTINHO",
+      "nome_urna": "CARLOS JARARACA",
       "cargo": "GOVERNADOR",
-      "uf": "PB",
+      "uf": "RN",
       "partido": "DC",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "DIMAS CASSIMIRO",
-      "cargo": "GOVERNADOR",
-      "uf": "MA",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "JOSÉ MOITA",
-      "cargo": "GOVERNADOR",
-      "uf": "PA",
-      "partido": "DEMOCRATA",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "SUBTENENTE LUIZ CARLOS",
-      "cargo": "GOVERNADOR",
-      "uf": "TO",
-      "partido": "DEMOCRATA",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "LUAN MONTEIRO",
-      "cargo": "GOVERNADOR",
-      "uf": "RJ",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "MARIA BONA",
-      "cargo": "GOVERNADOR",
-      "uf": "BA",
-      "partido": "PCO",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "FARAH MESQUITA",
-      "cargo": "GOVERNADOR",
-      "uf": "RR",
-      "partido": "SOLIDARIEDADE",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "YURI EZEQUIEL",
-      "cargo": "GOVERNADOR",
-      "uf": "PB",
-      "partido": "UP",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "LOURDES MELO",
-      "cargo": "GOVERNADOR",
-      "uf": "PI",
-      "partido": "PCO",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
       "saldo_rs": 0.0,
@@ -5146,6 +4801,344 @@
       "doador_rfb_divergencias": []
     },
     {
+      "nome_urna": "JEFERSON BEZERRA",
+      "cargo": "GOVERNADOR",
+      "uf": "MS",
+      "partido": "AGIR",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "GODEIRO LINHARESS",
+      "cargo": "GOVERNADOR",
+      "uf": "RN",
+      "partido": "DC",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "DR.LUISINHO",
+      "cargo": "GOVERNADOR",
+      "uf": "AC",
+      "partido": "AGIR",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "PEDRO COUTINHO",
+      "cargo": "GOVERNADOR",
+      "uf": "PB",
+      "partido": "DC",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "BRUNO PEDREIRO DO PCO",
+      "cargo": "GOVERNADOR",
+      "uf": "SC",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "ADRIANO FUNILEIRO",
+      "cargo": "GOVERNADOR",
+      "uf": "PR",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "ESTÊVÃO",
+      "cargo": "GOVERNADOR",
+      "uf": "BA",
+      "partido": "DC",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "CLEBER RABELO",
+      "cargo": "GOVERNADOR",
+      "uf": "PA",
+      "partido": "PSTU",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "SUBTENENTE LUIZ CARLOS",
+      "cargo": "GOVERNADOR",
+      "uf": "TO",
+      "partido": "DEMOCRATA",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "DANILO DA SILVA",
+      "cargo": "GOVERNADOR",
+      "uf": "GO",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "LUAN MONTEIRO",
+      "cargo": "GOVERNADOR",
+      "uf": "RJ",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "RUTH REIS",
+      "cargo": "GOVERNADOR",
+      "uf": "PA",
+      "partido": "DEMOCRATA",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "ECONOMISTA RENATO GOMES",
+      "cargo": "GOVERNADOR",
+      "uf": "MS",
+      "partido": "DC",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "LEONARDO AVALANCHE",
+      "cargo": "PRESIDENTE",
+      "uf": "BR",
+      "partido": "PRTB",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "JOSÉ MOITA",
+      "cargo": "GOVERNADOR",
+      "uf": "PA",
+      "partido": "DEMOCRATA",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "IZADORA DIAS",
+      "cargo": "GOVERNADOR",
+      "uf": "SP",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "MARIA BONA",
+      "cargo": "GOVERNADOR",
+      "uf": "BA",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "CAMILO DUARTE",
+      "cargo": "GOVERNADOR",
+      "uf": "PB",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "FARAH MESQUITA",
+      "cargo": "GOVERNADOR",
+      "uf": "RR",
+      "partido": "SOLIDARIEDADE",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "MARCELO BRIGADEIRO",
+      "cargo": "GOVERNADOR",
+      "uf": "SC",
+      "partido": "MISSÃO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "HENRIQUE LYRA",
+      "cargo": "GOVERNADOR",
+      "uf": "RN",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "DIMAS CASSIMIRO",
+      "cargo": "GOVERNADOR",
+      "uf": "MA",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "RAVENNA DA INCLUSÃO",
+      "cargo": "GOVERNADOR",
+      "uf": "PI",
+      "partido": "DEMOCRATA",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "CESAR PONTES",
+      "cargo": "GOVERNADOR",
+      "uf": "RS",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "SARGENTO LAUDICÉRIO (LAU)",
+      "cargo": "GOVERNADOR",
+      "uf": "MT",
+      "partido": "AGIR",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "JAIRO PALHETA",
+      "cargo": "GOVERNADOR",
+      "uf": "AP",
+      "partido": "PCO",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
       "nome_urna": "POLICIAL EDJANE",
       "cargo": "GOVERNADOR",
       "uf": "SP",
@@ -5159,9 +5152,22 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "CLÉBIO GENUÍNO",
+      "nome_urna": "MÁRCIO JAMBO",
       "cargo": "GOVERNADOR",
-      "uf": "RR",
+      "uf": "AL",
+      "partido": "DEMOCRATA",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "LOURDES MELO",
+      "cargo": "GOVERNADOR",
+      "uf": "PI",
       "partido": "PCO",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
@@ -5178,11 +5184,11 @@
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "PL",
-      "receitas_total_rs": 56177510.77,
-      "despesas_total_rs": 56194552.56,
-      "saldo_rs": -17041.79,
-      "n_doacoes": 96,
-      "n_despesas": 171,
+      "receitas_total_rs": 56440010.91,
+      "despesas_total_rs": 56194554.56,
+      "saldo_rs": 245456.35,
+      "n_doacoes": 106,
+      "n_despesas": 172,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
@@ -5191,8 +5197,8 @@
         },
         {
           "origem": "Recursos de pessoas físicas",
-          "valor_rs": 2555530.98,
-          "n": 76
+          "valor_rs": 2818031.12,
+          "n": 86
         },
         {
           "origem": "Recursos de Financiamento Coletivo",
@@ -5371,11 +5377,11 @@
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "PL",
-      "receitas_total_rs": 56177510.77,
-      "despesas_total_rs": 56194552.56,
-      "saldo_rs": -17041.79,
-      "n_doacoes": 96,
-      "n_despesas": 171,
+      "receitas_total_rs": 56440010.91,
+      "despesas_total_rs": 56194554.56,
+      "saldo_rs": 245456.35,
+      "n_doacoes": 106,
+      "n_despesas": 172,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
@@ -5384,8 +5390,8 @@
         },
         {
           "origem": "Recursos de pessoas físicas",
-          "valor_rs": 2555530.98,
-          "n": 76
+          "valor_rs": 2818031.12,
+          "n": 86
         },
         {
           "origem": "Recursos de Financiamento Coletivo",
@@ -5511,7 +5517,7 @@
       "categoria": "Serviços prestados por terceiros",
       "valor_rs": 193755402.56,
       "n": 1429,
-      "pct": 35.5
+      "pct": 35.4
     },
     {
       "categoria": "Produção de programas de rádio, televisão ou vídeo",
@@ -5539,8 +5545,8 @@
     },
     {
       "categoria": "Atividades de militância e mobilização de rua",
-      "valor_rs": 24892038.44,
-      "n": 14473,
+      "valor_rs": 24921788.44,
+      "n": 14530,
       "pct": 4.6
     },
     {
@@ -5551,14 +5557,14 @@
     },
     {
       "categoria": "Despesas com pessoal",
-      "valor_rs": 16522853.22,
-      "n": 4896,
+      "valor_rs": 16523853.22,
+      "n": 4897,
       "pct": 3.0
     },
     {
       "categoria": "Outras",
-      "valor_rs": 87354553.1,
-      "n": 6174,
+      "valor_rs": 87571158.3,
+      "n": 6180,
       "pct": 16.0
     }
   ],
@@ -5640,7 +5646,7 @@
     },
     {
       "setor": "Atividades de publicidade não especificadas anteriormente",
-      "valor_rs": 39522112.64,
+      "valor_rs": 39442112.64,
       "pct": 7.2
     },
     {

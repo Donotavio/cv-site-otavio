@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-09-19T17:58:43.860714+00:00",
+  "gerado_em": "2026-09-20T18:10:32.025362+00:00",
   "fontes": [
     {
       "label": "Wikipedia PT — Pesquisas de opinião para a eleição presidencial no Brasil em 2022 (agrega pesquisas registradas no TSE)",
@@ -1292,32 +1292,39 @@
   "maquina": {
     "corte": {
       "regra": "registros com data de divulgação até o mesmo dia/mês em cada ano (mesma altura do ciclo, espelhada na data do snapshot de 2026)",
-      "a2022": "2022-09-19",
-      "a2026": "2026-09-19"
+      "a2022": "2022-09-20",
+      "a2026": "2026-09-20"
     },
     "a2022": {
-      "total_pesquisas": 1639,
-      "institutos": 190,
-      "investimento_nominal_rs": 74306333.64,
+      "total_pesquisas": 1678,
+      "institutos": 192,
+      "investimento_nominal_rs": 76206332.5,
       "mediana_entrevistados": 1280,
-      "custo_medio_rs": 45336.38,
-      "investimento_corrigido_ipca_rs": null
+      "custo_medio_rs": 45414.98,
+      "investimento_corrigido_ipca_rs": 91310427.6
     },
     "a2026": {
-      "total_pesquisas": 2385,
-      "institutos": 215,
-      "investimento_nominal_rs": 143748190.55,
+      "total_pesquisas": 2404,
+      "institutos": 216,
+      "investimento_nominal_rs": 144165690.55,
       "mediana_entrevistados": 1220,
-      "custo_medio_rs": 60271.78
+      "custo_medio_rs": 59969.09
     },
     "variacao": {
-      "pesquisas_pct": 45.5,
-      "institutos_pct": 13.2,
-      "investimento_nominal_pct": 93.5,
-      "investimento_real_pct": null
+      "pesquisas_pct": 43.3,
+      "institutos_pct": 12.5,
+      "investimento_nominal_pct": 89.2,
+      "investimento_real_pct": 57.9
     },
     "ipca": {
-      "indisponivel": true
+      "indice": "IPCA",
+      "serie_sgs": 433,
+      "base": "reais de 09/2022 (mês do corte)",
+      "ref_mes": "2026-08",
+      "fator": 1.1982,
+      "acumulado_pct": 19.8,
+      "fonte": "Banco Central do Brasil — SGS série 433 (IPCA, variação % mensal)",
+      "fonte_url": "https://www3.bcb.gov.br/sgspub/consultarvalores/telaCvsSelecionarSeries.paint?method=consultarSeries&codigoSerie=433"
     }
   }
 }
