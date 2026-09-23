@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-09-22T18:40:19.865832+00:00",
+  "gerado_em": "2026-09-23T18:56:26.411232+00:00",
   "fonte": "Wikipedia — agregação de pesquisas de institutos registrados no TSE",
   "fonte_url": "https://pt.wikipedia.org/wiki/Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2026",
   "ano_eleicao": 2026,
@@ -10,7 +10,7 @@
   "universo": {
     "cenario": "primeiro_turno",
     "ano": 2026,
-    "n_pontos_medicao": 479,
+    "n_pontos_medicao": 485,
     "n_institutos": 27,
     "n_pontos_descartados_janela": 2,
     "periodo": {
@@ -21,9 +21,9 @@
   "sanity_check": {
     "descricao": "Propriedade do leave-one-out: a média dos efeitos ponderada pelo número de pontos deve ficar próxima de 0 pp para cada candidato (tolerância ±0.3 pp).",
     "media_ponderada_pp": {
-      "Lula": 0.03,
-      "Romeu Zema": 0.11,
-      "Ronaldo Caiado": 0.05
+      "Lula": 0.04,
+      "Romeu Zema": 0.1,
+      "Ronaldo Caiado": 0.04
     },
     "ok": true
   },
@@ -44,24 +44,24 @@
   "institutos": [
     {
       "nome": "AtlasIntel",
-      "n_pesquisas_total": 15,
+      "n_pesquisas_total": 16,
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": 7.7,
-          "n_pontos": 14,
+          "efeito_pp": 7.6,
+          "n_pontos": 15,
           "significativo": true
         },
         {
           "candidato": "Romeu Zema",
-          "efeito_pp": 0.5,
-          "n_pontos": 13,
+          "efeito_pp": 0.4,
+          "n_pontos": 14,
           "significativo": false
         },
         {
           "candidato": "Ronaldo Caiado",
-          "efeito_pp": 0.4,
-          "n_pontos": 14,
+          "efeito_pp": 0.3,
+          "n_pontos": 15,
           "significativo": false
         }
       ]
@@ -72,7 +72,7 @@
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": -4.1,
+          "efeito_pp": -4.2,
           "n_pontos": 15,
           "significativo": true
         },
@@ -120,7 +120,7 @@
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": -0.3,
+          "efeito_pp": -0.4,
           "n_pontos": 13,
           "significativo": false
         },
@@ -144,7 +144,7 @@
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": -1.0,
+          "efeito_pp": -1.2,
           "n_pontos": 13,
           "significativo": true
         },
@@ -156,7 +156,7 @@
         },
         {
           "candidato": "Ronaldo Caiado",
-          "efeito_pp": 0.2,
+          "efeito_pp": 0.3,
           "n_pontos": 13,
           "significativo": false
         }
@@ -180,7 +180,7 @@
         },
         {
           "candidato": "Ronaldo Caiado",
-          "efeito_pp": -0.2,
+          "efeito_pp": -0.1,
           "n_pontos": 11,
           "significativo": false
         }
@@ -264,7 +264,7 @@
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": 0.4,
+          "efeito_pp": 0.3,
           "n_pontos": 7,
           "significativo": false
         },
@@ -312,7 +312,7 @@
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": -0.1,
+          "efeito_pp": -0.2,
           "n_pontos": 7,
           "significativo": false
         },
@@ -324,7 +324,7 @@
         },
         {
           "candidato": "Ronaldo Caiado",
-          "efeito_pp": -1.8,
+          "efeito_pp": -1.7,
           "n_pontos": 6,
           "significativo": false
         }
