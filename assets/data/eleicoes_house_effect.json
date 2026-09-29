@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-09-28T21:09:44.512511+00:00",
+  "gerado_em": "2026-09-29T19:53:53.612878+00:00",
   "fonte": "Wikipedia — agregação de pesquisas de institutos registrados no TSE",
   "fonte_url": "https://pt.wikipedia.org/wiki/Pesquisas_de_opinião_para_a_eleição_presidencial_no_Brasil_em_2026",
   "ano_eleicao": 2026,
@@ -10,7 +10,7 @@
   "universo": {
     "cenario": "primeiro_turno",
     "ano": 2026,
-    "n_pontos_medicao": 509,
+    "n_pontos_medicao": 521,
     "n_institutos": 28,
     "n_pontos_descartados_janela": 2,
     "periodo": {
@@ -21,48 +21,72 @@
   "sanity_check": {
     "descricao": "Propriedade do leave-one-out: a média dos efeitos ponderada pelo número de pontos deve ficar próxima de 0 pp para cada candidato (tolerância ±0.3 pp).",
     "media_ponderada_pp": {
-      "Lula": 0.03,
-      "Romeu Zema": 0.09,
-      "Ronaldo Caiado": 0.05
+      "Lula": 0.05,
+      "Romeu Zema": 0.08,
+      "Ronaldo Caiado": 0.04
     },
     "ok": true
   },
   "candidatos": [
     {
       "nome": "Lula",
-      "n_institutos_avaliados": 14
+      "n_institutos_avaliados": 15
     },
     {
       "nome": "Ronaldo Caiado",
-      "n_institutos_avaliados": 14
+      "n_institutos_avaliados": 15
     },
     {
       "nome": "Romeu Zema",
-      "n_institutos_avaliados": 14
+      "n_institutos_avaliados": 15
     }
   ],
   "institutos": [
     {
       "nome": "AtlasIntel",
-      "n_pesquisas_total": 16,
+      "n_pesquisas_total": 17,
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": 7.6,
-          "n_pontos": 15,
+          "efeito_pp": 7.4,
+          "n_pontos": 16,
           "significativo": true
         },
         {
           "candidato": "Romeu Zema",
           "efeito_pp": 0.4,
-          "n_pontos": 14,
+          "n_pontos": 15,
           "significativo": false
         },
         {
           "candidato": "Ronaldo Caiado",
-          "efeito_pp": 0.3,
-          "n_pontos": 15,
+          "efeito_pp": 0.2,
+          "n_pontos": 16,
           "significativo": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerp",
+      "n_pesquisas_total": 16,
+      "efeitos": [
+        {
+          "candidato": "Lula",
+          "efeito_pp": -3.9,
+          "n_pontos": 16,
+          "significativo": true
+        },
+        {
+          "candidato": "Romeu Zema",
+          "efeito_pp": -0.8,
+          "n_pontos": 16,
+          "significativo": false
+        },
+        {
+          "candidato": "Ronaldo Caiado",
+          "efeito_pp": -1.3,
+          "n_pontos": 16,
+          "significativo": true
         }
       ]
     },
@@ -72,7 +96,7 @@
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": 1.3,
+          "efeito_pp": 1.2,
           "n_pontos": 16,
           "significativo": true
         },
@@ -87,30 +111,6 @@
           "efeito_pp": 0.7,
           "n_pontos": 16,
           "significativo": false
-        }
-      ]
-    },
-    {
-      "nome": "Gerp",
-      "n_pesquisas_total": 15,
-      "efeitos": [
-        {
-          "candidato": "Lula",
-          "efeito_pp": -4.2,
-          "n_pontos": 15,
-          "significativo": true
-        },
-        {
-          "candidato": "Romeu Zema",
-          "efeito_pp": -0.8,
-          "n_pontos": 15,
-          "significativo": false
-        },
-        {
-          "candidato": "Ronaldo Caiado",
-          "efeito_pp": -1.3,
-          "n_pontos": 15,
-          "significativo": true
         }
       ]
     },
@@ -144,7 +144,7 @@
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": -1.2,
+          "efeito_pp": -1.3,
           "n_pontos": 13,
           "significativo": true
         },
@@ -156,7 +156,7 @@
         },
         {
           "candidato": "Ronaldo Caiado",
-          "efeito_pp": 0.2,
+          "efeito_pp": 0.3,
           "n_pontos": 13,
           "significativo": false
         }
@@ -216,7 +216,7 @@
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": -0.4,
+          "efeito_pp": -0.5,
           "n_pontos": 10,
           "significativo": false
         },
@@ -264,7 +264,7 @@
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": -0.0,
+          "efeito_pp": -0.1,
           "n_pontos": 8,
           "significativo": false
         },
@@ -312,7 +312,7 @@
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": -1.9,
+          "efeito_pp": -2.0,
           "n_pontos": 7,
           "significativo": false
         },
@@ -324,7 +324,7 @@
         },
         {
           "candidato": "Ronaldo Caiado",
-          "efeito_pp": -0.6,
+          "efeito_pp": -0.5,
           "n_pontos": 7,
           "significativo": false
         }
@@ -356,24 +356,48 @@
     },
     {
       "nome": "Vox Brasil",
-      "n_pesquisas_total": 6,
+      "n_pesquisas_total": 7,
       "efeitos": [
         {
           "candidato": "Lula",
-          "efeito_pp": -0.6,
-          "n_pontos": 6,
+          "efeito_pp": -0.4,
+          "n_pontos": 7,
           "significativo": false
         },
         {
           "candidato": "Romeu Zema",
-          "efeito_pp": 0.0,
-          "n_pontos": 6,
+          "efeito_pp": 0.1,
+          "n_pontos": 7,
           "significativo": false
         },
         {
           "candidato": "Ronaldo Caiado",
           "efeito_pp": 0.9,
-          "n_pontos": 6,
+          "n_pontos": 7,
+          "significativo": false
+        }
+      ]
+    },
+    {
+      "nome": "Palver",
+      "n_pesquisas_total": 5,
+      "efeitos": [
+        {
+          "candidato": "Lula",
+          "efeito_pp": 2.9,
+          "n_pontos": 5,
+          "significativo": false
+        },
+        {
+          "candidato": "Romeu Zema",
+          "efeito_pp": -0.9,
+          "n_pontos": 5,
+          "significativo": false
+        },
+        {
+          "candidato": "Ronaldo Caiado",
+          "efeito_pp": -2.4,
+          "n_pontos": 5,
           "significativo": false
         }
       ]
