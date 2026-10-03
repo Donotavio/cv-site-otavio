@@ -1,0 +1,1134 @@
+{
+  "updated_at": "2026-07-19T23:05:05.624457+00:00",
+  "source": "FIFA Data Hub — fdh-api.fifa.com (dados oficiais Copa 2026)",
+  "note": "Top-25 por família (finalização/criação/defesa/físico) das stats oficiais da FIFA por jogador. LIMITAÇÃO: players.json não traz nome/seleção; nomes resolvidos via join com o Power Ranking → só ~230 dos 1259 jogadores têm nome (o resto fica de fora). Distância em km.",
+  "coverage": {
+    "players_total": 1259,
+    "players_named": 230,
+    "names_source": "powerranking (playerId join)"
+  },
+  "families": {
+    "finishing": {
+      "label_pt": "Finalização",
+      "sort_key": "Goals",
+      "stats": [
+        "Goals",
+        "XG",
+        "AttemptAtGoal",
+        "AttemptAtGoalOnTarget"
+      ],
+      "players": [
+        {
+          "player": "Kylian MBAPPE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "Goals": 10,
+          "XG": 6.5,
+          "AttemptAtGoal": 41,
+          "AttemptAtGoalOnTarget": 23
+        },
+        {
+          "player": "Lionel MESSI",
+          "team": "Argentina",
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "matches": 8,
+          "Goals": 8,
+          "XG": 6.2,
+          "AttemptAtGoal": 35,
+          "AttemptAtGoalOnTarget": 19
+        },
+        {
+          "player": "Erling HAALAND",
+          "team": "Norway",
+          "code": "NOR",
+          "flag": "🇳🇴",
+          "matches": 5,
+          "Goals": 7,
+          "XG": 4.6,
+          "AttemptAtGoal": 19,
+          "AttemptAtGoalOnTarget": 12
+        },
+        {
+          "player": "Jude BELLINGHAM",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 8,
+          "Goals": 7,
+          "XG": 3.9,
+          "AttemptAtGoal": 19,
+          "AttemptAtGoalOnTarget": 13
+        },
+        {
+          "player": "Harry KANE",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 7,
+          "Goals": 6,
+          "XG": 3.7,
+          "AttemptAtGoal": 23,
+          "AttemptAtGoalOnTarget": 11
+        },
+        {
+          "player": "Ousmane DEMBELE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "Goals": 6,
+          "XG": 2.1,
+          "AttemptAtGoal": 20,
+          "AttemptAtGoalOnTarget": 10
+        },
+        {
+          "player": "Mikel OYARZABAL",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "Goals": 5,
+          "XG": 4.3,
+          "AttemptAtGoal": 23,
+          "AttemptAtGoalOnTarget": 12
+        },
+        {
+          "player": "VINICIUS JUNIOR",
+          "team": "Brazil",
+          "code": "BRA",
+          "flag": "🇧🇷",
+          "matches": 5,
+          "Goals": 4,
+          "XG": 3.2,
+          "AttemptAtGoal": 17,
+          "AttemptAtGoalOnTarget": 11
+        },
+        {
+          "player": "Julian QUINONES",
+          "team": "Mexico",
+          "code": "MEX",
+          "flag": "🇲🇽",
+          "matches": 5,
+          "Goals": 4,
+          "XG": 2.3,
+          "AttemptAtGoal": 14,
+          "AttemptAtGoalOnTarget": 6
+        },
+        {
+          "player": "Ismaila SARR",
+          "team": "Senegal",
+          "code": "SEN",
+          "flag": "🇸🇳",
+          "matches": 4,
+          "Goals": 4,
+          "XG": 3.7,
+          "AttemptAtGoal": 17,
+          "AttemptAtGoalOnTarget": 6
+        },
+        {
+          "player": "Raul JIMENEZ",
+          "team": "Mexico",
+          "code": "MEX",
+          "flag": "🇲🇽",
+          "matches": 4,
+          "Goals": 3,
+          "XG": 3.0,
+          "AttemptAtGoal": 18,
+          "AttemptAtGoalOnTarget": 7
+        },
+        {
+          "player": "Folarin BALOGUN",
+          "team": "USA",
+          "code": "USA",
+          "flag": "🇺🇸",
+          "matches": 4,
+          "Goals": 3,
+          "XG": 2.0,
+          "AttemptAtGoal": 14,
+          "AttemptAtGoalOnTarget": 5
+        },
+        {
+          "player": "MATHEUS CUNHA",
+          "team": "Brazil",
+          "code": "BRA",
+          "flag": "🇧🇷",
+          "matches": 5,
+          "Goals": 3,
+          "XG": 1.2,
+          "AttemptAtGoal": 10,
+          "AttemptAtGoalOnTarget": 4
+        },
+        {
+          "player": "Ismael SAIBARI",
+          "team": "Morocco",
+          "code": "MAR",
+          "flag": "🇲🇦",
+          "matches": 5,
+          "Goals": 3,
+          "XG": 1.0,
+          "AttemptAtGoal": 10,
+          "AttemptAtGoalOnTarget": 3
+        },
+        {
+          "player": "Cody GAKPO",
+          "team": "Netherlands",
+          "code": "NED",
+          "flag": "🇳🇱",
+          "matches": 4,
+          "Goals": 3,
+          "XG": 1.3,
+          "AttemptAtGoal": 10,
+          "AttemptAtGoalOnTarget": 6
+        },
+        {
+          "player": "Brian BROBBEY",
+          "team": "Netherlands",
+          "code": "NED",
+          "flag": "🇳🇱",
+          "matches": 4,
+          "Goals": 3,
+          "XG": 1.4,
+          "AttemptAtGoal": 4,
+          "AttemptAtGoalOnTarget": 3
+        },
+        {
+          "player": "Kai HAVERTZ",
+          "team": "Germany",
+          "code": "GER",
+          "flag": "🇩🇪",
+          "matches": 4,
+          "Goals": 3,
+          "XG": 2.0,
+          "AttemptAtGoal": 12,
+          "AttemptAtGoalOnTarget": 7
+        },
+        {
+          "player": "Johan MANZAMBI",
+          "team": "Switzerland",
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "matches": 4,
+          "Goals": 3,
+          "XG": 0.6,
+          "AttemptAtGoal": 6,
+          "AttemptAtGoalOnTarget": 3
+        },
+        {
+          "player": "Charles DE KETELAERE",
+          "team": "Belgium",
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "matches": 5,
+          "Goals": 3,
+          "XG": 1.5,
+          "AttemptAtGoal": 6,
+          "AttemptAtGoalOnTarget": 5
+        },
+        {
+          "player": "Romelu LUKAKU",
+          "team": "Belgium",
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "matches": 6,
+          "Goals": 3,
+          "XG": 0.8,
+          "AttemptAtGoal": 6,
+          "AttemptAtGoalOnTarget": 3
+        },
+        {
+          "player": "Jonathan DAVID",
+          "team": "Canada",
+          "code": "CAN",
+          "flag": "🇨🇦",
+          "matches": 5,
+          "Goals": 3,
+          "XG": 2.7,
+          "AttemptAtGoal": 18,
+          "AttemptAtGoalOnTarget": 9
+        },
+        {
+          "player": "Bukayo SAKA",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 7,
+          "Goals": 3,
+          "XG": 1.7,
+          "AttemptAtGoal": 13,
+          "AttemptAtGoalOnTarget": 7
+        },
+        {
+          "player": "Lautaro MARTINEZ",
+          "team": "Argentina",
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "matches": 7,
+          "Goals": 3,
+          "XG": 2.2,
+          "AttemptAtGoal": 10,
+          "AttemptAtGoalOnTarget": 4
+        },
+        {
+          "player": "Bradley BARCOLA",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "Goals": 3,
+          "XG": 2.0,
+          "AttemptAtGoal": 10,
+          "AttemptAtGoalOnTarget": 5
+        },
+        {
+          "player": "Yoane WISSA",
+          "team": "DR Congo",
+          "code": "COD",
+          "flag": "🇨🇩",
+          "matches": 4,
+          "Goals": 3,
+          "XG": 1.8,
+          "AttemptAtGoal": 11,
+          "AttemptAtGoalOnTarget": 3
+        }
+      ]
+    },
+    "creation": {
+      "label_pt": "Criação",
+      "sort_key": "Threat",
+      "stats": [
+        "Threat",
+        "Assists",
+        "Passes",
+        "PassesCompleted"
+      ],
+      "players": [
+        {
+          "player": "Mikel OYARZABAL",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "Threat": 40.2,
+          "Assists": 1,
+          "Passes": 146,
+          "PassesCompleted": 122
+        },
+        {
+          "player": "Ferran TORRES",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "Threat": 33.6,
+          "Assists": 1,
+          "Passes": 82,
+          "PassesCompleted": 63
+        },
+        {
+          "player": "Lautaro MARTINEZ",
+          "team": "Argentina",
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "matches": 7,
+          "Threat": 31.4,
+          "Assists": 1,
+          "Passes": 71,
+          "PassesCompleted": 60
+        },
+        {
+          "player": "Julian ALVAREZ",
+          "team": "Argentina",
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "matches": 8,
+          "Threat": 23.9,
+          "Assists": 0,
+          "Passes": 212,
+          "PassesCompleted": 183
+        },
+        {
+          "player": "Kylian MBAPPE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "Threat": 23.3,
+          "Assists": 4,
+          "Passes": 232,
+          "PassesCompleted": 201
+        },
+        {
+          "player": "Breel EMBOLO",
+          "team": "Switzerland",
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "matches": 6,
+          "Threat": 22.1,
+          "Assists": 2,
+          "Passes": 72,
+          "PassesCompleted": 56
+        },
+        {
+          "player": "Mikel MERINO",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "Threat": 19.7,
+          "Assists": 0,
+          "Passes": 102,
+          "PassesCompleted": 88
+        },
+        {
+          "player": "Romelu LUKAKU",
+          "team": "Belgium",
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "matches": 6,
+          "Threat": 19.4,
+          "Assists": 1,
+          "Passes": 42,
+          "PassesCompleted": 32
+        },
+        {
+          "player": "Harry KANE",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 7,
+          "Threat": 19.1,
+          "Assists": 1,
+          "Passes": 99,
+          "PassesCompleted": 73
+        },
+        {
+          "player": "Brian BROBBEY",
+          "team": "Netherlands",
+          "code": "NED",
+          "flag": "🇳🇱",
+          "matches": 4,
+          "Threat": 17.7,
+          "Assists": 0,
+          "Passes": 21,
+          "PassesCompleted": 18
+        },
+        {
+          "player": "Folarin BALOGUN",
+          "team": "USA",
+          "code": "USA",
+          "flag": "🇺🇸",
+          "matches": 4,
+          "Threat": 16.2,
+          "Assists": 0,
+          "Passes": 44,
+          "PassesCompleted": 30
+        },
+        {
+          "player": "Dani OLMO",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "Threat": 15.6,
+          "Assists": 2,
+          "Passes": 227,
+          "PassesCompleted": 208
+        },
+        {
+          "player": "Lionel MESSI",
+          "team": "Argentina",
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "matches": 8,
+          "Threat": 15.5,
+          "Assists": 4,
+          "Passes": 362,
+          "PassesCompleted": 286
+        },
+        {
+          "player": "Erling HAALAND",
+          "team": "Norway",
+          "code": "NOR",
+          "flag": "🇳🇴",
+          "matches": 5,
+          "Threat": 15.2,
+          "Assists": 0,
+          "Passes": 47,
+          "PassesCompleted": 34
+        },
+        {
+          "player": "Lamine YAMAL",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "Threat": 14.6,
+          "Assists": 0,
+          "Passes": 262,
+          "PassesCompleted": 225
+        },
+        {
+          "player": "CRISTIANO RONALDO",
+          "team": "Portugal",
+          "code": "POR",
+          "flag": "🇵🇹",
+          "matches": 5,
+          "Threat": 14.5,
+          "Assists": 0,
+          "Passes": 99,
+          "PassesCompleted": 86
+        },
+        {
+          "player": "Kai HAVERTZ",
+          "team": "Germany",
+          "code": "GER",
+          "flag": "🇩🇪",
+          "matches": 4,
+          "Threat": 14.4,
+          "Assists": 0,
+          "Passes": 117,
+          "PassesCompleted": 101
+        },
+        {
+          "player": "Alex BAENA",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 7,
+          "Threat": 14.0,
+          "Assists": 1,
+          "Passes": 215,
+          "PassesCompleted": 174
+        },
+        {
+          "player": "Cyle LARIN",
+          "team": "Canada",
+          "code": "CAN",
+          "flag": "🇨🇦",
+          "matches": 4,
+          "Threat": 14.0,
+          "Assists": 0,
+          "Passes": 23,
+          "PassesCompleted": 20
+        },
+        {
+          "player": "Ousmane DEMBELE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "Threat": 12.3,
+          "Assists": 2,
+          "Passes": 297,
+          "PassesCompleted": 236
+        },
+        {
+          "player": "Jonathan DAVID",
+          "team": "Canada",
+          "code": "CAN",
+          "flag": "🇨🇦",
+          "matches": 5,
+          "Threat": 11.7,
+          "Assists": 0,
+          "Passes": 103,
+          "PassesCompleted": 76
+        },
+        {
+          "player": "Raul JIMENEZ",
+          "team": "Mexico",
+          "code": "MEX",
+          "flag": "🇲🇽",
+          "matches": 4,
+          "Threat": 11.6,
+          "Assists": 0,
+          "Passes": 66,
+          "PassesCompleted": 48
+        },
+        {
+          "player": "Charles DE KETELAERE",
+          "team": "Belgium",
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "matches": 5,
+          "Threat": 11.6,
+          "Assists": 1,
+          "Passes": 91,
+          "PassesCompleted": 72
+        },
+        {
+          "player": "Ismaila SARR",
+          "team": "Senegal",
+          "code": "SEN",
+          "flag": "🇸🇳",
+          "matches": 4,
+          "Threat": 11.0,
+          "Assists": 1,
+          "Passes": 73,
+          "PassesCompleted": 57
+        },
+        {
+          "player": "MOSTAFA ZICO",
+          "team": "Egypt",
+          "code": "EGY",
+          "flag": "🇪🇬",
+          "matches": 5,
+          "Threat": 10.1,
+          "Assists": 1,
+          "Passes": 83,
+          "PassesCompleted": 57
+        }
+      ]
+    },
+    "defense": {
+      "label_pt": "Defesa/pressão",
+      "sort_key": "DefensivePressuresApplied",
+      "stats": [
+        "DefensivePressuresApplied",
+        "ForcedTurnovers",
+        "TakeOnsCompleted"
+      ],
+      "players": [
+        {
+          "player": "Michael OLISE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "DefensivePressuresApplied": 289,
+          "ForcedTurnovers": 50,
+          "TakeOnsCompleted": 17
+        },
+        {
+          "player": "Harry KANE",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 7,
+          "DefensivePressuresApplied": 262,
+          "ForcedTurnovers": 25,
+          "TakeOnsCompleted": 1
+        },
+        {
+          "player": "Ousmane DEMBELE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "DefensivePressuresApplied": 257,
+          "ForcedTurnovers": 28,
+          "TakeOnsCompleted": 9
+        },
+        {
+          "player": "BRUNO FERNANDES",
+          "team": "Portugal",
+          "code": "POR",
+          "flag": "🇵🇹",
+          "matches": 5,
+          "DefensivePressuresApplied": 247,
+          "ForcedTurnovers": 27,
+          "TakeOnsCompleted": 3
+        },
+        {
+          "player": "Dani OLMO",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "DefensivePressuresApplied": 240,
+          "ForcedTurnovers": 34,
+          "TakeOnsCompleted": 12
+        },
+        {
+          "player": "Mikel OYARZABAL",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "DefensivePressuresApplied": 236,
+          "ForcedTurnovers": 57,
+          "TakeOnsCompleted": 2
+        },
+        {
+          "player": "Jude BELLINGHAM",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 8,
+          "DefensivePressuresApplied": 234,
+          "ForcedTurnovers": 22,
+          "TakeOnsCompleted": 14
+        },
+        {
+          "player": "Andres CUBAS",
+          "team": "Paraguay",
+          "code": "PAR",
+          "flag": "🇵🇾",
+          "matches": 5,
+          "DefensivePressuresApplied": 231,
+          "ForcedTurnovers": 43,
+          "TakeOnsCompleted": 0
+        },
+        {
+          "player": "Jonathan DAVID",
+          "team": "Canada",
+          "code": "CAN",
+          "flag": "🇨🇦",
+          "matches": 5,
+          "DefensivePressuresApplied": 227,
+          "ForcedTurnovers": 45,
+          "TakeOnsCompleted": 1
+        },
+        {
+          "player": "PEDRI",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "DefensivePressuresApplied": 224,
+          "ForcedTurnovers": 50,
+          "TakeOnsCompleted": 2
+        },
+        {
+          "player": "Julian ALVAREZ",
+          "team": "Argentina",
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "matches": 8,
+          "DefensivePressuresApplied": 215,
+          "ForcedTurnovers": 34,
+          "TakeOnsCompleted": 3
+        },
+        {
+          "player": "Fabian RIEDER",
+          "team": "Switzerland",
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "matches": 5,
+          "DefensivePressuresApplied": 210,
+          "ForcedTurnovers": 19,
+          "TakeOnsCompleted": 2
+        },
+        {
+          "player": "Julio ENCISO",
+          "team": "Paraguay",
+          "code": "PAR",
+          "flag": "🇵🇾",
+          "matches": 5,
+          "DefensivePressuresApplied": 209,
+          "ForcedTurnovers": 20,
+          "TakeOnsCompleted": 11
+        },
+        {
+          "player": "Desire DOUE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "DefensivePressuresApplied": 202,
+          "ForcedTurnovers": 14,
+          "TakeOnsCompleted": 10
+        },
+        {
+          "player": "Azzedine OUNAHI",
+          "team": "Morocco",
+          "code": "MAR",
+          "flag": "🇲🇦",
+          "matches": 6,
+          "DefensivePressuresApplied": 199,
+          "ForcedTurnovers": 26,
+          "TakeOnsCompleted": 8
+        },
+        {
+          "player": "Matias GALARZA",
+          "team": "Paraguay",
+          "code": "PAR",
+          "flag": "🇵🇾",
+          "matches": 4,
+          "DefensivePressuresApplied": 197,
+          "ForcedTurnovers": 42,
+          "TakeOnsCompleted": 2
+        },
+        {
+          "player": "Martin ODEGAARD",
+          "team": "Norway",
+          "code": "NOR",
+          "flag": "🇳🇴",
+          "matches": 5,
+          "DefensivePressuresApplied": 195,
+          "ForcedTurnovers": 18,
+          "TakeOnsCompleted": 3
+        },
+        {
+          "player": "MOSTAFA ZICO",
+          "team": "Egypt",
+          "code": "EGY",
+          "flag": "🇪🇬",
+          "matches": 5,
+          "DefensivePressuresApplied": 192,
+          "ForcedTurnovers": 15,
+          "TakeOnsCompleted": 0
+        },
+        {
+          "player": "JOAO NEVES",
+          "team": "Portugal",
+          "code": "POR",
+          "flag": "🇵🇹",
+          "matches": 5,
+          "DefensivePressuresApplied": 192,
+          "ForcedTurnovers": 19,
+          "TakeOnsCompleted": 3
+        },
+        {
+          "player": "Elliot ANDERSON",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 8,
+          "DefensivePressuresApplied": 191,
+          "ForcedTurnovers": 34,
+          "TakeOnsCompleted": 1
+        },
+        {
+          "player": "MARAWAN ATTIA",
+          "team": "Egypt",
+          "code": "EGY",
+          "flag": "🇪🇬",
+          "matches": 5,
+          "DefensivePressuresApplied": 182,
+          "ForcedTurnovers": 18,
+          "TakeOnsCompleted": 0
+        },
+        {
+          "player": "Ismael SAIBARI",
+          "team": "Morocco",
+          "code": "MAR",
+          "flag": "🇲🇦",
+          "matches": 5,
+          "DefensivePressuresApplied": 181,
+          "ForcedTurnovers": 32,
+          "TakeOnsCompleted": 4
+        },
+        {
+          "player": "Lautaro MARTINEZ",
+          "team": "Argentina",
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "matches": 7,
+          "DefensivePressuresApplied": 181,
+          "ForcedTurnovers": 26,
+          "TakeOnsCompleted": 1
+        },
+        {
+          "player": "Breel EMBOLO",
+          "team": "Switzerland",
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "matches": 6,
+          "DefensivePressuresApplied": 177,
+          "ForcedTurnovers": 40,
+          "TakeOnsCompleted": 2
+        },
+        {
+          "player": "Ayase UEDA",
+          "team": "Japan",
+          "code": "JPN",
+          "flag": "🇯🇵",
+          "matches": 4,
+          "DefensivePressuresApplied": 173,
+          "ForcedTurnovers": 11,
+          "TakeOnsCompleted": 4
+        }
+      ]
+    },
+    "physical": {
+      "label_pt": "Físico",
+      "sort_key": "TotalDistance",
+      "stats": [
+        "TotalDistance",
+        "TopSpeed",
+        "Sprints",
+        "SpeedRuns"
+      ],
+      "players": [
+        {
+          "player": "RODRI",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "TotalDistance": 96.4,
+          "TopSpeed": 31.5,
+          "Sprints": 278,
+          "SpeedRuns": 1133
+        },
+        {
+          "player": "Marc CUCURELLA",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "TotalDistance": 85.6,
+          "TopSpeed": 33.3,
+          "Sprints": 304,
+          "SpeedRuns": 774
+        },
+        {
+          "player": "Michael OLISE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "TotalDistance": 84.5,
+          "TopSpeed": 34.7,
+          "Sprints": 388,
+          "SpeedRuns": 1054
+        },
+        {
+          "player": "Pau CUBARSI",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "TotalDistance": 83.9,
+          "TopSpeed": 32.4,
+          "Sprints": 230,
+          "SpeedRuns": 698
+        },
+        {
+          "player": "Enzo FERNANDEZ",
+          "team": "Argentina",
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "matches": 7,
+          "TotalDistance": 83.2,
+          "TopSpeed": 32.6,
+          "Sprints": 294,
+          "SpeedRuns": 881
+        },
+        {
+          "player": "Aymeric LAPORTE",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "TotalDistance": 79.9,
+          "TopSpeed": 33.0,
+          "Sprints": 183,
+          "SpeedRuns": 610
+        },
+        {
+          "player": "Elliot ANDERSON",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 8,
+          "TotalDistance": 78.7,
+          "TopSpeed": 29.9,
+          "Sprints": 282,
+          "SpeedRuns": 1006
+        },
+        {
+          "player": "Harry KANE",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 7,
+          "TotalDistance": 78.6,
+          "TopSpeed": 32.4,
+          "Sprints": 260,
+          "SpeedRuns": 859
+        },
+        {
+          "player": "Dayot UPAMECANO",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "TotalDistance": 73.6,
+          "TopSpeed": 35.4,
+          "Sprints": 228,
+          "SpeedRuns": 598
+        },
+        {
+          "player": "Jude BELLINGHAM",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 8,
+          "TotalDistance": 73.3,
+          "TopSpeed": 32.4,
+          "Sprints": 403,
+          "SpeedRuns": 947
+        },
+        {
+          "player": "Granit XHAKA",
+          "team": "Switzerland",
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "matches": 6,
+          "TotalDistance": 72.8,
+          "TopSpeed": 28.9,
+          "Sprints": 210,
+          "SpeedRuns": 1062
+        },
+        {
+          "player": "Julian ALVAREZ",
+          "team": "Argentina",
+          "code": "ARG",
+          "flag": "🇦🇷",
+          "matches": 8,
+          "TotalDistance": 71.5,
+          "TopSpeed": 35.0,
+          "Sprints": 284,
+          "SpeedRuns": 669
+        },
+        {
+          "player": "Adrien RABIOT",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 7,
+          "TotalDistance": 71.3,
+          "TopSpeed": 30.8,
+          "Sprints": 248,
+          "SpeedRuns": 816
+        },
+        {
+          "player": "Marc GUEHI",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 8,
+          "TotalDistance": 71.0,
+          "TopSpeed": 32.9,
+          "Sprints": 203,
+          "SpeedRuns": 660
+        },
+        {
+          "player": "Neil EL AYNAOUI",
+          "team": "Morocco",
+          "code": "MAR",
+          "flag": "🇲🇦",
+          "matches": 6,
+          "TotalDistance": 70.5,
+          "TopSpeed": 34.1,
+          "Sprints": 276,
+          "SpeedRuns": 836
+        },
+        {
+          "player": "Jules KOUNDE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "TotalDistance": 70.0,
+          "TopSpeed": 32.8,
+          "Sprints": 323,
+          "SpeedRuns": 834
+        },
+        {
+          "player": "Brandon MECHELE",
+          "team": "Belgium",
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "matches": 6,
+          "TotalDistance": 68.4,
+          "TopSpeed": 30.8,
+          "Sprints": 227,
+          "SpeedRuns": 806
+        },
+        {
+          "player": "Ousmane DEMBELE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "TotalDistance": 67.5,
+          "TopSpeed": 30.5,
+          "Sprints": 274,
+          "SpeedRuns": 817
+        },
+        {
+          "player": "Declan RICE",
+          "team": "England",
+          "code": "ENG",
+          "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "matches": 7,
+          "TotalDistance": 66.8,
+          "TopSpeed": 33.1,
+          "Sprints": 233,
+          "SpeedRuns": 709
+        },
+        {
+          "player": "Kylian MBAPPE",
+          "team": "France",
+          "code": "FRA",
+          "flag": "🇫🇷",
+          "matches": 8,
+          "TotalDistance": 66.7,
+          "TopSpeed": 37.6,
+          "Sprints": 250,
+          "SpeedRuns": 529
+        },
+        {
+          "player": "Mikel OYARZABAL",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "TotalDistance": 65.7,
+          "TopSpeed": 32.2,
+          "Sprints": 285,
+          "SpeedRuns": 659
+        },
+        {
+          "player": "Timothy CASTAGNE",
+          "team": "Belgium",
+          "code": "BEL",
+          "flag": "🇧🇪",
+          "matches": 6,
+          "TotalDistance": 65.2,
+          "TopSpeed": 32.6,
+          "Sprints": 335,
+          "SpeedRuns": 844
+        },
+        {
+          "player": "PEDRI",
+          "team": "Spain",
+          "code": "ESP",
+          "flag": "🇪🇸",
+          "matches": 8,
+          "TotalDistance": 64.9,
+          "TopSpeed": 30.5,
+          "Sprints": 254,
+          "SpeedRuns": 847
+        },
+        {
+          "player": "Achraf HAKIMI",
+          "team": "Morocco",
+          "code": "MAR",
+          "flag": "🇲🇦",
+          "matches": 6,
+          "TotalDistance": 63.8,
+          "TopSpeed": 35.5,
+          "Sprints": 296,
+          "SpeedRuns": 624
+        },
+        {
+          "player": "Nico ELVEDI",
+          "team": "Switzerland",
+          "code": "SUI",
+          "flag": "🇨🇭",
+          "matches": 6,
+          "TotalDistance": 63.2,
+          "TopSpeed": 32.5,
+          "Sprints": 199,
+          "SpeedRuns": 611
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1 @@
+import{c as e,i as t,l as n,r,s as i,t as a,u as o}from"./cleanup.D2ntGW1D.js";o.registerPlugin(n);function s(n,s,c=i.normal){if(!e)return;let l=o.context(()=>{o.from(n,{opacity:0,y:32,duration:r.normal,ease:t.out,stagger:c,scrollTrigger:{trigger:s,start:`top 88%`,once:!0}})});a(()=>l.revert())}export{s as t};
