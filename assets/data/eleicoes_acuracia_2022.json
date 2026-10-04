@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-10-03T18:38:26.593571+00:00",
+  "gerado_em": "2026-10-04T18:36:29.493976+00:00",
   "fontes": [
     {
       "label": "Wikipedia PT — Pesquisas de opinião para a eleição presidencial no Brasil em 2022 (agrega pesquisas registradas no TSE)",
@@ -1292,32 +1292,39 @@
   "maquina": {
     "corte": {
       "regra": "registros com data de divulgação até o mesmo dia/mês em cada ano (mesma altura do ciclo, espelhada na data do snapshot de 2026)",
-      "a2022": "2022-10-03",
-      "a2026": "2026-10-03"
+      "a2022": "2022-10-04",
+      "a2026": "2026-10-04"
     },
     "a2022": {
-      "total_pesquisas": 2518,
+      "total_pesquisas": 2520,
       "institutos": 234,
-      "investimento_nominal_rs": 114029403.52,
+      "investimento_nominal_rs": 114059403.52,
       "mediana_entrevistados": 1221,
-      "custo_medio_rs": 45285.7,
-      "investimento_corrigido_ipca_rs": null
+      "custo_medio_rs": 45261.67,
+      "investimento_corrigido_ipca_rs": 135867561.47
     },
     "a2026": {
-      "total_pesquisas": 3425,
-      "institutos": 248,
-      "investimento_nominal_rs": 203440025.44,
+      "total_pesquisas": 3437,
+      "institutos": 250,
+      "investimento_nominal_rs": 203626425.44,
       "mediana_entrevistados": 1220,
-      "custo_medio_rs": 59398.55
+      "custo_medio_rs": 59245.4
     },
     "variacao": {
-      "pesquisas_pct": 36.0,
-      "institutos_pct": 6.0,
-      "investimento_nominal_pct": 78.4,
-      "investimento_real_pct": null
+      "pesquisas_pct": 36.4,
+      "institutos_pct": 6.8,
+      "investimento_nominal_pct": 78.5,
+      "investimento_real_pct": 49.9
     },
     "ipca": {
-      "indisponivel": true
+      "indice": "IPCA",
+      "serie_sgs": 433,
+      "base": "reais de 10/2022 (mês do corte)",
+      "ref_mes": "2026-08",
+      "fator": 1.1912,
+      "acumulado_pct": 19.1,
+      "fonte": "Banco Central do Brasil — SGS série 433 (IPCA, variação % mensal)",
+      "fonte_url": "https://www3.bcb.gov.br/sgspub/consultarvalores/telaCvsSelecionarSeries.paint?method=consultarSeries&codigoSerie=433"
     }
   }
 }
