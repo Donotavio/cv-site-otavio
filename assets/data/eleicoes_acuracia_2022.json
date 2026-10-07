@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-10-06T20:08:27.138634+00:00",
+  "gerado_em": "2026-10-07T20:32:56.760008+00:00",
   "fontes": [
     {
       "label": "Wikipedia PT — Pesquisas de opinião para a eleição presidencial no Brasil em 2022 (agrega pesquisas registradas no TSE)",
@@ -1292,32 +1292,39 @@
   "maquina": {
     "corte": {
       "regra": "registros com data de divulgação até o mesmo dia/mês em cada ano (mesma altura do ciclo, espelhada na data do snapshot de 2026)",
-      "a2022": "2022-10-06",
-      "a2026": "2026-10-06"
+      "a2022": "2022-10-07",
+      "a2026": "2026-10-07"
     },
     "a2022": {
-      "total_pesquisas": 2528,
+      "total_pesquisas": 2538,
       "institutos": 234,
-      "investimento_nominal_rs": 114992720.52,
-      "mediana_entrevistados": 1227,
-      "custo_medio_rs": 45487.63,
-      "investimento_corrigido_ipca_rs": null
+      "investimento_nominal_rs": 116813086.52,
+      "mediana_entrevistados": 1250,
+      "custo_medio_rs": 46025.64,
+      "investimento_corrigido_ipca_rs": 139147748.66
     },
     "a2026": {
-      "total_pesquisas": 3438,
+      "total_pesquisas": 3439,
       "institutos": 250,
-      "investimento_nominal_rs": 203686425.44,
+      "investimento_nominal_rs": 203704425.44,
       "mediana_entrevistados": 1220,
-      "custo_medio_rs": 59245.62
+      "custo_medio_rs": 59233.62
     },
     "variacao": {
-      "pesquisas_pct": 36.0,
+      "pesquisas_pct": 35.5,
       "institutos_pct": 6.8,
-      "investimento_nominal_pct": 77.1,
-      "investimento_real_pct": null
+      "investimento_nominal_pct": 74.4,
+      "investimento_real_pct": 46.4
     },
     "ipca": {
-      "indisponivel": true
+      "indice": "IPCA",
+      "serie_sgs": 433,
+      "base": "reais de 10/2022 (mês do corte)",
+      "ref_mes": "2026-08",
+      "fator": 1.1912,
+      "acumulado_pct": 19.1,
+      "fonte": "Banco Central do Brasil — SGS série 433 (IPCA, variação % mensal)",
+      "fonte_url": "https://www3.bcb.gov.br/sgspub/consultarvalores/telaCvsSelecionarSeries.paint?method=consultarSeries&codigoSerie=433"
     }
   }
 }
