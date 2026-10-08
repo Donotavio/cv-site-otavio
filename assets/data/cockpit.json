@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-10-08T19:06:41.550665+00:00",
+  "gerado_em": "2026-10-08T20:51:32.113084+00:00",
   "categorias": {
     "precos": "Preços",
     "juros": "Juros",
@@ -62,7 +62,7 @@
       "category": "juros",
       "frequency": "diária",
       "description": "Taxa básica de juros (meta Copom)",
-      "data_referencia": "2026-10-07",
+      "data_referencia": "2026-10-08",
       "valor_atual": 13.75,
       "valor_anterior": 13.75,
       "delta_abs": 0.0,
@@ -206,6 +206,25 @@
       "banda": 15.0,
       "direction": "baixo_melhor",
       "threshold_trend": 1.0
+    },
+    {
+      "kpi_id": "resultado_primario",
+      "label": "Resultado primário",
+      "unit": "% PIB",
+      "category": "fiscal",
+      "frequency": "mensal",
+      "description": "Resultado primário consolidado (12m)",
+      "data_referencia": "2026-08-01",
+      "valor_atual": 0.05,
+      "valor_anterior": 0.06,
+      "delta_abs": -0.01,
+      "delta_pct": -16.67,
+      "status": "neutro",
+      "trend": "baixa",
+      "meta": null,
+      "banda": null,
+      "direction": null,
+      "threshold_trend": null
     },
     {
       "kpi_id": "ibovespa",
