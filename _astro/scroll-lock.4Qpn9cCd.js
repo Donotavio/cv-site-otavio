@@ -1,0 +1,1 @@
+var e=0;function t(){return window.__lenis}function n(){e++,!(e>1)&&(t()?.stop(),document.body.style.overflow=`hidden`,document.body.style.touchAction=`none`)}function r(){e=Math.max(0,e-1),!(e>0)&&(t()?.start(),document.body.style.overflow=``,document.body.style.touchAction=``)}export{r as n,n as t};

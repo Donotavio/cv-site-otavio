@@ -1,0 +1,24 @@
+function e(e){return Math.abs(e)>=1e9?`R$ ${(e/1e9).toFixed(1).replace(`.`,`,`)}bi`:Math.abs(e)>=1e6?`R$ ${(e/1e6).toFixed(1).replace(`.`,`,`)}M`:`R$ ${e.toLocaleString(`pt-BR`)}`}function t(e){if(!e||e.length!==6)return``;let t=e.slice(0,4);return`${[`jan`,`fev`,`mar`,`abr`,`mai`,`jun`,`jul`,`ago`,`set`,`out`,`nov`,`dez`][parseInt(e.slice(4,6),10)-1]}/${t}`}function n(e){let t=document.createElement(`div`);return t.textContent=e,t.innerHTML}var r=null;function i(){return r||(r=(async()=>{let e=new AbortController,t=setTimeout(()=>e.abort(),8e3);try{let n=document.body.dataset.baseurl??``,r=await fetch(`${n}assets/data/pix_municipios.json`,{cache:`no-cache`,signal:e.signal});if(clearTimeout(t),!r.ok)throw Error(`fetch failed`);return await r.json()}catch{return clearTimeout(t),null}})(),r)}async function a(){let n=document.getElementById(`geografia-list`),r=document.getElementById(`geografia-footnote`);if(!n)return;let a=await i();if(!a){n.innerHTML=`<li class="ranking-error mono-label">ranking indisponível — tente recarregar</li>`;return}let o=a.ranking??[];if(!o.length){n.innerHTML=`<li class="ranking-error mono-label">sem dados no momento</li>`;return}if(n.innerHTML=o.map(t=>{let n=t.rank<=3?` ranking-row--podium`:``,r=`${t.municipio} / ${t.estado}`;return`
+          <li class="ranking-row${n}" role="listitem">
+            <span class="ranking-row__rank" aria-hidden="true">${t.rank}</span>
+            <span class="ranking-row__name" title="${r}">${r}</span>
+            <span class="ranking-row__tag" aria-hidden="true">${t.regiao}</span>
+            <span class="ranking-row__value">
+              <span class="ranking-row__value-main">${e(t.valor_pago)}</span>
+            </span>
+          </li>`}).join(``),r){let e=t(a.anomes);r.textContent=`fonte: BACEN Olinda API · Pix_DadosAbertos / TransacoesPixPorMunicipio${e?` · `+e:``}`}}function o(t){let r=document.getElementById(`geo-detail`);if(!r)return;if(!t){r.innerHTML=`<p class="geo-detail__empty mono-label">nenhum estado selecionado</p>`;return}let i=t.cidades.length?t.cidades.map(t=>`
+            <li class="geo-detail__city">
+              <span>${n(t.municipio)}</span>
+              <span class="geo-detail__city-value">${e(t.valor_pago)}</span>
+            </li>`).join(``):`<li class="geo-detail__city"><span class="mono-label">nenhuma cidade deste estado está na amostra</span></li>`;r.innerHTML=`
+      <header class="geo-detail__head">
+        <div>
+          <h3 class="geo-detail__name">${n(t.nome)}</h3>
+          <span class="geo-detail__uf">${t.uf}</span>
+        </div>
+        <span class="geo-detail__value">${t.amostra_insuficiente?`—`:e(t.valor_pago)}</span>
+      </header>
+      ${t.amostra_insuficiente?`<p class="geo-detail__note">Nenhuma cidade deste estado apareceu entre as ~1000 maiores do país nesta amostra — não significa volume zero, apenas que não há dados nesta amostra específica.</p>`:`<p class="geo-detail__note">Soma das cidades deste estado presentes na amostra nacional das maiores — não é o total exato do estado.</p>`}
+      <p class="mono-label geo-detail__cities-title">cidades na amostra</p>
+      <ul class="geo-detail__cities">${i}</ul>
+    `}async function s(){let t=document.getElementById(`geo-map-svg-wrap`),n=document.getElementById(`geo-state-select`);if(!t||!n)return;let r=(await i())?.estados??[];if(!r.length){t.innerHTML=`<p class="ranking-error mono-label">mapa indisponível — tente recarregar</p>`;return}let a=new Map(r.map(e=>[e.uf,e])),s=[...r].sort((e,t)=>e.nome.localeCompare(t.nome,`pt-BR`));for(let e of s){let t=document.createElement(`option`);t.value=e.uf,t.textContent=e.amostra_insuficiente?`${e.nome} (sem amostra)`:e.nome,n.appendChild(t)}let c=t.dataset.mapSrc;if(!c)return;try{let e=await fetch(c);if(!e.ok)throw Error(`svg fetch failed`);t.innerHTML=await e.text()}catch{t.innerHTML=`<p class="ranking-error mono-label">mapa indisponível — tente recarregar</p>`;return}let l=t.querySelector(`svg`);if(!l)return;let u=Array.from(l.querySelectorAll(`.br-state`));for(let t of u){let n=t.dataset.uf??t.id,r=a.get(n);t.setAttribute(`data-lvl`,String(r?.nivel??-1)),t.setAttribute(`tabindex`,`-1`),t.setAttribute(`role`,`button`),r&&t.setAttribute(`aria-label`,`${r.nome}: ${r.amostra_insuficiente?`sem amostra`:e(r.valor_pago)}`)}function d(e){for(let t of u)t.classList.toggle(`is-selected`,(t.dataset.uf??t.id)===e);n&&n.value!==e&&(n.value=e),o(a.get(e))}l.addEventListener(`click`,e=>{let t=e.target.closest(`.br-state`);t&&d(t.dataset.uf??t.id)}),n.addEventListener(`change`,()=>{if(n.value)d(n.value);else{for(let e of u)e.classList.remove(`is-selected`);o(void 0)}})}document.addEventListener(`astro:page-load`,()=>{a(),s()});
