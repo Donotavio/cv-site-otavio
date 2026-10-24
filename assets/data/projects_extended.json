@@ -1,0 +1,73 @@
+{
+  "featured_projects": [
+    {
+      "id": "educbank_lakehouse",
+      "name": "Arquitetura Lakehouse - Educbank",
+      "category": "Data Architecture",
+      "impact_metrics": {
+        "cost_reduction": "40%",
+        "query_performance": "3x mais rápido",
+        "data_quality": "95% SLA"
+      },
+      "tech_stack": ["Databricks", "Delta Lake", "Unity Catalog", "Spark", "Airflow"],
+      "diagram": "/assets/img/projects/lakehouse-diagram.svg",
+      "challenges": [
+        "Migração de Data Warehouse legado para Lakehouse",
+        "Implementação de governança com Unity Catalog",
+        "Pipelines de dados em tempo real com Structured Streaming"
+      ],
+      "solutions": [
+        "Arquitetura Medallion (Bronze → Silver → Gold)",
+        "Delta Live Tables para pipelines declarativos",
+        "Feature Store para ML operacional"
+      ],
+      "year": 2025
+    },
+    {
+      "id": "deep_esg_calculator",
+      "name": "Calculadora de Emissões CO₂ - DEEP ESG",
+      "category": "ESG & Sustainability",
+      "impact_metrics": {
+        "data_accuracy": "98%",
+        "processing_time": "Redução de 70%",
+        "compliance": "100% auditável"
+      },
+      "tech_stack": ["GCP", "Airflow", "DataProc", "BigQuery", "Cloud Functions"],
+      "diagram": "/assets/img/projects/esg-pipeline.svg",
+      "challenges": [
+        "Integração de múltiplas fontes de dados ESG",
+        "Cálculos complexos de emissões em escala",
+        "Rastreabilidade completa para auditorias"
+      ],
+      "solutions": [
+        "Pipeline orquestrado com Airflow",
+        "Star Schema para análises dimensionais",
+        "Data lineage automático"
+      ],
+      "year": 2023
+    },
+    {
+      "id": "herospark_data_platform",
+      "name": "Plataforma de Dados - HeroSpark",
+      "category": "Data Platform",
+      "impact_metrics": {
+        "team_productivity": "50% aumento",
+        "data_availability": "99.9%",
+        "insights_delivery": "5x mais rápido"
+      },
+      "tech_stack": ["AWS", "PostgreSQL", "Metabase", "Airflow", "Python"],
+      "diagram": "/assets/img/projects/data-platform.svg",
+      "challenges": [
+        "Criação de time de dados do zero",
+        "Cultura data-driven inexistente",
+        "Dados dispersos e não confiáveis"
+      ],
+      "solutions": [
+        "Data Lake + Data Warehouse centralizado",
+        "Pipeline de validação de qualidade",
+        "Capacitação em SQL e análise de dados"
+      ],
+      "year": 2021
+    }
+  ]
+}
