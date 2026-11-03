@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-11-03T19:56:22.355256+00:00",
+  "gerado_em": "2026-11-03T21:16:47.371437+00:00",
   "categorias": {
     "precos": "Preços",
     "juros": "Juros",
@@ -17,6 +17,25 @@
     "financeiro"
   ],
   "kpis": [
+    {
+      "kpi_id": "ipca_12m",
+      "label": "IPCA (12 meses)",
+      "unit": "%",
+      "category": "precos",
+      "frequency": "mensal",
+      "description": "Inflação oficial — acumulado em 12 meses",
+      "data_referencia": "2026-09-01",
+      "valor_atual": 4.58,
+      "valor_anterior": 4.22,
+      "delta_abs": 0.36,
+      "delta_pct": 8.53,
+      "status": "vermelho",
+      "trend": "alta",
+      "meta": 3.0,
+      "banda": 1.5,
+      "direction": "baixo_melhor",
+      "threshold_trend": 0.3
+    },
     {
       "kpi_id": "ipca_mensal",
       "label": "IPCA (mensal)",
@@ -43,7 +62,7 @@
       "category": "juros",
       "frequency": "diária",
       "description": "Taxa básica de juros (meta Copom)",
-      "data_referencia": "2026-11-02",
+      "data_referencia": "2026-11-03",
       "valor_atual": 13.75,
       "valor_anterior": 13.75,
       "delta_abs": 0.0,
