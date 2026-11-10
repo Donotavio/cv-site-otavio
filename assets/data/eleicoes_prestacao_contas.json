@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-11-09T23:46:11.698221+00:00",
+  "gerado_em": "2026-11-10T21:16:55.385735+00:00",
   "metodologia": "Soma as receitas declaradas (doações, recursos próprios, Fundo Eleitoral/partidário) e as despesas contratadas de cada candidato a presidente ou governador — fonte: TSE, Portal de Dados Abertos, dataset Prestação de Contas Eleitorais. Usa 'despesas contratadas' porque o arquivo de despesas pagas do TSE não identifica o candidato. Os valores são cumulativos e crescem a cada relatório financeiro enviado durante a campanha.",
   "disclaimer": "Valores autodeclarados pela própria campanha, ainda sem julgamento das contas pela Justiça Eleitoral. O TSE republica os relatórios financeiros ao longo da campanha, então o total sobe com o tempo — o retrato é da última coleta, não o gasto final (prestação parcial até 2026-09-13, final até 2026-11-03). O confronto doador × Receita Federal usa o nome que o próprio TSE publica para o CPF/CNPJ ao lado do declarado pela campanha; divergência aqui indica cadastro desatualizado ou grafia diferente, não irregularidade.",
   "fontes": [
@@ -13,33 +13,33 @@
   "prazo_final": "2026-11-03",
   "n_candidatos": 229,
   "n_com_receita": 209,
-  "total_divergencias": 127,
+  "total_divergencias": 131,
   "candidatos": [
     {
       "nome_urna": "LULA",
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "PT",
-      "receitas_total_rs": 129861383.15,
-      "despesas_total_rs": 93861095.76,
-      "saldo_rs": 36000287.39,
-      "n_doacoes": 735,
-      "n_despesas": 1991,
+      "receitas_total_rs": 132015868.64,
+      "despesas_total_rs": 93881266.04,
+      "saldo_rs": 38134602.6,
+      "n_doacoes": 2109,
+      "n_despesas": 1996,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
-          "valor_rs": 125525165.04,
-          "n": 42
-        },
-        {
-          "origem": "Recursos de pessoas físicas",
-          "valor_rs": 2209385.8,
-          "n": 681
+          "valor_rs": 127421057.43,
+          "n": 233
         },
         {
           "origem": "Recursos de Financiamento Coletivo",
-          "valor_rs": 2124210.58,
-          "n": 11
+          "valor_rs": 2341419.71,
+          "n": 12
+        },
+        {
+          "origem": "Recursos de pessoas físicas",
+          "valor_rs": 2250769.77,
+          "n": 1863
         },
         {
           "origem": "Fundo Especial de Financiamento de Campanha",
@@ -52,6 +52,16 @@
           "doador": "LI SANTOS VIEIRA DA COSTA",
           "doador_rfb": "HELI SANTOS VIEIRA DA COSTA",
           "valor_rs": 1000.0
+        },
+        {
+          "doador": "Evandro Pinto de Olivey",
+          "doador_rfb": "EVANDRO PINTO DE OLIVEIRA",
+          "valor_rs": 50.0
+        },
+        {
+          "doador": "Carlos M Diniz Jr",
+          "doador_rfb": "CARLOS MENEZES DINIZ JUNIOR",
+          "valor_rs": 13.0
         },
         {
           "doador": "LETICIA MOREIRA ALVES",
@@ -65,26 +75,26 @@
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "PT",
-      "receitas_total_rs": 129861383.15,
-      "despesas_total_rs": 93861095.76,
-      "saldo_rs": 36000287.39,
-      "n_doacoes": 735,
-      "n_despesas": 1991,
+      "receitas_total_rs": 132015868.64,
+      "despesas_total_rs": 93881266.04,
+      "saldo_rs": 38134602.6,
+      "n_doacoes": 2109,
+      "n_despesas": 1996,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
-          "valor_rs": 125525165.04,
-          "n": 42
-        },
-        {
-          "origem": "Recursos de pessoas físicas",
-          "valor_rs": 2209385.8,
-          "n": 681
+          "valor_rs": 127421057.43,
+          "n": 233
         },
         {
           "origem": "Recursos de Financiamento Coletivo",
-          "valor_rs": 2124210.58,
-          "n": 11
+          "valor_rs": 2341419.71,
+          "n": 12
+        },
+        {
+          "origem": "Recursos de pessoas físicas",
+          "valor_rs": 2250769.77,
+          "n": 1863
         },
         {
           "origem": "Fundo Especial de Financiamento de Campanha",
@@ -97,6 +107,16 @@
           "doador": "LI SANTOS VIEIRA DA COSTA",
           "doador_rfb": "HELI SANTOS VIEIRA DA COSTA",
           "valor_rs": 1000.0
+        },
+        {
+          "doador": "Evandro Pinto de Olivey",
+          "doador_rfb": "EVANDRO PINTO DE OLIVEIRA",
+          "valor_rs": 50.0
+        },
+        {
+          "doador": "Carlos M Diniz Jr",
+          "doador_rfb": "CARLOS MENEZES DINIZ JUNIOR",
+          "valor_rs": 13.0
         },
         {
           "doador": "LETICIA MOREIRA ALVES",
@@ -679,16 +699,16 @@
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "AVANTE",
-      "receitas_total_rs": 11720940.7,
+      "receitas_total_rs": 11897652.99,
       "despesas_total_rs": 1506091.63,
-      "saldo_rs": 10214849.07,
-      "n_doacoes": 1668,
+      "saldo_rs": 10391561.36,
+      "n_doacoes": 1669,
       "n_despesas": 114,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
-          "valor_rs": 10845320.86,
-          "n": 1650
+          "valor_rs": 11022033.15,
+          "n": 1651
         },
         {
           "origem": "Recursos próprios",
@@ -1013,6 +1033,11 @@
       ],
       "doador_rfb_divergencias": [
         {
+          "doador": "EDELUIZA CAMPOS PEREIRA",
+          "doador_rfb": "EDILEUZA CAMPOS PEREIRA",
+          "valor_rs": 1800.0
+        },
+        {
           "doador": "JOSE EDUARDO DE O BARROSO",
           "doador_rfb": "JOSE EDUARDO DE OLIVEIRA BARRETO",
           "valor_rs": 1800.0
@@ -1020,11 +1045,6 @@
         {
           "doador": "MARUS MENDES FERREIRA",
           "doador_rfb": "MARCIO MENDES FERREIRA",
-          "valor_rs": 1800.0
-        },
-        {
-          "doador": "EDELUIZA CAMPOS PEREIRA",
-          "doador_rfb": "EDILEUZA CAMPOS PEREIRA",
           "valor_rs": 1800.0
         },
         {
@@ -1058,6 +1078,11 @@
       ],
       "doador_rfb_divergencias": [
         {
+          "doador": "EDELUIZA CAMPOS PEREIRA",
+          "doador_rfb": "EDILEUZA CAMPOS PEREIRA",
+          "valor_rs": 1800.0
+        },
+        {
           "doador": "JOSE EDUARDO DE O BARROSO",
           "doador_rfb": "JOSE EDUARDO DE OLIVEIRA BARRETO",
           "valor_rs": 1800.0
@@ -1065,11 +1090,6 @@
         {
           "doador": "MARUS MENDES FERREIRA",
           "doador_rfb": "MARCIO MENDES FERREIRA",
-          "valor_rs": 1800.0
-        },
-        {
-          "doador": "EDELUIZA CAMPOS PEREIRA",
-          "doador_rfb": "EDILEUZA CAMPOS PEREIRA",
           "valor_rs": 1800.0
         },
         {
@@ -1138,13 +1158,13 @@
       ],
       "doador_rfb_divergencias": [
         {
-          "doador": "Orlando Anastcio",
-          "doador_rfb": "ORLANDO ANASTACIO",
+          "doador": "Eduardo Rangel Leo",
+          "doador_rfb": "EDUARDO RANGEL LEAO",
           "valor_rs": 3600.0
         },
         {
-          "doador": "Eduardo Rangel Leo",
-          "doador_rfb": "EDUARDO RANGEL LEAO",
+          "doador": "Orlando Anastcio",
+          "doador_rfb": "ORLANDO ANASTACIO",
           "valor_rs": 3600.0
         },
         {
@@ -1193,13 +1213,13 @@
       ],
       "doador_rfb_divergencias": [
         {
-          "doador": "Orlando Anastcio",
-          "doador_rfb": "ORLANDO ANASTACIO",
+          "doador": "Eduardo Rangel Leo",
+          "doador_rfb": "EDUARDO RANGEL LEAO",
           "valor_rs": 3600.0
         },
         {
-          "doador": "Eduardo Rangel Leo",
-          "doador_rfb": "EDUARDO RANGEL LEAO",
+          "doador": "Orlando Anastcio",
+          "doador_rfb": "ORLANDO ANASTACIO",
           "valor_rs": 3600.0
         },
         {
@@ -1306,13 +1326,13 @@
       ],
       "doador_rfb_divergencias": [
         {
-          "doador": "VICENTE DE SOUZA BARRETO",
-          "doador_rfb": "VICENTE DE SOUSA BARRETO",
+          "doador": "KELLEN CRISTINANE DE SOUZA YHA",
+          "doador_rfb": "KELLEN CRISTIANE DE SOUZA YHA MAGALHAES",
           "valor_rs": 4800.0
         },
         {
-          "doador": "KELLEN CRISTINANE DE SOUZA YHA",
-          "doador_rfb": "KELLEN CRISTIANE DE SOUZA YHA MAGALHAES",
+          "doador": "VICENTE DE SOUZA BARRETO",
+          "doador_rfb": "VICENTE DE SOUSA BARRETO",
           "valor_rs": 4800.0
         }
       ]
@@ -1774,13 +1794,13 @@
           "valor_rs": 25000.0
         },
         {
-          "doador": "VITOR H S DE ALMEIDA",
-          "doador_rfb": "VICTOR HUGO SARAIVA DE ALMEIDA",
+          "doador": "CRISTOVÃO COLOMBO S CRUZ",
+          "doador_rfb": "CRISTOVAM COLOMBO DOS SANTOS CRUZ",
           "valor_rs": 20000.0
         },
         {
-          "doador": "CRISTOVÃO COLOMBO S CRUZ",
-          "doador_rfb": "CRISTOVAM COLOMBO DOS SANTOS CRUZ",
+          "doador": "VITOR H S DE ALMEIDA",
+          "doador_rfb": "VICTOR HUGO SARAIVA DE ALMEIDA",
           "valor_rs": 20000.0
         },
         {
@@ -1789,8 +1809,8 @@
           "valor_rs": 15000.0
         },
         {
-          "doador": "CAMILA SÁ JALES DE CARVALHO PIEROT",
-          "doador_rfb": "CAMILLA SA JALES DE CARVALHO PIEROT",
+          "doador": "HENRIQUE S GODIN",
+          "doador_rfb": "HENRIQUE SIMOES GONDIM",
           "valor_rs": 15000.0
         }
       ]
@@ -1986,13 +2006,13 @@
           "valor_rs": 208000.0
         },
         {
-          "doador": "JULIERMES DANTAS DE CARVALHO",
-          "doador_rfb": "JULLIERMES DANTAS DE CARVALHO",
+          "doador": "CLAUDINEI MERCEIS DA SILVA",
+          "doador_rfb": "CLAUDINEY MERCEIS DA SILVA",
           "valor_rs": 6000.0
         },
         {
-          "doador": "CLAUDINEI MERCEIS DA SILVA",
-          "doador_rfb": "CLAUDINEY MERCEIS DA SILVA",
+          "doador": "JULIERMES DANTAS DE CARVALHO",
+          "doador_rfb": "JULLIERMES DANTAS DE CARVALHO",
           "valor_rs": 6000.0
         }
       ]
@@ -2407,8 +2427,8 @@
           "valor_rs": 2500.0
         },
         {
-          "doador": "MARCERLO CORDEIRO NEVES",
-          "doador_rfb": "MARCELO CORDEIRO NEVES",
+          "doador": "CARMELINDO DA SILVA",
+          "doador_rfb": "CARMELINDA DA SILVA",
           "valor_rs": 2000.0
         }
       ]
@@ -2906,8 +2926,8 @@
           "valor_rs": 3200.0
         },
         {
-          "doador": "ADRIANE AROCHO FERREIRA",
-          "doador_rfb": "ADRIANEIA CARVALHO AROCHO",
+          "doador": "FRANCIELI PEREIRA",
+          "doador_rfb": "FRANCIELI FERREIRA",
           "valor_rs": 1000.0
         },
         {
@@ -2916,13 +2936,13 @@
           "valor_rs": 1000.0
         },
         {
-          "doador": "TIAGO DE OLIVEIRA AGOSTINHO",
-          "doador_rfb": "THIAGO DE OLIVEIRA AGOSTINHO",
+          "doador": "WALDILENE BARROSO LUCENA",
+          "doador_rfb": "WALDIRENE BARROSO LUCENA",
           "valor_rs": 1000.0
         },
         {
-          "doador": "FLORINELMA PINHEIRO MARTINS",
-          "doador_rfb": "FLORINELMA PINHEIRO RODRIGUES",
+          "doador": "ADRIANE AROCHO FERREIRA",
+          "doador_rfb": "ADRIANEIA CARVALHO AROCHO",
           "valor_rs": 1000.0
         }
       ]
@@ -3251,7 +3271,7 @@
       "partido": "PSB",
       "receitas_total_rs": 2150000.0,
       "despesas_total_rs": 2150000.0,
-      "saldo_rs": 0.0,
+      "saldo_rs": -0.0,
       "n_doacoes": 5,
       "n_despesas": 795,
       "origem_breakdown": [
@@ -3464,13 +3484,13 @@
           "valor_rs": 20000.0
         },
         {
-          "doador": "JOE MARCUS D. FERREIRA JR",
-          "doador_rfb": "JOSE MARCUS DINIZ FERREIRA JUNIOR",
+          "doador": "MARCIA V.C. SANTOS",
+          "doador_rfb": "MARCIA VALENTE CUSTODIO SANDERS",
           "valor_rs": 10000.0
         },
         {
-          "doador": "MARCIA V.C. SANTOS",
-          "doador_rfb": "MARCIA VALENTE CUSTODIO SANDERS",
+          "doador": "JOE MARCUS D. FERREIRA JR",
+          "doador_rfb": "JOSE MARCUS DINIZ FERREIRA JUNIOR",
           "valor_rs": 10000.0
         },
         {
@@ -3999,13 +4019,13 @@
           "valor_rs": 50.0
         },
         {
-          "doador": "Brisa Artie Lopes Drudi",
-          "doador_rfb": "BEATRIZ LOPES DRUDI",
+          "doador": "Nicky Oliveira da Silva",
+          "doador_rfb": "GUSTAVO OLIVEIRA DA SILVA",
           "valor_rs": 50.0
         },
         {
-          "doador": "Nicky Oliveira da Silva",
-          "doador_rfb": "GUSTAVO OLIVEIRA DA SILVA",
+          "doador": "Brisa Artie Lopes Drudi",
+          "doador_rfb": "BEATRIZ LOPES DRUDI",
           "valor_rs": 50.0
         },
         {
@@ -4515,25 +4535,6 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "PROF WITER NAVES",
-      "cargo": "GOVERNADOR",
-      "uf": "TO",
-      "partido": "PSOL",
-      "receitas_total_rs": 100000.0,
-      "despesas_total_rs": 99982.2,
-      "saldo_rs": 17.8,
-      "n_doacoes": 1,
-      "n_despesas": 17,
-      "origem_breakdown": [
-        {
-          "origem": "Recursos de partido político",
-          "valor_rs": 100000.0,
-          "n": 1
-        }
-      ],
-      "doador_rfb_divergencias": []
-    },
-    {
       "nome_urna": "LUCIEN REZENDE",
       "cargo": "GOVERNADOR",
       "uf": "MS",
@@ -4548,6 +4549,25 @@
           "origem": "Recursos de partido político",
           "valor_rs": 100000.0,
           "n": 2
+        }
+      ],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "PROF WITER NAVES",
+      "cargo": "GOVERNADOR",
+      "uf": "TO",
+      "partido": "PSOL",
+      "receitas_total_rs": 100000.0,
+      "despesas_total_rs": 99982.2,
+      "saldo_rs": 17.8,
+      "n_doacoes": 1,
+      "n_despesas": 17,
+      "origem_breakdown": [
+        {
+          "origem": "Recursos de partido político",
+          "valor_rs": 100000.0,
+          "n": 1
         }
       ],
       "doador_rfb_divergencias": []
@@ -4735,13 +4755,13 @@
       ],
       "doador_rfb_divergencias": [
         {
-          "doador": "Antonia Aldenis a F",
-          "doador_rfb": "ANTONIA ALDENISA FERREIRA DOS SANTOS",
+          "doador": "Angel Leandro de Barros Gonçalves",
+          "doador_rfb": "LUIZA LEANDRO DE BARROS GONCALVES",
           "valor_rs": 80.0
         },
         {
-          "doador": "Angel Leandro de Barros Gonçalves",
-          "doador_rfb": "LUIZA LEANDRO DE BARROS GONCALVES",
+          "doador": "Antonia Aldenis a F",
+          "doador_rfb": "ANTONIA ALDENISA FERREIRA DOS SANTOS",
           "valor_rs": 80.0
         }
       ]
@@ -5081,14 +5101,14 @@
           "n": 1
         },
         {
-          "origem": "Doações pela Internet",
-          "valor_rs": 40.0,
-          "n": 1
-        },
-        {
           "origem": "Recursos próprios",
           "valor_rs": 40.0,
           "n": 2
+        },
+        {
+          "origem": "Doações pela Internet",
+          "valor_rs": 40.0,
+          "n": 1
         }
       ],
       "doador_rfb_divergencias": []
@@ -5163,12 +5183,12 @@
           "n": 2
         },
         {
-          "origem": "Recursos de pessoas físicas",
+          "origem": "Recursos próprios",
           "valor_rs": 1400.3,
           "n": 1
         },
         {
-          "origem": "Recursos próprios",
+          "origem": "Recursos de pessoas físicas",
           "valor_rs": 1400.3,
           "n": 1
         }
@@ -5909,8 +5929,8 @@
           "valor_rs": 15.0
         },
         {
-          "doador": "NEWTON LOPES FIGUEREDO JR",
-          "doador_rfb": "NEWTON LOPES DE FIGUEREDO JUNIOR",
+          "doador": "MARLOS UBIRAMA LEITE",
+          "doador_rfb": "MARLOS UBIRATAN LEITE",
           "valor_rs": 10.0
         },
         {
@@ -5919,8 +5939,8 @@
           "valor_rs": 10.0
         },
         {
-          "doador": "MARLOS UBIRAMA LEITE",
-          "doador_rfb": "MARLOS UBIRATAN LEITE",
+          "doador": "NEWTON LOPES FIGUEREDO JR",
+          "doador_rfb": "NEWTON LOPES DE FIGUEREDO JUNIOR",
           "valor_rs": 10.0
         }
       ]
@@ -6360,22 +6380,9 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "CLEBER RABELO",
+      "nome_urna": "PROFESSOR JURITY",
       "cargo": "GOVERNADOR",
-      "uf": "PA",
-      "partido": "PSTU",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "ESTÊVÃO",
-      "cargo": "GOVERNADOR",
-      "uf": "BA",
+      "uf": "PI",
       "partido": "DC",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
@@ -6386,9 +6393,61 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "RAVENNA DA INCLUSÃO",
+      "nome_urna": "ISAEL MUNDURUKU",
       "cargo": "GOVERNADOR",
-      "uf": "PI",
+      "uf": "AM",
+      "partido": "REDE",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "POLICIAL EDJANE",
+      "cargo": "GOVERNADOR",
+      "uf": "SP",
+      "partido": "AGIR",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "PROFESSOR JEREMIAS DO BANCO",
+      "cargo": "GOVERNADOR",
+      "uf": "PE",
+      "partido": "DEMOCRATA",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "RICO PINHEIRO",
+      "cargo": "GOVERNADOR",
+      "uf": "DF",
+      "partido": "PRTB",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "JOSÉ MOITA",
+      "cargo": "GOVERNADOR",
+      "uf": "PA",
       "partido": "DEMOCRATA",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
@@ -6412,9 +6471,35 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "LUAN MONTEIRO",
+      "nome_urna": "MÁRCIO JAMBO",
       "cargo": "GOVERNADOR",
-      "uf": "RJ",
+      "uf": "AL",
+      "partido": "DEMOCRATA",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "RAVENNA DA INCLUSÃO",
+      "cargo": "GOVERNADOR",
+      "uf": "PI",
+      "partido": "DEMOCRATA",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "CAMILO DUARTE",
+      "cargo": "GOVERNADOR",
+      "uf": "PB",
       "partido": "PCO",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
@@ -6425,36 +6510,10 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "RICO PINHEIRO",
+      "nome_urna": "RUTH REIS",
       "cargo": "GOVERNADOR",
-      "uf": "DF",
-      "partido": "PRTB",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "POLICIAL EDJANE",
-      "cargo": "GOVERNADOR",
-      "uf": "SP",
-      "partido": "AGIR",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "JEFERSON BEZERRA",
-      "cargo": "GOVERNADOR",
-      "uf": "MS",
-      "partido": "AGIR",
+      "uf": "PA",
+      "partido": "DEMOCRATA",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
       "saldo_rs": 0.0,
@@ -6490,6 +6549,32 @@
       "doador_rfb_divergencias": []
     },
     {
+      "nome_urna": "CLEBER RABELO",
+      "cargo": "GOVERNADOR",
+      "uf": "PA",
+      "partido": "PSTU",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
+      "nome_urna": "ESTÊVÃO",
+      "cargo": "GOVERNADOR",
+      "uf": "BA",
+      "partido": "DC",
+      "receitas_total_rs": 0.0,
+      "despesas_total_rs": 0.0,
+      "saldo_rs": 0.0,
+      "n_doacoes": 0,
+      "n_despesas": 0,
+      "origem_breakdown": [],
+      "doador_rfb_divergencias": []
+    },
+    {
       "nome_urna": "CARLOS JARARACA",
       "cargo": "GOVERNADOR",
       "uf": "RN",
@@ -6503,62 +6588,10 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "PROFESSOR JEREMIAS DO BANCO",
+      "nome_urna": "JEFERSON BEZERRA",
       "cargo": "GOVERNADOR",
-      "uf": "PE",
-      "partido": "DEMOCRATA",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "ISAEL MUNDURUKU",
-      "cargo": "GOVERNADOR",
-      "uf": "AM",
-      "partido": "REDE",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "FARAH MESQUITA",
-      "cargo": "GOVERNADOR",
-      "uf": "RR",
-      "partido": "SOLIDARIEDADE",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "PROFESSOR JURITY",
-      "cargo": "GOVERNADOR",
-      "uf": "PI",
-      "partido": "DC",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "RUTH REIS",
-      "cargo": "GOVERNADOR",
-      "uf": "PA",
-      "partido": "DEMOCRATA",
+      "uf": "MS",
+      "partido": "AGIR",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
       "saldo_rs": 0.0,
@@ -6581,9 +6614,9 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "CAMILO DUARTE",
+      "nome_urna": "LUAN MONTEIRO",
       "cargo": "GOVERNADOR",
-      "uf": "PB",
+      "uf": "RJ",
       "partido": "PCO",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
@@ -6594,23 +6627,10 @@
       "doador_rfb_divergencias": []
     },
     {
-      "nome_urna": "JOSÉ MOITA",
+      "nome_urna": "FARAH MESQUITA",
       "cargo": "GOVERNADOR",
-      "uf": "PA",
-      "partido": "DEMOCRATA",
-      "receitas_total_rs": 0.0,
-      "despesas_total_rs": 0.0,
-      "saldo_rs": 0.0,
-      "n_doacoes": 0,
-      "n_despesas": 0,
-      "origem_breakdown": [],
-      "doador_rfb_divergencias": []
-    },
-    {
-      "nome_urna": "MÁRCIO JAMBO",
-      "cargo": "GOVERNADOR",
-      "uf": "AL",
-      "partido": "DEMOCRATA",
+      "uf": "RR",
+      "partido": "SOLIDARIEDADE",
       "receitas_total_rs": 0.0,
       "despesas_total_rs": 0.0,
       "saldo_rs": 0.0,
@@ -6626,26 +6646,26 @@
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "PT",
-      "receitas_total_rs": 129861383.15,
-      "despesas_total_rs": 93861095.76,
-      "saldo_rs": 36000287.39,
-      "n_doacoes": 735,
-      "n_despesas": 1991,
+      "receitas_total_rs": 132015868.64,
+      "despesas_total_rs": 93881266.04,
+      "saldo_rs": 38134602.6,
+      "n_doacoes": 2109,
+      "n_despesas": 1996,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
-          "valor_rs": 125525165.04,
-          "n": 42
-        },
-        {
-          "origem": "Recursos de pessoas físicas",
-          "valor_rs": 2209385.8,
-          "n": 681
+          "valor_rs": 127421057.43,
+          "n": 233
         },
         {
           "origem": "Recursos de Financiamento Coletivo",
-          "valor_rs": 2124210.58,
-          "n": 11
+          "valor_rs": 2341419.71,
+          "n": 12
+        },
+        {
+          "origem": "Recursos de pessoas físicas",
+          "valor_rs": 2250769.77,
+          "n": 1863
         },
         {
           "origem": "Fundo Especial de Financiamento de Campanha",
@@ -6658,6 +6678,16 @@
           "doador": "LI SANTOS VIEIRA DA COSTA",
           "doador_rfb": "HELI SANTOS VIEIRA DA COSTA",
           "valor_rs": 1000.0
+        },
+        {
+          "doador": "Evandro Pinto de Olivey",
+          "doador_rfb": "EVANDRO PINTO DE OLIVEIRA",
+          "valor_rs": 50.0
+        },
+        {
+          "doador": "Carlos M Diniz Jr",
+          "doador_rfb": "CARLOS MENEZES DINIZ JUNIOR",
+          "valor_rs": 13.0
         },
         {
           "doador": "LETICIA MOREIRA ALVES",
@@ -6671,26 +6701,26 @@
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "PT",
-      "receitas_total_rs": 129861383.15,
-      "despesas_total_rs": 93861095.76,
-      "saldo_rs": 36000287.39,
-      "n_doacoes": 735,
-      "n_despesas": 1991,
+      "receitas_total_rs": 132015868.64,
+      "despesas_total_rs": 93881266.04,
+      "saldo_rs": 38134602.6,
+      "n_doacoes": 2109,
+      "n_despesas": 1996,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
-          "valor_rs": 125525165.04,
-          "n": 42
-        },
-        {
-          "origem": "Recursos de pessoas físicas",
-          "valor_rs": 2209385.8,
-          "n": 681
+          "valor_rs": 127421057.43,
+          "n": 233
         },
         {
           "origem": "Recursos de Financiamento Coletivo",
-          "valor_rs": 2124210.58,
-          "n": 11
+          "valor_rs": 2341419.71,
+          "n": 12
+        },
+        {
+          "origem": "Recursos de pessoas físicas",
+          "valor_rs": 2250769.77,
+          "n": 1863
         },
         {
           "origem": "Fundo Especial de Financiamento de Campanha",
@@ -6703,6 +6733,16 @@
           "doador": "LI SANTOS VIEIRA DA COSTA",
           "doador_rfb": "HELI SANTOS VIEIRA DA COSTA",
           "valor_rs": 1000.0
+        },
+        {
+          "doador": "Evandro Pinto de Olivey",
+          "doador_rfb": "EVANDRO PINTO DE OLIVEIRA",
+          "valor_rs": 50.0
+        },
+        {
+          "doador": "Carlos M Diniz Jr",
+          "doador_rfb": "CARLOS MENEZES DINIZ JUNIOR",
+          "valor_rs": 13.0
         },
         {
           "doador": "LETICIA MOREIRA ALVES",
@@ -7008,26 +7048,26 @@
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "PT",
-      "receitas_total_rs": 129861383.15,
-      "despesas_total_rs": 93861095.76,
-      "saldo_rs": 36000287.39,
-      "n_doacoes": 735,
-      "n_despesas": 1991,
+      "receitas_total_rs": 132015868.64,
+      "despesas_total_rs": 93881266.04,
+      "saldo_rs": 38134602.6,
+      "n_doacoes": 2109,
+      "n_despesas": 1996,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
-          "valor_rs": 125525165.04,
-          "n": 42
-        },
-        {
-          "origem": "Recursos de pessoas físicas",
-          "valor_rs": 2209385.8,
-          "n": 681
+          "valor_rs": 127421057.43,
+          "n": 233
         },
         {
           "origem": "Recursos de Financiamento Coletivo",
-          "valor_rs": 2124210.58,
-          "n": 11
+          "valor_rs": 2341419.71,
+          "n": 12
+        },
+        {
+          "origem": "Recursos de pessoas físicas",
+          "valor_rs": 2250769.77,
+          "n": 1863
         },
         {
           "origem": "Fundo Especial de Financiamento de Campanha",
@@ -7040,6 +7080,16 @@
           "doador": "LI SANTOS VIEIRA DA COSTA",
           "doador_rfb": "HELI SANTOS VIEIRA DA COSTA",
           "valor_rs": 1000.0
+        },
+        {
+          "doador": "Evandro Pinto de Olivey",
+          "doador_rfb": "EVANDRO PINTO DE OLIVEIRA",
+          "valor_rs": 50.0
+        },
+        {
+          "doador": "Carlos M Diniz Jr",
+          "doador_rfb": "CARLOS MENEZES DINIZ JUNIOR",
+          "valor_rs": 13.0
         },
         {
           "doador": "LETICIA MOREIRA ALVES",
@@ -7053,26 +7103,26 @@
       "cargo": "PRESIDENTE",
       "uf": "BR",
       "partido": "PT",
-      "receitas_total_rs": 129861383.15,
-      "despesas_total_rs": 93861095.76,
-      "saldo_rs": 36000287.39,
-      "n_doacoes": 735,
-      "n_despesas": 1991,
+      "receitas_total_rs": 132015868.64,
+      "despesas_total_rs": 93881266.04,
+      "saldo_rs": 38134602.6,
+      "n_doacoes": 2109,
+      "n_despesas": 1996,
       "origem_breakdown": [
         {
           "origem": "Recursos de partido político",
-          "valor_rs": 125525165.04,
-          "n": 42
-        },
-        {
-          "origem": "Recursos de pessoas físicas",
-          "valor_rs": 2209385.8,
-          "n": 681
+          "valor_rs": 127421057.43,
+          "n": 233
         },
         {
           "origem": "Recursos de Financiamento Coletivo",
-          "valor_rs": 2124210.58,
-          "n": 11
+          "valor_rs": 2341419.71,
+          "n": 12
+        },
+        {
+          "origem": "Recursos de pessoas físicas",
+          "valor_rs": 2250769.77,
+          "n": 1863
         },
         {
           "origem": "Fundo Especial de Financiamento de Campanha",
@@ -7085,6 +7135,16 @@
           "doador": "LI SANTOS VIEIRA DA COSTA",
           "doador_rfb": "HELI SANTOS VIEIRA DA COSTA",
           "valor_rs": 1000.0
+        },
+        {
+          "doador": "Evandro Pinto de Olivey",
+          "doador_rfb": "EVANDRO PINTO DE OLIVEIRA",
+          "valor_rs": 50.0
+        },
+        {
+          "doador": "Carlos M Diniz Jr",
+          "doador_rfb": "CARLOS MENEZES DINIZ JUNIOR",
+          "valor_rs": 13.0
         },
         {
           "doador": "LETICIA MOREIRA ALVES",
@@ -7165,8 +7225,8 @@
     },
     {
       "categoria": "Publicidade por materiais impressos",
-      "valor_rs": 82659740.83,
-      "n": 10761,
+      "valor_rs": 82660120.83,
+      "n": 10767,
       "pct": 7.2
     },
     {
@@ -7195,8 +7255,8 @@
     },
     {
       "categoria": "Outras",
-      "valor_rs": 184366866.08,
-      "n": 25649,
+      "valor_rs": 184406826.64,
+      "n": 25653,
       "pct": 16.0
     }
   ],
